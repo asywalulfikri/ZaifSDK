@@ -85,7 +85,7 @@ class BottomSheetNote : BottomSheetDialogFragment() {
     }
 
     private fun showToast(message : String){
-        Toast.makeText(activity, message,Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity, "$message.",Toast.LENGTH_SHORT).show()
     }
 
 
@@ -137,28 +137,26 @@ class BottomSheetNote : BottomSheetDialogFragment() {
         )
     }
 
+
     private fun showActionsDialog(position: Int) {
         try {
-            if(activity!=null){
-                val colors = arrayOf<CharSequence>(getString(R.string.use_note), getString(R.string.edit_note),getString(R.string.delete_not))
+            activity?.let { activity ->
+                val useNote = activity.getString(R.string.use_note)
+                val editNote = activity.getString(R.string.edit_note)
+                val deleteNote = activity.getString(R.string.delete_not)
+                val colors = arrayOf<CharSequence>(useNote, editNote, deleteNote)
                 val builder = AlertDialog.Builder(activity)
-                builder.setTitle(getString(R.string.choose))
+                builder.setTitle(activity.getString(R.string.choose))
                 builder.setItems(colors) { _, which ->
                     when (which) {
-                        0 -> {
-                            useNote(notesList[position])
-                        }
-                        1 -> {
-                            showNoteDialog(true, notesList[position], position)
-                        }
-                        else -> {
-                            deleteNote(position)
-                        }
+                        0 -> useNote(notesList[position])
+                        1 -> showNoteDialog(true, notesList[position], position)
+                        2 ->  deleteNote(position)
                     }
                 }
                 builder.show()
             }
-        }catch (e : Exception){
+        } catch (e: Exception) {
             showToast(e.message.toString())
         }
     }
@@ -193,7 +191,7 @@ class BottomSheetNote : BottomSheetDialogFragment() {
         val inputNote = view.findViewById<EditText>(R.id.note)
         val inputTitle = view.findViewById<EditText>(R.id.title)
         val dialogTitle = view.findViewById<TextView>(R.id.dialog_title)
-        dialogTitle.text = if (!shouldUpdate) getString(R.string.lbl_new_note_title) else getString(R.string.lbl_edit_note_title)
+        dialogTitle.text = if (!shouldUpdate) getActivity()?.getString(R.string.lbl_new_note_title) else getActivity()?.getString(R.string.lbl_edit_note_title)
 
         if (shouldUpdate && note != null) {
 
