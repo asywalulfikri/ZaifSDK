@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "273751036218",
+    "project_id": "belira-4b84f",
+    "storage_bucket": "belira-4b84f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:273751036218:android:0cc02b6926c0788277c003",
+        "android_client_info": {
+          "package_name": "balera.music.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "273751036218-5lghh7vvk9b629e85hmk8k3bg075p6ci.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4nXMCHW06RHfrHf9HS4tzVqzJ-dJfSOQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "273751036218-5lghh7vvk9b629e85hmk8k3bg075p6ci.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,123 @@
+<resources>
+    <string name="default_notification_channel_id">ID Saluran Notifikasi Lalai</string>
+
+    <string name="colorpicker_dialog_title">Pilih Warna</string>
+    <string name="colorpicker_dialog_cancel">BATAL</string>
+    <string name="colorpicker_dialog_ok">OK</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+
+    <string name="dialog_maintenance">Maaf... Aplikasi dalam proses penyelenggaraan. Sila cuba lagi nanti</string>
+    <string name="dialog_msg_update_app_version">Versi baru telah tersedia di Play Store, sila kemaskini aplikasi anda</string>
+    <string name="dialog_msg_update_app">Sila kemaskini Aplikasi anda</string>
+
+    <string name="lbl_new_note_title">Nota Lagu Baharu</string>
+    <string name="lbl_edit_note_title">Edit Nota Lagu</string>
+
+    <string name="cover_song">Nyanyian\nCover</string>
+    <string name="record">Rakam</string>
+    <string name="text_continue">Teruskan</string>
+    <string name="record_started">Perekaman Bermula</string>
+    <string name="record_paused">Perekaman Dijeda</string>
+    <string name="record_resumed">Perekaman Dilanjutkan</string>
+    <string name="record_saved">Perekaman berjaya disimpan</string>
+    <string name="record_canceled">Perekaman telah dibatalkan</string>
+    <string name="no_internet_connection">Tiada sambungan internet, Sila cuba lagi</string>
+    <string name="device_not_support">Peranti anda tidak menyokong rakaman audio</string>
+    <string name="allow_permission">Benarkan kebenaran dalam tetapan audio</string>
+
+    <string name="choose_language">Pilih Bahasa</string>
+    <string name="indonesia">Indonesia</string>
+    <string name="choose">Pilih</string>
+    <string name="save">Simpan</string>
+    <string name="information">Maklumat</string>
+    <string name="update">Kemaskini</string>
+    <string name="no">Tidak</string>
+
+    <string name="setting">Tetapan</string>
+    <string name="language">Bahasa</string>
+    <string name="rate_us">Beri Kami Penilaian</string>
+    <string name="help_suggest">Bantuan dan Cadangan</string>
+    <string name="share_with_friends">Kongsi dengan Rakan-rakan</string>
+    <string name="choose_one">Pilih Satu</string>
+    <string name="text_video">Video</string>
+
+    <string name="please_wait">Sila Tunggu</string>
+    <string name="loading_audio">Memuatkan Audio....</string>
+
+    <string name="title">Tajuk</string>
+    <string name="write_note_here">Tulis Nota Di Sini</string>
+    <string name="search_record">Cari Rakaman </string>
+    <string name="delete">Padam</string>
+    <string name="cancel">Batal</string>
+    <string name="recordings">Rakaman</string>
+    <string name="saved_recording_ask">Simpan Rakaman?</string>
+    <string name="exit">Keluar</string>
+    <string name="send">Hantar</string>
+    <string name="input_message_here">Masukkan Mesej Di Sini</string>
+    <string name="message_cannot_empty">Mesej Tidak Boleh Kosong</string>
+    <string name="more_apps">Aplikasi Lain</string>
+
+    <string name="use_note">Guna Nota</string>
+    <string name="edit_note">Edit Nota</string>
+    <string name="delete_not">Padam Nota</string>
+
+    <string name="default_language">Bahasa Lalai</string>
+
+    <string name="background_color">Warna Latar Belakang</string>
+    <string name="song_volume">Dengar Lagu</string>
+    <string name="note">Nota</string>
+
+
+    <string name="indonesian">Indonesia</string>
+    <string name="english">Inggeris</string>
+    <string name="filipino">Filipino</string>
+    <string name="japanese">Jepun</string>
+    <string name="korean">Korea</string>
+    <string name="vietnamese">Vietnam</string>
+    <string name="thai">Thai</string>
+    <string name="Portuguese">Portugis</string>
+    <string name="dutch">Belanda</string>
+    <string name="malay">Melayu</string>
+    <string name="spanish">Sepanyol</string>
+    <string name="arabic">Arab</string>
+
+    <string name="download_success">Muat turun Berjaya, Tunggu 5 Saat</string>
+
+    <string name="data_empty">Data Kosong</string>
+
+
+    <string name="yes">Ya</string>
+    <string name="title_recording_dialog">Proses rakaman akan bermula selepas anda memilih Ya</string>
+    <string name="title_recording_canceled">Adakah anda mahu membatalkan rakaman?</string>
+    <string name="title_recording_stop">Adakah anda mahu menyimpan rakaman?</string>
+    <string name="notification">Pemberitahuan</string>
+    <string name="skip">Lewat</string>
+    <string name="next">Seterusnya</string>
+    <string name="stop">Berhenti</string>
+    <string name="pause">Jeda</string>
+    <string name="open">Buka</string>
+    <string name="close">Tutup</string>
+    <string name="play">Main</string>
+    <string name="previously">Sebelum ini</string>
+    <string name="version">Versi</string>
+    <string name="share">Kongsi</string>
+    <string name="write_note">Tulis Nota</string>
+    <string name="song_key">Kunci Lagu</string>
+    <string name="beginner">Pemula</string>
+    <string name="middle">Pertengahan</string>
+    <string name="Master">Master</string>
+    <string name="remove_ads">Alih Iklan</string>
+    <string name="search">Cari</string>
+    <string name="recommend_message">Biarkan saya mengesyorkan aplikasi ini kepada anda</string>
+    <string name="loading">Memuatkan...</string>
+
+    <string name="whatsapp_support">Sokongan WhatsApp</string>
+    <string name="share_via">Kongsi melalui</string>
+
+
+
+
+</resources>

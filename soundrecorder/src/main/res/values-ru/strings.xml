@@ -1,0 +1,119 @@
+<resources>
+    <string name="default_notification_channel_id">Идентификатор канала уведомлений по умолчанию</string>
+
+    <string name="colorpicker_dialog_title">Выберите цвет</string>
+    <string name="colorpicker_dialog_cancel">ОТМЕНА</string>
+    <string name="colorpicker_dialog_ok">ОК</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+    <string name="dialog_maintenance">Извините, приложение находится на техническом обслуживании. Пожалуйста, попробуйте позже.</string>
+    <string name="dialog_msg_update_app_version">Новая версия доступна в Play Store, пожалуйста, обновите ваше приложение.</string>
+    <string name="dialog_msg_update_app">Пожалуйста, обновите ваше приложение</string>
+
+    <string name="lbl_new_note_title">Новая заметка о песне</string>
+    <string name="lbl_edit_note_title">Редактировать заметку о песне</string>
+
+    <string name="cover_song">Обложка\nПесни</string>
+    <string name="record">Записать</string>
+    <string name="text_continue">Продолжить</string>
+    <string name="record_started">Запись начата</string>
+    <string name="record_paused">Запись приостановлена</string>
+    <string name="record_resumed">Запись возобновлена</string>
+    <string name="record_saved">Запись успешно сохранена</string>
+    <string name="record_canceled">Запись отменена</string>
+    <string name="no_internet_connection">Отсутствует подключение к Интернету, попробуйте еще раз</string>
+    <string name="device_not_support">Ваше устройство не поддерживает запись аудио</string>
+    <string name="allow_permission">Разрешите доступ к аудио в настройках устройства</string>
+
+    <string name="choose_language">Выберите язык</string>
+    <string name="indonesia">Индонезийский</string>
+    <string name="choose">Выбрать</string>
+    <string name="save">Сохранить</string>
+    <string name="information">Информация</string>
+    <string name="update">Обновить</string>
+    <string name="no">Нет</string>
+
+    <string name="setting">Настройки</string>
+    <string name="language">Язык</string>
+    <string name="rate_us">Оцените нас</string>
+    <string name="help_suggest">Помощь и предложения</string>
+    <string name="share_with_friends">Поделиться с друзьями</string>
+    <string name="choose_one">Выберите одно</string>
+    <string name="text_video">Видео</string>
+
+    <string name="please_wait">Пожалуйста, подождите</string>
+    <string name="loading_audio">Загрузка аудио...</string>
+
+    <string name="title">Заголовок</string>
+    <string name="write_note_here">Напишите заметку здесь</string>
+    <string name="search_record">Поиск записей</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Отмена</string>
+    <string name="recordings">Записи</string>
+    <string name="saved_recording_ask">Сохранить запись?</string>
+    <string name="exit">Выход</string>
+    <string name="send">Отправить</string>
+    <string name="input_message_here">Введите сообщение здесь</string>
+    <string name="message_cannot_empty">Сообщение не может быть пустым</string>
+    <string name="more_apps">Другие приложения</string>
+
+    <string name="use_note">Использовать заметку</string>
+    <string name="edit_note">Редактировать заметку</string>
+    <string name="delete_not">Удалить заметку</string>
+
+    <string name="default_language">Язык по умолчанию</string>
+
+    <string name="background_color">Фоновый цвет</string>
+    <string name="song_volume">Громкость песни</string>
+
+    <string name="note">Заметка</string>
+
+    <string name="indonesian">Индонезийский</string>
+    <string name="english">Английский</string>
+    <string name="filipino">Филиппинский</string>
+    <string name="japanese">Японский</string>
+    <string name="korean">Корейский</string>
+    <string name="vietnamese">Вьетнамский</string>
+    <string name="thai">Тайский</string>
+    <string name="Portuguese">Португальский</string>
+    <string name="dutch">Голландский</string>
+    <string name="malay">Малайский</string>
+    <string name="spanish">Испанский</string>
+    <string name="arabic">Арабский</string>
+
+    <string name="download_success">Загрузка успешно завершена. Пожалуйста, подождите 5 секунд</string>
+    <string name="data_empty">Данные отсутствуют</string>
+
+    <string name="yes">Да</string>
+    <string name="title_recording_dialog">Процесс записи начнется после подтверждения Да</string>
+    <string name="title_recording_canceled">Хотите отменить запись?</string>
+    <string name="title_recording_stop">Хотите сохранить запись?</string>
+    <string name="notification">Уведомление</string>
+    <string name="skip">Пропустить</string>
+    <string name="next">Далее</string>
+    <string name="stop">Остановить</string>
+    <string name="pause">Пауза</string>
+    <string name="open">Открыть</string>
+    <string name="close">Закрыть</string>
+    <string name="play">Воспроизвести</string>
+    <string name="previously">Ранее</string>
+    <string name="version">Версия</string>
+    <string name="share">Поделиться</string>
+    <string name="write_note">Написать заметки</string>
+    <string name="song_key">Тональность песни</string>
+    <string name="beginner">Новичок</string>
+    <string name="middle">Средний</string>
+    <string name="Master">Мастер</string>
+    <string name="remove_ads">Убрать рекламу</string>
+    <string name="search">Поиск</string>
+    <string name="recommend_message">Рекомендую вам это приложение</string>
+    <string name="loading">Загрузка...</string>
+
+    <string name="whatsapp_support">Поддержка WhatsApp</string>
+    <string name="share_via">Поделиться через</string>
+
+
+
+</resources>

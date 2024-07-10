@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#F4511E</color>
+    <color name="colorPrimaryDark">#B83106</color>
+    <color name="colorAccent">#FB8C00</color>
+    <color name="colorBackground">#FAFAFA</color>
+    <color name="colorBox">#1D7FFF</color>
+    <color name="colorGray">#F0F0F0</color>
+    <color name="colorGrayDark">#7C7C7C</color>
+    <color name="colorText">#2B2B2B</color>
+    <color name="colorDisabled">#CFCFCF</color>
+
+    <color name="orange">#F4511E</color>
+    <color name="gray">#ECECEC</color>
+    <color name="grayDark">#656565</color>
+    <color name="grayDarkDisabled">#8F8F8F</color>
+    <color name="line">#DDDDDD</color>
+
+
+    <color name="color1">#2062af</color>
+    <color name="color2">#58AEB7</color>
+    <color name="color3">#F4B528</color>
+    <color name="color4">#DD3E48</color>
+    <color name="color5">#BF89AE</color>
+
+    <color name="color6">#5C88BE</color>
+    <color name="color7">#59BC10</color>
+    <color name="color8">#E87034</color>
+    <color name="color9">#f84c44</color>
+    <color name="color10">#8c47fb</color>
+
+    <color name="color11">#51C1EE</color>
+    <color name="color12">#8cc453</color>
+    <color name="color13">#C2987D</color>
+    <color name="color14">#CE7777</color>
+    <color name="color15">#9086BA</color>
+
+    <color name="white">#ffffff</color>
+    <color name="lite_blue">#42a5f5</color>
+    <color name="window_background">#00000000</color>
+    <color name="black_de">#000000</color>
+</resources>

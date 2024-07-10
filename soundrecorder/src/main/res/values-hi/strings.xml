@@ -1,0 +1,119 @@
+<resources>
+    <string name="default_notification_channel_id">डिफ़ॉल्ट सूचना संदेश चैनल आईडी</string>
+
+    <string name="colorpicker_dialog_title">रंग चुनें</string>
+    <string name="colorpicker_dialog_cancel">रद्द करें</string>
+    <string name="colorpicker_dialog_ok">ठीक है</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+    <string name="dialog_maintenance">क्षमा करें, ऐप्लिकेशन अभी अनुरक्षण में है। कृपया बाद में पुन: प्रयास करें।</string>
+    <string name="dialog_msg_update_app_version">नया संस्करण Play Store में उपलब्ध है, कृपया अपना ऐप्लिकेशन अपडेट करें।</string>
+    <string name="dialog_msg_update_app">कृपया अपना ऐप्लिकेशन अपडेट करें</string>
+
+    <string name="lbl_new_note_title">नया नोट गीत</string>
+    <string name="lbl_edit_note_title">नोट गीत संपादित करें</string>
+
+    <string name="cover_song">कवर\nगाना</string>
+    <string name="record">रिकॉर्ड करें</string>
+    <string name="text_continue">जारी रखें</string>
+    <string name="record_started">रिकॉर्डिंग शुरू हो गई</string>
+    <string name="record_paused">रिकॉर्डिंग ठहरा दी गई है</string>
+    <string name="record_resumed">रिकॉर्डिंग फिर से शुरू हो गई है</string>
+    <string name="record_saved">रिकॉर्डिंग सफलतापूर्वक सहेजी गई</string>
+    <string name="record_canceled">रिकॉर्डिंग रद्द कर दी गई है</string>
+    <string name="no_internet_connection">कोई इंटरनेट कनेक्शन नहीं है, कृपया पुन: प्रयास करें</string>
+    <string name="device_not_support">आपका उपकरण ऑडियो रिकॉर्ड करने का समर्थन नहीं करता है</string>
+    <string name="allow_permission">सेटिंग्स में ऑडियो अनुमति की अनुमति दें</string>
+
+    <string name="choose_language">भाषा चुनें</string>
+    <string name="indonesia">इंडोनेशियाई</string>
+    <string name="choose">चुनें</string>
+    <string name="save">सहेजें</string>
+    <string name="information">जानकारी</string>
+    <string name="update">अपडेट करें</string>
+    <string name="no">नहीं</string>
+
+    <string name="setting">सेटिंग्स</string>
+    <string name="language">भाषा</string>
+    <string name="rate_us">हमें रेटिंग दें</string>
+    <string name="help_suggest">मदद और सुझाव</string>
+    <string name="share_with_friends">दोस्तों के साथ साझा करें</string>
+    <string name="choose_one">एक चुनें</string>
+    <string name="text_video">वीडियो</string>
+
+    <string name="please_wait">कृपया प्रतीक्षा करें</string>
+    <string name="loading_audio">ऑडियो लोड हो रहा है...</string>
+
+    <string name="title">शीर्षक</string>
+    <string name="write_note_here">अपना नोट यहाँ लिखें</string>
+    <string name="search_record">रिकॉर्ड खोजें</string>
+    <string name="delete">हटाएं</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="recordings">रिकॉर्डिंग्स</string>
+    <string name="saved_recording_ask">रिकॉर्डिंग सहेजें?</string>
+    <string name="exit">बाहर निकलें</string>
+    <string name="send">भेजें</string>
+    <string name="input_message_here">यहाँ संदेश दर्ज करें</string>
+    <string name="message_cannot_empty">संदेश खाली नहीं हो सकता</string>
+    <string name="more_apps">अधिक एप्लिकेशन</string>
+
+    <string name="use_note">नोट का प्रयोग करें</string>
+    <string name="edit_note">नोट संपादित करें</string>
+    <string name="delete_not">नोट हटाएं</string>
+
+    <string name="default_language">डिफ़ॉल्ट भाषा</string>
+
+    <string name="background_color">पृष्ठभूमि रंग</string>
+    <string name="song_volume">गाने की ध्वनि</string>
+
+    <string name="note">नोट</string>
+
+    <string name="indonesian">इंडोनेशियाई</string>
+    <string name="english">अंग्रेज़ी</string>
+    <string name="filipino">फ़िलिपीनो</string>
+    <string name="japanese">जापानी</string>
+    <string name="korean">कोरियाई</string>
+    <string name="vietnamese">वियतनामी</string>
+    <string name="thai">थाई</string>
+    <string name="Portuguese">पुर्तगाली</string>
+    <string name="dutch">डच</string>
+    <string name="malay">मलय</string>
+    <string name="spanish">स्पेनिश</string>
+    <string name="arabic">अरबी</string>
+
+    <string name="download_success">डाउनलोड सफल, कृपया 5 सेकंड इंतजार करें</string>
+    <string name="data_empty">कोई डेटा नहीं है</string>
+
+    <string name="yes">हाँ</string>
+    <string name="title_recording_dialog">रिकॉर्डिंग प्रक्रिया हाँ चुनने के बाद शुरू होगी</string>
+    <string name="title_recording_canceled">क्या आप रिकॉर्डिंग को रद्द करना चाहते हैं?</string>
+    <string name="title_recording_stop">क्या आप रिकॉर्डिंग को सहेजना चाहते हैं?</string>
+    <string name="notification">सूचना</string>
+    <string name="skip">छोड़ें</string>
+    <string name="next">अगला</string>
+    <string name="stop">रोकें</string>
+    <string name="pause">रोकें</string>
+    <string name="open">खोलें</string>
+    <string name="close">बंद करें</string>
+    <string name="play">चलाएं</string>
+    <string name="previously">पिछले</string>
+    <string name="version">संस्करण</string>
+    <string name="share">शेयर</string>
+    <string name="write_note">नोट लिखें</string>
+    <string name="song_key">गीत की कुंजी</string>
+    <string name="beginner">शुरुआती</string>
+    <string name="middle">मध्य</string>
+    <string name="Master">मास्टर</string>
+    <string name="remove_ads">विज्ञापन हटाएं</string>
+    <string name="search">खोजें</string>
+    <string name="recommend_message">मैं आपको इस एप्लिकेशन की सिफारिश करना चाहूंगा</string>
+    <string name="loading">लोड हो रहा है...</string>
+
+    <string name="whatsapp_support">व्हाट्सएप समर्थन</string>
+    <string name="share_via">इसके माध्यम से साझा करें</string>
+
+
+
+</resources>

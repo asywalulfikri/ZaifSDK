@@ -1,0 +1,119 @@
+<resources>
+    <!--bahasa Jerman-->
+    <string name="default_notification_channel_id">Standardbenachrichtigungskanal-ID</string>
+
+    <string name="colorpicker_dialog_title">Wählen Sie die Farbe</string>
+    <string name="colorpicker_dialog_cancel">ABBRECHEN</string>
+    <string name="colorpicker_dialog_ok">OK</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+    <string name="dialog_maintenance">Entschuldigung, die Anwendung wird gewartet. Bitte versuchen Sie es später erneut.</string>
+    <string name="dialog_msg_update_app_version">Die neue Version ist im Play Store verfügbar. Bitte aktualisieren Sie Ihre Anwendung.</string>
+    <string name="dialog_msg_update_app">Bitte aktualisieren Sie Ihre Anwendung</string>
+
+    <string name="lbl_new_note_title">Neue Notiz Lied</string>
+    <string name="lbl_edit_note_title">Notiz Lied bearbeiten</string>
+
+    <string name="cover_song">Cover\nLied</string>
+    <string name="record">Aufnehmen</string>
+    <string name="text_continue">Weiter</string>
+    <string name="record_started">Aufnahme gestartet</string>
+    <string name="record_paused">Aufnahme pausiert</string>
+    <string name="record_resumed">Aufnahme fortgesetzt</string>
+    <string name="record_saved">Aufnahme erfolgreich gespeichert</string>
+    <string name="record_canceled">Die Aufnahme wurde abgebrochen</string>
+    <string name="no_internet_connection">Keine Internetverbindung. Bitte versuchen Sie es erneut.</string>
+    <string name="device_not_support">Ihr Gerät unterstützt keine Audioaufnahme</string>
+    <string name="allow_permission">Erlauben Sie die Audio-Berechtigung in den Einstellungen</string>
+
+    <string name="choose_language">Sprache wählen</string>
+    <string name="indonesia">Indonesisch</string>
+    <string name="choose">Wählen</string>
+    <string name="save">Speichern</string>
+    <string name="information">Information</string>
+    <string name="update">Aktualisieren</string>
+    <string name="no">Nein</string>
+
+    <string name="setting">Einstellung</string>
+    <string name="language">Sprache</string>
+    <string name="rate_us">Bewerten Sie uns</string>
+    <string name="help_suggest">Hilfe und Vorschläge</string>
+    <string name="share_with_friends">Mit Freunden teilen</string>
+    <string name="choose_one">Wählen Sie eins</string>
+    <string name="text_video">Video</string>
+
+    <string name="please_wait">Bitte warten</string>
+    <string name="loading_audio">Audio wird geladen…</string>
+
+    <string name="title">Titel</string>
+    <string name="write_note_here">Notiz hier schreiben</string>
+    <string name="search_record">Aufnahmen durchsuchen</string>
+    <string name="delete">Löschen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="recordings">Aufnahmen</string>
+    <string name="saved_recording_ask">Aufnahme speichern?</string>
+    <string name="exit">Beenden</string>
+    <string name="send">Senden</string>
+    <string name="input_message_here">Nachricht hier eingeben</string>
+    <string name="message_cannot_empty">Nachricht darf nicht leer sein</string>
+    <string name="more_apps">Weitere Apps</string>
+
+    <string name="use_note">Notiz verwenden</string>
+    <string name="edit_note">Notiz bearbeiten</string>
+    <string name="delete_not">Notiz löschen</string>
+
+    <string name="default_language">Standard Sprache</string>
+
+    <string name="background_color">Hintergrundfarbe</string>
+    <string name="song_volume">Lautstärke des Liedes</string>
+
+    <string name="note">Notiz</string>
+
+    <string name="indonesian">Indonesisch</string>
+    <string name="english">Englisch</string>
+    <string name="filipino">Filipino</string>
+    <string name="japanese">Japanisch</string>
+    <string name="korean">Koreanisch</string>
+    <string name="vietnamese">Vietnamesisch</string>
+    <string name="thai">Thailändisch</string>
+    <string name="Portuguese">Portugiesisch</string>
+    <string name="dutch">Niederländisch</string>
+    <string name="malay">Malaiisch</string>
+    <string name="spanish">Spanisch</string>
+    <string name="arabic">Arabisch</string>
+
+    <string name="download_success">Download erfolgreich. Bitte warten Sie 5 Sekunden</string>
+    <string name="data_empty">Keine Daten</string>
+
+    <string name="yes">Ja</string>
+    <string name="title_recording_dialog">Die Aufnahme beginnt nach der Bestätigung mit "Ja"</string>
+    <string name="title_recording_canceled">Möchten Sie die Aufnahme abbrechen?</string>
+    <string name="title_recording_stop">Möchten Sie die Aufnahme speichern?</string>
+    <string name="notification">Benachrichtigung</string>
+    <string name="skip">Überspringen</string>
+    <string name="next">Weiter</string>
+    <string name="stop">Stopp</string>
+    <string name="pause">Pause</string>
+    <string name="open">Öffnen</string>
+    <string name="close">Schließen</string>
+    <string name="play">Abspielen</string>
+    <string name="previously">Vorherige</string>
+    <string name="version">Version</string>
+    <string name="share">Teilen</string>
+    <string name="write_note">Notizen schreiben</string>
+    <string name="song_key">Liedtonart</string>
+    <string name="beginner">Anfänger</string>
+    <string name="middle">Mittelstufe</string>
+    <string name="Master">Experte</string>
+    <string name="remove_ads">Werbung entfernen</string>
+    <string name="search">Suche</string>
+    <string name="recommend_message">Lassen Sie mich Ihnen diese Anwendung empfehlen</string>
+    <string name="loading">Lädt...</string>
+
+    <string name="whatsapp_support">WhatsApp Unterstützung</string>
+    <string name="share_via">Teilen über</string>
+
+
+</resources>

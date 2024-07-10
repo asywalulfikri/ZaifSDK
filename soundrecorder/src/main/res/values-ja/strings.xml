@@ -1,0 +1,122 @@
+<resources>
+    <string name="default_notification_channel_id">デフォルト通知チャネルID</string>
+
+    <string name="colorpicker_dialog_title">色を選択</string>
+    <string name="colorpicker_dialog_cancel">キャンセル</string>
+    <string name="colorpicker_dialog_ok">OK</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+
+    <string name="dialog_maintenance">申し訳ありません... アプリはメンテナンス中です。後でもう一度お試しください</string>
+    <string name="dialog_msg_update_app_version">新しいバージョンがPlay Storeで利用可能です。アプリを更新してください</string>
+    <string name="dialog_msg_update_app">アプリを更新してください</string>
+
+    <string name="lbl_new_note_title">新しい楽曲ノート</string>
+    <string name="lbl_edit_note_title">楽曲ノートの編集</string>
+
+    <string name="cover_song">カバー\nソング</string>
+    <string name="record">録音</string>
+    <string name="text_continue">続行</string>
+    <string name="record_started">録音開始</string>
+    <string name="record_paused">録音一時停止</string>
+    <string name="record_resumed">録音再開</string>
+    <string name="record_saved">録音が正常に保存されました</string>
+    <string name="record_canceled">録音がキャンセルされました</string>
+    <string name="no_internet_connection">インターネット接続がありません。もう一度お試しください</string>
+    <string name="device_not_support">お使いのデバイスは音声録音をサポートしていません</string>
+    <string name="allow_permission">設定で音声の許可を設定してください</string>
+
+    <string name="choose_language">言語を選択</string>
+    <string name="indonesia">インドネシア</string>
+    <string name="choose">選択</string>
+    <string name="save">保存</string>
+    <string name="information">情報</string>
+    <string name="update">アップデート</string>
+    <string name="no">いいえ</string>
+
+    <string name="setting">設定</string>
+    <string name="language">言語</string>
+    <string name="rate_us">評価する</string>
+    <string name="help_suggest">ヘルプと提案</string>
+    <string name="share_with_friends">友達と共有</string>
+    <string name="choose_one">選択してください</string>
+    <string name="text_video">ビデオ</string>
+
+    <string name="please_wait">お待ちください</string>
+    <string name="loading_audio">オーディオを読み込んでいます...</string>
+
+    <string name="title">タイトル</string>
+    <string name="write_note_here">ここにノートを書いてください</string>
+    <string name="search_record">録音を検索</string>
+    <string name="delete">削除</string>
+    <string name="cancel">キャンセル</string>
+    <string name="recordings">録音</string>
+    <string name="saved_recording_ask">録音を保存しますか？</string>
+    <string name="exit">終了</string>
+    <string name="send">送信</string>
+    <string name="input_message_here">ここにメッセージを入力してください</string>
+    <string name="message_cannot_empty">メッセージは空白にできません</string>
+    <string name="more_apps">他のアプリ</string>
+
+    <string name="use_note">ノートを使用</string>
+    <string name="edit_note">ノートを編集</string>
+    <string name="delete_not">ノートを削除</string>
+
+    <string name="default_language">デフォルト言語</string>
+
+    <string name="background_color">背景色</string>
+    <string name="song_volume">曲の音量</string>
+    <string name="note">ノート</string>
+
+
+    <string name="indonesian">Indonesian</string>
+    <string name="english">Ingles</string>
+    <string name="filipino">Pilipino</string>
+    <string name="japanese">Hapones</string>
+    <string name="korean">Koreano</string>
+    <string name="vietnamese">Vietnamita</string>
+    <string name="thai">Taylandes</string>
+    <string name="Portuguese">Portuges</string>
+    <string name="dutch">Olandes</string>
+    <string name="malay">Malayo</string>
+    <string name="spanish">Espanyol</string>
+    <string name="arabic">Arabe</string>
+
+    <string name="download_success">ダウンロード成功、5秒お待ちください</string>
+    <string name="data_empty">データが空です</string>
+
+
+    <string name="yes">はい</string>
+    <string name="title_recording_dialog">YES を選択すると録音プロセスが開始されます</string>
+    <string name="title_recording_canceled">録音をキャンセルしますか？</string>
+    <string name="title_recording_stop">録音を保存しますか？</string>
+    <string name="notification">通知</string>
+    <string name="skip">スキップ</string>
+    <string name="next">次へ</string>
+    <string name="stop">停止</string>
+    <string name="pause">一時停止</string>
+    <string name="open">開く</string>
+    <string name="close">閉じる</string>
+    <string name="play">再生</string>
+    <string name="previously">以前に</string>
+    <string name="version">バージョン</string>
+    <string name="share">共有</string>
+    <string name="write_note">メモを書く</string>
+    <string name="song_key">曲のキー</string>
+    <string name="beginner">初心者</string>
+    <string name="middle">中級者</string>
+    <string name="Master">マスター</string>
+    <string name="remove_ads">広告を削除</string>
+    <string name="search">検索</string>
+    <string name="recommend_message">このアプリをお勧めします</string>
+    <string name="loading">読み込み中...</string>
+
+    <string name="whatsapp_support">WhatsAppサポート</string>
+    <string name="share_via">共有方法</string>
+
+
+
+
+</resources>

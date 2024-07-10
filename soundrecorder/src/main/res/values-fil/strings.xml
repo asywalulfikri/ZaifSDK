@@ -1,0 +1,122 @@
+<resources>
+    <string name="default_notification_channel_id">ID ng Default na Koneksyon</string>
+
+    <string name="colorpicker_dialog_title">Pumili ng Kulay</string>
+    <string name="colorpicker_dialog_cancel">KANSELA</string>
+    <string name="colorpicker_dialog_ok">OK</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+
+    <string name="dialog_maintenance">Pasensya na... Ang aplikasyon ay nasa ilalim ng pagsasaayos. Subukan muli mamaya</string>
+    <string name="dialog_msg_update_app_version">Ang bagong bersyon ay available na sa Play Store, mangyaring i-update ang iyong aplikasyon</string>
+    <string name="dialog_msg_update_app">Mangyaring i-update ang iyong Aplikasyon</string>
+
+    <string name="lbl_new_note_title">Bagong Talaan ng Kanta</string>
+    <string name="lbl_edit_note_title">I-edit ang Talaan ng Kanta</string>
+
+    <string name="cover_song">Cover\nKanta</string>
+    <string name="record">Rekord</string>
+    <string name="text_continue">Magpatuloy</string>
+    <string name="record_started">Nagsimula ang Pagre-record</string>
+    <string name="record_paused">Itinigil ang Pagre-record</string>
+    <string name="record_resumed">Itinuloy ang Pagre-record</string>
+    <string name="record_saved">Matagumpay na na-save ang pagre-record</string>
+    <string name="record_canceled">Na-cancel ang pagre-record</string>
+    <string name="no_internet_connection">Walang koneksyon sa internet, Subukan muli</string>
+    <string name="device_not_support">Hindi suportado ang iyong device para sa audio recording</string>
+    <string name="allow_permission">Pahintulutan ang pagsasaayos sa mga setting ng audio</string>
+
+    <string name="choose_language">Pumili ng Wika</string>
+    <string name="indonesia">Indonesyo</string>
+    <string name="choose">Pumili</string>
+    <string name="save">I-save</string>
+    <string name="information">Impormasyon</string>
+    <string name="update">I-update</string>
+    <string name="no">Hindi</string>
+
+    <string name="setting">Setting</string>
+    <string name="language">Wika</string>
+    <string name="rate_us">Mag-rate sa Amin</string>
+    <string name="help_suggest">Tulong at Mungkahi</string>
+    <string name="share_with_friends">Ibahagi sa mga Kaibigan</string>
+    <string name="choose_one">Pumili ng Isa</string>
+    <string name="text_video">Video</string>
+
+    <string name="please_wait">Maghintay ka</string>
+    <string name="loading_audio">Naglo-load ng Audio....</string>
+
+    <string name="title">Pamagat</string>
+    <string name="write_note_here">Maglagay ng Talaan dito</string>
+    <string name="search_record">Maghanap ng Rekord </string>
+    <string name="delete">Tanggalin</string>
+    <string name="cancel">Kanselahin</string>
+    <string name="recordings">Mga Rekord</string>
+    <string name="saved_recording_ask">I-save ang Rekord?</string>
+    <string name="exit">Lumabas</string>
+    <string name="send">Ipadala</string>
+    <string name="input_message_here">Maglagay ng Mensahe dito</string>
+    <string name="message_cannot_empty">Ang Mensahe ay hindi maaaring walang laman</string>
+    <string name="more_apps">Marami pang Aplikasyon</string>
+
+    <string name="use_note">Gamitin ang Talaan</string>
+    <string name="edit_note">I-edit ang Talaan</string>
+    <string name="delete_not">Tanggalin ang Talaan</string>
+
+    <string name="default_language">Wika ng Default</string>
+
+    <string name="background_color">Kulay ng Background</string>
+    <string name="song_volume">Bolun ng Kanta</string>
+    <string name="note">Tala</string>
+
+
+    <string name="indonesian">Indonesian</string>
+    <string name="english">Ingles</string>
+    <string name="filipino">Pilipino</string>
+    <string name="japanese">Hapones</string>
+    <string name="korean">Koreano</string>
+    <string name="vietnamese">Vietnamita</string>
+    <string name="thai">Taylandes</string>
+    <string name="Portuguese">Portuges</string>
+    <string name="dutch">Olandes</string>
+    <string name="malay">Malayo</string>
+    <string name="spanish">Espanyol</string>
+    <string name="arabic">Arabe</string>
+
+    <string name="download_success">Tagumpay ang Pag-download, Hintayin ang 5 Segundo</string>
+    <string name="data_empty">Walang Datos</string>
+
+
+    <string name="yes">Oo</string>
+    <string name="title_recording_dialog">Ang proseso ng pagre-record ay magsisimula pagkatapos mong pumili ng Oo</string>
+    <string name="title_recording_canceled">Gusto mo bang kanselahin ang pagre-record?</string>
+    <string name="title_recording_stop">Gusto mo bang i-save ang pagre-record?</string>
+    <string name="notification">Patalastas</string>
+    <string name="skip">Laktawan</string>
+    <string name="next">Susunod</string>
+    <string name="stop">Itigil</string>
+    <string name="pause">Itigil</string>
+    <string name="open">Buksan</string>
+    <string name="close">Isara</string>
+    <string name="play">Magpatugtog</string>
+    <string name="previously">Noong nakaraan</string>
+    <string name="version">Bersyon</string>
+    <string name="share">Ibahagi</string>
+    <string name="write_note">Magsulat ng mga Tala</string>
+    <string name="song_key">Tono ng Awitin</string>
+    <string name="beginner">Baguhan</string>
+    <string name="middle">Gitna</string>
+    <string name="Master">Dalubhasa</string>
+    <string name="remove_ads">Alisin ang mga Anunsiyo</string>
+    <string name="search">Maghanap</string>
+    <string name="recommend_message">Pahintulutan mo akong irekomenda ang aplikasyong ito sa iyo</string>
+    <string name="loading">Naglo-load...</string>
+
+    <string name="whatsapp_support">Suporta ng WhatsApp</string>
+    <string name="share_via">Ibahagi sa pamamagitan ng</string>
+
+
+
+
+</resources>

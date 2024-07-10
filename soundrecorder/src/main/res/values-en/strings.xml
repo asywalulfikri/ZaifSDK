@@ -1,0 +1,120 @@
+<resources>
+    <string name="default_notification_channel_id">Channel ID</string>
+
+    <string name="colorpicker_dialog_title">Choose the color</string>
+    <string name="colorpicker_dialog_cancel">CANCEL</string>
+    <string name="colorpicker_dialog_ok">OK</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+
+    <string name="dialog_maintenance">Sorry..The application is under maintenance, Please try again later</string>
+    <string name="dialog_msg_update_app_version">The new version is available in Play Store, please update your application</string>
+    <string name="dialog_msg_update_app">Please update your Application</string>
+
+    <string name="lbl_new_note_title">New Note Song</string>
+    <string name="lbl_edit_note_title">Edit Note Song</string>
+
+    <string name="cover_song">Cover\nSong</string>
+    <string name="record">Record</string>
+    <string name="text_continue">Continue</string>
+    <string name="record_started">Recorded Started</string>
+    <string name="record_paused">Recorded Paused</string>
+    <string name="record_resumed">Recorded Resumed</string>
+    <string name="record_saved">Successfully saved the recording</string>
+    <string name="record_canceled">The recording has been cancelled</string>
+    <string name="no_internet_connection">No Internet Connection, Try again</string>
+    <string name="device_not_support">Your device not support to record audio</string>
+    <string name="allow_permission">Allow Permission in Setting Audio In Setting</string>
+
+    <string name="choose_language">Choose Language</string>
+    <string name="indonesia">Indonesia</string>
+    <string name="choose">Choose</string>
+    <string name="save">Save</string>
+    <string name="information">Information</string>
+    <string name="update">Update</string>
+    <string name="no">No</string>
+
+    <string name="setting">Setting</string>
+    <string name="language">Language</string>
+    <string name="rate_us">Rate Us</string>
+    <string name="help_suggest">Help and Suggest</string>
+    <string name="share_with_friends">Share with Friends</string>
+    <string name="choose_one">Choose One</string>
+    <string name="text_video">Video</string>
+
+    <string name="please_wait">Please Wait</string>
+    <string name="loading_audio">Process Loading Audio....</string>
+
+    <string name="title">Title</string>
+    <string name="write_note_here">Write Note Here</string>
+    <string name="search_record">Search Recorded </string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="recordings">Recordings</string>
+    <string name="saved_recording_ask">Save Recording ?</string>
+    <string name="exit">Exit</string>
+    <string name="send">Send</string>
+    <string name="input_message_here">Input Message Here</string>
+    <string name="message_cannot_empty">Message Cannot Empty</string>
+    <string name="more_apps">More Apps</string>
+
+    <string name="use_note">Use Note</string>
+    <string name="edit_note">Edit Note</string>
+    <string name="delete_not">Delete Note</string>
+
+    <string name="default_language">Default Language</string>
+
+    <string name="background_color">Background Color</string>
+    <string name="song_volume">Song Volume</string>
+
+    <string name="note">Note</string>
+
+    <string name="indonesian">Indonesian</string>
+    <string name="english">English</string>
+    <string name="filipino">Filipino</string>
+    <string name="japanese">Japanese</string>
+    <string name="korean">Korean</string>
+    <string name="vietnamese">Vietnamese</string>
+    <string name="thai">Thai</string>
+    <string name="Portuguese">Portuguese</string>
+    <string name="dutch">Dutch</string>
+    <string name="malay">Malay</string>
+    <string name="spanish">Spanish</string>
+    <string name="arabic">Arabic</string>
+
+    <string name="download_success">Download Successful, Please Wait 5 Seconds</string>
+    <string name="data_empty">Data Empty</string>
+
+
+    <string name="yes">Yes</string>
+    <string name="title_recording_dialog">The recording process will start after you select YES</string>
+    <string name="title_recording_canceled">Do you want to cancel the recording?</string>
+    <string name="title_recording_stop">Do you want to save the recording?</string>
+    <string name="notification">Notification</string>
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+    <string name="stop">Stop</string>
+    <string name="pause">Pause</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="play">Play</string>
+    <string name="previously">Previously</string>
+    <string name="version">Version</string>
+    <string name="share">Share</string>
+    <string name="write_note">Write Notes</string>
+    <string name="song_key">Song Key</string>
+    <string name="beginner">Beginner</string>
+    <string name="middle">Middle</string>
+    <string name="Master">Master</string>
+    <string name="remove_ads">Remove Ads</string>
+    <string name="search">Cari</string>
+    <string name="recommend_message">Let me recommend you this application </string>
+    <string name="loading">Loading...</string>
+
+    <string name="whatsapp_support">WhatsApp Support</string>
+    <string name="share_via">Share via</string>
+
+
+</resources>

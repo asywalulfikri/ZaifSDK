@@ -1,0 +1,122 @@
+<resources>
+    <string name="default_notification_channel_id">Standaard meldingskanaal-ID</string>
+
+    <string name="colorpicker_dialog_title">Kies de kleur</string>
+    <string name="colorpicker_dialog_cancel">ANNULEREN</string>
+    <string name="colorpicker_dialog_ok">OK</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+
+    <string name="dialog_maintenance">Sorry... De applicatie is in onderhoud. Probeer het later opnieuw</string>
+    <string name="dialog_msg_update_app_version">De nieuwe versie is beschikbaar in de Play Store, gelieve uw app bij te werken</string>
+    <string name="dialog_msg_update_app">Werk uw app bij</string>
+
+    <string name="lbl_new_note_title">Nieuwe Notitie Lied</string>
+    <string name="lbl_edit_note_title">Bewerk Notitie Lied</string>
+
+    <string name="cover_song">Cover\nLied</string>
+    <string name="record">Opnemen</string>
+    <string name="text_continue">Doorgaan</string>
+    <string name="record_started">Opname gestart</string>
+    <string name="record_paused">Opname gepauzeerd</string>
+    <string name="record_resumed">Opname hervat</string>
+    <string name="record_saved">Opname succesvol opgeslagen</string>
+    <string name="record_canceled">De opname is geannuleerd</string>
+    <string name="no_internet_connection">Geen internetverbinding, probeer opnieuw</string>
+    <string name="device_not_support">Uw apparaat ondersteunt geen audio-opname</string>
+    <string name="allow_permission">Sta toestemming toe in de audiostettings</string>
+
+    <string name="choose_language">Kies een taal</string>
+    <string name="indonesia">Indonesisch</string>
+    <string name="choose">Kies</string>
+    <string name="save">Opslaan</string>
+    <string name="information">Informatie</string>
+    <string name="update">Bijwerken</string>
+    <string name="no">Nee</string>
+
+    <string name="setting">Instellingen</string>
+    <string name="language">Taal</string>
+    <string name="rate_us">Beoordeel ons</string>
+    <string name="help_suggest">Hulp en suggestie</string>
+    <string name="share_with_friends">Delen met vrienden</string>
+    <string name="choose_one">Kies een</string>
+    <string name="text_video">Video</string>
+
+    <string name="please_wait">Even geduld aub</string>
+    <string name="loading_audio">Bezig met audio laden....</string>
+
+    <string name="title">Titel</string>
+    <string name="write_note_here">Schrijf hier een notitie</string>
+    <string name="search_record">Zoek opname </string>
+    <string name="delete">Verwijderen</string>
+    <string name="cancel">Annuleren</string>
+    <string name="recordings">Opnames</string>
+    <string name="saved_recording_ask">Opname opslaan?</string>
+    <string name="exit">Afsluiten</string>
+    <string name="send">Verzenden</string>
+    <string name="input_message_here">Voer hier een bericht in</string>
+    <string name="message_cannot_empty">Bericht kan niet leeg zijn</string>
+    <string name="more_apps">Meer apps</string>
+
+    <string name="use_note">Gebruik notitie</string>
+    <string name="edit_note">Bewerk notitie</string>
+    <string name="delete_not">Verwijder notitie</string>
+
+    <string name="default_language">Standaardtaal</string>
+
+    <string name="background_color">Achtergrondkleur</string>
+    <string name="song_volume">Liedvolume</string>
+    <string name="note">Notitie</string>
+
+
+    <string name="indonesian">Indonesisch</string>
+    <string name="english">Engels</string>
+    <string name="filipino">Filipijns</string>
+    <string name="japanese">Japans</string>
+    <string name="korean">Koreaans</string>
+    <string name="vietnamese">Vietnamees</string>
+    <string name="thai">Thais</string>
+    <string name="Portuguese">Portugees</string>
+    <string name="dutch">Nederlands</string>
+    <string name="malay">Maleis</string>
+    <string name="spanish">Spaans</string>
+    <string name="arabic">Arabisch</string>
+
+    <string name="download_success">Download geslaagd, Wacht 5 seconden</string>
+    <string name="data_empty">Geen gegevens</string>
+
+
+    <string name="yes">Ja</string>
+    <string name="title_recording_dialog">Het opnameproces start nadat u JA heeft geselecteerd</string>
+    <string name="title_recording_canceled">Wilt u de opname annuleren?</string>
+    <string name="title_recording_stop">Wilt u de opname opslaan?</string>
+    <string name="notification">Melding</string>
+    <string name="skip">Overslaan</string>
+    <string name="next">Volgende</string>
+    <string name="stop">Stoppen</string>
+    <string name="pause">Pauzeren</string>
+    <string name="open">Openen</string>
+    <string name="close">Sluiten</string>
+    <string name="play">Afspelen</string>
+    <string name="previously">Eerder</string>
+    <string name="version">Versie</string>
+    <string name="share">Delen</string>
+    <string name="write_note">Notitie schrijven</string>
+    <string name="song_key">Toonsoort van het lied</string>
+    <string name="beginner">Beginner</string>
+    <string name="middle">Midden</string>
+    <string name="Master">Meester</string>
+    <string name="remove_ads">Advertenties verwijderen</string>
+    <string name="search">Zoeken</string>
+    <string name="recommend_message">Laat mij u deze applicatie aanbevelen</string>
+    <string name="loading">Laden...</string>
+
+    <string name="whatsapp_support">WhatsApp Ondersteuning</string>
+    <string name="share_via">Delen via</string>
+
+
+
+
+</resources>

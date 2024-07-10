@@ -1,0 +1,119 @@
+<resources>
+    <string name="default_notification_channel_id">通知频道 ID</string>
+
+    <string name="colorpicker_dialog_title">选择颜色</string>
+    <string name="colorpicker_dialog_cancel">取消</string>
+    <string name="colorpicker_dialog_ok">确定</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+    <string name="dialog_maintenance">抱歉，应用正在维护中，请稍后再试</string>
+    <string name="dialog_msg_update_app_version">新版本已在Play商店可用，请更新您的应用</string>
+    <string name="dialog_msg_update_app">请更新您的应用程序</string>
+
+    <string name="lbl_new_note_title">新笔记歌曲</string>
+    <string name="lbl_edit_note_title">编辑笔记歌曲</string>
+
+    <string name="cover_song">翻唱\n歌曲</string>
+    <string name="record">录制</string>
+    <string name="text_continue">继续</string>
+    <string name="record_started">开始录制</string>
+    <string name="record_paused">录制已暂停</string>
+    <string name="record_resumed">录制已恢复</string>
+    <string name="record_saved">录制保存成功</string>
+    <string name="record_canceled">录制已取消</string>
+    <string name="no_internet_connection">无网络连接，请重试</string>
+    <string name="device_not_support">您的设备不支持录音</string>
+    <string name="allow_permission">请在设置中允许音频权限</string>
+
+    <string name="choose_language">选择语言</string>
+    <string name="indonesia">印度尼西亚语</string>
+    <string name="choose">选择</string>
+    <string name="save">保存</string>
+    <string name="information">信息</string>
+    <string name="update">更新</string>
+    <string name="no">否</string>
+
+    <string name="setting">设置</string>
+    <string name="language">语言</string>
+    <string name="rate_us">评分</string>
+    <string name="help_suggest">帮助与建议</string>
+    <string name="share_with_friends">分享给好友</string>
+    <string name="choose_one">选择一个</string>
+    <string name="text_video">视频</string>
+
+    <string name="please_wait">请稍候</string>
+    <string name="loading_audio">正在加载音频…</string>
+
+    <string name="title">标题</string>
+    <string name="write_note_here">在此处写下您的笔记</string>
+    <string name="search_record">搜索录音</string>
+    <string name="delete">删除</string>
+    <string name="cancel">取消</string>
+    <string name="recordings">录音</string>
+    <string name="saved_recording_ask">保存录音？</string>
+    <string name="exit">退出</string>
+    <string name="send">发送</string>
+    <string name="input_message_here">在此输入消息</string>
+    <string name="message_cannot_empty">消息不能为空</string>
+    <string name="more_apps">更多应用</string>
+
+    <string name="use_note">使用笔记</string>
+    <string name="edit_note">编辑笔记</string>
+    <string name="delete_not">删除笔记</string>
+
+    <string name="default_language">默认语言</string>
+
+    <string name="background_color">背景颜色</string>
+    <string name="song_volume">歌曲音量</string>
+
+    <string name="note">笔记</string>
+
+    <string name="indonesian">印度尼西亚语</string>
+    <string name="english">英语</string>
+    <string name="filipino">菲律宾语</string>
+    <string name="japanese">日语</string>
+    <string name="korean">韩语</string>
+    <string name="vietnamese">越南语</string>
+    <string name="thai">泰语</string>
+    <string name="Portuguese">葡萄牙语</string>
+    <string name="dutch">荷兰语</string>
+    <string name="malay">马来语</string>
+    <string name="spanish">西班牙语</string>
+    <string name="arabic">阿拉伯语</string>
+
+    <string name="download_success">下载成功，请等待5秒钟</string>
+    <string name="data_empty">数据为空</string>
+
+    <string name="yes">是</string>
+    <string name="title_recording_dialog">选择“是”后将开始录制过程</string>
+    <string name="title_recording_canceled">确定取消录制吗？</string>
+    <string name="title_recording_stop">确定保存录制吗？</string>
+    <string name="notification">通知</string>
+    <string name="skip">跳过</string>
+    <string name="next">下一步</string>
+    <string name="stop">停止</string>
+    <string name="pause">暂停</string>
+    <string name="open">打开</string>
+    <string name="close">关闭</string>
+    <string name="play">播放</string>
+    <string name="previously">之前</string>
+    <string name="version">版本</string>
+    <string name="share">分享</string>
+    <string name="write_note">写笔记</string>
+    <string name="song_key">歌曲调式</string>
+    <string name="beginner">初学者</string>
+    <string name="middle">中级</string>
+    <string name="Master">高级</string>
+    <string name="remove_ads">移除广告</string>
+    <string name="search">搜索</string>
+    <string name="recommend_message">让我向您推荐这款应用</string>
+    <string name="loading">加载中...</string>
+
+    <string name="whatsapp_support">WhatsApp 支持</string>
+    <string name="share_via">通过...分享</string>
+
+
+
+</resources>

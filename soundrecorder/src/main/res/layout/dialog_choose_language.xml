@@ -1,0 +1,60 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/choose_language"
+        android:textSize="30sp"
+        android:fontFamily="@font/ooredoo"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:layout_marginTop="10dp"
+        android:id="@+id/radioGroupLanguage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:textSize="20sp"
+            android:fontFamily="@font/ooredoo"
+            android:id="@+id/rbDefaultLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/default_language" />
+
+        <RadioButton
+            android:layout_marginTop="10dp"
+            android:textSize="20sp"
+            android:fontFamily="@font/ooredoo"
+            android:id="@+id/rbEnglish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/english" />
+
+        <!-- Add more RadioButtons for other languages as needed -->
+
+    </RadioGroup>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/btn_submit"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/button_border"
+        android:gravity="center"
+        android:paddingHorizontal="13dp"
+        android:paddingVertical="13dp"
+        android:text="@string/save"
+        android:textColor="@color/white"
+        android:textSize="13sp" />
+
+</LinearLayout>

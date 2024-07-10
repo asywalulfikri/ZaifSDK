@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="VusikAttr">
+        <attr name="fallCount" format="integer"/>
+        <attr name="fallSpeed" format="float"/>
+    </declare-styleable>
+
+    <declare-styleable name="SpeedMarquee">
+        <attr name="marquee_speed" format="float" />
+    </declare-styleable>
+
+    <array name="language_array">
+        <item>@string/english</item>
+        <item>@string/spanish</item>
+        <item>@string/indonesian</item>
+        <item>@string/japanese</item>
+        <item>@string/korean</item>
+        <item>@string/filipino</item>
+        <item>@string/malay</item>
+        <item>@string/thai</item>
+        <item>@string/vietnamese</item>
+        <item>@string/Portuguese</item>
+        <item>@string/dutch</item>
+    </array>
+
+    <array name="language_code">
+        <item>en</item>
+        <item>es</item>
+        <item>in</item>
+        <item>ja</item>
+        <item>ko</item>
+        <item>fil</item>
+        <item>ms</item>
+        <item>th</item>
+        <item>vi</item>
+        <item>pt</item>
+        <item>nl</item>
+
+    </array>
+
+    <array name="default_colors">
+        <item>@color/color1</item>
+        <item>@color/color2</item>
+        <item>@color/color3</item>
+        <item>@color/color4</item>
+        <item>@color/color5</item>
+
+        <item>@color/color6</item>
+        <item>@color/color7</item>
+        <item>@color/color8</item>
+        <item>@color/color9</item>
+        <item>@color/color10</item>
+
+        <item>@color/color11</item>
+        <item>@color/color12</item>
+        <item>@color/color13</item>
+        <item>@color/white</item>
+        <item>@color/color15</item>
+
+        <item>#000000</item>
+        <item>#DEC015</item>
+        <item>#15DEBC</item>
+        <item>#1E083F</item>
+        <item>#083F15</item>
+
+    </array>
+
+    <item type="id" name="tag_countdown_timer"/>
+
+
+</resources>

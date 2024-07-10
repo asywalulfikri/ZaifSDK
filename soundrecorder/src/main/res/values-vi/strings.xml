@@ -1,0 +1,120 @@
+<resources>
+    <string name="default_notification_channel_id">ID kênh thông báo mặc định</string>
+
+    <string name="colorpicker_dialog_title">Chọn màu sắc</string>
+    <string name="colorpicker_dialog_cancel">HỦY BỎ</string>
+    <string name="colorpicker_dialog_ok">ĐỒNG Ý</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+
+    <string name="dialog_maintenance">Xin lỗi.. Ứng dụng đang trong quá trình bảo trì, Vui lòng thử lại sau</string>
+    <string name="dialog_msg_update_app_version">Phiên bản mới có sẵn trên Cửa hàng Play, vui lòng cập nhật ứng dụng của bạn</string>
+    <string name="dialog_msg_update_app">Vui lòng cập nhật ứng dụng của bạn</string>
+
+    <string name="lbl_new_note_title">Ghi chú bài hát mới</string>
+    <string name="lbl_edit_note_title">Chỉnh sửa ghi chú bài hát</string>
+
+    <string name="cover_song">Bài hát\nCover</string>
+    <string name="record">Ghi âm</string>
+    <string name="text_continue">Tiếp tục</string>
+    <string name="record_started">Bắt đầu ghi âm</string>
+    <string name="record_paused">Ghi âm tạm dừng</string>
+    <string name="record_resumed">Ghi âm tiếp tục</string>
+    <string name="record_saved">Ghi âm đã được lưu thành công</string>
+    <string name="record_canceled">Ghi âm đã bị hủy</string>
+    <string name="no_internet_connection">Không có kết nối Internet, Vui lòng thử lại</string>
+    <string name="device_not_support">Thiết bị của bạn không hỗ trợ ghi âm</string>
+    <string name="allow_permission">Cho phép Quyền trong Cài đặt Âm thanh</string>
+
+    <string name="choose_language">Chọn Ngôn ngữ</string>
+    <string name="indonesia">Indonesia</string>
+    <string name="choose">Chọn</string>
+    <string name="save">Lưu</string>
+    <string name="information">Thông tin</string>
+    <string name="update">Cập nhật</string>
+    <string name="no">Không</string>
+
+    <string name="setting">Cài đặt</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="rate_us">Đánh giá chúng tôi</string>
+    <string name="help_suggest">Hỗ trợ và Đề xuất</string>
+    <string name="share_with_friends">Chia sẻ với bạn bè</string>
+    <string name="choose_one">Chọn một</string>
+    <string name="text_video">Video</string>
+
+    <string name="please_wait">Vui lòng đợi</string>
+    <string name="loading_audio">Đang xử lý tải âm thanh....</string>
+
+    <string name="title">Tiêu đề</string>
+    <string name="write_note_here">Viết ghi chú ở đây</string>
+    <string name="search_record">Tìm kiếm Ghi âm</string>
+    <string name="delete">Xóa</string>
+    <string name="cancel">Hủy</string>
+    <string name="recordings">Ghi âm</string>
+    <string name="saved_recording_ask">Lưu ghi âm?</string>
+    <string name="exit">Thoát</string>
+    <string name="send">Gửi</string>
+    <string name="input_message_here">Nhập tin nhắn ở đây</string>
+    <string name="message_cannot_empty">Tin nhắn không thể để trống</string>
+    <string name="more_apps">Ứng dụng khác</string>
+
+    <string name="use_note">Sử dụng ghi chú</string>
+    <string name="edit_note">Chỉnh sửa ghi chú</string>
+    <string name="delete_not">Xóa ghi chú</string>
+
+    <string name="default_language">Ngôn ngữ mặc định</string>
+
+    <string name="background_color">Màu nền</string>
+    <string name="song_volume">Âm lượng bài hát</string>
+    <string name="note">Ghi chú</string>
+
+    <string name="indonesian">Tiếng Indonesia</string>
+    <string name="english">Tiếng Anh</string>
+    <string name="filipino">Tiếng Filipino</string>
+    <string name="japanese">Tiếng Nhật</string>
+    <string name="korean">Tiếng Hàn Quốc</string>
+    <string name="vietnamese">Tiếng Việt</string>
+    <string name="thai">Tiếng Thái</string>
+    <string name="Portuguese">Tiếng Bồ Đào Nha</string>
+    <string name="dutch">Tiếng Hà Lan</string>
+    <string name="malay">Tiếng Mã Lai</string>
+    <string name="spanish">Tiếng Tây Ban Nha</string>
+    <string name="arabic">Tiếng Ả Rập</string>
+
+    <string name="download_success">Tải về thành công, Vui lòng đợi 5 giây</string>
+    <string name="data_empty">Dữ liệu trống</string>
+
+
+    <string name="yes">Có</string>
+    <string name="title_recording_dialog">Quá trình ghi âm sẽ bắt đầu sau khi bạn chọn CÓ</string>
+    <string name="title_recording_canceled">Bạn có muốn hủy bỏ việc ghi âm không?</string>
+    <string name="title_recording_stop">Bạn có muốn lưu lại bản ghi âm không?</string>
+    <string name="notification">Thông báo</string>
+    <string name="skip">Bỏ qua</string>
+    <string name="next">Tiếp</string>
+    <string name="stop">Dừng</string>
+    <string name="pause">Tạm dừng</string>
+    <string name="open">Mở</string>
+    <string name="close">Đóng</string>
+    <string name="play">Phát</string>
+    <string name="previously">Trước đó</string>
+    <string name="version">Phiên bản</string>
+    <string name="share">Chia sẻ</string>
+    <string name="write_note">Viết ghi chú</string>
+    <string name="song_key">Khóa bài hát</string>
+    <string name="beginner">Người mới bắt đầu</string>
+    <string name="middle">Trung cấp</string>
+    <string name="Master">Chuyên gia</string>
+    <string name="remove_ads">Xóa quảng cáo</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="recommend_message">Hãy để tôi giới thiệu ứng dụng này cho bạn</string>
+    <string name="loading">Đang tải...</string>
+
+    <string name="whatsapp_support">Hỗ trợ WhatsApp</string>
+    <string name="share_via">Chia sẻ qua</string>
+
+
+
+</resources>

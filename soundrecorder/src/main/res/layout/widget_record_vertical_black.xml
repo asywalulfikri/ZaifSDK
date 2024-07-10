@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="60dp"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="30dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:background="#DDDDDD"
+            android:id="@+id/llRecordBackground"
+            android:layout_width="65dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="2dp"
+            android:layout_centerInParent="true"
+            android:paddingBottom="2dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="UselessParent">
+
+
+            <RelativeLayout
+                android:visibility="gone"
+                android:id="@+id/noteBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:src="@drawable/round"
+                    android:contentDescription="@string/app_name"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="9sp"
+                    tools:ignore="DuplicateSpeakableTextCheck,HardcodedText,SmallSp" />
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:layout_width="30dp"
+                    android:layout_height="35dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:contentDescription="@string/app_name"
+                    app:srcCompat="@drawable/baseline_note_add_black"
+                    tools:ignore="DuplicateSpeakableTextCheck" />
+            </RelativeLayout>
+
+            <ImageView
+                android:layout_weight="1"
+                android:id="@+id/songBtn"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:contentDescription="@string/app_name"
+                app:srcCompat="@drawable/ic_music_note_2162469"
+                tools:ignore="DuplicateSpeakableTextCheck" />
+
+            <RelativeLayout
+                android:layout_marginBottom="2dp"
+                android:id="@+id/coverBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:src="@drawable/round_black"
+                    android:contentDescription="@string/app_name"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="9sp"
+                    tools:ignore="DuplicateSpeakableTextCheck,HardcodedText,SmallSp" />
+
+                <TextView
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/rimouski"
+                    android:text="@string/cover_song"
+                    android:textColor="#FFFFFF"
+                    android:textSize="8sp"
+                    tools:ignore="HardcodedText,SmallSp" />
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_marginTop="2dp"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:visibility="gone"
+                    android:id="@+id/deleteBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="44dp"
+                    android:layout_centerInParent="true"
+                    android:clickable="false"
+                    android:contentDescription="@string/app_name"
+                    app:srcCompat="@drawable/ic_cancel" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rlRecord"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="5dp"
+                    android:src="@drawable/round_black"
+                    android:contentDescription="@string/app_name"
+                    tools:ignore="DuplicateSpeakableTextCheck" />
+
+                <ImageView
+                    android:id="@+id/recordBtn"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerInParent="true"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:contentDescription="@string/app_name"
+                    tools:ignore="DuplicateSpeakableTextCheck" />
+
+                <TextView
+                    android:id="@+id/recordText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/rimouski"
+                    android:text="@string/record"
+                    android:textColor="#FFFFFF"
+                    android:textSize="8sp"
+                    tools:ignore="HardcodedText,SmallSp" />
+
+            </RelativeLayout>
+
+            <ImageView
+                android:layout_marginTop="2dp"
+                android:id="@+id/listBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:contentDescription="@string/appbar_scrolling_view_behavior"
+                app:srcCompat="@drawable/ic_list_2162474" />
+
+            <RelativeLayout
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:layout_centerInParent="true"
+                    android:id="@+id/doneBtn"
+                    android:visibility="gone"
+                    android:layout_marginTop="5dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:srcCompat="@drawable/ic_check"
+                    android:contentDescription="@string/app_name" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/timerView"
+                android:layout_marginTop="3dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="10sp"
+                android:fontFamily="@font/intercom_roboto_medium"
+                android:textColor="@color/black_de"
+                android:text="00:00.0"
+                tools:ignore="HardcodedText,SmallSp" />
+
+
+            <ImageView
+                android:layout_weight="1"
+                android:contentDescription="@string/app_name"
+                android:id="@+id/settingBtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginBottom="5dp"
+                app:srcCompat="@drawable/ic_setting_2162457" />
+
+            <sound.recorder.widget.tools.RecorderWaveformView
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                android:id="@+id/playerView"
+                android:rotation="-90"
+                android:layout_marginBottom="5dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
