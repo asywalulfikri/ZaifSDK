@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.media.AudioManager
 import android.media.SoundPool
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import recording.host.databinding.ActivityMainBinding
@@ -179,10 +180,19 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         }
 
 
+        checkForUpdates()
 
         setupFragment(binding.recordingView.id,VoiceRecordFragmentVertical())
 
 
+    }
+
+    private fun checkForUpdates() {
+        try {
+            checkUpdate()
+        } catch (e: Exception) {
+            Log.d("Update App home", e.message.toString())
+        }
     }
 
 

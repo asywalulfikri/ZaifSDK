@@ -149,14 +149,8 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     fun checkUpdate() {
-        try {
-            appUpdateManager = AppUpdateManagerFactory.create(this)
-
-            if (updateType == AppUpdateType.FLEXIBLE) {
-                appUpdateManager.registerListener(installStateUpdatedListener)
-            }
-
-            lifecycleScope.launch {
+        lifecycleScope.launch {
+            try {
                 val info = withContext(Dispatchers.IO) {
                     appUpdateManager.appUpdateInfo.await()
                 }
@@ -170,7 +164,6 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
 
                 if (isUpdateAvailable && isUpdateAllowed) {
-
                     try {
                         appUpdateManager.startUpdateFlowForResult(
                             info,
@@ -179,15 +172,14 @@ open class BaseActivityWidget : AppCompatActivity() {
                             123
                         )
                     } catch (e: IntentSender.SendIntentException) {
+                        Log.e("YourActivity", "Error starting update flow: ${e.message}")
                         // Handle the exception, log, or display an error message
-                        //e.printStackTrace()
-                        Log.d("not","support")
-                        // You can also perform additional error handling here
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("YourActivity", "Error checking update: ${e.message}")
+                // Handle the exception, log, or display an error message
             }
-        } catch (e: Exception) {
-            Log.e("YourActivity", "Error checking update: ${e.message}")
         }
     }
     
