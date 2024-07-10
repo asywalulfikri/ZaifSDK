@@ -148,7 +148,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    private fun checkUpdate() {
+    fun checkUpdate() {
         try {
             appUpdateManager = AppUpdateManagerFactory.create(this)
 
