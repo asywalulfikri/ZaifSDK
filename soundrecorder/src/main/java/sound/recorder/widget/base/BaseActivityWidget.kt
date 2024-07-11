@@ -397,7 +397,9 @@ open class BaseActivityWidget : AppCompatActivity() {
                                 // Regenerate the options menu to include a privacy setting.
                                 UserMessagingPlatform.showPrivacyOptionsForm(this@BaseActivityWidget) { formError ->
                                     formError?.let {
-                                        setToastError(it.message.toString())
+                                        if(BuildConfig.DEBUG){
+                                            setToastError(it.message.toString())
+                                        }
                                     }
                                 }
                             }
