@@ -270,6 +270,14 @@ open class DataSession(private val mContext: Context) {
         return sharedPref.getString(Constant.KeyShared.admobInterstitialId, "").toString()
     }
 
+    fun getAppOpenId(): String {
+        return sharedPref.getString(Constant.KeyShared.admobAppOpenId, "").toString()
+    }
+
+    fun getOrientationAds(): Int {
+        return sharedPref.getInt(Constant.KeyShared.orientationAds, 2)
+    }
+
     fun getRewardInterstitialId(): String {
         return sharedPref.getString(Constant.KeyShared.admobRewardInterstitialId, "").toString()
     }

@@ -118,12 +118,6 @@ open class BaseFragmentWidget : Fragment() {
         super.onCreate(savedInstanceState)
 
         try {
-            FirebaseApp.initializeApp(requireContext())
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-
-        try {
             val languageCode = Locale.getDefault().language
             getDataSession().saveDefaultLanguage(languageCode)
             setLocale(getDataSession().getDefaultLanguage())

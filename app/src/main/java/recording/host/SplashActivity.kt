@@ -51,6 +51,8 @@ class SplashActivity : BaseActivityWidget() {
 
         //setupInterstitial()
 
+        setupAppOpenAd()
+
 
         for (i in listTitle.indices) {
             val itemSong = Song()
@@ -80,6 +82,8 @@ class SplashActivity : BaseActivityWidget() {
             .setRewardId("")
             .setRewardInterstitialId("")
             .setNativeId("")
+            .setAppOpenId(Constant.AdsTesterId.admobOpenAdId)
+            .setOrientationAds(2)
             .build()
 
 

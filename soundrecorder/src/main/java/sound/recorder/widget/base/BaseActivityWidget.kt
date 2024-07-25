@@ -50,6 +50,7 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.admanager.AdManagerAdRequest
 import com.google.android.gms.ads.admanager.AdManagerAdView
+import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
@@ -84,6 +85,7 @@ import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.ads.GoogleMobileAdsConsentManager
 import sound.recorder.widget.animation.ParticleSystem
 import sound.recorder.widget.animation.modifiers.ScaleModifier
+import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.notes.Note
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.Toastic
@@ -119,6 +121,8 @@ open class BaseActivityWidget : AppCompatActivity() {
     private val updateType = AppUpdateType.FLEXIBLE
 
     var sharedPreferences : SharedPreferences? =null
+
+    private var appOpenAd: AppOpenAd? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -182,51 +186,13 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
         }
     }
-    
-    fun setupBannerStarApp(adViewContainer: FrameLayout){
-       /* Log.d("startAppExecute","true "+getDataSession().getStarAppId())
-        Log.d("startAppEnable",getDataSession().getStarAppEnable().toString())
-        Log.d("startAppBannerShow",getDataSession().getStarAppShowBanner().toString())
-        if(getDataSession().getStarAppEnable()){
-            if(getDataSession().getStarAppShowBanner()){
-                val startAppBanner = Banner(this)
-                val bannerParameters = RelativeLayout.LayoutParams(
-                    RelativeLayout.LayoutParams.WRAP_CONTENT,
-                    RelativeLayout.LayoutParams.WRAP_CONTENT
-                )
-                bannerParameters.addRule(RelativeLayout.CENTER_HORIZONTAL)
-                bannerParameters.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
-
-                adViewContainer.addView(startAppBanner)
-                startAppBanner.setBannerListener(object : BannerListener {
-                    override fun onReceiveAd(view: View) {
-                        Log.d("startAppBannerSuccess ",view.id.toString())
-                        startAppBanner.showBanner()
-                    }
-
-                    override fun onFailedToReceiveAd(view: View) {
-                        Log.d("startAppBannerFailed ",view.id.toString())
-                        startAppBanner.hideBanner()
-                    }
-
-                    override fun onImpression(view: View) {}
-                    override fun onClick(view: View) {}
-                })
-
-                startAppBanner.loadAd()
-
-            }
-        }*/
-    }
 
     fun setupBannerFacebook(adContainer : FrameLayout){
         try {
             val id = getDataSession().getBannerFANId()
             val adListener = object : com.facebook.ads.AdListener {
                 override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
-                    setupBannerStarApp(adContainer)
                     setLog("FAN error loaded id = "+ ad.placementId +"---> "+ adError.errorMessage)
-
                 }
 
                 override fun onAdLoaded(ad: Ad) {
@@ -898,6 +864,57 @@ open class BaseActivityWidget : AppCompatActivity() {
     private val requestPermissionNotification = registerForActivityResult(ActivityResultContracts.RequestPermission()) { _ -> }
 
 
+
+    fun setupAppOpenAd() {
+        val adRequest = AdRequest.Builder().build()
+        AppOpenAd.load(this, getDataSession().getAppOpenId(), adRequest,getDataSession().getOrientationAds(), object : AppOpenAd.AppOpenAdLoadCallback() {
+            override fun onAdLoaded(ad: AppOpenAd) {
+                appOpenAd = ad
+            }
+
+            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                if(BuildConfig.DEBUG){
+                    setToast("openAds " +loadAdError.message)
+                }
+            }
+        })
+    }
+
+
+    fun showOpenAd(){
+        if(appOpenAd!=null){
+            try {
+                appOpenAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                    override fun onAdDismissedFullScreenContent() {
+                        appOpenAd = null
+                        setupAppOpenAd()
+                        if(BuildConfig.DEBUG){
+                            setToast("close by user")
+                        }
+                    }
+
+                    override fun onAdFailedToShowFullScreenContent(p0: AdError) {
+                        Log.d("AppOpenAd", "Failed to show ad: ${p0.message}")
+                    }
+
+                    override fun onAdShowedFullScreenContent() {
+                        MyAdsListener.setAds(false)
+                        Log.d("AppOpenAd", "Ad showed")
+                    }
+                }
+                appOpenAd?.show(this)
+            }catch (e : Exception){
+                if(BuildConfig.DEBUG){
+                    setToast("open ads f" + e.message.toString())
+                }
+            }
+        }else{
+            if(BuildConfig.DEBUG){
+                setToast("open ad null")
+            }
+        }
+    }
+
     fun setupInterstitial() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
@@ -1255,7 +1272,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     protected fun setToast(message : String){
         Toast.makeText(this, "$message.",Toast.LENGTH_SHORT).show()
     }
-    protected fun setToastWarning(message : String){
+    fun setToastWarning(message : String){
         try {
             Toastic.toastic(
                 context = this,

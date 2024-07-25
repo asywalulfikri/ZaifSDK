@@ -29,10 +29,20 @@ import sound.recorder.widget.model.Song
 import sound.recorder.widget.util.DataSession
 import java.lang.ref.WeakReference
 
-class FragmentSheetListSong(private var showBtnStop: Boolean? = null, private var listener: OnClickListener? = null) :
-    Fragment(), SharedPreferences.OnSharedPreferenceChangeListener, StopSDKMusicListener {
+class FragmentSheetListSong(
+    private var showBtnStop: Boolean? = null,
+    private var listener: OnClickListener? = null
+) : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener, StopSDKMusicListener {
 
     private var weakContext: WeakReference<Context>? = null
+    private var binding: BottomSheetSongBinding? = null
+    private var sharedPreferences: SharedPreferences? = null
+    private var listTitleSong = ArrayList<String>()
+    private var listLocationSong = ArrayList<String>()
+    private var listNoteSong = ArrayList<String>()
+    private var adapter: ArrayAdapter<String>? = null
+    private var mPanAnim: Animation? = null
+    private var lisSong = ArrayList<Song>()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -51,21 +61,12 @@ class FragmentSheetListSong(private var showBtnStop: Boolean? = null, private va
         fun onNoteSong(note: String)
     }
 
-    private var binding: BottomSheetSongBinding? = null
-    private var sharedPreferences: SharedPreferences? = null
-    private var listTitleSong: ArrayList<String>? = null
-    private var listLocationSong: ArrayList<String>? = null
-    private var listNoteSong: ArrayList<String>? = null
-    private var adapter: ArrayAdapter<String>? = null
-    private var mPanAnim: Animation? = null
-    private var lisSong = ArrayList<Song>()
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = BottomSheetSongBinding.inflate(layoutInflater, container, false)
+        binding = BottomSheetSongBinding.inflate(inflater, container, false)
 
-        if (activity != null) {
+        activity?.let {
             try {
-                sharedPreferences = DataSession(requireContext()).getShared()
+                sharedPreferences = DataSession(it).getShared()
                 sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
 
                 MyStopSDKMusicListener.setMyListener(this)
@@ -88,16 +89,8 @@ class FragmentSheetListSong(private var showBtnStop: Boolean? = null, private va
                     onBackPressed()
                 }
 
-                listTitleSong = ArrayList()
-                listLocationSong = ArrayList()
-                listNoteSong = ArrayList()
-
-                try {
-                    if (!RecordingSDK.isHaveSong(requireActivity())) {
-                        getSong(lisSong)
-                    }
-                } catch (e: Exception) {
-                    setLog(e.message)
+                if (!RecordingSDK.isHaveSong(it)) {
+                    getSong(lisSong)
                 }
             } catch (e: Exception) {
                 setLog(e.message)
@@ -117,91 +110,61 @@ class FragmentSheetListSong(private var showBtnStop: Boolean? = null, private va
 
     @SuppressLint("Recycle")
     private fun getAllMediaMp3Files(songList: ArrayList<Song>) {
-        if (activity != null) {
+        activity?.let { activity ->
             val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            val cursor = requireContext().contentResolver?.query(
-                uri,
-                null,
-                null,
-                null,
-                null
-            )
+            val cursor = activity.contentResolver?.query(uri, null, null, null, null)
+
             if (cursor == null) {
-                Toast.makeText(requireContext(), "Something Went Wrong.", Toast.LENGTH_LONG).show()
-            } else {
-                val title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-                val location = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+                Toast.makeText(activity, "Something Went Wrong.", Toast.LENGTH_LONG).show()
+                return
+            }
 
-                MainScope().launch {
-                    var songTitle1: String
-                    var songLocation1: String
-                    var songNote1: String
+            val titleIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+            val locationIndex = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
 
-                    withContext(Dispatchers.Default) {
-                        for (i in songList.indices) {
-                            songTitle1 = songList[i].title.toString()
-                            songLocation1 = songList[i].pathRaw.toString()
-                            songNote1 = songList[i].note.toString()
+            MainScope().launch {
+                withContext(Dispatchers.Default) {
+                    songList.forEach {
+                        listTitleSong.add(it.title ?: "")
+                        listLocationSong.add(it.pathRaw ?: "")
+                        listNoteSong.add(it.note ?: "")
+                    }
+                }
 
-                            listLocationSong?.add(songLocation1)
-                            listTitleSong?.add(songTitle1)
-                            listNoteSong?.add(songNote1)
+                try {
+                    if (cursor.moveToFirst()) {
+                        withContext(Dispatchers.Default) {
+                            do {
+                                val songTitle = cursor.getString(titleIndex) ?: ""
+                                val songLocation = cursor.getString(locationIndex) ?: ""
+
+                                listTitleSong.add(songTitle)
+                                listLocationSong.add(songLocation)
+                                listNoteSong.add("")
+                            } while (cursor.moveToNext())
                         }
                     }
-
-                    try {
-                        MainScope().launch {
-
-                            if (cursor.moveToFirst()) {
-                                withContext(Dispatchers.Default) {
-                                    do {
-                                        var songTitle = ""
-                                        var songLocation = ""
-                                        val songNote = ""
-
-                                        if (cursor.getString(title) != null) {
-                                            songTitle = cursor.getString(title)
-                                        }
-
-                                        if (cursor.getString(location) != null) {
-                                            songLocation = cursor.getString(location)
-                                        }
-
-                                        listLocationSong?.add(songLocation)
-                                        listTitleSong?.add(songTitle)
-                                        listNoteSong?.add(songNote)
-
-                                    } while (cursor.moveToNext())
-                                }
-                                updateView()
-                            } else {
-                                updateView()
-                            }
-                        }
-
-                    } catch (e: Exception) {
-                        setLog(e.message.toString())
-                    }
+                    updateView()
+                } catch (e: Exception) {
+                    setLog(e.message.toString())
+                } finally {
+                    cursor.close()
                 }
             }
         }
     }
 
     private fun updateView() {
-        if (activity != null) {
+        activity?.let {
             try {
-                val listSong = listTitleSong!!.toTypedArray()
-
-                adapter = ArrayAdapter(requireContext(), R.layout.item_simple_song, listSong)
+                adapter = ArrayAdapter(it, R.layout.item_simple_song, listTitleSong)
                 binding?.listView?.adapter = adapter
                 adapter?.notifyDataSetChanged()
-                binding?.listView?.onItemClickListener =
-                    AdapterView.OnItemClickListener { _: AdapterView<*>?, _: View?, i: Int, _: Long ->
-                        run {
-                            listener?.onPlaySong(listLocationSong?.get(i).toString())
-                            listener?.onNoteSong(listNoteSong?.get(i).toString())
-                        }
-                    }
+
+                binding?.listView?.onItemClickListener = AdapterView.OnItemClickListener { _, _, i, _ ->
+                    listener?.onPlaySong(listLocationSong[i])
+                    listener?.onNoteSong(listNoteSong[i])
+                }
             } catch (e: Exception) {
                 setLog(e.message.toString())
             }
@@ -209,8 +172,10 @@ class FragmentSheetListSong(private var showBtnStop: Boolean? = null, private va
     }
 
     private fun startAnimation() {
-        binding?.ivStop?.visibility = View.VISIBLE
-        binding?.ivStop?.startAnimation(mPanAnim)
+        binding?.ivStop?.apply {
+            visibility = View.VISIBLE
+            startAnimation(mPanAnim)
+        }
     }
 
     private fun stopAnimation() {
@@ -224,13 +189,9 @@ class FragmentSheetListSong(private var showBtnStop: Boolean? = null, private va
 
     private fun initAnim() {
         try {
-            mPanAnim = AnimationUtils.loadAnimation(activity, R.anim.rotate)
-            val mPanLin = LinearInterpolator()
-            mPanAnim?.interpolator = mPanLin
-            mPanAnim?.startTime = 0
-            mPanAnim?.let { anim ->
-                anim.interpolator = mPanLin
-                anim
+            mPanAnim = AnimationUtils.loadAnimation(activity, R.anim.rotate).apply {
+                interpolator = LinearInterpolator()
+                startTime = 0
             }
         } catch (e: Exception) {
             setLog(e.message)
@@ -272,7 +233,7 @@ class FragmentSheetListSong(private var showBtnStop: Boolean? = null, private va
         stopAnimation()
         sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
         MyStopSDKMusicListener.setMyListener(null)
-        weakContext = null // Nullify the weak context reference
+        weakContext = null
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
@@ -280,7 +241,7 @@ class FragmentSheetListSong(private var showBtnStop: Boolean? = null, private va
     }
 
     private fun setLog(message: String? = null) {
-        Log.e("message", message.toString() + ".")
+        Log.e("FragmentSheetListSong", message ?: "Unknown error.")
     }
 
     override fun onStop(stop: Boolean) {

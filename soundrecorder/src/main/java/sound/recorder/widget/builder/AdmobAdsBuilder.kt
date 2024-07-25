@@ -10,7 +10,9 @@ class AdmobAdsBuilder private constructor(
     val interstitialId: String?,
     val rewardId: String?,
     val rewardInterstitialId: String?,
-    val nativeId : String?
+    val nativeId : String?,
+    val appOpenId : String?,
+    val orientationAds : Int?
 ) {
 
     // Builder class to construct MyObject
@@ -21,6 +23,8 @@ class AdmobAdsBuilder private constructor(
         private var rewardId: String? =null
         private var rewardInterstitialId: String? =null
         private var nativeId : String? = null
+        private var appOpenId : String? =null
+        private var orientationAds : Int? =null
 
         fun setAdmobId(admobId: String?): Builder {
             this.admobId = admobId
@@ -52,9 +56,19 @@ class AdmobAdsBuilder private constructor(
             return this
         }
 
+        fun setAppOpenId(appOpenId: String?): Builder {
+            this.appOpenId = appOpenId
+            return this
+        }
+
+        fun setOrientationAds(orientationAds: Int?): Builder {
+            this.orientationAds = orientationAds
+            return this
+        }
+
         // Build function to create an instance of MyObject
         fun build(): AdmobAdsBuilder {
-            val myObject = AdmobAdsBuilder(admobId, bannerId, interstitialId,rewardId,rewardInterstitialId,nativeId)
+            val myObject = AdmobAdsBuilder(admobId, bannerId, interstitialId,rewardId,rewardInterstitialId,nativeId,appOpenId,orientationAds)
 
             // Save values to SharedPreferences
             saveToSharedPreferences(myObject)
@@ -75,6 +89,10 @@ class AdmobAdsBuilder private constructor(
             editor.putString(Constant.KeyShared.admobRewardId, admobAdsBuilder.rewardId)
             editor.putString(Constant.KeyShared.admobRewardInterstitialId, admobAdsBuilder.rewardInterstitialId)
             editor.putString(Constant.KeyShared.admobNativeId, admobAdsBuilder.nativeId)
+            editor.putString(Constant.KeyShared.admobAppOpenId,admobAdsBuilder.appOpenId)
+            admobAdsBuilder.orientationAds?.let { editor.putInt(Constant.KeyShared.orientationAds, it)
+
+            }
 
             editor.apply()
         }

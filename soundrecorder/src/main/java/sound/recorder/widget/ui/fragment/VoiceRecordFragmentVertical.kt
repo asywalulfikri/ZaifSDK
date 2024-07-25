@@ -805,13 +805,10 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
         }
     }
 
-
     override fun onResume() {
         super.onResume()
         sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
     }
-
-
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         if(key==Constant.KeyShared.volume){
@@ -825,11 +822,6 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
             }
         }
     }
-
-
-
-
-
     override fun onPause(pause: Boolean) {
        if(pause){
            showBtnStop = false

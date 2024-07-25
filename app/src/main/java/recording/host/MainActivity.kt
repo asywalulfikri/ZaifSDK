@@ -8,6 +8,7 @@ import android.media.AudioManager
 import android.media.SoundPool
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import recording.host.databinding.ActivityMainBinding
@@ -68,6 +69,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
 
         setupBannerNew(binding.bannerView)
+        setupAppOpenAd()
 
         val xx = DataSession(this).getBackgroundColor()
         if (xx != -1) {
@@ -87,6 +89,8 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
         setupGDPR()
 
+        //setupAppOpenAd()
+
 
         permissionNotification()
 
@@ -102,6 +106,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         RecordingSDK.addSong(this,song)
 
         MyFragmentListener.setMyListener(this)
+        MyAdsListener.setMyListener(this)
 
         RecordingSDK.run()
 
@@ -114,7 +119,8 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             AudioManager.STREAM_MUSIC, 5
         )
 
-        setupBannerStarApp(binding.bannerView)
+
+        showOpenAd()
 
         ss1 = sp.load(this,R.raw.dum,1)
         ss2 = sp.load(this,R.raw.dek,1)
@@ -134,8 +140,11 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
 
         binding.btnInterstitialAdmob.setOnClickListener {
-            //showInterstitial()
             showInterstitial()
+        }
+
+        binding.btnOpenId.setOnClickListener {
+            showOpenAd()
         }
 
         binding.btnInterstitialStarApp.setOnClickListener {
@@ -250,6 +259,10 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
     }
 
     override fun onViewAds(boolean: Boolean) {
-
+       if(boolean){
+           binding.bannerView.visibility = View.VISIBLE
+       }else{
+           binding.bannerView.visibility = View.GONE
+       }
     }
 }

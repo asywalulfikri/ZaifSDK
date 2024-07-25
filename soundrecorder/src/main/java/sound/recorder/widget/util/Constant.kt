@@ -29,6 +29,8 @@ open class Constant {
             const val admobRewardInterstitialId = "rewardInterstitialId"
             const val admobRewardId = "rewardId"
             const val admobNativeId = "nativeId"
+            const val admobAppOpenId = "appOpenId"
+            const val orientationAds = "orientationAds"
 
             const val fanBannerId = "fanBannerId"
             const val fanId = "fanId"
@@ -69,6 +71,7 @@ open class Constant {
             const val admobRewardInterstitialId = "ca-app-pub-3940256099942544/5354046379"
             const val admobRewardId             = "ca-app-pub-3940256099942544/5224354917"
             const val admobNativeId             = "ca-app-pub-3940256099942544/2247696110"
+            const val admobOpenAdId             = "ca-app-pub-3940256099942544/9257395921"
 
         }
     }

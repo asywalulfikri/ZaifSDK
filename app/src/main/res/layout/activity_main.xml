@@ -72,6 +72,13 @@
                 android:layout_height="wrap_content"
                 tools:ignore="HardcodedText" />
 
+            <Button
+                android:id="@+id/btnOpenId"
+                android:text="Open Ads Admob"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText" />
+
         </LinearLayout>
 
 
