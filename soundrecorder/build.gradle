@@ -103,13 +103,10 @@ dependencies {
     // Add the dependencies for the Firebase Cloud Messaging and Analytics libraries
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-messaging:24.0.0'
-    implementation 'com.google.firebase:firebase-analytics:22.0.2'
     implementation 'com.google.firebase:firebase-firestore:25.0.0'
-    implementation 'com.google.firebase:firebase-config:22.0.0'
 
     //implementation 'androidx.work:work-runtime-ktx:2.8.1'
     implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0' // Jackson as parser engine for retrofit
     implementation 'com.google.android.ump:user-messaging-platform:3.0.0'
     implementation("com.google.android.play:app-update:2.1.0")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
@@ -132,7 +129,7 @@ project.afterEvaluate {
                 from components.release
                 groupId = 'recording'
                 artifactId = 'recordingSDK'
-                version = '0.0.55'
+                version = '0.0.7'
             }
         }
     }

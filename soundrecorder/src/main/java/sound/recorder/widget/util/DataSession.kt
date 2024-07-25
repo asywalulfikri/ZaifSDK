@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.util.Log
 import com.google.gson.Gson
 import sound.recorder.widget.R
-import sound.recorder.widget.model.MenuConfig
 
 open class DataSession(private val mContext: Context) {
 
@@ -168,21 +167,6 @@ open class DataSession(private val mContext: Context) {
         }catch (e : Exception){
             setLog(e.message)
         }
-    }
-
-    fun saveRemoteConfig(menuConfig: MenuConfig){
-        try {
-            val editor = sharedPref.edit()
-            editor.putString("menuConfig",Gson().toJson(menuConfig))
-            editor.apply()
-        }catch (e : Exception){
-            setLog(e.message)
-        }
-    }
-
-    fun getMenuConfig(): MenuConfig {
-        val json = sharedPref.getString("menuConfig", "{}")
-        return Gson().fromJson(json, MenuConfig::class.java)
     }
 
     fun saveAnimation(value : Boolean){
