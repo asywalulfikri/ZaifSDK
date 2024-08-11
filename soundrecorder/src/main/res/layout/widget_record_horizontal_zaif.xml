@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="30dp">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/llRecordBackground"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="parent">
+
+
+        <RelativeLayout
+            android:id="@+id/noteBtn"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_centerInParent="true"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:src="@drawable/round"
+                android:contentDescription="@string/app_name"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="9sp"
+                tools:ignore="DuplicateSpeakableTextCheck,HardcodedText,SmallSp" />
+
+            <ImageView
+                android:layout_centerInParent="true"
+                android:layout_width="30dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:contentDescription="@string/app_name"
+                app:srcCompat="@drawable/notes"
+                tools:ignore="DuplicateSpeakableTextCheck" />
+        </RelativeLayout>
+
+
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:layout_marginStart="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/songBtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:srcCompat="@drawable/ic_song1"
+                android:contentDescription="@string/app_name"
+                tools:ignore="DuplicateSpeakableTextCheck" />
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/coverBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_marginBottom="2dp"
+                android:src="@drawable/round"
+                android:contentDescription="@string/app_name"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="9sp"
+                tools:ignore="DuplicateSpeakableTextCheck,HardcodedText,SmallSp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/rimouski"
+                android:gravity="center"
+                android:text="@string/cover_song"
+                android:textColor="#FFFFFF"
+                android:textSize="8sp"
+                tools:ignore="HardcodedText,SmallSp" />
+
+        </RelativeLayout>
+
+        <ImageView
+            android:visibility="gone"
+            android:layout_marginStart="6dp"
+            android:id="@+id/deleteBtn"
+            android:clickable="false"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/button_record_color"
+            android:padding="15dp"
+            app:srcCompat="@drawable/ic_cancel"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/app_name"/>
+
+        <RelativeLayout
+            android:id="@+id/rlRecord"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="50dp">
+
+
+            <ImageView
+                android:id="@+id/recordBtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/button_record_color"
+                android:contentDescription="@string/app_name"
+                android:padding="10dp"
+                app:srcCompat="@drawable/record"
+                tools:ignore="DuplicateSpeakableTextCheck" />
+
+            <TextView
+                android:id="@+id/recordText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/rimouski"
+                android:textColor="#FFFFFF"
+                android:textSize="8sp"
+                tools:ignore="HardcodedText,SmallSp" />
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/doneBtn"
+            android:visibility="gone"
+            android:background="@drawable/done"
+            android:layout_marginStart="5dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"/>
+
+        <ImageView
+            android:layout_marginStart="5dp"
+            android:id="@+id/listBtn"
+            android:padding="10dp"
+            android:background="@drawable/button_black"
+            app:srcCompat="@drawable/saved_song"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/app_name" />
+
+
+        <TextView
+            android:id="@+id/timerView"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginEnd="10dp"
+            android:textColor="#FFFFFF"
+            android:text="00:00.0"/>
+
+        <sound.recorder.widget.tools.RecorderWaveformView
+            android:layout_marginStart="10dp"
+            android:visibility="gone"
+            android:id="@+id/playerView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
+
+        <ImageView
+            android:background="@drawable/button_setting_color"
+            android:id="@+id/settingBtn"
+            android:padding="10dp"
+            android:src="@drawable/baseline_settings_white"
+            android:layout_marginEnd="10dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -23,6 +23,7 @@ import sound.recorder.widget.ui.fragment.FragmentSettings
 import sound.recorder.widget.ui.fragment.FragmentSheetListSong
 import sound.recorder.widget.ui.fragment.FragmentVideo
 import sound.recorder.widget.ui.fragment.ListRecordFragment
+import sound.recorder.widget.ui.fragment.VoiceRecordFragmentHorizontalZaif
 import sound.recorder.widget.ui.fragment.VoiceRecordFragmentVertical
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
@@ -184,7 +185,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
         checkForUpdates()
 
-        setupFragment(binding.recordingView.id,VoiceRecordFragmentVertical())
+        setupFragment(binding.recordingView.id,VoiceRecordFragmentHorizontalZaif())
 
 
     }
