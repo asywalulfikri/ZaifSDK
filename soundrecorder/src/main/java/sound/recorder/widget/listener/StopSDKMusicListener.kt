@@ -1,6 +1,6 @@
 package sound.recorder.widget.listener
 
-internal interface StopSDKMusicListener {
+interface StopSDKMusicListener {
 
     fun onStop(stop : Boolean)
     fun onStartAnimation()

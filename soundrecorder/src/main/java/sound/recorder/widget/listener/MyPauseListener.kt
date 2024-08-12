@@ -9,4 +9,8 @@ object MyPauseListener {
     fun postAction(pause : Boolean) {
         myListener?.onPause(pause)
     }
+
+    fun showButtonStop(stop : Boolean){
+        myListener?.showButtonStop(stop)
+    }
 }

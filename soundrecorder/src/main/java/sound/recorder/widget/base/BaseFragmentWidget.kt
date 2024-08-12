@@ -62,8 +62,8 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
-import com.google.firebase.FirebaseApp
-import com.google.firebase.messaging.FirebaseMessaging
+//import com.google.firebase.FirebaseApp
+//import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import org.json.JSONObject
 import sound.recorder.widget.R
@@ -1116,7 +1116,7 @@ open class BaseFragmentWidget : Fragment() {
             setLog(e.message.toString())
         }
     }
-    protected open fun getFirebaseToken(): String? {
+   /* protected open fun getFirebaseToken(): String? {
         val tokens = AtomicReference("")
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task: Task<String> ->
@@ -1133,7 +1133,7 @@ open class BaseFragmentWidget : Fragment() {
 
             }
         return tokens.get()
-    }
+    }*/
 
 
     /*fun showInterstitial(){
@@ -1283,6 +1283,7 @@ open class BaseFragmentWidget : Fragment() {
     fun showAllowPermission(){
         try {
             setToastInfo(activity,requireActivity().getString(R.string.allow_permission))
+            openSettings(activity)
         }catch (e : Exception){
             setLog(e.message)
         }

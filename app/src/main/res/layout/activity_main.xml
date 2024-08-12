@@ -52,6 +52,14 @@
 
             <Button
                 android:layout_marginTop="50dp"
+                android:id="@+id/btnOpenMusic"
+                android:text="Open Audio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:layout_marginTop="50dp"
                 android:id="@+id/btnInterstitialAdmob"
                 android:text="Interstitial Admob"
                 android:layout_width="wrap_content"

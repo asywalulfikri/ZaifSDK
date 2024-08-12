@@ -18,6 +18,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
@@ -1319,6 +1320,12 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun setLog(message: String){
         Log.d("response", "$message - ")
+    }
+
+    fun openSettings() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.data = Uri.fromParts("package", packageName.toString(), null)
+        startActivity(intent)
     }
 
     protected fun simpleAnimation(view: View , drawable:Int? = null) {

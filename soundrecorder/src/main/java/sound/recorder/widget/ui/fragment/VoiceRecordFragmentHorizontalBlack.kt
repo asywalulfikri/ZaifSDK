@@ -837,4 +837,8 @@ class VoiceRecordFragmentHorizontalBlack : BaseFragmentWidget(), BottomSheet.OnC
        }
     }
 
+    override fun showButtonStop(stop: Boolean) {
+
+    }
+
 }

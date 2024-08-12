@@ -85,7 +85,7 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:2.5.2"
 
 
-    implementation 'androidx.annotation:annotation:1.8.1'
+    implementation 'androidx.annotation:annotation:1.8.2'
     //config admob
     implementation 'com.google.android.gms:play-services-ads:23.2.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.1.0'
@@ -106,7 +106,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore:25.0.0'
 
     //implementation 'androidx.work:work-runtime-ktx:2.8.1'
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation("com.google.code.gson:gson:2.11.0")
     implementation 'com.google.android.ump:user-messaging-platform:3.0.0'
     implementation("com.google.android.play:app-update:2.1.0")
     implementation("com.google.android.play:app-update-ktx:2.1.0")

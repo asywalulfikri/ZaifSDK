@@ -1,6 +1,6 @@
 package sound.recorder.widget.listener
 
-internal object MyStopSDKMusicListener {
+object MyStopSDKMusicListener {
     private var myListener: StopSDKMusicListener? = null
 
     fun setMyListener(listener: StopSDKMusicListener? =null) {

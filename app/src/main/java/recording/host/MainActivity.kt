@@ -1,15 +1,25 @@
 package recording.host
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.media.AudioManager
+import android.media.MediaPlayer
 import android.media.SoundPool
+import android.media.ToneGenerator
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import recording.host.databinding.ActivityMainBinding
 import sound.recorder.widget.RecordingSDK
@@ -18,6 +28,11 @@ import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.FragmentListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyFragmentListener
+import sound.recorder.widget.listener.MyMusicListener
+import sound.recorder.widget.listener.MyPauseListener
+import sound.recorder.widget.listener.MyStopMusicListener
+import sound.recorder.widget.listener.MyStopSDKMusicListener
+import sound.recorder.widget.listener.PauseListener
 import sound.recorder.widget.model.Song
 import sound.recorder.widget.ui.fragment.FragmentSettings
 import sound.recorder.widget.ui.fragment.FragmentSheetListSong
@@ -28,8 +43,10 @@ import sound.recorder.widget.ui.fragment.VoiceRecordFragmentVertical
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.SnowFlakesLayout
+import java.io.IOException
+import kotlin.math.ln
 
-class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPreferences.OnSharedPreferenceChangeListener {
+class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPreferences.OnSharedPreferenceChangeListener,PauseListener,FragmentSheetListSong.OnClickListener {
 
     private lateinit var sp : SoundPool
 
@@ -51,6 +68,12 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
     )
 
     private lateinit var salju : SnowFlakesLayout
+
+    private var showBtnStop = false
+    private var mp :  MediaPlayer? =null
+    private var songIsPlaying = false
+    private var volumes : Float? =null
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -61,6 +84,11 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
         sharedPreferences = DataSession(this).getShared()
         sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
+
+
+        val progress = sharedPreferences?.getInt(Constant.KeyShared.volume,100)
+        volumes = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
+            ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
 
         setupBannerNew(binding.bannerView)
         setupAppOpenAd()
@@ -137,6 +165,10 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             showInterstitial()
         }
 
+        binding.btnOpenMusic.setOnClickListener {
+            startPermissionSong()
+        }
+
         binding.btnOpenId.setOnClickListener {
             showOpenAd()
         }
@@ -188,6 +220,56 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         setupFragment(binding.recordingView.id,VoiceRecordFragmentHorizontalZaif())
 
 
+    }
+
+    private val requestPermissionSong =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            // do something
+            if(isGranted){
+                showBottomSheetSong()
+            }else{
+                showAllowPermission()
+            }
+        }
+
+    private fun showAllowPermission(){
+        try {
+            setToastInfo(getString(sound.recorder.widget.R.string.allow_permission))
+            openSettings()
+        }catch (e : Exception){
+            setLog(e.message.toString())
+        }
+
+    }
+
+    private fun startPermissionSong(){
+        if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU){
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                showBottomSheetSong()
+            } else {
+                requestPermissionSong.launch(Manifest.permission.READ_MEDIA_AUDIO)
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionSong.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }else{
+                showBottomSheetSong()
+            }
+        }else{
+            showBottomSheetSong()
+        }
+
+    }
+
+
+    private fun showBottomSheetSong(){
+        try {
+            MyFragmentListener.openFragment(FragmentSheetListSong(showBtnStop,this))
+            MyAdsListener.setAds(false)
+
+        }catch (e : Exception){
+            setLog(e.message.toString())
+        }
     }
 
     private fun checkForUpdates() {
@@ -258,5 +340,88 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
        }else{
            binding.bannerView.visibility = View.GONE
        }
+    }
+
+    override fun onPause(pause: Boolean) {
+
+    }
+
+    override fun showButtonStop(stop: Boolean) {
+        showBtnStop = stop
+    }
+
+    override fun onPlaySong(filePath: String) {
+        try {
+            if(mp!=null){
+                mp.apply {
+                    mp?.release()
+                    mp = null
+                    MyMusicListener.postAction(null)
+                }
+            }
+        }catch (e : Exception){
+            setToastError(e.message.toString())
+        }
+        Handler().postDelayed({
+            try {
+                mp = MediaPlayer()
+                mp?.apply {
+                    setDataSource(this@MainActivity, Uri.parse(filePath))
+                    volumes?.let { setVolume(it, volumes!!) }
+                    setOnPreparedListener{
+                        mp?.start()
+                        MyMusicListener.postAction(mp)
+                        MyStopSDKMusicListener.onStartAnimation()
+                    }
+                    mp?.prepareAsync()
+                    setOnCompletionListener {
+                        MyStopSDKMusicListener.postAction(true)
+                        MyStopMusicListener.postAction(true)
+                        MyPauseListener.showButtonStop(false)
+                        showBtnStop = false
+                    }
+                    MyPauseListener.showButtonStop(true)
+                    showBtnStop = true
+                    songIsPlaying = true
+
+                }
+            } catch (e: Exception) {
+                try {
+                    MyStopSDKMusicListener.postAction(true)
+                    MyStopMusicListener.postAction(true)
+                    MyPauseListener.showButtonStop(false)
+                    showBtnStop = false
+                    setToastError(e.message.toString())
+                }catch (e : Exception){
+                    setLog(e.message.toString())
+                }
+            }
+        }, 100)
+    }
+
+    override fun onStopSong() {
+        try {
+            mp?.apply {
+                stop()
+                reset()
+                release()
+                mp = null
+                songIsPlaying = false
+                showBtnStop = false
+                MyPauseListener.showButtonStop(false)
+                MyMusicListener.postAction(null)
+                MyStopMusicListener.postAction(true)
+            }
+        } catch (e: IOException) {
+            setToastError(e.message.toString())
+        } catch (e: IllegalStateException) {
+            setToastError(e.message.toString())
+        }catch (e : Exception){
+            setToastError(e.message.toString())
+        }
+    }
+
+    override fun onNoteSong(note: String) {
+        MyMusicListener.postNote(note)
     }
 }

@@ -214,6 +214,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 release()
                 showBtnStop = false
                 songIsPlaying = false
+                MyPauseListener.showButtonStop(false)
                 MyMusicListener.setMyListener(null)
                 MyStopSDKMusicListener.setMyListener(null)
                 MyStopMusicListener.setMyListener(null)
@@ -706,8 +707,10 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                         setOnCompletionListener {
                             MyStopSDKMusicListener.postAction(true)
                             MyStopMusicListener.postAction(true)
+                            MyPauseListener.showButtonStop(false)
                             showBtnStop = false
                         }
+                        MyPauseListener.showButtonStop(true)
                         showBtnStop = true
                         songIsPlaying = true
 
@@ -716,6 +719,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                     try {
                         MyStopSDKMusicListener.postAction(true)
                         MyStopMusicListener.postAction(true)
+                        MyPauseListener.showButtonStop(false)
                         showBtnStop = false
                         setToastError(activity,e.message.toString())
                     }catch (e : Exception){
@@ -736,6 +740,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 MyMusicListener.postAction(null)
                 MyStopSDKMusicListener.postAction(true)
                 MyStopMusicListener.postAction(true)
+                MyPauseListener.showButtonStop(false)
                 showBtnStop = false
                 songIsPlaying = false
             }
@@ -759,6 +764,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 release()
                 showBtnStop = false
                 songIsPlaying = false
+                MyPauseListener.showButtonStop(false)
                 MyMusicListener.setMyListener(null)
                 MyStopSDKMusicListener.setMyListener(null)
                 MyStopMusicListener.setMyListener(null)
@@ -786,6 +792,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                     mp = null
                     songIsPlaying = false
                     showBtnStop = false
+                    MyPauseListener.showButtonStop(false)
                     MyMusicListener.postAction(null)
                     MyStopMusicListener.postAction(true)
                 }
@@ -838,7 +845,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     override fun onPause(pause: Boolean) {
        if(pause){
            showBtnStop = false
+           MyPauseListener.showButtonStop(false)
        }
+    }
+
+    override fun showButtonStop(stop: Boolean) {
+
     }
 
 }

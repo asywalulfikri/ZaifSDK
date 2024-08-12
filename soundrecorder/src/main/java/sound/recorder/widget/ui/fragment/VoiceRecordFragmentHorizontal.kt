@@ -311,7 +311,6 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
         }else{
             showBottomSheetSong()
         }
-
     }
 
     private val requestPermission =
@@ -835,6 +834,10 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
        if(pause){
            showBtnStop = false
        }
+    }
+
+    override fun showButtonStop(stop: Boolean) {
+
     }
 
 }
