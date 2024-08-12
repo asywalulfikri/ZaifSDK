@@ -385,7 +385,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         binding.deleteBtn.isClickable = false
         binding.deleteBtn.visibility = View.GONE
 
-        binding.playerView.reset()
+        //binding.playerView.reset()
         try {
             timer.stop()
         }catch (e: IllegalStateException) {
@@ -466,6 +466,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
         dirPath = "${activity?.externalCacheDir?.absolutePath}/"
         fileName = "record_${date}.mp3"
+        binding.timerView.visibility = View.VISIBLE
 
         try {
             recorder =  MediaRecorder()
@@ -476,7 +477,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 setOutputFile(dirPath + fileName)
                 prepare()
                 start()
-                animatePlayerView()
+                //animatePlayerView()
                 setToastInfo(activity,requireActivity().getString(R.string.record_started))
             }
         } catch (e: IllegalStateException) {
@@ -557,7 +558,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                         pauseRecordAudio = false
 
                         binding.recordBtn.setImageResource(R.drawable.ic_pause)
-                        animatePlayerView()
+                        //animatePlayerView()
                         timer.start()
                     }
                 }
@@ -585,8 +586,10 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
     private fun stopRecordingAudio(message : String){
         if(recorder!=null&&recordingAudio){
+
             try {
                 recorder?.apply {
+                    binding.timerView.visibility = View.GONE
                     stop()
                     reset()
                     release()
