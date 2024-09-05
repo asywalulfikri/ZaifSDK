@@ -115,5 +115,18 @@
     <string name="share_via">通过...分享</string>
 
 
+    <string name="note_song">歌曲笔记</string>
+    <string name="choose_color">选择颜色</string>
+    <string name="note_empty">还没有笔记</string>
+    <string name="enter_note">请输入笔记！</string>
+    <string name="enter_note_title">请输入笔记标题！</string>
+    <string name="play_music_text">演奏你喜欢的乐器</string>
+    <string name="play_together">一起学习乐器吧</string>
+    <string name="exit_title">你确定要退出吗？</string>
+    <string name="mode_32_tuts_audio1">32键模式 音效 1</string>
+    <string name="mode_32_tuts_audio2">32键模式 音效 2</string>
+    <string name="mode_basuri">巴苏里模式</string>
+    <string name="mode_8_tuts">8键模式</string>
+
 
 </resources>

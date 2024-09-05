@@ -114,6 +114,20 @@
     <string name="whatsapp_support">Поддержка WhatsApp</string>
     <string name="share_via">Поделиться через</string>
 
+    <string name="note_song">Заметки песни</string>
+    <string name="choose_color">Выберите цвет</string>
+    <string name="note_empty">Пока нет заметок</string>
+    <string name="enter_note">Введите заметку!</string>
+    <string name="enter_note_title">Введите заголовок заметки!</string>
+    <string name="play_music_text">Играй на своем любимом музыкальном инструменте</string>
+    <string name="play_together">Давайте учиться играть на музыкальных инструментах вместе</string>
+    <string name="exit_title">Вы уверены, что хотите выйти?</string>
+    <string name="mode_32_tuts_audio1">Режим 32 клавиши Звук 1</string>
+    <string name="mode_32_tuts_audio2">Режим 32 клавиши Звук 2</string>
+    <string name="mode_basuri">Режим Басури</string>
+    <string name="mode_8_tuts">Режим 8 клавиш</string>
+
+
 
 
 </resources>

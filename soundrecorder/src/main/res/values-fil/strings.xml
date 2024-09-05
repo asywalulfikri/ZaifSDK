@@ -1,4 +1,5 @@
 <resources>
+    <!--Philippines-->
     <string name="default_notification_channel_id">ID ng Default na Koneksyon</string>
 
     <string name="colorpicker_dialog_title">Pumili ng Kulay</string>
@@ -116,6 +117,19 @@
     <string name="whatsapp_support">Suporta ng WhatsApp</string>
     <string name="share_via">Ibahagi sa pamamagitan ng</string>
 
+
+    <string name="note_song">Mga Nota ng Kanta</string>
+    <string name="choose_color">Pumili ng Kulay</string>
+    <string name="note_empty">Wala pang mga Tala</string>
+    <string name="enter_note">Ilagay ang Tala!</string>
+    <string name="enter_note_title">Ilagay ang Pamagat ng Tala!</string>
+    <string name="play_music_text">Patugtugin ang iyong paboritong instrumentong pangmusika</string>
+    <string name="play_together">Tarat mag-aral ng mga instrumentong pangmusika nang magkasama</string>
+    <string name="exit_title">Sigurado ka bang gusto mong lumabas?</string>
+    <string name="mode_32_tuts_audio1">32 Key Mode Tunog 1</string>
+    <string name="mode_32_tuts_audio2">32 Key Mode Tunog 2</string>
+    <string name="mode_basuri">Basuri Mode</string>
+    <string name="mode_8_tuts">8 Key Mode</string>
 
 
 

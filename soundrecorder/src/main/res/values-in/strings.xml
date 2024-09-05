@@ -117,6 +117,19 @@
     <string name="whatsapp_support">Dukungan WhatsApp</string>
     <string name="share_via">Bagikan melalui</string>
 
+    <string name="note_song">Not Lagu</string>
+    <string name="choose_color">Choose Color</string>
+    <string name="note_empty">Belum ada Catatan</string>
+    <string name="enter_note">Masukkan Catatan!</string>
+    <string name="enter_note_title">Masukkan Judul Catatan!</string>
+    <string name ="play_music_text">Mainkan alat musik favorit mu"</string>
+    <string name="play_together">Ayo belajar alat musik bersama</string>
+    <string name="exit_title">Apakah kamu yakin akan keluar ?</string>
+    <string name="mode_32_tuts_audio1">Mode 32 Tuts Suara 1</string>
+    <string name="mode_32_tuts_audio2">Mode 32 Tuts Suara 1</string>
+    <string name="mode_basuri">Mode Basuri</string>
+    <string name="mode_8_tuts">Mode 8 Tuts</string>
+
 
 
 </resources>

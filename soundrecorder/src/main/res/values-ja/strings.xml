@@ -1,4 +1,5 @@
 <resources>
+    <!--Japan-->
     <string name="default_notification_channel_id">デフォルト通知チャネルID</string>
 
     <string name="colorpicker_dialog_title">色を選択</string>
@@ -115,6 +116,19 @@
 
     <string name="whatsapp_support">WhatsAppサポート</string>
     <string name="share_via">共有方法</string>
+
+    <string name="note_song">曲のメモ</string>
+    <string name="choose_color">色を選択</string>
+    <string name="note_empty">メモがありません</string>
+    <string name="enter_note">メモを入力してください！</string>
+    <string name="enter_note_title">メモのタイトルを入力してください！</string>
+    <string name="play_music_text">お気に入りの楽器を演奏しよう</string>
+    <string name="play_together">一緒に楽器を学びましょう</string>
+    <string name="exit_title">本当に終了しますか？</string>
+    <string name="mode_32_tuts_audio1">32キー モード サウンド 1</string>
+    <string name="mode_32_tuts_audio2">32キー モード サウンド 2</string>
+    <string name="mode_basuri">バスリーモード</string>
+    <string name="mode_8_tuts">8キー モード</string>
 
 
 

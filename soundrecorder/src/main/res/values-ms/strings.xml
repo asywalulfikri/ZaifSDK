@@ -1,4 +1,5 @@
 <resources>
+    <!--Melayu-->
     <string name="default_notification_channel_id">ID Saluran Notifikasi Lalai</string>
 
     <string name="colorpicker_dialog_title">Pilih Warna</string>
@@ -117,6 +118,19 @@
     <string name="whatsapp_support">Sokongan WhatsApp</string>
     <string name="share_via">Kongsi melalui</string>
 
+
+    <string name="note_song">Nota Lagu</string>
+    <string name="choose_color">Pilih Warna</string>
+    <string name="note_empty">Tiada Nota Lagi</string>
+    <string name="enter_note">Masukkan Nota!</string>
+    <string name="enter_note_title">Masukkan Tajuk Nota!</string>
+    <string name="play_music_text">Mainkan alat muzik kegemaran anda</string>
+    <string name="play_together">Mari belajar alat muzik bersama</string>
+    <string name="exit_title">Adakah anda pasti mahu keluar?</string>
+    <string name="mode_32_tuts_audio1">Mod 32 Kekunci Bunyi 1</string>
+    <string name="mode_32_tuts_audio2">Mod 32 Kekunci Bunyi 2</string>
+    <string name="mode_basuri">Mod Basuri</string>
+    <string name="mode_8_tuts">Mod 8 Kekunci</string>
 
 
 

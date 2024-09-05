@@ -116,5 +116,21 @@
     <string name="share_via">แชร์ผ่าน</string>
 
 
+    <string name="note_song">โน้ตเพลง</string>
+    <string name="choose_color">เลือกสี</string>
+    <string name="note_empty">ยังไม่มีบันทึก</string>
+    <string name="enter_note">กรุณากรอกบันทึก!</string>
+    <string name="enter_note_title">กรุณากรอกชื่อบันทึก!</string>
+    <string name="play_music_text">เล่นเครื่องดนตรีที่คุณชื่นชอบ</string>
+    <string name="play_together">มาเรียนรู้เครื่องดนตรีด้วยกัน</string>
+    <string name="exit_title">คุณแน่ใจหรือไม่ว่าต้องการออกจากแอพ?</string>
+    <string name="mode_32_tuts_audio1">โหมด 32 คีย์ เสียง 1</string>
+    <string name="mode_32_tuts_audio2">โหมด 32 คีย์ เสียง 2</string>
+    <string name="mode_basuri">โหมดบาซูรี</string>
+    <string name="mode_8_tuts">โหมด 8 คีย์</string>
+
+
+
+
 
 </resources>

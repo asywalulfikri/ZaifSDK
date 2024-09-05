@@ -125,6 +125,7 @@
             <ImageView
                 android:id="@+id/recordBtn"
                 android:layout_width="40dp"
+                android:layout_marginStart="6dp"
                 android:layout_height="40dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/button_record_color"

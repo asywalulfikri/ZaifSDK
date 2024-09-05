@@ -191,7 +191,7 @@ class BottomSheetNote : BottomSheetDialogFragment() {
         val inputNote = view.findViewById<EditText>(R.id.note)
         val inputTitle = view.findViewById<EditText>(R.id.title)
         val dialogTitle = view.findViewById<TextView>(R.id.dialog_title)
-        dialogTitle.text = if (!shouldUpdate) getActivity()?.getString(R.string.lbl_new_note_title) else getActivity()?.getString(R.string.lbl_edit_note_title)
+        dialogTitle.text = if (!shouldUpdate) activity?.getString(R.string.lbl_new_note_title) else activity?.getString(R.string.lbl_edit_note_title)
 
         if (shouldUpdate && note != null) {
 
@@ -212,10 +212,10 @@ class BottomSheetNote : BottomSheetDialogFragment() {
         alertDialogBuilderUserInput
             .setCancelable(false)
             .setPositiveButton(
-                if (shouldUpdate) "update" else "save"
+                if (shouldUpdate) activity?.getString(R.string.update) else activity?.getString(R.string.save)
             ) { _, _ -> }
             .setNegativeButton(
-                "cancel"
+                activity?.getString(R.string.cancel)
             ) { dialogBox, _ -> dialogBox.cancel() }
         val alertDialog = alertDialogBuilderUserInput.create()
         alertDialog.show()
@@ -223,10 +223,10 @@ class BottomSheetNote : BottomSheetDialogFragment() {
             View.OnClickListener {
                 // Show toast message when no text is entered
                 if (TextUtils.isEmpty(inputNote.text.toString())) {
-                    setToastWarning(activity,"Enter Note!")
+                    setToastWarning(activity,activity?.getString(R.string.enter_note).toString())
                     return@OnClickListener
                 }else if (TextUtils.isEmpty(inputNote.text.toString())) {
-                    setToastWarning(activity,"Enter Note Title!")
+                    setToastWarning(activity,activity?.getString(R.string.enter_note_title).toString())
                     return@OnClickListener
                 }else {
                     alertDialog.dismiss()

@@ -117,6 +117,19 @@
     <string name="share_via">Compartir vía</string>
 
 
+    <string name="note_song">Notas de la canción</string>
+    <string name="choose_color">Elegir color</string>
+    <string name="note_empty">No hay notas aún</string>
+    <string name="enter_note">¡Introduce una nota!</string>
+    <string name="enter_note_title">¡Introduce un título de nota!</string>
+    <string name="play_music_text">Toca tu instrumento musical favorito</string>
+    <string name="play_together">Aprendamos instrumentos musicales juntos</string>
+    <string name="exit_title">¿Estás seguro de que quieres salir?</string>
+    <string name="mode_32_tuts_audio1">Modo 32 Teclas Sonido 1</string>
+    <string name="mode_32_tuts_audio2">Modo 32 Teclas Sonido 2</string>
+    <string name="mode_basuri">Modo Basuri</string>
+    <string name="mode_8_tuts">Modo 8 Teclas</string>
+
 
 
 </resources>

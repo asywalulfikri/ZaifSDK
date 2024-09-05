@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
     <FrameLayout
         android:background="@color/colorPrimary"
         android:id="@+id/bannerView"
@@ -19,7 +18,7 @@
         android:layout_below="@+id/bannerView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,7 +37,6 @@
             tools:ignore="HardcodedText" />
 
         <Button
-            android:layout_marginTop="50dp"
             android:id="@+id/btn2"
             android:text="2"
             android:layout_width="wrap_content"
@@ -48,10 +46,9 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
             <Button
-                android:layout_marginTop="50dp"
                 android:id="@+id/btnOpenMusic"
                 android:text="Open Audio"
                 android:layout_width="wrap_content"
@@ -59,7 +56,6 @@
                 tools:ignore="HardcodedText" />
 
             <Button
-                android:layout_marginTop="50dp"
                 android:id="@+id/btnInterstitialAdmob"
                 android:text="Interstitial Admob"
                 android:layout_width="wrap_content"
@@ -72,6 +68,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:ignore="HardcodedText" />
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
             <Button
                 android:id="@+id/btnVideo"
@@ -87,9 +92,14 @@
                 android:layout_height="wrap_content"
                 tools:ignore="HardcodedText" />
 
+            <Button
+                android:id="@+id/btnNote"
+                android:text="@string/note_song"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText" />
+
         </LinearLayout>
-
-
 
 
     </LinearLayout>

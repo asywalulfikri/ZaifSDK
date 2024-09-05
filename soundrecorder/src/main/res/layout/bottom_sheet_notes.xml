@@ -27,7 +27,7 @@
             android:layout_centerInParent="true"
             android:layout_centerHorizontal="true"
             android:fontFamily="sans-serif-light"
-            android:text="Note Empty"
+            android:text="@string/note_empty"
             app:layout_anchor="@+id/recycler_view"
             app:layout_anchorGravity="center"
             tools:ignore="HardcodedText" />

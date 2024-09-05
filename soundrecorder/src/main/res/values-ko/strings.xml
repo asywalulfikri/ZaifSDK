@@ -1,4 +1,5 @@
 <resources>
+    <!--Korea-->
     <string name="default_notification_channel_id">기본 알림 채널 ID</string>
 
     <string name="colorpicker_dialog_title">색상 선택</string>
@@ -116,6 +117,20 @@
 
     <string name="whatsapp_support">WhatsApp 지원</string>
     <string name="share_via">공유 방법</string>
+
+
+    <string name="note_song">곡 노트</string>
+    <string name="choose_color">색상 선택</string>
+    <string name="note_empty">메모가 없습니다</string>
+    <string name="enter_note">메모를 입력하세요!</string>
+    <string name="enter_note_title">메모 제목을 입력하세요!</string>
+    <string name="play_music_text">좋아하는 악기를 연주하세요</string>
+    <string name="play_together">함께 악기를 배워봅시다</string>
+    <string name="exit_title">정말로 종료하시겠습니까?</string>
+    <string name="mode_32_tuts_audio1">32키 모드 사운드 1</string>
+    <string name="mode_32_tuts_audio2">32키 모드 사운드 2</string>
+    <string name="mode_basuri">바수리 모드</string>
+    <string name="mode_8_tuts">8키 모드</string>
 
 
 

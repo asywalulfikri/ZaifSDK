@@ -1,4 +1,5 @@
 <resources>
+    <!--hindi-->
     <string name="default_notification_channel_id">डिफ़ॉल्ट सूचना संदेश चैनल आईडी</string>
 
     <string name="colorpicker_dialog_title">रंग चुनें</string>
@@ -114,6 +115,19 @@
     <string name="whatsapp_support">व्हाट्सएप समर्थन</string>
     <string name="share_via">इसके माध्यम से साझा करें</string>
 
+
+    <string name="note_song">गीत नोट्स</string>
+    <string name="choose_color">रंग चुनें</string>
+    <string name="note_empty">कोई नोट नहीं है</string>
+    <string name="enter_note">नोट दर्ज करें!</string>
+    <string name="enter_note_title">नोट का शीर्षक दर्ज करें!</string>
+    <string name="play_music_text">अपना पसंदीदा संगीत वाद्ययंत्र बजाएं</string>
+    <string name="play_together">आओ मिलकर संगीत वाद्ययंत्र सीखें</string>
+    <string name="exit_title">क्या आप वाकई बाहर निकलना चाहते हैं?</string>
+    <string name="mode_32_tuts_audio1">32 की मोड ध्वनि 1</string>
+    <string name="mode_32_tuts_audio2">32 की मोड ध्वनि 2</string>
+    <string name="mode_basuri">बासुरी मोड</string>
+    <string name="mode_8_tuts">8 की मोड</string>
 
 
 </resources>

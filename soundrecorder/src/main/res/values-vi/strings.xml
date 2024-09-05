@@ -115,6 +115,19 @@
     <string name="whatsapp_support">Hỗ trợ WhatsApp</string>
     <string name="share_via">Chia sẻ qua</string>
 
+    <string name="note_song">Ghi chú bài hát</string>
+    <string name="choose_color">Chọn màu</string>
+    <string name="note_empty">Chưa có ghi chú nào</string>
+    <string name="enter_note">Nhập ghi chú!</string>
+    <string name="enter_note_title">Nhập tiêu đề ghi chú!</string>
+    <string name="play_music_text">Chơi nhạc cụ yêu thích của bạn</string>
+    <string name="play_together">Hãy học chơi nhạc cụ cùng nhau</string>
+    <string name="exit_title">Bạn có chắc chắn muốn thoát không?</string>
+    <string name="mode_32_tuts_audio1">Chế độ 32 phím Âm thanh 1</string>
+    <string name="mode_32_tuts_audio2">Chế độ 32 phím Âm thanh 2</string>
+    <string name="mode_basuri">Chế độ Basuri</string>
+    <string name="mode_8_tuts">Chế độ 8 phím</string>
+
 
 
 </resources>

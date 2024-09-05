@@ -34,6 +34,7 @@ import sound.recorder.widget.listener.MyStopMusicListener
 import sound.recorder.widget.listener.MyStopSDKMusicListener
 import sound.recorder.widget.listener.PauseListener
 import sound.recorder.widget.model.Song
+import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
 import sound.recorder.widget.ui.fragment.FragmentSettings
 import sound.recorder.widget.ui.fragment.FragmentSheetListSong
 import sound.recorder.widget.ui.fragment.FragmentVideo
@@ -171,6 +172,15 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
         binding.btnOpenId.setOnClickListener {
             showOpenAd()
+        }
+
+        binding.btnNote.setOnClickListener {
+            try {
+                val bottomSheetNote = BottomSheetNote()
+                bottomSheetNote.show(supportFragmentManager,"")
+            }catch (e : Exception){
+                Log.d("error","error")
+            }
         }
 
         binding.btnInterstitialStarApp.setOnClickListener {

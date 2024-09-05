@@ -1,4 +1,5 @@
 <resources>
+    <!--Nedherland-->
     <string name="default_notification_channel_id">Standaard meldingskanaal-ID</string>
 
     <string name="colorpicker_dialog_title">Kies de kleur</string>
@@ -117,6 +118,19 @@
     <string name="share_via">Delen via</string>
 
 
+
+    <string name="note_song">Song Notities</string>
+    <string name="choose_color">Kies Kleur</string>
+    <string name="note_empty">Nog geen notities</string>
+    <string name="enter_note">Voer een notitie in!</string>
+    <string name="enter_note_title">Voer een titel voor de notitie in!</string>
+    <string name="play_music_text">Speel je favoriete muziekinstrument</string>
+    <string name="play_together">Laten we samen muziekinstrumenten leren</string>
+    <string name="exit_title">Weet je zeker dat je wilt afsluiten?</string>
+    <string name="mode_32_tuts_audio1">32 Toetsen Modus Geluid 1</string>
+    <string name="mode_32_tuts_audio2">32 Toetsen Modus Geluid 2</string>
+    <string name="mode_basuri">Basuri Modus</string>
+    <string name="mode_8_tuts">8 Toetsen Modus</string>
 
 
 </resources>

@@ -1,4 +1,5 @@
 <resources>
+    <!--Portuguise-->
     <string name="default_notification_channel_id">ID do canal de notificação padrão</string>
 
     <string name="colorpicker_dialog_title">Escolha a cor</string>
@@ -115,6 +116,19 @@
     <string name="whatsapp_support">Suporte do WhatsApp</string>
     <string name="share_via">Compartilhar via</string>
 
+
+    <string name="note_song">Notas da Música</string>
+    <string name="choose_color">Escolher Cor</string>
+    <string name="note_empty">Ainda Sem Notas</string>
+    <string name="enter_note">Introduza uma Nota!</string>
+    <string name="enter_note_title">Introduza um Título para a Nota!</string>
+    <string name="play_music_text">Toque o seu instrumento musical favorito</string>
+    <string name="play_together">Vamos aprender instrumentos musicais juntos</string>
+    <string name="exit_title">Tem a certeza de que quer sair?</string>
+    <string name="mode_32_tuts_audio1">Modo 32 Teclas Som 1</string>
+    <string name="mode_32_tuts_audio2">Modo 32 Teclas Som 2</string>
+    <string name="mode_basuri">Modo Basuri</string>
+    <string name="mode_8_tuts">Modo 8 Teclas</string>
 
 
 </resources>

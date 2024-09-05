@@ -116,6 +116,19 @@
     <string name="whatsapp_support">WhatsApp Support</string>
     <string name="share_via">Share via</string>
 
+    <string name="note_song">Song Notes</string>
+    <string name="choose_color">Choose Color</string>
+    <string name="note_empty">No Notes Yet</string>
+    <string name="enter_note">Enter a Note!</string>
+    <string name="enter_note_title">Enter a Note Title!</string>
+    <string name="play_music_text">Play your favorite musical instrument</string>
+    <string name="play_together">Lets learn musical instruments together</string>
+    <string name="exit_title">Are you sure you want to exit?</string>
+    <string name="mode_32_tuts_audio1">32 Keys Mode Sound 1</string>
+    <string name="mode_32_tuts_audio2">32 Keys Mode Sound 2</string>
+    <string name="mode_basuri">Basuri Mode</string>
+    <string name="mode_8_tuts">8 Keys Mode</string>
+
     
 
 

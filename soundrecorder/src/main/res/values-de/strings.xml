@@ -115,5 +115,18 @@
     <string name="whatsapp_support">WhatsApp Unterstützung</string>
     <string name="share_via">Teilen über</string>
 
+    <string name="note_song">Liednoten</string>
+    <string name="choose_color">Farbe wählen</string>
+    <string name="note_empty">Noch keine Notizen</string>
+    <string name="enter_note">Geben Sie eine Notiz ein!</string>
+    <string name="enter_note_title">Geben Sie einen Notiztitel ein!</string>
+    <string name="play_music_text">Spiele dein Lieblingsmusikinstrument</string>
+    <string name="play_together">Lass uns zusammen Musikinstrumente lernen</string>
+    <string name="exit_title">Bist du sicher, dass du beenden möchtest?</string>
+    <string name="mode_32_tuts_audio1">32-Tasten-Modus Ton 1</string>
+    <string name="mode_32_tuts_audio2">32-Tasten-Modus Ton 2</string>
+    <string name="mode_basuri">Basuri-Modus</string>
+    <string name="mode_8_tuts">8-Tasten-Modus</string>
+
 
 </resources>
