@@ -24,6 +24,8 @@ open class Constant {
             const val colorWidget = "colorWidget"
             const val colorRunningText = "colorRunningText"
 
+            const val volumeAudio = "volumeAudio"
+
             const val admobBannerId = "bannerId"
             const val admobId = "admobId"
             const val admobInterstitialId = "interstitialIdName"
