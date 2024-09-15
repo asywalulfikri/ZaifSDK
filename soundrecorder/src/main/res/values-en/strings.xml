@@ -131,5 +131,7 @@
     <string name="mode_basuri">Basuri Mode</string>
     <string name="mode_8_tuts">8 Keys Mode</string>
 
+    <string name="volume">Volume</string>
+
 
 </resources>

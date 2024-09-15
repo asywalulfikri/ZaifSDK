@@ -12,6 +12,7 @@ class RecordingWidgetBuilder private constructor(
     val applicationId: String?,
     val developerName : String?,
     val showNote : Boolean,
+    val showSetting : Boolean,
     val backgroundWidgetColor : String?
 ) {
 
@@ -25,6 +26,7 @@ class RecordingWidgetBuilder private constructor(
         private var applicationId: String? = null
         private var developerName : String? = null
         private var showNote = false
+        private var showSetting = false
         private var backgroundWidgetColor : String? = null
 
         fun setAppName(appName: String?): Builder {
@@ -57,6 +59,11 @@ class RecordingWidgetBuilder private constructor(
             return this
         }
 
+        fun showSetting(showSetting: Boolean): Builder {
+            this.showSetting = showSetting
+            return this
+        }
+
         fun setBackgroundWidgetColor(backgroundWidgetColor: String?): Builder {
             this.backgroundWidgetColor= backgroundWidgetColor
             return this
@@ -64,7 +71,7 @@ class RecordingWidgetBuilder private constructor(
 
         // Build function to create an instance of MyObject
         fun build(): RecordingWidgetBuilder {
-            val myObject = RecordingWidgetBuilder(appName, versionCode, versionName,applicationId,developerName,showNote,backgroundWidgetColor)
+            val myObject = RecordingWidgetBuilder(appName, versionCode, versionName,applicationId,developerName,showNote,showSetting,backgroundWidgetColor)
 
             // Save values to SharedPreferences
             saveToSharedPreferences(myObject)
@@ -85,6 +92,7 @@ class RecordingWidgetBuilder private constructor(
             editor.putString(Constant.KeyShared.applicationId, recordingWidgetBuilder.applicationId)
             editor.putString(Constant.KeyShared.developerName, recordingWidgetBuilder.developerName)
             editor.putBoolean(Constant.KeyShared.showNote, recordingWidgetBuilder.showNote)
+            editor.putBoolean(Constant.KeyShared.showSetting, recordingWidgetBuilder.showSetting)
             editor.putString(Constant.KeyShared.backgroundWidgetColor, recordingWidgetBuilder.backgroundWidgetColor)
 
             editor.apply()

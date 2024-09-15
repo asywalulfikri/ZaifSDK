@@ -72,6 +72,7 @@ class BeforeSplashScreen : BaseActivityWidget(){
                 .setApplicationId(BuildConfig.APPLICATION_ID)
                 .setBackgroundWidgetColor("#B42929")
                 .showNote(false)
+                .showSetting(false)
                 .build()
 
             // Update UI elements
@@ -105,7 +106,7 @@ class BeforeSplashScreen : BaseActivityWidget(){
     private fun goToNextPage() {
         try {
             Log.d("BeforeSplashScreen", "goToNextPage called")
-            if (getString(R.string.app_name) == "RecordingZaif" && BuildConfig.APPLICATION_ID == appId) {
+            if (getString(R.string.app_name) == "Bellyra" && BuildConfig.APPLICATION_ID == appId) {
                 Log.d("BeforeSplashScreen", "Navigating to HomeActivity")
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)

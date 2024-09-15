@@ -128,5 +128,7 @@
     <string name="mode_basuri">巴苏里模式</string>
     <string name="mode_8_tuts">8键模式</string>
 
+    <string name="volume">音量</string>
+
 
 </resources>

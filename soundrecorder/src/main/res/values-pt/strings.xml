@@ -130,5 +130,7 @@
     <string name="mode_basuri">Modo Basuri</string>
     <string name="mode_8_tuts">Modo 8 Teclas</string>
 
+    <string name="volume">Volume</string>
+
 
 </resources>

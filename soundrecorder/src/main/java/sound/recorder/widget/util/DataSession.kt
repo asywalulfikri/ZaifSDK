@@ -55,7 +55,11 @@ open class DataSession(private val mContext: Context) {
 
 
     fun getShowNote(): Boolean{
-        return sharedPref.getBoolean("showNote",false)
+        return sharedPref.getBoolean(Constant.KeyShared.showNote,false)
+    }
+
+    fun getShowSetting(): Boolean{
+        return sharedPref.getBoolean(Constant.KeyShared.showSetting,false)
     }
 
     fun getBackgroundRecord(): String{

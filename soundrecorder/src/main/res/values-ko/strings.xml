@@ -132,6 +132,8 @@
     <string name="mode_basuri">바수리 모드</string>
     <string name="mode_8_tuts">8키 모드</string>
 
+    <string name="volume">볼륨</string>
+
 
 
 </resources>

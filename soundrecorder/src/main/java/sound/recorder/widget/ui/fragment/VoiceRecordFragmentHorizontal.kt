@@ -77,6 +77,7 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
 
     private var volumes : Float? =null
     private var showNote : Boolean? =null
+    private var showSetting : Boolean? =null
 
 
     companion object {
@@ -104,6 +105,7 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
             sharedPreferences = DataSession(requireActivity()).getShared()
             sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
             showNote = DataSession(requireActivity()).getShowNote()
+            showSetting = DataSession(requireActivity()).getShowSetting()
 
             MyPauseListener.setMyListener(this)
 
@@ -119,6 +121,12 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
                 binding.noteBtn.visibility = View.VISIBLE
             }else{
                 binding.noteBtn.visibility = View.GONE
+            }
+
+            if(showSetting==true){
+                binding.settingBtn.visibility = View.VISIBLE
+            }else{
+                binding.settingBtn.visibility = View.GONE
             }
 
             handler = Handler(Looper.myLooper()!!)
