@@ -108,6 +108,10 @@ open class DataSession(private val mContext: Context) {
         editor.apply()
     }
 
+    fun getVolumeAudio() : Float{
+        return sharedPref.getFloat(Constant.KeyShared.volumeAudio,0.5f)
+    }
+
 
     fun addColor(colorWidget : Int, colorRunningText: Int){
         val editor = sharedPref.edit()
