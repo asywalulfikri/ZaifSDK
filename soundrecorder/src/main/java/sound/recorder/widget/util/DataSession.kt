@@ -109,7 +109,7 @@ open class DataSession(private val mContext: Context) {
     }
 
     fun getVolumeAudio() : Float{
-        return sharedPref.getFloat(Constant.KeyShared.volumeAudio,0.5f)
+        return sharedPref.getFloat(Constant.KeyShared.volumeAudio,1.0f)
     }
 
 
