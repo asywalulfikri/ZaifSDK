@@ -86,7 +86,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         sharedPreferences = DataSession(this).getShared()
         sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
 
-
+       // binding.tvRunningText.startScroll()
         val progress = sharedPreferences?.getInt(Constant.KeyShared.volume,100)
         volumes = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
             ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
@@ -133,8 +133,8 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
         RecordingSDK.run()
 
-        salju.startSnowing()
-        binding.layoutBackground.addView(salju)
+        //salju.startSnowing()
+        //binding.layoutBackground.addView(salju)
 
 
         sp = SoundPool(

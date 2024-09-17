@@ -14,6 +14,28 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+
+    <sound.recorder.widget.util.SpeedMarquee
+        android:id="@+id/tvRunningText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="5dp"
+        android:background="@color/black_de"
+        android:ellipsize="marquee"
+        android:fontFamily="@font/rimouski"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:text="Scroller Manual: Kelas ini menggunakan Scroller untuk menggerakkan teks dari kiri ke kanan secara manual.
+Pengendalian Kecepatan: Kamu dapat mengatur kecepatan gerakan marquee dengan memodifikasi nilai mScrollSpeed menggunakan metode setSpeed(float).
+Pemeriksaan Scrolling Diperlukan: Kode memeriksa apakah teks lebih panjang dari TextView dan memutuskan apakah scrolling diperlukan.
+Marquee Otomatis: Fungsi startScroll() memulai marquee, sedangkan pauseScroll() menghentikannya.
+Pembaruan UI: Kode ini sudah berada di thread UI, sehingga runOnUiThread tidak perlu digunakan di sini kecuali dari luar kelas ini.
+"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:marquee_speed="100.0"
+        tools:ignore="HardcodedText" />
+
     <LinearLayout
         android:layout_marginTop="60dp"
         android:layout_below="@+id/bannerView"

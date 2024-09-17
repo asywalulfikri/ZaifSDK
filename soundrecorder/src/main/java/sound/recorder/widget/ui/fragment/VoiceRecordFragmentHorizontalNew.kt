@@ -393,7 +393,7 @@ class VoiceRecordFragmentHorizontalNew : BaseFragmentWidget(), BottomSheet.OnCli
         binding.deleteBtn.isClickable = false
         binding.deleteBtn.visibility = View.GONE
 
-        binding.playerView.reset()
+       // binding.playerView.reset()
         try {
             timer.stop()
         }catch (e: IllegalStateException) {
@@ -508,7 +508,7 @@ class VoiceRecordFragmentHorizontalNew : BaseFragmentWidget(), BottomSheet.OnCli
 
 
     private fun animatePlayerView(){
-        if(recordingAudio && !pauseRecordAudio){
+       /* if(recordingAudio && !pauseRecordAudio){
             try {
                 val amp = recorder?.maxAmplitude
                 binding.playerView.updateAmps(amp)
@@ -520,7 +520,7 @@ class VoiceRecordFragmentHorizontalNew : BaseFragmentWidget(), BottomSheet.OnCli
             }catch (e : Exception){
                 setToastError(activity,e.message.toString())
             }
-        }
+        }*/
     }
 
     private fun pauseRecordingAudio(){

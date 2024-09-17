@@ -172,16 +172,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"
+            android:textStyle="bold"
             android:layout_marginEnd="10dp"
-            android:textColor="@color/black_de"
-            android:text="00:00.0"/>
+            android:textColor="@color/red_A700"
+            android:text="REC"/>
 
-        <sound.recorder.widget.tools.RecorderWaveformView
+
+       <!-- <sound.recorder.widget.tools.RecorderWaveformView
             android:layout_marginStart="10dp"
             android:visibility="gone"
             android:id="@+id/playerView"
             android:layout_width="match_parent"
-            android:layout_height="50dp" />
+            android:layout_height="50dp" />-->
 
 
         <ImageView

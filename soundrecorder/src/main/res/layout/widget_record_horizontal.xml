@@ -174,12 +174,12 @@
             android:textColor="#FFFFFF"
             android:text="00:00.0"/>
 
-        <sound.recorder.widget.tools.RecorderWaveformView
+      <!--  <sound.recorder.widget.tools.RecorderWaveformView
             android:layout_marginStart="10dp"
             android:visibility="gone"
             android:id="@+id/playerView"
             android:layout_width="match_parent"
-            android:layout_height="50dp" />
+            android:layout_height="50dp" />-->
 
 
         <ImageView

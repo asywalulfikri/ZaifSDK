@@ -392,7 +392,7 @@ class VoiceRecordFragmentHorizontalBlack : BaseFragmentWidget(), BottomSheet.OnC
         binding.deleteBtn.isClickable = false
         binding.deleteBtn.visibility = View.GONE
 
-        binding.playerView.reset()
+//        binding.playerView.reset()
         try {
             timer.stop()
         }catch (e: IllegalStateException) {
@@ -483,7 +483,7 @@ class VoiceRecordFragmentHorizontalBlack : BaseFragmentWidget(), BottomSheet.OnC
                 setOutputFile(dirPath + fileName)
                 prepare()
                 start()
-                animatePlayerView()
+                //animatePlayerView()
                 setToastInfo(activity,requireActivity().getString(R.string.record_started))
             }
         } catch (e: IllegalStateException) {
@@ -507,7 +507,7 @@ class VoiceRecordFragmentHorizontalBlack : BaseFragmentWidget(), BottomSheet.OnC
 
 
     private fun animatePlayerView(){
-        if(recordingAudio && !pauseRecordAudio){
+       /* if(recordingAudio && !pauseRecordAudio){
             try {
                 val amp = recorder?.maxAmplitude
                 binding.playerView.updateAmps(amp)
@@ -519,7 +519,7 @@ class VoiceRecordFragmentHorizontalBlack : BaseFragmentWidget(), BottomSheet.OnC
             }catch (e : Exception){
                 setToastError(activity,e.message.toString())
             }
-        }
+        }*/
     }
 
     private fun pauseRecordingAudio(){
@@ -564,7 +564,7 @@ class VoiceRecordFragmentHorizontalBlack : BaseFragmentWidget(), BottomSheet.OnC
                         pauseRecordAudio = false
 
                         binding.recordBtn.setImageResource(R.drawable.ic_pause)
-                        animatePlayerView()
+                        //animatePlayerView()
                         timer.start()
                     }
                 }

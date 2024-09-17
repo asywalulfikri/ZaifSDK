@@ -41,7 +41,6 @@ import sound.recorder.widget.listener.MyPauseListener
 import sound.recorder.widget.listener.MyStopMusicListener
 import sound.recorder.widget.listener.MyStopSDKMusicListener
 import sound.recorder.widget.listener.PauseListener
-import sound.recorder.widget.tools.Timer
 import sound.recorder.widget.ui.bottomSheet.BottomSheet
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
 import sound.recorder.widget.ui.bottomSheet.BottomSheetSetting
@@ -54,13 +53,11 @@ import kotlin.math.ln
 
 
 class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnClickListener,
-    FragmentSheetListSong.OnClickListener, Timer.OnTimerUpdateListener,SharedPreferences.OnSharedPreferenceChangeListener,PauseListener {
+    FragmentSheetListSong.OnClickListener ,SharedPreferences.OnSharedPreferenceChangeListener,PauseListener {
 
     private var recorder: MediaRecorder? = null
     private var recordingAudio = false
     private var pauseRecordAudio = false
-    private var refreshRate : Long = 60
-    private lateinit var timer: Timer
 
     private lateinit var handler: Handler
     private var _binding: WidgetRecordHorizontalZaifBinding? = null
@@ -78,6 +75,8 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     private var volumes : Float? =null
     private var showNote : Boolean? =null
     private var showSetting : Boolean? =null
+    private val blinkHandler = Handler(Looper.getMainLooper())
+    private var isBlinking = false
 
 
     companion object {
@@ -133,15 +132,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
 
             binding.rlRecord.setOnClickListener {
-                /*if(Build.VERSION.SDK_INT> Build.VERSION_CODES.N){
-                    when {
-                        pauseRecordAudio -> resumeRecordingAudio()
-                        recordingAudio -> pauseRecordingAudio()
-                        else -> startPermission()
-                    }
-                }else{
-                    setToastError(activity,requireActivity().getString(R.string.device_not_support))
-                }*/
                 when {
                     pauseRecordAudio -> resumeRecordingAudio()
                     recordingAudio -> pauseRecordingAudio()
@@ -370,8 +360,9 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         binding.deleteBtn.isClickable = true
         binding.recordBtn.setImageResource(R.drawable.ic_pause)
 
-        timer = Timer(this)
-        timer.start()
+        startBlinking()
+       /* timer = Timer(this)
+        timer.start()*/
     }
 
 
@@ -381,7 +372,15 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         binding.recordBtn.setImageResource(0)
        // binding.recordText.text = requireActivity().getString(R.string.text_continue)
         binding.recordBtn.setImageResource(R.drawable.play_white)
-        timer.pause()
+       // timer.pause()
+        stopBlinking()
+
+    }
+
+    private fun stopBlinking() {
+        isBlinking = false
+        blinkHandler.removeCallbacksAndMessages(null)
+        binding.timerView.visibility = View.GONE
     }
 
     @SuppressLint("SetTextI18n")
@@ -396,7 +395,8 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
         //binding.playerView.reset()
         try {
-            timer.stop()
+            //timer.stop()
+            stopBlinking()
         }catch (e: IllegalStateException) {
             // Handle IllegalStateException (e.g., recording already started)
             e.printStackTrace()
@@ -415,7 +415,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             // Perform error handling or show appropriate message to the user
         }
 
-        binding.timerView.text = "00:00.00"
+        //binding.timerView.text = "00:00.00"
     }
 
 
@@ -510,7 +510,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
 
     private fun animatePlayerView(){
-        if(recordingAudio && !pauseRecordAudio){
+       /* if(recordingAudio && !pauseRecordAudio){
             try {
                 val amp = recorder?.maxAmplitude
                 binding.playerView.updateAmps(amp)
@@ -522,7 +522,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             }catch (e : Exception){
                 setToastError(activity,e.message.toString())
             }
-        }
+        }*/
     }
 
     private fun pauseRecordingAudio(){
@@ -556,6 +556,21 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         }
     }
 
+    private fun startBlinking() {
+        isBlinking = true
+        blinkHandler.post(object : Runnable {
+            override fun run() {
+                if (isBlinking) {
+                    // Toggle visibility
+                    binding.timerView.visibility =
+                        if (binding.timerView.visibility == View.VISIBLE) View.INVISIBLE else View.VISIBLE
+                    // Repeat every 500ms (adjust this value as needed)
+                    blinkHandler.postDelayed(this, 500)
+                }
+            }
+        })
+    }
+
     private fun resumeRecordingAudio(){
         if(recorder!=null&&pauseRecordAudio){
             try {
@@ -568,7 +583,10 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
                         binding.recordBtn.setImageResource(R.drawable.ic_pause)
                         //animatePlayerView()
-                        timer.start()
+                        //timer.start()
+                        startBlinking()
+
+
                     }
                 }
 
@@ -666,7 +684,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         if(activity!=null){
             val db = Room.databaseBuilder(requireActivity(), AppDatabase::class.java, "audioRecords").build()
 
-            val duration = timer.format().split(".")[0]
+           // val duration = timer.format().split(".")[0]
 
             stopRecordingAudio("")
 
@@ -676,7 +694,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             }
 
             GlobalScope.launch {
-                db.audioRecordDAO().insert(AudioRecord(filename, filePath, Date().time, duration))
+                db.audioRecordDAO().insert(AudioRecord(filename, filePath, Date().time, ""))
             }
             setToastSuccess(activity,requireActivity().getString(R.string.record_saved))
 
@@ -818,13 +836,13 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         MyMusicListener.postNote(note)
     }
 
-    override fun onTimerUpdate(duration: String) {
+   /* override fun onTimerUpdate(duration: String) {
         activity?.runOnUiThread{
             if(recordingAudio)
                 binding.timerView.text = duration
         }
     }
-
+*/
 
     override fun onResume() {
         super.onResume()

@@ -196,14 +196,14 @@
                 android:layout_centerInParent="true"
                 app:srcCompat="@drawable/baseline_settings_245" />
 
-            <sound.recorder.widget.tools.RecorderWaveformView
+          <!--  <sound.recorder.widget.tools.RecorderWaveformView
                 android:layout_marginTop="10dp"
                 android:visibility="gone"
                 android:id="@+id/playerView"
                 android:rotation="-90"
                 android:layout_marginBottom="5dp"
                 android:layout_width="40dp"
-                android:layout_height="40dp" />
+                android:layout_height="40dp" />-->
 
         </LinearLayout>
 
