@@ -9,6 +9,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.media.ToneGenerator
@@ -22,6 +23,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -49,6 +52,7 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.ln
 
 
@@ -361,8 +365,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         binding.recordBtn.setImageResource(R.drawable.ic_pause)
 
         startBlinking()
-       /* timer = Timer(this)
-        timer.start()*/
     }
 
 
@@ -370,7 +372,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     private fun showLayoutPauseRecord(){
         binding.recordText.visibility = View.VISIBLE
         binding.recordBtn.setImageResource(0)
-       // binding.recordText.text = requireActivity().getString(R.string.text_continue)
         binding.recordBtn.setImageResource(R.drawable.play_white)
        // timer.pause()
         stopBlinking()
@@ -420,46 +421,99 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
 
     private fun showRecordDialog() {
+
         try {
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle(activity?.getString(R.string.notification))
-            builder.setMessage(activity?.getString(R.string.title_recording_dialog))
-            builder.setPositiveButton(activity?.getString(R.string.yes)) { dialog, _ ->
+            val dialog = Dialog(requireActivity())
+            // Inflate custom layout
+            val dialogView = layoutInflater.inflate(R.layout.custom_cancel_dialog, null)
+
+            // Get references to the TextViews in the custom layout
+            val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+            val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+            val btnNo = dialogView.findViewById<ImageView>(R.id.btnNo)
+            val btnYes = dialogView.findViewById<ImageView>(R.id.btnYes)
+
+            // Set custom text and font programmatically (optional)
+            tvDialogTitle.text = activity?.getString(R.string.notification)
+            tvDialogMessage.text = activity?.getString(R.string.title_recording_dialog)
+
+
+            btnYes.setOnClickListener {
                 startRecordingAudio()
                 dialog.dismiss()
             }
-            builder.setNegativeButton(activity?.getString(R.string.no)) { dialog, _ ->
+
+            // Set up the buttons
+
+            btnNo.setOnClickListener {
                 dialog.dismiss()
             }
-            val dialog = builder.create()
-            dialog.show()
-        }catch (e : Exception){
-            setToast(activity,e.message.toString())
-        }
-    }
 
+
+            // Set layout to dialog
+            dialog.setContentView(dialogView)
+
+            // Tambahkan styling untuk menyesuaikan ukuran dialog (optional)
+            dialog.window?.setLayout(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+
+            // Tampilkan dialog
+            dialog.show()
+
+        } catch (e: Exception) {
+            setToast(activity, e.message.toString())
+        }
+
+    }
 
     private fun showCancelDialog() {
         try {
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle(activity?.getString(R.string.notification))
-            builder.setMessage(activity?.getString(R.string.title_recording_canceled))
-            builder.setPositiveButton(activity?.getString(R.string.yes)) { dialog, _ ->
+            // Buat Dialog baru
+            val dialog = Dialog(requireActivity())
 
+            // Inflate custom layout
+            val dialogView = layoutInflater.inflate(R.layout.custom_cancel_dialog, null)
+
+            // Get references to the TextViews and Buttons in the custom layout
+            val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+            val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+            val btnNo = dialogView.findViewById<ImageView>(R.id.btnNo)
+            val btnYes = dialogView.findViewById<ImageView>(R.id.btnYes)
+
+            // Set custom text (optional)
+            tvDialogTitle.text = activity?.getString(R.string.notification)
+            tvDialogMessage.text = activity?.getString(R.string.title_recording_canceled)
+
+            // Set up button click listeners
+            btnYes.setOnClickListener {
                 stopRecordingAudio(requireActivity().getString(R.string.record_canceled))
-                File(dirPath+fileName).delete()
+                File(dirPath + fileName).delete()
+                dialog.dismiss()
+            }
 
+            btnNo.setOnClickListener {
                 dialog.dismiss()
             }
-            builder.setNegativeButton(activity?.getString(R.string.no)) { dialog, _ ->
-                dialog.dismiss()
-            }
-            val dialog = builder.create()
+
+            // Set layout to dialog
+            dialog.setContentView(dialogView)
+
+            // Tambahkan styling untuk menyesuaikan ukuran dialog (optional)
+            dialog.window?.setLayout(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+
+            // Tampilkan dialog
             dialog.show()
-        }catch (e : Exception){
-            setToast(activity,e.message.toString())
+        } catch (e: Exception) {
+            setToast(activity, e.message.toString())
         }
     }
+
+
 
     @SuppressLint("SimpleDateFormat")
     private fun startRecordingAudio(){
@@ -694,16 +748,14 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             }
 
             GlobalScope.launch {
-                db.audioRecordDAO().insert(AudioRecord(filename, filePath, Date().time, ""))
+                db.audioRecordDAO().insert(AudioRecord(filename, filePath, Date().time, getFormattedAudioDuration(filePath)))
             }
             setToastSuccess(activity,requireActivity().getString(R.string.record_saved))
-
-            //binding.recordText.visibility = View.VISIBLE
-            //binding.recordText.text = requireActivity().getString(R.string.record)
             showRewardInterstitial()
         }
 
     }
+
 
     override fun onPlaySong(filePath: String) {
         if(activity!=null){

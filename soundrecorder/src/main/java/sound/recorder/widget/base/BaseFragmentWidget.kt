@@ -11,6 +11,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.media.MediaMetadataRetriever
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
@@ -83,6 +84,7 @@ import kotlinx.coroutines.launch
 import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.animation.ParticleSystem
 import sound.recorder.widget.animation.modifiers.ScaleModifier
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
 open class BaseFragmentWidget : Fragment() {
@@ -174,6 +176,23 @@ open class BaseFragmentWidget : Fragment() {
         adView.loadAd(adView.buildLoadAdConfig().withAdListener(adListener).build())
         adContainer.addView(adView);
 
+    }
+
+    @SuppressLint("DefaultLocale")
+    fun getFormattedAudioDuration(filePath: String): String {
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(filePath)
+        val durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+        retriever.release()
+
+        val durationMillis = durationStr?.toLong() ?: 0L
+
+        // Mengonversi milidetik menjadi menit dan detik
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(durationMillis)
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(durationMillis) % 60
+
+        // Format menjadi "mm:ss"
+        return String.format("%02d:%02d", minutes, seconds)
     }
 
 
