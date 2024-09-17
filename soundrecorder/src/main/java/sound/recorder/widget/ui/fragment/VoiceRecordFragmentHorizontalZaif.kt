@@ -359,7 +359,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     private fun showLayoutStartRecord(){
         binding.listBtn.visibility = View.VISIBLE
         binding.doneBtn.visibility = View.VISIBLE
-        binding.recordText.visibility = View.GONE
         binding.deleteBtn.visibility = View.VISIBLE
         binding.deleteBtn.isClickable = true
         binding.recordBtn.setImageResource(R.drawable.ic_pause)
@@ -370,10 +369,8 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
     @SuppressLint("SetTextI18n")
     private fun showLayoutPauseRecord(){
-        binding.recordText.visibility = View.VISIBLE
         binding.recordBtn.setImageResource(0)
         binding.recordBtn.setImageResource(R.drawable.play_white)
-       // timer.pause()
         stopBlinking()
 
     }
@@ -387,16 +384,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     @SuppressLint("SetTextI18n")
     private fun showLayoutStopRecord(){
         binding.recordBtn.setImageResource(R.drawable.record)
-       // binding.recordText.text = requireActivity().getString(R.string.record)
-       // binding.recordText.visibility = View.VISIBLE
         binding.listBtn.visibility = View.VISIBLE
         binding.doneBtn.visibility = View.GONE
         binding.deleteBtn.isClickable = false
         binding.deleteBtn.visibility = View.GONE
 
-        //binding.playerView.reset()
         try {
-            //timer.stop()
             stopBlinking()
         }catch (e: IllegalStateException) {
             // Handle IllegalStateException (e.g., recording already started)
@@ -632,7 +625,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         resume()
                         setToastInfo(activity,requireActivity().getString(R.string.record_resumed))
-                        binding.recordText.visibility = View.GONE
                         pauseRecordAudio = false
 
                         binding.recordBtn.setImageResource(R.drawable.ic_pause)
@@ -726,8 +718,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     @SuppressLint("SetTextI18n")
     override fun onCancelClicked() {
         setToastSuccess(activity,requireActivity().getString(R.string.record_canceled))
-        binding.recordText.text = requireActivity().getString(R.string.record)
-        binding.recordText.visibility = View.VISIBLE
         stopRecordingAudio("")
     }
 
