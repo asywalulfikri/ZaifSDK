@@ -108,8 +108,18 @@ open class DataSession(private val mContext: Context) {
         editor.apply()
     }
 
+    fun saveVolumeMusic(volume :  Float){
+        val editor = sharedPref.edit()
+        editor.putFloat(Constant.KeyShared.volumeMusic,volume)
+        editor.apply()
+    }
+
     fun getVolumeAudio() : Float{
         return sharedPref.getFloat(Constant.KeyShared.volumeAudio,1.0f)
+    }
+
+    fun getVolumeMusic() : Float{
+        return sharedPref.getFloat(Constant.KeyShared.volumeMusic,1.0f)
     }
 
 

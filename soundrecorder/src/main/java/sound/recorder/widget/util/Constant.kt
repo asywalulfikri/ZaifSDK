@@ -25,6 +25,7 @@ open class Constant {
             const val colorRunningText = "colorRunningText"
 
             const val volumeAudio = "volumeAudio"
+            const val volumeMusic = "volumeMusic"
 
             const val admobBannerId = "bannerId"
             const val admobId = "admobId"
