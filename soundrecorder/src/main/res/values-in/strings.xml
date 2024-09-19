@@ -12,8 +12,8 @@
     <string name="dialog_msg_update_app_version">Versi Baru telah tersedia di Playstore, Silakan Update Aplikasi Anda</string>
     <string name="dialog_msg_update_app">Silahkan Update Aplikasi Anda</string>
 
-    <string name="lbl_new_note_title">Note Lagu Baru</string>
-    <string name="lbl_edit_note_title">Edit Note Lagu</string>
+    <string name="lbl_new_note_title">Catatan Lagu Baru</string>
+    <string name="lbl_edit_note_title">Edit Catatan Lagu</string>
 
     <string name="cover_song">Cover\nLagu</string>
     <string name="record">Rekam</string>
@@ -59,9 +59,9 @@
     <string name="message_cannot_empty">Pesan Tidak Boleh Kosong</string>
     <string name="more_apps">Aplikasi Lainya</string>
 
-    <string name="use_note">Gunakan Not</string>
-    <string name="edit_note">Ubah Not</string>
-    <string name="delete_not">Hapus Not</string>
+    <string name="use_note">Gunakan Catatan</string>
+    <string name="edit_note">Ubah Catatan</string>
+    <string name="delete_not">Hapus Catatan</string>
 
     <string name="default_language">Bahasa Bawaan Hp</string>
 
@@ -117,7 +117,7 @@
     <string name="whatsapp_support">Dukungan WhatsApp</string>
     <string name="share_via">Bagikan melalui</string>
 
-    <string name="note_song">Not Lagu</string>
+    <string name="note_song">Catatan Lagu</string>
     <string name="choose_color">Choose Color</string>
     <string name="note_empty">Belum ada Catatan</string>
     <string name="enter_note">Masukkan Catatan!</string>
