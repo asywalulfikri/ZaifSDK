@@ -8,58 +8,70 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.FirebaseApp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @SuppressLint("Registered")
 open class MyApp : Application() {
 
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-
     override fun onCreate() {
         super.onCreate()
 
-        applicationScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    if (check()) {
-                        FirebaseApp.initializeApp(this@MyApp)
-                        Log.d("Initialization", "Firebase initialized successfully")
-                    }
-                } catch (e: Exception) {
-                    Log.e("Firebase Error", "Error initializing Firebase: ${e.message}")
-                }
+        // Inisialisasi Firebase
+        initializeFirebase()
 
-                try {
-                    MobileAds.initialize(this@MyApp) {}
-                    Log.d("Initialization", "Admob Ads initialized successfully")
-                } catch (e: Exception) {
-                    Log.e("FAN Error", "Error initializing Audience Network Ads: ${e.message}")
-                }
+        // Inisialisasi AdMob
+        initializeAdMob()
 
-                try {
-                    AudienceNetworkAds.initialize(this@MyApp)
-                    Log.d("Initialization", "Audience Network Ads initialized successfully")
-                } catch (e: Exception) {
-                    Log.e("FAN Error", "Error initializing Audience Network Ads: ${e.message}")
-                }
+        // Inisialisasi Facebook Audience Network
+        initializeAudienceNetworkAds()
+
+        // Cek Google Play Services
+        checkPlayServices()
+    }
+
+    /**
+     * Inisialisasi Firebase jika layanan tersedia
+     */
+    private fun initializeFirebase() {
+        try {
+            if (checkPlayServices()) {
+                FirebaseApp.initializeApp(this)
+                Log.d("Initialization", "Firebase initialized successfully")
+            } else {
+                Log.w("Initialization", "Firebase initialization skipped due to Play Services unavailability")
             }
+        } catch (e: Exception) {
+            Log.e("Firebase Error", "Error initializing Firebase: ${e.message}")
         }
     }
 
-    private fun check(): Boolean {
-        return checkPlayServices().also { isAvailable ->
-            if (!isAvailable) {
-                Log.w("MyApp", "Google Play Services not available.")
-            }else{
-                Log.d("MyApp", "Google Play Services available.")
+    /**
+     * Inisialisasi AdMob SDK
+     */
+    private fun initializeAdMob() {
+        try {
+            MobileAds.initialize(this) {
+                Log.d("Initialization", "AdMob initialized successfully")
             }
+        } catch (e: Exception) {
+            Log.e("AdMob Error", "Error initializing AdMob: ${e.message}")
         }
     }
 
+    /**
+     * Inisialisasi Facebook Audience Network Ads
+     */
+    private fun initializeAudienceNetworkAds() {
+        try {
+            AudienceNetworkAds.initialize(this)
+            Log.d("Initialization", "Audience Network Ads initialized successfully")
+        } catch (e: Exception) {
+            Log.e("FAN Error", "Error initializing Audience Network Ads: ${e.message}")
+        }
+    }
+
+    /**
+     * Mengecek ketersediaan Google Play Services
+     */
     private fun checkPlayServices(): Boolean {
         val apiAvailability = GoogleApiAvailability.getInstance()
         val resultCode = apiAvailability.isGooglePlayServicesAvailable(this)
