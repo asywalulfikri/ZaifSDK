@@ -161,7 +161,7 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
                     binding.seekBar.progress = progress
 
                     val amp = 80 + Math.random()*300
-                    binding.playerView.updateAmps(amp.toInt())
+                    //binding.playerView.updateAmps(amp.toInt())
 
                     handler.postDelayed(runnable, delay)
                 }
