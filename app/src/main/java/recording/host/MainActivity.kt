@@ -91,7 +91,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         volumes = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
             ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
 
-        setupBannerNew(binding.bannerView)
+        setupBannerFacebook(binding.bannerView)
         setupAppOpenAd()
 
         val xx = DataSession(this).getBackgroundColor()

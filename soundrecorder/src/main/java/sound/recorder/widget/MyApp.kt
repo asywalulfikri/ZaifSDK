@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import com.facebook.ads.AudienceNetworkAds
+import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.FirebaseApp
@@ -25,11 +26,18 @@ open class MyApp : Application() {
             withContext(Dispatchers.IO) {
                 try {
                     if (check()) {
-                        //FirebaseApp.initializeApp(this@MyApp)
+                        FirebaseApp.initializeApp(this@MyApp)
                         Log.d("Initialization", "Firebase initialized successfully")
                     }
                 } catch (e: Exception) {
                     Log.e("Firebase Error", "Error initializing Firebase: ${e.message}")
+                }
+
+                try {
+                    MobileAds.initialize(this@MyApp) {}
+                    Log.d("Initialization", "Admob Ads initialized successfully")
+                } catch (e: Exception) {
+                    Log.e("FAN Error", "Error initializing Audience Network Ads: ${e.message}")
                 }
 
                 try {

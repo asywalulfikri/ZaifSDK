@@ -110,7 +110,8 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private val isMobileAdsInitializeCalled = AtomicBoolean(false)
     private val initialLayoutComplete = AtomicBoolean(false)
-    private var adView: AdManagerAdView? =null
+    private var adView: AdView? =null
+    private var adViewFacebook : com.facebook.ads.AdView? = null
     private lateinit var googleMobileAdsConsentManager: GoogleMobileAdsConsentManager
     private lateinit var consentInformation: ConsentInformation
     private var TAG = "GDPR_App"
@@ -211,6 +212,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
             val adView = com.facebook.ads.AdView(this, id, com.facebook.ads.AdSize.BANNER_HEIGHT_50)
             adView.loadAd(adView.buildLoadAdConfig().withAdListener(adListener).build())
+            this.adViewFacebook = adView
             adContainer.addView(adView)
         }catch (e : Exception){
             setLog(e.message.toString())
@@ -289,6 +291,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         if(adView!=null){
             adView?.destroy()
         }
+
     }
 
     override fun onPause() {
@@ -378,7 +381,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     })
 
                 if (consentInformation.canRequestAds()) {
-                    MobileAds.initialize(this@BaseActivityWidget) {}
+                    //MobileAds.initialize(this@BaseActivityWidget) {}
                 }
             } catch (e: Exception) {
                 Log.d("message", e.message.toString())
@@ -390,7 +393,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         return DataSession(this)
     }
 
-    private fun loadBanner(adViewContainer: FrameLayout,bannerId : String? =null) {
+   /* private fun loadBanner(adViewContainer: FrameLayout,bannerId : String? =null) {
         try {
             var id = ""
             id = if(bannerId.isNullOrEmpty() || bannerId.isBlank()){
@@ -429,7 +432,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }catch (e : Exception){
             setLog(e.message.toString())
         }
-    }
+    }*/
 
     private fun getSize(adViewContainer: FrameLayout): AdSize{
         val display = windowManager.defaultDisplay
@@ -447,7 +450,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
     }
 
-    private fun initializeMobileAdsSdk(adViewContainer: FrameLayout,bannerId: String? =null) {
+   /* private fun initializeMobileAdsSdk(adViewContainer: FrameLayout,bannerId: String? =null) {
         try {
             if (isMobileAdsInitializeCalled.getAndSet(true)) {
                 return
@@ -468,9 +471,9 @@ open class BaseActivityWidget : AppCompatActivity() {
         }catch (e : Exception){
             setLog(e.message.toString())
         }
-    }
+    }*/
 
-    fun setupBannerNew(adViewContainer: FrameLayout, bannerId: String? = null) {
+   /* fun setupBannerNew(adViewContainer: FrameLayout, bannerId: String? = null) {
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 adView = AdManagerAdView(this@BaseActivityWidget)
@@ -511,8 +514,8 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
         }
     }
-
-    fun setupBannerNew1(adViewContainer: FrameLayout,bannerId : String? =null){
+*/
+   /* fun setupBannerNew1(adViewContainer: FrameLayout,bannerId : String? =null){
         try {
             adView = AdManagerAdView(this)
             adViewContainer.addView(adView)
@@ -550,7 +553,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }catch (e : Exception){
             setLog(e.message.toString())
         }
-    }
+    }*/
 
     fun showArrayLanguage(){
         val languageArray = resources.getStringArray(R.array.language_array)
@@ -816,16 +819,21 @@ open class BaseActivityWidget : AppCompatActivity() {
         return  valueNote
     }
 
-    fun setupBanner(mAdView: AdView){
+    fun setupBanner(adViewContainer:FrameLayout){
         try {
+            val adView = AdView(this)
+            adView.adUnitId = DataSession(this).getBannerId()
+            adView.setAdSize(AdSize.BANNER)
+            this.adView = adView
             val adRequest = AdRequest.Builder().build()
-            mAdView.adListener = object : AdListener() {
+            adView.adListener = object : AdListener() {
                 override fun onAdLoaded() {
                     Log.d("AdMob", "Ad loaded successfully")
                 }
-
                 override fun onAdFailedToLoad(p0: LoadAdError) {
-                    Log.d("AdMob", "Ad failed to load:"+ p0.message + "id = "+getDataSession().getBannerId())
+                    if(getDataSession().getFanEnable()){
+                        setupBannerFacebook(adViewContainer)
+                    }
                 }
 
                 override fun onAdOpened() {
@@ -840,11 +848,11 @@ open class BaseActivityWidget : AppCompatActivity() {
                     Log.d("AdMob", "Ad closed")
                 }
             }
+            adView.loadAd(adRequest)
+            adViewContainer.addView(adView)
 
-            mAdView.loadAd(adRequest)
         }catch (e : Exception){
             setLog(e.message.toString())
-
         }
     }
 

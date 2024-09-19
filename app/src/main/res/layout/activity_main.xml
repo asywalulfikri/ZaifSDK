@@ -9,7 +9,6 @@
     tools:context=".MainActivity">
 
     <FrameLayout
-        android:background="@color/colorPrimary"
         android:id="@+id/bannerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -17,6 +16,7 @@
 
     <sound.recorder.widget.util.SpeedMarquee
         android:id="@+id/tvRunningText"
+        android:layout_below="@+id/bannerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="5dp"

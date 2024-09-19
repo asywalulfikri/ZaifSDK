@@ -325,66 +325,6 @@ open class BaseFragmentWidget : Fragment() {
     }
 
 
-    fun setupGDPR(){
-        try {
-            // Set tag for under age of consent. false means users are not under age
-            // of consent.
-
-            /*  val debugSettings = ConsentDebugSettings.Builder(this)
-                  .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
-                  .addTestDeviceHashedId("0c302266-17a0-4f2a-a11a-10ca1ad1abe1")
-                  .build()*/
-
-            val params = ConsentRequestParameters
-                .Builder()
-                // .setConsentDebugSettings(debugSettings)
-                .setTagForUnderAgeOfConsent(false)
-                .build()
-
-            consentInformation = UserMessagingPlatform.getConsentInformation(requireContext())
-            isPrivacyOptionsRequired  = consentInformation.privacyOptionsRequirementStatus == ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
-
-            consentInformation.requestConsentInfoUpdate(
-                requireActivity(),
-                params, {
-                    UserMessagingPlatform.loadAndShowConsentFormIfRequired(requireActivity()) {
-
-                            loadAndShowError -> run {
-                        Log.w(
-                            TAG, String.format(
-                                "%s: %s",
-                                loadAndShowError?.errorCode,
-                                loadAndShowError?.message
-                            )
-                        )
-
-                    }
-                        if (isPrivacyOptionsRequired) {
-                            // Regenerate the options menu to include a privacy setting.
-                            UserMessagingPlatform.showPrivacyOptionsForm(requireActivity()) { formError ->
-                                formError?.let {
-                                    setToastError(activity,it.message.toString())
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                        requestConsentError ->
-                    // Consent gathering failed.
-                    Log.w(TAG, String.format("%s: %s",
-                        requestConsentError.errorCode,
-                        requestConsentError.message))
-                })
-
-            if (consentInformation.canRequestAds()) {
-                MobileAds.initialize(requireContext()) {}
-            }
-        }catch (e :Exception){
-            Log.d("message",e.message.toString())
-        }
-    }
-
 
     fun getDataSession() : DataSession{
         return DataSession(requireContext())
@@ -430,6 +370,13 @@ open class BaseFragmentWidget : Fragment() {
             setLog(e.message.toString())
         }
     }
+
+    fun releaseBannerAdmob(){
+        adView?.destroy()
+        adView = null
+    }
+
+
 
     fun openFragment(view : Int, fragment : Fragment?){
         if(activity!=null){
