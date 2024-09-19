@@ -44,7 +44,7 @@
     <string name="choose_one">Pilih Salah Satu</string>
     <string name="text_video">Video</string>
     <string name="please_wait">Mohon Tunggu</string>
-    <string name="loading_audio">Proses Loading Audio....</string>
+    <string name="loading_audio">Proses Memuat Audio ....</string>
 
     <string name="title">Judul</string>
     <string name="write_note_here">Buat Catatan disini</string>
@@ -131,6 +131,9 @@
     <string name="mode_8_tuts">Mode 8 Tuts</string>
 
     <string name="volume">Volume</string>
+
+    <string name="text_choose_not">Catatan akan ditampilkan di sini .... pilih terlebih dahulu</string>
+
 
 
 

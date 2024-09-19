@@ -132,6 +132,7 @@
     <string name="mode_8_tuts">8 Keys Mode</string>
 
     <string name="volume">Volume</string>
+    <string name="text_choose_not">Note will show here .... choose it first</string>
 
 
 </resources>
