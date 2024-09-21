@@ -171,7 +171,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                 startPermissionSong()
             }
 
-            if(DataSession(requireActivity()).isCoverSong()){
+           /* if(DataSession(requireActivity()).isCoverSong()){
                 binding.coverBtn.visibility = View.VISIBLE
                 binding.songBtn.visibility = View.GONE
             }else{
@@ -181,7 +181,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
 
             binding.coverBtn.setOnClickListener {
                 startPermissionSong()
-            }
+            }*/
 
             binding.deleteBtn.isClickable = false
 
