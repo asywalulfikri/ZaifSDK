@@ -180,19 +180,27 @@ open class BaseFragmentWidget : Fragment() {
 
     @SuppressLint("DefaultLocale")
     fun getFormattedAudioDuration(filePath: String): String {
-        val retriever = MediaMetadataRetriever()
-        retriever.setDataSource(filePath)
-        val durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-        retriever.release()
 
-        val durationMillis = durationStr?.toLong() ?: 0L
+        try {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(filePath)
+            val durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            retriever.release()
 
-        // Mengonversi milidetik menjadi menit dan detik
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(durationMillis)
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(durationMillis) % 60
+            val durationMillis = durationStr?.toLong() ?: 0L
 
+            // Mengonversi milidetik menjadi menit dan detik
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(durationMillis)
+            val seconds = TimeUnit.MILLISECONDS.toSeconds(durationMillis) % 60
+
+            return String.format("%02d:%02d", minutes, seconds)
+
+        }catch (e : Exception){
+
+        }
+
+        return ""
         // Format menjadi "mm:ss"
-        return String.format("%02d:%02d", minutes, seconds)
     }
 
 
