@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:background="@drawable/transparant_bg">
+    android:layout_width="match_parent"
+    android:background="@drawable/gradient_dialog"
+    android:layout_height="wrap_content">
 
     <LinearLayout
+        android:layout_margin="16dp"
         android:layout_gravity="center"
-        android:background="@drawable/exit_bg"
         android:gravity="center"
-        android:padding="16dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
@@ -21,48 +19,53 @@
             android:layout_height="wrap_content"
             android:text="Notification"
             android:textColor="@color/black_de"
-            android:textSize="20sp"
-            android:fontFamily="@font/ooredoo" />
+            android:textSize="30sp"
+            android:fontFamily="@font/rodfellows_wacky" />
 
         <TextView
             android:id="@+id/tvDialogMessage"
             android:gravity="center"
+            android:fontFamily="@font/ooredoo"
             android:layout_marginHorizontal="16dp"
             android:layout_width="match_parent"
-            android:textColor="@color/black_de"
+            android:maxLines="2"
             android:layout_height="wrap_content"
             android:text="@string/title_recording_dialog"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:paddingTop="8dp"/>
 
 
         <LinearLayout
             android:layout_marginTop="10dp"
+            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_margin="5dp"
                 android:id="@+id/btnNo"
-                android:src="@drawable/no"
+                android:background="@drawable/button_gradient"
                 android:text="@string/no"
+                android:gravity="center"
                 android:textColor="@color/yellow_50"
                 android:textStyle="bold"
-                android:fontFamily="@font/ooredoo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+                android:fontFamily="@font/rodfellows_wacky"
+                android:layout_width="100dp"
+                android:layout_height="50dp"/>
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_margin="5dp"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:id="@+id/btnYes"
-                android:src="@drawable/yes"
+                android:background="@drawable/button_gradient"
                 android:textColor="@color/yellow_50"
                 android:text="@string/yes"
                 android:textStyle="bold"
-                android:fontFamily="@font/ooredoo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+                android:fontFamily="@font/rodfellows_wacky"
+                android:layout_width="100dp"
+                android:layout_height="50dp"/>
         </LinearLayout>
 
     </LinearLayout>

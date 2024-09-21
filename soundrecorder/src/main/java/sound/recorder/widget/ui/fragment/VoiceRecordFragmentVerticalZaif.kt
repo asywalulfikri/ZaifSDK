@@ -2,7 +2,6 @@ package sound.recorder.widget.ui.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
@@ -22,9 +21,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.room.Room
@@ -51,7 +51,6 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.math.ln
 
 
@@ -413,57 +412,9 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
 
 
     private fun showRecordDialog() {
-
         try {
-            val dialog = Dialog(requireActivity())
-            // Inflate custom layout
-            val dialogView = layoutInflater.inflate(R.layout.custom_cancel_dialog, null)
-
-            // Get references to the TextViews in the custom layout
-            val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
-            val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
-            val btnNo = dialogView.findViewById<ImageView>(R.id.btnNo)
-            val btnYes = dialogView.findViewById<ImageView>(R.id.btnYes)
-
-            // Set custom text and font programmatically (optional)
-            tvDialogTitle.text = activity?.getString(R.string.notification)
-            tvDialogMessage.text = activity?.getString(R.string.title_recording_dialog)
-
-
-            btnYes.setOnClickListener {
-                startRecordingAudio()
-                dialog.dismiss()
-            }
-
-            // Set up the buttons
-
-            btnNo.setOnClickListener {
-                dialog.dismiss()
-            }
-
-
-            // Set layout to dialog
-            dialog.setContentView(dialogView)
-
-            // Tambahkan styling untuk menyesuaikan ukuran dialog (optional)
-            dialog.window?.setLayout(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-
-            // Tampilkan dialog
-            dialog.show()
-
-        } catch (e: Exception) {
-            setToast(activity, e.message.toString())
-        }
-
-    }
-
-    private fun showCancelDialog() {
-        try {
-            // Buat Dialog baru
-            val dialog = Dialog(requireActivity())
+            // Buat AlertDialog baru menggunakan AlertDialog.Builder
+            val builder = AlertDialog.Builder(requireContext())
 
             // Inflate custom layout
             val dialogView = layoutInflater.inflate(R.layout.custom_cancel_dialog, null)
@@ -471,16 +422,70 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             // Get references to the TextViews and Buttons in the custom layout
             val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
             val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
-            val btnNo = dialogView.findViewById<ImageView>(R.id.btnNo)
-            val btnYes = dialogView.findViewById<ImageView>(R.id.btnYes)
+            val btnNo = dialogView.findViewById<AppCompatButton>(R.id.btnNo)
+            val btnYes = dialogView.findViewById<AppCompatButton>(R.id.btnYes)
 
             // Set custom text (optional)
-            tvDialogTitle.text = activity?.getString(R.string.notification)
-            tvDialogMessage.text = activity?.getString(R.string.title_recording_canceled)
+            tvDialogTitle.text = getString(R.string.notification)
+            tvDialogMessage.text = getString(R.string.title_recording_dialog)
+
+            // Set custom layout to the dialog
+            builder.setView(dialogView)
+
+            // Buat dialog dari builder
+            val dialog = builder.create()
 
             // Set up button click listeners
             btnYes.setOnClickListener {
-                stopRecordingAudio(requireActivity().getString(R.string.record_canceled))
+                startRecordingAudio()
+                dialog.dismiss()
+            }
+
+            btnNo.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            // Tampilkan dialog
+            dialog.show()
+
+            // Atur ukuran dialog (opsional)
+            /*dialog.window?.setLayout(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )*/
+        } catch (e: Exception) {
+            setToast(activity, e.message.toString())
+        }
+    }
+
+
+    private fun showCancelDialog() {
+        try {
+            // Buat AlertDialog baru menggunakan AlertDialog.Builder
+            val builder = android.app.AlertDialog.Builder(requireContext())
+
+            // Inflate custom layout
+            val dialogView = layoutInflater.inflate(R.layout.custom_cancel_dialog, null)
+
+            // Get references to the TextViews and Buttons in the custom layout
+            val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+            val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+            val btnNo = dialogView.findViewById<AppCompatButton>(R.id.btnNo)
+            val btnYes = dialogView.findViewById<AppCompatButton>(R.id.btnYes)
+
+            // Set custom text (optional)
+            tvDialogTitle.text = getString(R.string.notification)
+            tvDialogMessage.text = getString(R.string.title_recording_canceled)
+
+            // Set custom layout to the dialog
+            builder.setView(dialogView)
+
+            // Buat dialog dari builder
+            val dialog = builder.create()
+
+            // Set up button click listeners
+            btnYes.setOnClickListener {
+                stopRecordingAudio(getString(R.string.record_canceled))
                 File(dirPath + fileName).delete()
                 dialog.dismiss()
             }
@@ -489,17 +494,11 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                 dialog.dismiss()
             }
 
-            // Set layout to dialog
-            dialog.setContentView(dialogView)
-
-            // Tambahkan styling untuk menyesuaikan ukuran dialog (optional)
-            dialog.window?.setLayout(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-
             // Tampilkan dialog
             dialog.show()
+
+            // Atur ukuran dialog (opsional)
+
         } catch (e: Exception) {
             setToast(activity, e.message.toString())
         }
