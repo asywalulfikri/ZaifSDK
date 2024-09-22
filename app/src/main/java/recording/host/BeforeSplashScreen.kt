@@ -79,7 +79,7 @@ class BeforeSplashScreen : BaseActivityWidget(){
             binding.backgroundSplash.setBackgroundColor(Color.parseColor("#000000"))
             binding.tvTitle.text = getString(R.string.app_name) + "\n" + "v " + BuildConfig.VERSION_NAME
 
-            setupAppOpenAd()
+           // setupAppOpenAd()
 
 
             // Post delay to navigate to next page

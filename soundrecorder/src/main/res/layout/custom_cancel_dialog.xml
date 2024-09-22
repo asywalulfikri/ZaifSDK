@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatButton
+            <TextView
                 android:layout_margin="5dp"
                 android:id="@+id/btnNo"
                 android:background="@drawable/button_gradient"
@@ -54,7 +54,7 @@
                 android:layout_width="100dp"
                 android:layout_height="50dp"/>
 
-            <androidx.appcompat.widget.AppCompatButton
+            <TextView
                 android:layout_margin="5dp"
                 android:layout_gravity="center"
                 android:gravity="center"

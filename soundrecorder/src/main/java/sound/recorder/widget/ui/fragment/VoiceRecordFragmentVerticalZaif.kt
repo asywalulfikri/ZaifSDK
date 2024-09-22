@@ -422,8 +422,8 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             // Get references to the TextViews and Buttons in the custom layout
             val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
             val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
-            val btnNo = dialogView.findViewById<AppCompatButton>(R.id.btnNo)
-            val btnYes = dialogView.findViewById<AppCompatButton>(R.id.btnYes)
+            val btnNo = dialogView.findViewById<TextView>(R.id.btnNo)
+            val btnYes = dialogView.findViewById<TextView>(R.id.btnYes)
 
             // Set custom text (optional)
             tvDialogTitle.text = getString(R.string.notification)
@@ -470,8 +470,8 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             // Get references to the TextViews and Buttons in the custom layout
             val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
             val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
-            val btnNo = dialogView.findViewById<AppCompatButton>(R.id.btnNo)
-            val btnYes = dialogView.findViewById<AppCompatButton>(R.id.btnYes)
+            val btnNo = dialogView.findViewById<TextView>(R.id.btnNo)
+            val btnYes = dialogView.findViewById<TextView>(R.id.btnYes)
 
             // Set custom text (optional)
             tvDialogTitle.text = getString(R.string.notification)
@@ -509,46 +509,51 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
     @SuppressLint("SimpleDateFormat")
     private fun startRecordingAudio(){
 
-        showLayoutStartRecord()
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+            setToast(activity,requireActivity().getString(R.string.device_not_support))
+        }else{
+            showLayoutStartRecord()
 
-        recordingAudio = true
+            recordingAudio = true
 
-        // format file name with date
-        val pattern = "yyyy.MM.dd_hh.mm.ss"
-        val simpleDateFormat = SimpleDateFormat(pattern)
-        val date: String = simpleDateFormat.format(Date())
+            // format file name with date
+            val pattern = "yyyy.MM.dd_hh.mm.ss"
+            val simpleDateFormat = SimpleDateFormat(pattern)
+            val date: String = simpleDateFormat.format(Date())
 
-        dirPath = "${activity?.externalCacheDir?.absolutePath}/"
-        fileName = "record_${date}.mp3"
-        binding.timerView.visibility = View.VISIBLE
+            dirPath = "${activity?.externalCacheDir?.absolutePath}/"
+            fileName = "record_${date}.mp3"
+            binding.timerView.visibility = View.VISIBLE
 
-        try {
-            recorder =  MediaRecorder()
-            recorder?.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                setOutputFile(dirPath + fileName)
-                prepare()
-                start()
-                //animatePlayerView()
-                setToastInfo(activity,requireActivity().getString(R.string.record_started))
+            try {
+                recorder =  MediaRecorder()
+                recorder?.apply {
+                    setAudioSource(MediaRecorder.AudioSource.MIC)
+                    setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                    setOutputFile(dirPath + fileName)
+                    prepare()
+                    start()
+                    //animatePlayerView()
+                    setToastInfo(activity,requireActivity().getString(R.string.record_started))
+                }
+            } catch (e: IllegalStateException) {
+                // Handle IllegalStateException (e.g., recording already started)
+                e.printStackTrace()
+                setToastError(activity,e.message.toString())
+                // Perform error handling or show appropriate message to the user
+            } catch (e: IOException) {
+                // Handle IOException (e.g., failed to prepare or write to file)
+                e.printStackTrace()
+                setToastError(activity,e.message.toString())
+                // Perform error handling or show appropriate message to the user
+            } catch (e: Exception) {
+                // Handle other exceptions
+                e.printStackTrace()
+                setToastError(activity,e.message.toString())
+                // Perform error handling or show appropriate message to the user
             }
-        } catch (e: IllegalStateException) {
-            // Handle IllegalStateException (e.g., recording already started)
-            e.printStackTrace()
-            setToastError(activity,e.message.toString())
-            // Perform error handling or show appropriate message to the user
-        } catch (e: IOException) {
-            // Handle IOException (e.g., failed to prepare or write to file)
-            e.printStackTrace()
-            setToastError(activity,e.message.toString())
-            // Perform error handling or show appropriate message to the user
-        } catch (e: Exception) {
-            // Handle other exceptions
-            e.printStackTrace()
-            setToastError(activity,e.message.toString())
-            // Perform error handling or show appropriate message to the user
+
         }
 
     }

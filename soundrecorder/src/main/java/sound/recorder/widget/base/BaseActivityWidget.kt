@@ -191,6 +191,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun setupBannerFacebook(adContainer : FrameLayout){
         try {
+
             val id = getDataSession().getBannerFANId()
             val adListener = object : com.facebook.ads.AdListener {
                 override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
@@ -820,40 +821,46 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
     fun setupBanner(adViewContainer:FrameLayout){
-        try {
-            val adView = AdView(this)
-            adView.adUnitId = DataSession(this).getBannerId()
-            adView.setAdSize(AdSize.BANNER)
-            this.adView = adView
-            val adRequest = AdRequest.Builder().build()
-            adView.adListener = object : AdListener() {
-                override fun onAdLoaded() {
-                    Log.d("AdMob", "Ad loaded successfully")
-                }
-                override fun onAdFailedToLoad(p0: LoadAdError) {
-                    if(getDataSession().getFanEnable()){
-                        setupBannerFacebook(adViewContainer)
+
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+            setupBannerFacebook(adViewContainer)
+        }else{
+            try {
+                val adView = AdView(this)
+                adView.adUnitId = DataSession(this).getBannerId()
+                adView.setAdSize(AdSize.BANNER)
+                this.adView = adView
+                val adRequest = AdRequest.Builder().build()
+                adView.adListener = object : AdListener() {
+                    override fun onAdLoaded() {
+                        Log.d("AdMob", "Ad loaded successfully")
+                    }
+                    override fun onAdFailedToLoad(p0: LoadAdError) {
+                        if(getDataSession().getFanEnable()){
+                            setupBannerFacebook(adViewContainer)
+                        }
+                    }
+
+                    override fun onAdOpened() {
+                        Log.d("AdMob", "Ad opened")
+                    }
+
+                    override fun onAdClicked() {
+                        Log.d("AdMob", "Ad clicked")
+                    }
+
+                    override fun onAdClosed() {
+                        Log.d("AdMob", "Ad closed")
                     }
                 }
+                adView.loadAd(adRequest)
+                adViewContainer.addView(adView)
 
-                override fun onAdOpened() {
-                    Log.d("AdMob", "Ad opened")
-                }
-
-                override fun onAdClicked() {
-                    Log.d("AdMob", "Ad clicked")
-                }
-
-                override fun onAdClosed() {
-                    Log.d("AdMob", "Ad closed")
-                }
+            }catch (e : Exception){
+                setLog(e.message.toString())
             }
-            adView.loadAd(adRequest)
-            adViewContainer.addView(adView)
-
-        }catch (e : Exception){
-            setLog(e.message.toString())
         }
+
     }
 
      fun permissionNotification(){

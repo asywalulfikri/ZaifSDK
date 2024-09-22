@@ -81,6 +81,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
         window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         sharedPreferences = DataSession(this).getShared()
@@ -91,7 +92,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         volumes = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
             ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
 
-        setupBannerFacebook(binding.bannerView)
+        setupBanner(binding.bannerView)
         setupAppOpenAd()
 
         val xx = DataSession(this).getBackgroundColor()
@@ -111,8 +112,6 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         }
 
         setupGDPR()
-
-        //setupAppOpenAd()
 
 
         permissionNotification()
@@ -143,13 +142,11 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         )
 
 
-        showOpenAd()
+       // showOpenAd() bikin error
 
         ss1 = sp.load(this,R.raw.dum,1)
         ss2 = sp.load(this,R.raw.dek,1)
 
-        // btn1 = findViewById(R.id.btn1)
-        // btn2 = findViewById(R.id.btn2)
 
         binding.btn1.setOnClickListener {
            // showInterstitial()
