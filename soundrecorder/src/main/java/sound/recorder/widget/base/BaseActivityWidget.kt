@@ -2,7 +2,6 @@ package sound.recorder.widget.base
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ActivityNotFoundException
@@ -29,7 +28,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.RadioButton
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -38,7 +36,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.facebook.ads.Ad
-import com.facebook.ads.AudienceNetworkAds
 import com.facebook.ads.InterstitialAdListener
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdListener
@@ -47,10 +44,6 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
-import com.google.android.gms.ads.admanager.AdManagerAdRequest
-import com.google.android.gms.ads.admanager.AdManagerAdView
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
@@ -60,7 +53,6 @@ import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.android.gms.tasks.Task
 import com.google.android.play.core.appupdate.AppUpdateManager
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
@@ -70,7 +62,6 @@ import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
-import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -90,8 +81,7 @@ import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.notes.Note
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.Toastic
-import java.lang.ref.WeakReference
-import java.util.*
+import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration.Companion.seconds
@@ -448,6 +438,16 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
 
         val adWidth = (adWidthPixels / density).toInt()
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+    }
+
+
+    private fun getSize(): AdSize {
+        val widthPixels = resources.displayMetrics.widthPixels.toFloat()
+        val density = resources.displayMetrics.density
+
+        val adWidth = (widthPixels / density).toInt()
+
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
     }
 
@@ -828,7 +828,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             try {
                 val adView = AdView(this)
                 adView.adUnitId = DataSession(this).getBannerId()
-                adView.setAdSize(AdSize.BANNER)
+                adView.setAdSize(getSize())
                 this.adView = adView
                 val adRequest = AdRequest.Builder().build()
                 adView.adListener = object : AdListener() {
