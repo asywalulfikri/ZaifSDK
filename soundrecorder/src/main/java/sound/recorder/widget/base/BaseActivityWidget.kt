@@ -384,46 +384,46 @@ open class BaseActivityWidget : AppCompatActivity() {
         return DataSession(this)
     }
 
-   /* private fun loadBanner(adViewContainer: FrameLayout,bannerId : String? =null) {
-        try {
-            var id = ""
-            id = if(bannerId.isNullOrEmpty() || bannerId.isBlank()){
-                getDataSession().getBannerId()
-            }else{
-                bannerId
-            }
-            adView?.adUnitId = id
-            adView?.setAdSizes(getSize(adViewContainer))
-            val adRequest = AdManagerAdRequest.Builder().build()
-            adView?.adListener = object : AdListener() {
-                override fun onAdLoaded() {
-                    Log.d("AdMob", "Ad loaded successfully unit = $id")
-                }
+    /* private fun loadBanner(adViewContainer: FrameLayout,bannerId : String? =null) {
+         try {
+             var id = ""
+             id = if(bannerId.isNullOrEmpty() || bannerId.isBlank()){
+                 getDataSession().getBannerId()
+             }else{
+                 bannerId
+             }
+             adView?.adUnitId = id
+             adView?.setAdSizes(getSize(adViewContainer))
+             val adRequest = AdManagerAdRequest.Builder().build()
+             adView?.adListener = object : AdListener() {
+                 override fun onAdLoaded() {
+                     Log.d("AdMob", "Ad loaded successfully unit = $id")
+                 }
 
-                override fun onAdFailedToLoad(p0: LoadAdError) {
-                    if(getDataSession().getFanEnable()){
-                        setupBannerFacebook(adViewContainer)
-                    }
-                    Log.d("AdMob", "Ad failed to load:"+ p0.message + "id = "+id)
-                }
+                 override fun onAdFailedToLoad(p0: LoadAdError) {
+                     if(getDataSession().getFanEnable()){
+                         setupBannerFacebook(adViewContainer)
+                     }
+                     Log.d("AdMob", "Ad failed to load:"+ p0.message + "id = "+id)
+                 }
 
-                override fun onAdOpened() {
-                    Log.d("AdMob", "Ad opened")
-                }
+                 override fun onAdOpened() {
+                     Log.d("AdMob", "Ad opened")
+                 }
 
-                override fun onAdClicked() {
-                    Log.d("AdMob", "Ad clicked")
-                }
+                 override fun onAdClicked() {
+                     Log.d("AdMob", "Ad clicked")
+                 }
 
-                override fun onAdClosed() {
-                    Log.d("AdMob", "Ad closed")
-                }
-            }
-            adView?.loadAd(adRequest)
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }*/
+                 override fun onAdClosed() {
+                     Log.d("AdMob", "Ad closed")
+                 }
+             }
+             adView?.loadAd(adRequest)
+         }catch (e : Exception){
+             setLog(e.message.toString())
+         }
+     }*/
 
     private fun getSize(adViewContainer: FrameLayout): AdSize{
         val display = windowManager.defaultDisplay
@@ -451,110 +451,110 @@ open class BaseActivityWidget : AppCompatActivity() {
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
     }
 
-   /* private fun initializeMobileAdsSdk(adViewContainer: FrameLayout,bannerId: String? =null) {
-        try {
-            if (isMobileAdsInitializeCalled.getAndSet(true)) {
-                return
-            }
+    /* private fun initializeMobileAdsSdk(adViewContainer: FrameLayout,bannerId: String? =null) {
+         try {
+             if (isMobileAdsInitializeCalled.getAndSet(true)) {
+                 return
+             }
 
-            // Initialize the Mobile Ads SDK.
-            try {
-                MobileAds.initialize(this) {}
+             // Initialize the Mobile Ads SDK.
+             try {
+                 MobileAds.initialize(this) {}
 
-                // Load an ad.
-                if (initialLayoutComplete.get()) {
-                    loadBanner(adViewContainer,bannerId)
-                }
-            }catch (e : Exception){
-                setLog(e.message.toString())
-            }
+                 // Load an ad.
+                 if (initialLayoutComplete.get()) {
+                     loadBanner(adViewContainer,bannerId)
+                 }
+             }catch (e : Exception){
+                 setLog(e.message.toString())
+             }
 
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }*/
+         }catch (e : Exception){
+             setLog(e.message.toString())
+         }
+     }*/
 
-   /* fun setupBannerNew(adViewContainer: FrameLayout, bannerId: String? = null) {
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                adView = AdManagerAdView(this@BaseActivityWidget)
-                adViewContainer.addView(adView)
+    /* fun setupBannerNew(adViewContainer: FrameLayout, bannerId: String? = null) {
+         CoroutineScope(Dispatchers.Main).launch {
+             try {
+                 adView = AdManagerAdView(this@BaseActivityWidget)
+                 adViewContainer.addView(adView)
 
-                googleMobileAdsConsentManager = GoogleMobileAdsConsentManager.getInstance(this@BaseActivityWidget)
-                googleMobileAdsConsentManager.gatherConsent(this@BaseActivityWidget) { error ->
-                    if (error != null) {
-                        // Consent not obtained in current session.
-                        Log.d("AdMob New Error", "${error.errorCode}: ${error.message}")
-                    }
+                 googleMobileAdsConsentManager = GoogleMobileAdsConsentManager.getInstance(this@BaseActivityWidget)
+                 googleMobileAdsConsentManager.gatherConsent(this@BaseActivityWidget) { error ->
+                     if (error != null) {
+                         // Consent not obtained in current session.
+                         Log.d("AdMob New Error", "${error.errorCode}: ${error.message}")
+                     }
 
-                    // This sample attempts to load ads using consent obtained in the previous session.
-                    if (googleMobileAdsConsentManager.canRequestAds) {
-                        Log.d("AdMob New Request", "success")
-                        initializeMobileAdsSdk(adViewContainer, bannerId)
-                    }
+                     // This sample attempts to load ads using consent obtained in the previous session.
+                     if (googleMobileAdsConsentManager.canRequestAds) {
+                         Log.d("AdMob New Request", "success")
+                         initializeMobileAdsSdk(adViewContainer, bannerId)
+                     }
 
-                    if (googleMobileAdsConsentManager.isPrivacyOptionsRequired) {
-                        // Regenerate the options menu to include a privacy setting.
-                        invalidateOptionsMenu()
-                    }
-                }
+                     if (googleMobileAdsConsentManager.isPrivacyOptionsRequired) {
+                         // Regenerate the options menu to include a privacy setting.
+                         invalidateOptionsMenu()
+                     }
+                 }
 
-                // This sample attempts to load ads using consent obtained in the previous session.
-                if (googleMobileAdsConsentManager.canRequestAds) {
-                    Log.d("AdMob New Request", "success1")
-                    initializeMobileAdsSdk(adViewContainer, bannerId)
-                }
+                 // This sample attempts to load ads using consent obtained in the previous session.
+                 if (googleMobileAdsConsentManager.canRequestAds) {
+                     Log.d("AdMob New Request", "success1")
+                     initializeMobileAdsSdk(adViewContainer, bannerId)
+                 }
 
-                adViewContainer.viewTreeObserver.addOnGlobalLayoutListener {
-                    if (!initialLayoutComplete.getAndSet(true) && googleMobileAdsConsentManager.canRequestAds) {
-                        loadBanner(adViewContainer, bannerId)
-                    }
-                }
-            } catch (e: Exception) {
-                setLog(e.message.toString())
-            }
-        }
-    }
-*/
-   /* fun setupBannerNew1(adViewContainer: FrameLayout,bannerId : String? =null){
-        try {
-            adView = AdManagerAdView(this)
-            adViewContainer.addView(adView)
+                 adViewContainer.viewTreeObserver.addOnGlobalLayoutListener {
+                     if (!initialLayoutComplete.getAndSet(true) && googleMobileAdsConsentManager.canRequestAds) {
+                         loadBanner(adViewContainer, bannerId)
+                     }
+                 }
+             } catch (e: Exception) {
+                 setLog(e.message.toString())
+             }
+         }
+     }
+ */
+    /* fun setupBannerNew1(adViewContainer: FrameLayout,bannerId : String? =null){
+         try {
+             adView = AdManagerAdView(this)
+             adViewContainer.addView(adView)
 
-            googleMobileAdsConsentManager = GoogleMobileAdsConsentManager.getInstance(this)
-            googleMobileAdsConsentManager.gatherConsent(this) { error ->
-                if (error != null) {
-                    // Consent not obtained in current session.
-                    Log.d("AdMob New Error", "${error.errorCode}: ${error.message}")
-                }
+             googleMobileAdsConsentManager = GoogleMobileAdsConsentManager.getInstance(this)
+             googleMobileAdsConsentManager.gatherConsent(this) { error ->
+                 if (error != null) {
+                     // Consent not obtained in current session.
+                     Log.d("AdMob New Error", "${error.errorCode}: ${error.message}")
+                 }
 
-                // This sample attempts to load ads using consent obtained in the previous session.
-                if (googleMobileAdsConsentManager.canRequestAds) {
-                    Log.d("AdMob New Request", "success")
-                    initializeMobileAdsSdk(adViewContainer,bannerId)
-                }
+                 // This sample attempts to load ads using consent obtained in the previous session.
+                 if (googleMobileAdsConsentManager.canRequestAds) {
+                     Log.d("AdMob New Request", "success")
+                     initializeMobileAdsSdk(adViewContainer,bannerId)
+                 }
 
-                if (googleMobileAdsConsentManager.isPrivacyOptionsRequired) {
-                    // Regenerate the options menu to include a privacy setting.
-                    invalidateOptionsMenu()
-                }
-            }
+                 if (googleMobileAdsConsentManager.isPrivacyOptionsRequired) {
+                     // Regenerate the options menu to include a privacy setting.
+                     invalidateOptionsMenu()
+                 }
+             }
 
-            // This sample attempts to load ads using consent obtained in the previous session.
-            if (googleMobileAdsConsentManager.canRequestAds) {
-                Log.d("AdMob New Request", "success1")
-                initializeMobileAdsSdk(adViewContainer,bannerId)
-            }
+             // This sample attempts to load ads using consent obtained in the previous session.
+             if (googleMobileAdsConsentManager.canRequestAds) {
+                 Log.d("AdMob New Request", "success1")
+                 initializeMobileAdsSdk(adViewContainer,bannerId)
+             }
 
-            adViewContainer.viewTreeObserver.addOnGlobalLayoutListener {
-                if (!initialLayoutComplete.getAndSet(true) && googleMobileAdsConsentManager.canRequestAds) {
-                    loadBanner(adViewContainer,bannerId)
-                }
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }*/
+             adViewContainer.viewTreeObserver.addOnGlobalLayoutListener {
+                 if (!initialLayoutComplete.getAndSet(true) && googleMobileAdsConsentManager.canRequestAds) {
+                     loadBanner(adViewContainer,bannerId)
+                 }
+             }
+         }catch (e : Exception){
+             setLog(e.message.toString())
+         }
+     }*/
 
     fun showArrayLanguage(){
         val languageArray = resources.getStringArray(R.array.language_array)
@@ -822,7 +822,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun setupBanner(adViewContainer:FrameLayout){
 
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
             setupBannerFacebook(adViewContainer)
         }else{
             try {
@@ -863,7 +863,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     }
 
-     fun permissionNotification(){
+    fun permissionNotification(){
         try {
             if (Build.VERSION.SDK_INT >= 33) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -934,62 +934,76 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun setupInterstitial() {
         CoroutineScope(Dispatchers.Main).launch {
-            try {
-                if (getDataSession().getFanEnable()) {
-                    setupInterstitialFacebook()
+
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+                try {
+                    if (getDataSession().getFanEnable()) {
+                        setupInterstitialFacebook()
+                    }
+                } catch (e: Exception) {
+                    setLog("asywalul fbb :${e.message}")
                 }
-            } catch (e: Exception) {
-                setLog("asywalul fbb :${e.message}")
-            }
+            }else{
 
-            try {
-                val adRequest = AdRequest.Builder().build()
-                InterstitialAd.load(this@BaseActivityWidget, getDataSession().getInterstitialId(), adRequest,
-                    object : InterstitialAdLoadCallback() {
-                        override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                            mInterstitialAd = interstitialAd
-                            isLoad = true
-                            setLog("AdMob Inters Loaded Success")
+                try {
+                    if (getDataSession().getFanEnable()) {
+                        setupInterstitialFacebook()
+                    }
+                } catch (e: Exception) {
+                    setLog("asywalul fbb :${e.message}")
+                }
 
-                            // Set the FullScreenContentCallback
-                            mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                                override fun onAdDismissedFullScreenContent() {
-                                    // Handle the ad dismissed event
-                                    setLog("AdMob Inters Ad Dismissed")
-                                    if (BuildConfig.DEBUG) {
-                                        setToast("ads closed")
+                try {
+                    val adRequest = AdRequest.Builder().build()
+                    InterstitialAd.load(this@BaseActivityWidget, getDataSession().getInterstitialId(), adRequest,
+                        object : InterstitialAdLoadCallback() {
+                            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                                mInterstitialAd = interstitialAd
+                                isLoad = true
+                                setLog("AdMob Inters Loaded Success")
+
+                                // Set the FullScreenContentCallback
+                                mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                                    override fun onAdDismissedFullScreenContent() {
+                                        // Handle the ad dismissed event
+                                        setLog("AdMob Inters Ad Dismissed")
+                                        if (BuildConfig.DEBUG) {
+                                            setToast("ads closed")
+                                        }
+                                        // Load a new interstitial ad
+                                        mInterstitialAd = null
+                                        setupInterstitial()
                                     }
-                                    // Load a new interstitial ad
-                                    mInterstitialAd = null
-                                    setupInterstitial()
-                                }
 
-                                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                                    // Handle the ad failed to show event
-                                    setLog("AdMob Inters Ad Failed to Show: ${adError.message}")
-                                    if (BuildConfig.DEBUG) {
-                                        setToast(adError.message)
+                                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                        // Handle the ad failed to show event
+                                        setLog("AdMob Inters Ad Failed to Show: ${adError.message}")
+                                        if (BuildConfig.DEBUG) {
+                                            setToast(adError.message)
+                                        }
                                     }
-                                }
 
-                                override fun onAdShowedFullScreenContent() {
-                                    // Handle the ad showed event
-                                    setLog("AdMob Inters Ad Showed")
-                                    mInterstitialAd = null // Reset the interstitial ad
+                                    override fun onAdShowedFullScreenContent() {
+                                        // Handle the ad showed event
+                                        setLog("AdMob Inters Ad Showed")
+                                        mInterstitialAd = null // Reset the interstitial ad
+                                    }
                                 }
                             }
-                        }
 
-                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                            mInterstitialAd = null
-                            isLoad = false
-                            setLog("AdMob Inters Loaded Failed id = ${getDataSession().getInterstitialId()} ---> ${loadAdError.message}")
-                        }
-                    })
-            } catch (e: Exception) {
-                setLog("asywalul inters :${e.message}")
+                            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                                mInterstitialAd = null
+                                isLoad = false
+                                setLog("AdMob Inters Loaded Failed id = ${getDataSession().getInterstitialId()} ---> ${loadAdError.message}")
+                            }
+                        })
+                } catch (e: Exception) {
+                    setLog("asywalul inters :${e.message}")
+                }
             }
+
         }
+
     }
 
     fun setupInterstitial1() {
@@ -998,7 +1012,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 setupInterstitialFacebook()
             }
         }catch (e : Exception){
-           setLog("asywalul fbb :"+e.message)
+            setLog("asywalul fbb :"+e.message)
         }
         try {
             val adRequest = AdRequest.Builder().build()
