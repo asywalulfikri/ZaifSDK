@@ -2,12 +2,9 @@ package recording.host
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
-import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.media.AudioManager
+import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.SoundPool
 import android.media.ToneGenerator
@@ -40,7 +37,6 @@ import sound.recorder.widget.ui.fragment.FragmentSheetListSong
 import sound.recorder.widget.ui.fragment.FragmentVideo
 import sound.recorder.widget.ui.fragment.ListRecordFragment
 import sound.recorder.widget.ui.fragment.VoiceRecordFragmentHorizontalZaif
-import sound.recorder.widget.ui.fragment.VoiceRecordFragmentVertical
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.SnowFlakesLayout
@@ -136,10 +132,15 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         //binding.layoutBackground.addView(salju)
 
 
-        sp = SoundPool(
-            5,
-            AudioManager.STREAM_MUSIC, 5
-        )
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            .build()
+
+        sp = SoundPool.Builder()
+            .setMaxStreams(5) // jumlah maksimum stream yang bisa diputar
+            .setAudioAttributes(audioAttributes)
+            .build()
 
 
        // showOpenAd() bikin error
