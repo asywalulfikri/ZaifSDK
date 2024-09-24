@@ -72,7 +72,8 @@ class BeforeSplashScreen : BaseActivityWidget(){
                 .setApplicationId(BuildConfig.APPLICATION_ID)
                 .setBackgroundWidgetColor("#B42929")
                 .showNote(false)
-                .showSetting(false)
+                .showSetting(true)
+                .showListSong(true)
                 .build()
 
             // Update UI elements

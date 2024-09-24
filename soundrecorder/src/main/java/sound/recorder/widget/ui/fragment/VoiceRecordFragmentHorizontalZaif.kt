@@ -81,6 +81,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     private var volumes : Float? =null
     private var showNote : Boolean? =null
     private var showSetting : Boolean? =null
+    private var showListSong  : Boolean? =null
     private val blinkHandler = Handler(Looper.getMainLooper())
     private var isBlinking = false
 
@@ -111,6 +112,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
             showNote = DataSession(requireActivity()).getShowNote()
             showSetting = DataSession(requireActivity()).getShowSetting()
+            showListSong = DataSession(requireActivity()).getShowListSong()
 
             MyPauseListener.setMyListener(this)
 
@@ -132,6 +134,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 binding.settingBtn.visibility = View.VISIBLE
             }else{
                 binding.settingBtn.visibility = View.GONE
+            }
+
+            if(showListSong==true){
+                binding.songBtn.visibility = View.VISIBLE
+            }else{
+                binding.songBtn.visibility = View.GONE
             }
 
             handler = Handler(Looper.myLooper()!!)
@@ -172,18 +180,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             }
 
             binding.songBtn.setOnClickListener {
-                startPermissionSong()
-            }
-
-            if(DataSession(requireActivity()).isCoverSong()){
-                binding.coverBtn.visibility = View.VISIBLE
-                binding.songBtn.visibility = View.GONE
-            }else{
-                binding.coverBtn.visibility = View.GONE
-                binding.songBtn.visibility = View.VISIBLE
-            }
-
-            binding.coverBtn.setOnClickListener {
                 startPermissionSong()
             }
 
@@ -766,6 +762,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             }catch (e : Exception){
                 setToastError(activity,e.message.toString())
             }
+
             Handler().postDelayed({
                 try {
                     mp = MediaPlayer()

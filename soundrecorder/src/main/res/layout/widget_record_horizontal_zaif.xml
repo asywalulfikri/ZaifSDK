@@ -52,60 +52,29 @@
 
         <RelativeLayout
             android:visibility="gone"
-            android:layout_marginStart="5dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:clickable="true"
+            android:id="@+id/songBtn"
+            android:layout_marginHorizontal="2dp"
+            android:layout_width="42dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_height="42dp"
+            android:paddingHorizontal="2dp"
+            android:background="@drawable/button_black">
 
             <ImageView
-                android:id="@+id/songBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                app:srcCompat="@drawable/ic_song1"
-                android:contentDescription="@string/app_name"
-                tools:ignore="DuplicateSpeakableTextCheck" />
-
-        </RelativeLayout>
-
-
-        <RelativeLayout
-            android:visibility="gone"
-            android:id="@+id/coverBtn"
-            android:layout_width="50dp"
-            android:layout_height="50dp">
-
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="2dp"
-                android:layout_marginTop="2dp"
-                android:layout_marginEnd="2dp"
-                android:layout_marginBottom="2dp"
-                android:src="@drawable/round"
-                android:contentDescription="@string/app_name"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="9sp"
-                tools:ignore="DuplicateSpeakableTextCheck,HardcodedText,SmallSp" />
-
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:fontFamily="@font/rimouski"
-                android:gravity="center"
-                android:text="@string/cover_song"
-                android:textColor="#FFFFFF"
-                android:textSize="8sp"
-                tools:ignore="HardcodedText,SmallSp" />
-
+                app:srcCompat="@drawable/icon_music"/>
         </RelativeLayout>
 
+
         <ImageView
-            android:visibility="gone"
             android:layout_marginStart="6dp"
+            android:visibility="gone"
             android:id="@+id/deleteBtn"
             android:clickable="false"
-            android:layout_marginEnd="5dp"
+            android:layout_marginEnd="3dp"
             android:background="@drawable/button_record_color"
             android:padding="15dp"
             app:srcCompat="@drawable/ic_cancel"
@@ -116,6 +85,7 @@
         <RelativeLayout
             android:id="@+id/rlRecord"
             android:layout_marginTop="5dp"
+            android:layout_marginStart="2dp"
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
             android:layout_width="0dp"

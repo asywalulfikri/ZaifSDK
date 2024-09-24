@@ -62,6 +62,11 @@ open class DataSession(private val mContext: Context) {
         return sharedPref.getBoolean(Constant.KeyShared.showSetting,false)
     }
 
+    fun getShowListSong(): Boolean{
+        return sharedPref.getBoolean(Constant.KeyShared.showListSong,true)
+    }
+
+
     fun getBackgroundRecord(): String{
         return sharedPref.getString("llRecordBackground","#FFF9AA").toString()
     }

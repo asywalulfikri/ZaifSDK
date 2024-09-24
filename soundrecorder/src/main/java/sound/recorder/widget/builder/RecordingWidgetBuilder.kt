@@ -13,7 +13,8 @@ class RecordingWidgetBuilder private constructor(
     val developerName : String?,
     val showNote : Boolean,
     val showSetting : Boolean,
-    val backgroundWidgetColor : String?
+    val backgroundWidgetColor : String?,
+    val showListSong : Boolean
 ) {
 
 
@@ -28,6 +29,7 @@ class RecordingWidgetBuilder private constructor(
         private var showNote = false
         private var showSetting = false
         private var backgroundWidgetColor : String? = null
+        private var showListSong = true
 
         fun setAppName(appName: String?): Builder {
             this.appName = appName
@@ -69,9 +71,14 @@ class RecordingWidgetBuilder private constructor(
             return this
         }
 
+        fun showListSong(showListSong: Boolean): Builder {
+            this.showListSong = showListSong
+            return this
+        }
+
         // Build function to create an instance of MyObject
         fun build(): RecordingWidgetBuilder {
-            val myObject = RecordingWidgetBuilder(appName, versionCode, versionName,applicationId,developerName,showNote,showSetting,backgroundWidgetColor)
+            val myObject = RecordingWidgetBuilder(appName, versionCode, versionName,applicationId,developerName,showNote,showSetting,backgroundWidgetColor,showListSong)
 
             // Save values to SharedPreferences
             saveToSharedPreferences(myObject)
@@ -94,6 +101,7 @@ class RecordingWidgetBuilder private constructor(
             editor.putBoolean(Constant.KeyShared.showNote, recordingWidgetBuilder.showNote)
             editor.putBoolean(Constant.KeyShared.showSetting, recordingWidgetBuilder.showSetting)
             editor.putString(Constant.KeyShared.backgroundWidgetColor, recordingWidgetBuilder.backgroundWidgetColor)
+            editor.putBoolean(Constant.KeyShared.showListSong, recordingWidgetBuilder.showListSong)
 
             editor.apply()
         }

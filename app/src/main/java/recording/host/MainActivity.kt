@@ -93,7 +93,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
 
         setupBanner(binding.bannerView)
-        setupAppOpenAd()
+       // setupAppOpenAd()
 
         val xx = DataSession(this).getBackgroundColor()
         if (xx != -1) {
