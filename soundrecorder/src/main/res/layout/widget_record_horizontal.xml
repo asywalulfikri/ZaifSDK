@@ -166,6 +166,18 @@
 
         <TextView
             android:id="@+id/timerView"
+            android:visibility="gone"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="10dp"
+            android:textColor="@color/red_900"
+            android:text="REC◉"/>
+
+       <!-- <TextView
+            android:id="@+id/timerView"
             android:layout_marginStart="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -173,7 +185,7 @@
             android:layout_marginEnd="10dp"
             android:textColor="#FFFFFF"
             android:text="00:00.0"/>
-
+-->
       <!--  <sound.recorder.widget.tools.RecorderWaveformView
             android:layout_marginStart="10dp"
             android:visibility="gone"

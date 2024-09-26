@@ -11,6 +11,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.media.AudioManager
 import android.media.MediaMetadataRetriever
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -176,6 +177,18 @@ open class BaseFragmentWidget : Fragment() {
         adView.loadAd(adView.buildLoadAdConfig().withAdListener(adListener).build())
         adContainer.addView(adView);
 
+    }
+
+    fun sampleRate() : Int?{
+        val audioManager = activity?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val sampleRate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)?.toInt()// ?: 48000
+        return sampleRate;
+    }
+
+    fun bufferSize() : Int?{
+        val audioManager = activity?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val bufferSize = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)?.toInt()// ?: 256
+        return bufferSize;
     }
 
     @SuppressLint("DefaultLocale")

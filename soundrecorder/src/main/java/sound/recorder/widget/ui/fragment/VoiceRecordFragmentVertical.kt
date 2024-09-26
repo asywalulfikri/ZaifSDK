@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -60,7 +61,6 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
     private var recordingAudio = false
     private var pauseRecordAudio = false
     private var refreshRate : Long = 60
-    private lateinit var timer: Timer
 
     private lateinit var handler: Handler
     private var _binding: WidgetRecordVerticalBinding? = null
@@ -79,6 +79,8 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
     private var showNote : Boolean? =null
     private var showSetting : Boolean? =null
 
+    private val blinkHandler = Handler(Looper.getMainLooper())
+    private var isBlinking = false
 
     companion object {
         fun newInstance(): VoiceRecordFragmentVertical{
@@ -274,6 +276,28 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
     }
 
 
+    private fun stopBlinking() {
+        isBlinking = false
+        blinkHandler.removeCallbacksAndMessages(null)
+        binding.timerView.visibility = View.GONE
+    }
+
+
+    private fun startBlinking() {
+        isBlinking = true
+        blinkHandler.post(object : Runnable {
+            override fun run() {
+                if (isBlinking) {
+                    // Toggle visibility
+                    binding.timerView.visibility =
+                        if (binding.timerView.visibility == View.VISIBLE) View.INVISIBLE else View.VISIBLE
+                    // Repeat every 500ms (adjust this value as needed)
+                    blinkHandler.postDelayed(this, 500)
+                }
+            }
+        })
+    }
+
 
     private fun showBottomSheetSong(){
         try {
@@ -368,8 +392,9 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
         binding.deleteBtn.isClickable = true
         binding.recordBtn.setImageResource(R.drawable.ic_pause)
 
-        timer = Timer(this)
-        timer.start()
+       // timer = Timer(this)
+       // timer.start()
+        startBlinking()
     }
 
 
@@ -378,7 +403,9 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
         binding.recordText.visibility = View.VISIBLE
         binding.recordText.text = requireActivity().getString(R.string.text_continue)
         binding.recordBtn.setImageResource(R.drawable.transparant_bg)
-        timer.pause()
+
+        stopBlinking()
+        //timer.pause()
     }
 
     @SuppressLint("SetTextI18n")
@@ -392,8 +419,9 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
         binding.deleteBtn.visibility = View.GONE
 
        // binding.playerView.reset()
+        stopBlinking()
         try {
-            timer.stop()
+//            timer.stop()
         }catch (e: IllegalStateException) {
             // Handle IllegalStateException (e.g., recording already started)
             e.printStackTrace()
@@ -412,98 +440,155 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
             // Perform error handling or show appropriate message to the user
         }
 
-        binding.timerView.text = "00:00.00"
+       // binding.timerView.text = "00:00.00"
     }
+
 
 
     private fun showRecordDialog() {
         try {
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle(activity?.getString(R.string.notification))
-            builder.setMessage(activity?.getString(R.string.title_recording_dialog))
-            builder.setPositiveButton(activity?.getString(R.string.yes)) { dialog, _ ->
+            // Buat AlertDialog baru menggunakan AlertDialog.Builder
+            val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+
+            // Inflate custom layout
+            val dialogView = layoutInflater.inflate(R.layout.custom_cancel_dialog, null)
+
+            // Get references to the TextViews and Buttons in the custom layout
+            val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+            val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+            val btnNo = dialogView.findViewById<TextView>(R.id.btnNo)
+            val btnYes = dialogView.findViewById<TextView>(R.id.btnYes)
+
+            // Set custom text (optional)
+            tvDialogTitle.text = getString(R.string.notification)
+            tvDialogMessage.text = getString(R.string.title_recording_dialog)
+
+            // Set custom layout to the dialog
+            builder.setView(dialogView)
+
+            // Buat dialog dari builder
+            val dialog = builder.create()
+
+            // Set up button click listeners
+            btnYes.setOnClickListener {
                 startRecordingAudio()
                 dialog.dismiss()
             }
-            builder.setNegativeButton(activity?.getString(R.string.no)) { dialog, _ ->
+
+            btnNo.setOnClickListener {
                 dialog.dismiss()
             }
-            val dialog = builder.create()
+
+            // Tampilkan dialog
             dialog.show()
-        }catch (e : Exception){
-            setToast(activity,e.message.toString())
+
+            // Atur ukuran dialog (opsional)
+            /*dialog.window?.setLayout(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )*/
+        } catch (e: Exception) {
+            setToast(activity, e.message.toString())
         }
     }
 
 
     private fun showCancelDialog() {
         try {
-            val builder = AlertDialog.Builder(activity)
-            builder.setTitle(activity?.getString(R.string.notification))
-            builder.setMessage(activity?.getString(R.string.title_recording_canceled))
-            builder.setPositiveButton(activity?.getString(R.string.yes)) { dialog, _ ->
+            // Buat AlertDialog baru menggunakan AlertDialog.Builder
+            val builder = android.app.AlertDialog.Builder(requireContext())
 
-                stopRecordingAudio(requireActivity().getString(R.string.record_canceled))
-                File(dirPath+fileName).delete()
+            // Inflate custom layout
+            val dialogView = layoutInflater.inflate(R.layout.custom_cancel_dialog, null)
 
-                dialog.dismiss()
-            }
-            builder.setNegativeButton(activity?.getString(R.string.no)) { dialog, _ ->
-                dialog.dismiss()
-            }
+            // Get references to the TextViews and Buttons in the custom layout
+            val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+            val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+            val btnNo = dialogView.findViewById<TextView>(R.id.btnNo)
+            val btnYes = dialogView.findViewById<TextView>(R.id.btnYes)
+
+            // Set custom text (optional)
+            tvDialogTitle.text = getString(R.string.notification)
+            tvDialogMessage.text = getString(R.string.title_recording_canceled)
+
+            // Set custom layout to the dialog
+            builder.setView(dialogView)
+
+            // Buat dialog dari builder
             val dialog = builder.create()
+
+            // Set up button click listeners
+            btnYes.setOnClickListener {
+                stopRecordingAudio(getString(R.string.record_canceled))
+                File(dirPath + fileName).delete()
+                dialog.dismiss()
+            }
+
+            btnNo.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            // Tampilkan dialog
             dialog.show()
-        }catch (e : Exception){
-            setToast(activity,e.message.toString())
+
+            // Atur ukuran dialog (opsional)
+
+        } catch (e: Exception) {
+            setToast(activity, e.message.toString())
         }
     }
 
     @SuppressLint("SimpleDateFormat")
     private fun startRecordingAudio(){
 
-        showLayoutStartRecord()
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+            setToast(activity,requireActivity().getString(R.string.device_not_support))
+        }else{
+            showLayoutStartRecord()
 
-        recordingAudio = true
+            recordingAudio = true
 
-        // format file name with date
-        val pattern = "yyyy.MM.dd_hh.mm.ss"
-        val simpleDateFormat = SimpleDateFormat(pattern)
-        val date: String = simpleDateFormat.format(Date())
+            // format file name with date
+            val pattern = "yyyy.MM.dd_hh.mm.ss"
+            val simpleDateFormat = SimpleDateFormat(pattern)
+            val date: String = simpleDateFormat.format(Date())
 
-        dirPath = "${activity?.externalCacheDir?.absolutePath}/"
-        fileName = "record_${date}.mp3"
+            dirPath = "${activity?.externalCacheDir?.absolutePath}/"
+            fileName = "record_${date}.mp3"
+            binding.timerView.visibility = View.VISIBLE
 
-        try {
-            recorder =  MediaRecorder()
-            recorder?.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                setOutputFile(dirPath + fileName)
-                prepare()
-                start()
-                animatePlayerView()
-                setToastInfo(activity,requireActivity().getString(R.string.record_started))
+            try {
+                recorder =  MediaRecorder()
+                recorder?.apply {
+                    setAudioSource(MediaRecorder.AudioSource.MIC)
+                    setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                    setOutputFile(dirPath + fileName)
+                    prepare()
+                    start()
+                    //animatePlayerView()
+                    setToastInfo(activity,requireActivity().getString(R.string.record_started))
+                }
+            } catch (e: IllegalStateException) {
+                // Handle IllegalStateException (e.g., recording already started)
+                e.printStackTrace()
+                setToastError(activity,e.message.toString())
+                // Perform error handling or show appropriate message to the user
+            } catch (e: IOException) {
+                // Handle IOException (e.g., failed to prepare or write to file)
+                e.printStackTrace()
+                setToastError(activity,e.message.toString())
+                // Perform error handling or show appropriate message to the user
+            } catch (e: Exception) {
+                // Handle other exceptions
+                e.printStackTrace()
+                setToastError(activity,e.message.toString())
+                // Perform error handling or show appropriate message to the user
             }
-        } catch (e: IllegalStateException) {
-            // Handle IllegalStateException (e.g., recording already started)
-            e.printStackTrace()
-            setToastError(activity,e.message.toString())
-            // Perform error handling or show appropriate message to the user
-        } catch (e: IOException) {
-            // Handle IOException (e.g., failed to prepare or write to file)
-            e.printStackTrace()
-            setToastError(activity,e.message.toString())
-            // Perform error handling or show appropriate message to the user
-        } catch (e: Exception) {
-            // Handle other exceptions
-            e.printStackTrace()
-            setToastError(activity,e.message.toString())
-            // Perform error handling or show appropriate message to the user
+
         }
 
     }
-
 
     private fun animatePlayerView(){
        /* if(recordingAudio && !pauseRecordAudio){
@@ -564,7 +649,8 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
 
                         binding.recordBtn.setImageResource(R.drawable.ic_pause)
                         animatePlayerView()
-                        timer.start()
+                        //timer.start()
+                        startBlinking()
                     }
                 }
 
@@ -660,7 +746,7 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
         if(activity!=null){
             val db = Room.databaseBuilder(requireActivity(), AppDatabase::class.java, "audioRecords").build()
 
-            val duration = timer.format().split(".")[0]
+            //val duration = timer.format().split(".")[0]
 
             stopRecordingAudio("")
 
@@ -668,9 +754,8 @@ class VoiceRecordFragmentVertical : BaseFragmentWidget(), BottomSheet.OnClickLis
                 val newFile = File("$dirPath$filename.mp3")
                 File(dirPath+fileName).renameTo(newFile)
             }
-
             GlobalScope.launch {
-                db.audioRecordDAO().insert(AudioRecord(filename, filePath, Date().time, duration))
+                db.audioRecordDAO().insert(AudioRecord(filename, filePath, Date().time, getFormattedAudioDuration(filePath)))
             }
             setToastSuccess(activity,requireActivity().getString(R.string.record_saved))
 

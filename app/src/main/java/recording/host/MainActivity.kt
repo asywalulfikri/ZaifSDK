@@ -225,7 +225,6 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
         checkForUpdates()
 
-        setupFragment(binding.recordingView.id,VoiceRecordFragmentHorizontalZaif())
 
 
     }

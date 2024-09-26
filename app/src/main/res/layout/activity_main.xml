@@ -38,11 +38,19 @@ Pembaruan UI: Kode ini sudah berada di thread UI, sehingga runOnUiThread tidak p
 
     <androidx.fragment.app.FragmentContainerView
         android:layout_below="@+id/tvRunningText"
-        android:id="@+id/recordingViewVertical"
+        android:id="@+id/recordingViewVerticalZaif"
         android:name="sound.recorder.widget.ui.fragment.VoiceRecordFragmentVerticalZaif"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+
+    <androidx.fragment.app.FragmentContainerView
+        android:layout_below="@+id/tvRunningText"
+        android:layout_toEndOf="@+id/recordingViewVerticalZaif"
+        android:id="@+id/recordingViewVertical"
+        android:name="sound.recorder.widget.ui.fragment.VoiceRecordFragmentVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <LinearLayout
         android:layout_marginTop="60dp"
@@ -57,7 +65,14 @@ Pembaruan UI: Kode ini sudah berada di thread UI, sehingga runOnUiThread tidak p
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/recordingView"
+            android:id="@+id/record1"
+            android:layout_width="wrap_content"
+            android:name="sound.recorder.widget.ui.fragment.VoiceRecordFragmentHorizontalZaif"
+            android:layout_height="wrap_content"/>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/record2"
+            android:name="sound.recorder.widget.ui.fragment.VoiceRecordFragmentHorizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
