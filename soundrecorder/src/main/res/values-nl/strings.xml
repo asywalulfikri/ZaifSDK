@@ -135,5 +135,17 @@
     <string name="volume">Volume</string>
     <string name="text_choose_not">Opmerking zal hier worden weergegeven .... kies eerst</string>
 
+    <string name="text_guidelines">Gebruiksrichtlijnen</string>
+    <string name="text_guide_record">Gebruik deze functie om het geluid van het muziekinstrument dat je speelt op te nemen</string>
+    <string name="text_guide_song">Gebruik deze functie om de lijst met nummers op je telefoon op te halen</string>
+    <string name="text_guide_list_record">Gebruik deze functie om de lijst met opnames van muziekinstrumentgeluiden die je hebt opgenomen te bekijken</string>
+    <string name="text_guide_audio">Gebruik deze functie om het volume van het instrument en de nummers te verhogen of te verlagen</string>
+    <string name="text_guide_note">Gebruik deze functie om je eigen notities voor nummers te maken</string>
+    <string name="text_guide_color">Gebruik deze functie om de kleur van het instrument te veranderen</string>
+    <string name="text_guide_note_firebase">Gebruik deze functie om de notities te bekijken die door de app worden aangeboden</string>
+    <string name="text_done">Klaar</string>
+    <string name="text_next">Volgende</string>
+    <string name="text_skip">Overslaan</string>
+
 
 </resources>

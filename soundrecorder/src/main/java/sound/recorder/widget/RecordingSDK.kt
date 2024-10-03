@@ -89,8 +89,6 @@ object RecordingSDK {
             colors.add("#FF0000")
 
             colorPicker
-                //.setDefaultColorButton(Color.parseColor("#2062af"))
-                //.setColors(colors)
                 .setColumns(7)
                 .setRoundColorButton(true)
                 .setOnChooseColorListener(object : OnChooseColorListener {

@@ -14,4 +14,8 @@ object MyMusicListener {
     fun postNote(note : String?){
         myListener?.onNote(note)
     }
+
+    fun postVolumeAudio(volume : Float?){
+        myListener?.onVolumeAudio(volume)
+    }
 }

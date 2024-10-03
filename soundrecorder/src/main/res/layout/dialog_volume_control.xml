@@ -3,12 +3,12 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@color/colorPrimary"
+    android:background="@color/grey_600"
     android:padding="16dp">
 
     <TextView
         android:fontFamily="@font/rodfellows_wacky"
-        android:textColor="@color/black_de"
+        android:textColor="@color/yellow_200"
         android:textSize="20sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,15 +21,18 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/baseline_volume_down_24"/>
+            android:layout_marginEnd="10dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:srcCompat="@drawable/volume_loud_svgrepo_com"/>
+
         <SeekBar
-            android:id="@+id/seekBarLagu"
+            android:progressDrawable="@drawable/custom_seekbar_track"
+            android:id="@+id/seekBarMusic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="100" />
-
+            android:max="100"
+            android:thumb="@drawable/thumb_baru" /> <!-- Ganti dengan nama gambar thumb yang sesuai -->
     </LinearLayout>
 
     <LinearLayout
@@ -41,7 +44,7 @@
         <TextView
             android:fontFamily="@font/rodfellows_wacky"
             android:textSize="20sp"
-            android:textColor="@color/black_de"
+            android:textColor="@color/yellow_200"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/volume" />
@@ -50,13 +53,11 @@
             android:layout_marginStart="10dp"
             android:fontFamily="@font/rodfellows_wacky"
             android:textSize="20sp"
-            android:textColor="@color/black_de"
+            android:textColor="@color/yellow_200"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/app_name"/>
-
     </LinearLayout>
-
 
     <LinearLayout
         android:gravity="center"
@@ -65,17 +66,17 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/baseline_volume_down_24"/>
+            android:layout_marginEnd="10dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:srcCompat="@drawable/volume_loud_svgrepo_com"/>
+
         <SeekBar
-            android:id="@+id/seekBarMarchingBell"
+            android:progressDrawable="@drawable/custom_seekbar_track"
+            android:id="@+id/seekBarAudio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="100" />
-
-
+            android:max="100"
+            android:thumb="@drawable/thumb_baru" /> <!-- Ganti dengan nama gambar thumb yang sesuai -->
     </LinearLayout>
-
-
 </LinearLayout>

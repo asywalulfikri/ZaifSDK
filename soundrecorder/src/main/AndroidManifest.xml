@@ -43,6 +43,7 @@
         <meta-data android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_baseline_notifications_active_24" />
 
+        <activity android:name=".tools.showcase.ShowcaseActivity"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

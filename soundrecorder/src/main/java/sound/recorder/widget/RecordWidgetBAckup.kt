@@ -10,7 +10,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import sound.recorder.widget.databinding.LayoutEmptyVerticalBinding
 import sound.recorder.widget.ui.fragment.NoteFragmentFirebase
-import sound.recorder.widget.ui.fragment.VoiceRecordFragmentVertical
 
 class RecordWidgetBAckup : LinearLayout {
 

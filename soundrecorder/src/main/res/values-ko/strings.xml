@@ -136,5 +136,17 @@
     <string name="text_choose_not">여기에 메모가 표시됩니다 .... 먼저 선택하세요</string>
 
 
+    <string name="text_guidelines">사용 지침</string>
+    <string name="text_guide_record">이 기능을 사용하여 연주 중인 악기의 소리를 녹음하세요</string>
+    <string name="text_guide_song">이 기능을 사용하여 휴대폰의 노래 목록을 가져오세요</string>
+    <string name="text_guide_list_record">이 기능을 사용하여 녹음한 악기 소리 목록을 확인하세요</string>
+    <string name="text_guide_audio">이 기능을 사용하여 악기와 노래의 볼륨을 높이거나 낮추세요</string>
+    <string name="text_guide_note">이 기능을 사용하여 자신만의 악보를 작성하세요</string>
+    <string name="text_guide_color">이 기능을 사용하여 악기의 색상을 변경하세요</string>
+    <string name="text_guide_note_firebase">이 기능을 사용하여 앱에서 제공하는 악보를 확인하세요</string>
+    <string name="text_done">완료</string>
+    <string name="text_next">다음</string>
+    <string name="text_skip">건너뛰기</string>
+
 
 </resources>

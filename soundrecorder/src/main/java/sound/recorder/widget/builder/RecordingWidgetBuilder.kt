@@ -1,3 +1,4 @@
+/*
 package sound.recorder.widget.builder
 
 import android.content.Context
@@ -13,8 +14,9 @@ class RecordingWidgetBuilder private constructor(
     val developerName : String?,
     val showNote : Boolean,
     val showSetting : Boolean,
-    val backgroundWidgetColor : String?,
-    val showListSong : Boolean
+    val backgroundWidgetColor : String,
+    val showListSong : Boolean,
+    val showVolume : Boolean
 ) {
 
 
@@ -29,7 +31,8 @@ class RecordingWidgetBuilder private constructor(
         private var showNote = false
         private var showSetting = false
         private var backgroundWidgetColor : String? = null
-        private var showListSong = true
+        private var showListSong = false
+        private var showVolume = false
 
         fun setAppName(appName: String?): Builder {
             this.appName = appName
@@ -76,9 +79,15 @@ class RecordingWidgetBuilder private constructor(
             return this
         }
 
+        fun showVolume(showVolume: Boolean): Builder {
+            this.showVolume = showVolume
+            return this
+        }
+
         // Build function to create an instance of MyObject
         fun build(): RecordingWidgetBuilder {
-            val myObject = RecordingWidgetBuilder(appName, versionCode, versionName,applicationId,developerName,showNote,showSetting,backgroundWidgetColor,showListSong)
+            val myObject = RecordingWidgetBuilder(appName, versionCode, versionName,applicationId,developerName,showNote,showSetting,
+                backgroundWidgetColor.toString(),showListSong,showVolume)
 
             // Save values to SharedPreferences
             saveToSharedPreferences(myObject)
@@ -102,6 +111,7 @@ class RecordingWidgetBuilder private constructor(
             editor.putBoolean(Constant.KeyShared.showSetting, recordingWidgetBuilder.showSetting)
             editor.putString(Constant.KeyShared.backgroundWidgetColor, recordingWidgetBuilder.backgroundWidgetColor)
             editor.putBoolean(Constant.KeyShared.showListSong, recordingWidgetBuilder.showListSong)
+            editor.putBoolean(Constant.KeyShared.showVolume, recordingWidgetBuilder.showVolume)
 
             editor.apply()
         }
@@ -114,3 +124,4 @@ class RecordingWidgetBuilder private constructor(
         }
     }
 }
+*/

@@ -63,7 +63,11 @@ open class DataSession(private val mContext: Context) {
     }
 
     fun getShowListSong(): Boolean{
-        return sharedPref.getBoolean(Constant.KeyShared.showListSong,true)
+        return sharedPref.getBoolean(Constant.KeyShared.showListSong,false)
+    }
+
+    fun getShowVolume() : Boolean{
+        return sharedPref.getBoolean(Constant.KeyShared.showVolume,false)
     }
 
 
@@ -162,6 +166,16 @@ open class DataSession(private val mContext: Context) {
 
     fun isContainSong(): Boolean {
         return sharedPref.getBoolean("addSong", false)
+    }
+
+    fun getShowCase(): Boolean {
+        return sharedPref.getBoolean(Constant.KeyShared.showCase, true)
+    }
+
+    fun saveShowCase(status : Boolean){
+        val editor = sharedPref.edit()
+        editor.putBoolean(Constant.KeyShared.showCase, status)
+        editor.apply()
     }
 
     fun initiateSong(status: Boolean){

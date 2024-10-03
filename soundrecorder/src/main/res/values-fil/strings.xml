@@ -135,4 +135,17 @@
     <string name="text_choose_not">Ang tala ay ipapakita dito .... pumili muna</string>
 
 
+    <string name="text_guidelines">Mga Patnubay sa Paggamit</string>
+    <string name="text_guide_record">Gamitin ang feature na ito upang i-record ang tunog ng instrumentong pangmusika na iyong tinutugtog</string>
+    <string name="text_guide_song">Gamitin ang feature na ito upang makuha ang listahan ng mga kanta sa iyong telepono</string>
+    <string name="text_guide_list_record">Gamitin ang feature na ito upang tingnan ang listahan ng mga na-record na tunog ng instrumento</string>
+    <string name="text_guide_audio">Gamitin ang feature na ito upang taasan o bawasan ang volume ng instrumento at ng mga kanta</string>
+    <string name="text_guide_note">Gamitin ang feature na ito upang lumikha ng sarili mong mga nota ng kanta</string>
+    <string name="text_guide_color">Gamitin ang feature na ito upang baguhin ang kulay ng instrumento</string>
+    <string name="text_guide_note_firebase">Gamitin ang feature na ito upang tingnan ang mga nota na ibinigay ng app</string>
+    <string name="text_done">Tapos</string>
+    <string name="text_next">Susunod</string>
+    <string name="text_skip">Laktawan</string>
+
+
 </resources>

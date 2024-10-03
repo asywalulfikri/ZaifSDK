@@ -212,46 +212,51 @@ class ListRecordFragment : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
         }
     }
 
+
     override fun onItemClick(position: Int) {
-        val intent = Intent(activity, PlayerActivityWidget::class.java)
-        val audioRecord = audioRecords[position]
+        if (position >= 0 && position < audioRecords.size) {
+            val audioRecord = audioRecords[position]
+            val intent = Intent(activity, PlayerActivityWidget::class.java)
 
-        if(audioRecorderAdapter.isEditMode()){
-            Log.d("ITEMCHANGE", audioRecord.isChecked.toString())
-            audioRecord.isChecked = !audioRecord.isChecked
-            audioRecorderAdapter.notifyItemChanged(position)
+            if (audioRecorderAdapter.isEditMode()) {
+                audioRecord.isChecked = !audioRecord.isChecked
+                audioRecorderAdapter.notifyItemChanged(position)
 
-            nbSelected = if (audioRecord.isChecked) nbSelected+1 else nbSelected-1
-            updateBottomSheet()
-
-        }else{
-            if(isExist(audioRecord.filePath)){
-                intent.putExtra("filepath", audioRecord.filePath)
-                intent.putExtra("filename", audioRecord.filename)
-                startActivity(intent)
-            }else{
-                setToastError(activity,"This Audio Not Found Anymore \uD83D\uDE1E")
+                nbSelected = if (audioRecord.isChecked) nbSelected + 1 else nbSelected - 1
+                updateBottomSheet()
+            } else {
+                if (isExist(audioRecord.filePath)) {
+                    intent.putExtra("filepath", audioRecord.filePath)
+                    intent.putExtra("filename", audioRecord.filename)
+                    startActivity(intent)
+                } else {
+                    setToastError(activity, "This Audio Not Found Anymore \uD83D\uDE1E")
+                }
             }
+        } else {
+            Log.e("ListRecordFragment", "Invalid position: $position")
         }
-
     }
+
 
     private fun isExist(path : String): Boolean {
         return File(path).exists()
     }
 
     override fun onItemLongClick(position: Int) {
-        audioRecorderAdapter.setEditMode(true)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        if (position >= 0 && position < audioRecords.size) {
+            audioRecorderAdapter.setEditMode(true)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
 
-        val audioRecord = audioRecords[position]
+            val audioRecord = audioRecords[position]
+            audioRecord.isChecked = !audioRecord.isChecked
 
-        audioRecord.isChecked = !audioRecord.isChecked
-
-        nbSelected = if (audioRecord.isChecked) nbSelected+1 else nbSelected-1
-        updateBottomSheet()
-        binding.editorBar.visibility = View.VISIBLE
-
+            nbSelected = if (audioRecord.isChecked) nbSelected + 1 else nbSelected - 1
+            updateBottomSheet()
+            binding.editorBar.visibility = View.VISIBLE
+        } else {
+            Log.e("ListRecordFragment", "Invalid position: $position")
+        }
     }
 
     override fun onShareClick(audioRecord: AudioRecord) {

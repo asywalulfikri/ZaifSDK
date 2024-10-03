@@ -134,6 +134,17 @@
 
     <string name="text_choose_not">Catatan akan ditampilkan di sini .... pilih terlebih dahulu</string>
 
+    <string name="text_guidelines">Panduan Penggunaan</string>
+    <string name="text_guide_record">Gunakan fitur ini untuk merekam suara alat musik yang kamu mainkan</string>
+    <string name="text_guide_song">Gunakan fitur ini untuk mengambil daftar lagu di ponsel kamu</string>
+    <string name="text_guide_list_record">Gunakan fitur ini untuk melihat daftar rekaman suara alat musik yang kamu rekam</string>
+    <string name="text_guide_audio">Gunakan fitur ini untuk menaikkan dan menurunkan volume alat musik dan lagu</string>
+    <string name="text_guide_note">Gunakan fitur ini untuk membuat catatan lagu kamu sendiri</string>
+    <string name="text_guide_color">Gunakan fitur ini untuk mengubah warna alat musik</string>
+    <string name="text_guide_note_firebase">Gunakan fitur ini untuk melihat not lagu yang disediakan oleh aplikasi</string>
+    <string name="text_done">Selesai</string>
+    <string name="text_next">Lanjut</string>
+    <string name="text_skip">Lewati</string>
 
 
 

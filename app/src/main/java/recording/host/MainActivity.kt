@@ -21,8 +21,10 @@ import androidx.fragment.app.Fragment
 import recording.host.databinding.ActivityMainBinding
 import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.base.BaseActivityWidget
+import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.FragmentListener
+import sound.recorder.widget.listener.MusicListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyFragmentListener
 import sound.recorder.widget.listener.MyMusicListener
@@ -31,19 +33,23 @@ import sound.recorder.widget.listener.MyStopMusicListener
 import sound.recorder.widget.listener.MyStopSDKMusicListener
 import sound.recorder.widget.listener.PauseListener
 import sound.recorder.widget.model.Song
+import sound.recorder.widget.tools.showcase.GuideView
+import sound.recorder.widget.tools.showcase.config.DismissType
+import sound.recorder.widget.tools.showcase.config.Gravity
+import sound.recorder.widget.tools.showcase.config.PointerType
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
 import sound.recorder.widget.ui.fragment.FragmentSettings
 import sound.recorder.widget.ui.fragment.FragmentSheetListSong
 import sound.recorder.widget.ui.fragment.FragmentVideo
 import sound.recorder.widget.ui.fragment.ListRecordFragment
-import sound.recorder.widget.ui.fragment.VoiceRecordFragmentHorizontalZaif
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.SnowFlakesLayout
 import java.io.IOException
 import kotlin.math.ln
 
-class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPreferences.OnSharedPreferenceChangeListener,PauseListener,FragmentSheetListSong.OnClickListener {
+
+class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPreferences.OnSharedPreferenceChangeListener,PauseListener,FragmentSheetListSong.OnClickListener,MusicListener {
 
     private lateinit var sp : SoundPool
 
@@ -71,6 +77,9 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
     private var songIsPlaying = false
     private var volumes : Float? =null
 
+    private var mGuideView: GuideView? = null
+    private var builder: GuideView.Builder? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -83,12 +92,17 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         sharedPreferences = DataSession(this).getShared()
         sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
 
-       // binding.tvRunningText.startScroll()
+        val zaifSDKBuilder = ZaifSDKBuilder.builder(this).loadFromSharedPreferences()
+
+
+
+        // binding.tvRunningText.startScroll()
         val progress = sharedPreferences?.getInt(Constant.KeyShared.volume,100)
         volumes = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
             ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
 
         setupBanner(binding.bannerView)
+        setupBannerFacebook(binding.bannerFacebook)
        // setupAppOpenAd()
 
         val xx = DataSession(this).getBackgroundColor()
@@ -172,6 +186,8 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             showOpenAd()
         }
 
+        //showCase(binding.btnOpenId)
+
         binding.btnNote.setOnClickListener {
             try {
                 val bottomSheetNote = BottomSheetNote()
@@ -223,10 +239,81 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         }
 
 
-        checkForUpdates()
+       // checkForUpdates()
+
+
+       /* builder = GuideView.Builder(this)
+            .setTitle("Guide Title Text")
+            .setContentText("Guide Description Text\n .....Guide Description Text\n .....Guide Description Text .....")
+            .setGravity(Gravity.center)
+            .setDismissType(DismissType.anywhere)
+            .setPointerType(PointerType.circle)
+            .setTargetView(binding.btn1)
+            .setGuideListener { view: View ->
+                when (view.id) {
+                    R.id.btn1 -> builder?.setTargetView(binding.btn2)?.build()
+                    R.id.btn2 -> builder?.setTargetView(binding.btnVideo)?.build()
+                    R.id.btnVideo -> return@setGuideListener
+                }
+                mGuideView = builder!!.build()
+                mGuideView?.show()
+            }
+
+        mGuideView = builder?.build()
+        mGuideView?.show()*/
 
 
 
+    }
+
+    private fun updatingForDynamicLocationViews() {
+        //view4.setOnFocusChangeListener { view, b -> mGuideView!!.updateGuideViewLocation() }
+    }
+
+    fun showCase(view : View){
+
+
+        GuideView.Builder(this@MainActivity)
+            .setTitle("Guide Title Text")
+            .setContentText("Ini Berfungsi untuk Membesarkan suara")
+            .setGravity(Gravity.center)
+            .setTargetView(binding.btn2)
+            .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
+            .setGuideListener {
+                //TODO ...
+            }
+            .build()
+            .show()
+
+      /*  MaterialShowcaseView.Builder(this)
+            .setTarget(binding.btn2)
+            .setDismissText("GOT IT")
+            .setContentText("This is some amazing feature you should know about")
+            .setDelay(500) // optional but starting animations immediately in onCreate can make them choppy
+            .singleUse("apaaja") // provide a unique ID used to ensure it is only shown once
+            .show()*/
+
+       /* val config = ShowcaseConfig()
+        config.delay = 500 // half second between each showcase view
+
+        val sequence: MaterialShowcaseSequence = MaterialShowcaseSequence(this, "apaaja")
+
+        sequence.setConfig(config)
+
+        sequence.addSequenceItem(
+            binding.btn1,
+            "This is button one", "GOT IT"
+        )
+
+        sequence.addSequenceItem(
+            binding.btn2,
+            "This is button two", "GOT IT"
+        )
+
+        sequence.addSequenceItem(
+            binding.btnOpenMusic,
+            "This is button three", "GOT IT"
+        )*/
     }
 
     private val requestPermissionSong =
@@ -430,5 +517,21 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
     override fun onNoteSong(note: String) {
         MyMusicListener.postNote(note)
+    }
+
+    override fun onMusic(mediaPlayer: MediaPlayer?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onComplete() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onNote(note: String?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onVolumeAudio(volume: Float?) {
+
     }
 }

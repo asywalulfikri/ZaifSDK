@@ -8,9 +8,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import sound.recorder.widget.base.BaseActivityWidget
-import sound.recorder.widget.builder.AdmobAdsBuilder
-import sound.recorder.widget.builder.FanAdsBuilder
-import sound.recorder.widget.builder.RecordingWidgetBuilder
+import sound.recorder.widget.builder.AdmobSDKBuilder
+import sound.recorder.widget.builder.FanSDKBuilder
+import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.databinding.ActivitySplashSdkBinding
 import sound.recorder.widget.util.Constant
 
@@ -36,10 +36,10 @@ class BeforeSplashScreen : BaseActivityWidget(){
             Log.d("BeforeSplashScreen", "updateData called")
             // Initialize AdmobAdsBuilder based on the build type
 
-            AdmobAdsBuilder.builder(this)
-                .setAdmobId("")
+            AdmobSDKBuilder.builder(this)
                 .apply {
                     if (BuildConfig.DEBUG) {
+                        setAdmobId("ca-app-pub-3940256099942544~3347511713")
                         setBannerId(Constant.AdsTesterId.admobBannerId)
                         setInterstitialId(Constant.AdsTesterId.admobInterstitialId)
                         setRewardId(Constant.AdsTesterId.admobRewardId)
@@ -57,23 +57,25 @@ class BeforeSplashScreen : BaseActivityWidget(){
 
 
             // Initialize FanAdsBuilder
-            FanAdsBuilder.builder(this)
+            FanSDKBuilder.builder(this)
                 .setApplicationId(fanId)
                 .setBannerId(fanBannerId)
                 .setInterstitialId(fanInterstitialId)
                 .setEnable(true)
                 .build()
 
-            // Initialize RecordingWidgetBuilder
-            RecordingWidgetBuilder.builder(this)
+
+
+            ZaifSDKBuilder.builder(this)
                 .setAppName(getString(R.string.app_name))
                 .setVersionCode(BuildConfig.VERSION_CODE)
                 .setVersionName(BuildConfig.VERSION_NAME)
                 .setApplicationId(BuildConfig.APPLICATION_ID)
-                .setBackgroundWidgetColor("#B42929")
-                .showNote(false)
-                .showSetting(true)
+                .setBackgroundWidgetColor("#FF8A80")
+                .showNote(true)
+                .showChangeColor(true)
                 .showListSong(true)
+                .showVolume(true)
                 .build()
 
             // Update UI elements

@@ -136,6 +136,18 @@
     <string name="text_choose_not">Nota akan dipaparkan di sini .... pilih dahulu</string>
 
 
+    <string name="text_guidelines">Garis Panduan Penggunaan</string>
+    <string name="text_guide_record">Gunakan fungsi ini untuk merakam bunyi alat muzik yang sedang anda mainkan</string>
+    <string name="text_guide_song">Gunakan fungsi ini untuk mendapatkan senarai lagu dalam telefon anda</string>
+    <string name="text_guide_list_record">Gunakan fungsi ini untuk melihat senarai rakaman bunyi alat muzik yang telah anda rakam</string>
+    <string name="text_guide_audio">Gunakan fungsi ini untuk menaikkan dan menurunkan kelantangan alat muzik dan lagu</string>
+    <string name="text_guide_note">Gunakan fungsi ini untuk membuat nota lagu anda sendiri</string>
+    <string name="text_guide_color">Gunakan fungsi ini untuk menukar warna alat muzik</string>
+    <string name="text_guide_note_firebase">Gunakan fungsi ini untuk melihat nota yang disediakan oleh aplikasi</string>
+    <string name="text_done">Selesai</string>
+    <string name="text_next">Seterusnya</string>
+    <string name="text_skip">Langkau</string>
+
 
 
 </resources>

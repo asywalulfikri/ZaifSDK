@@ -131,6 +131,18 @@
     <string name="text_choose_not">Здесь будет показано примечание .... выберите его сначала</string>
 
 
+    <string name="text_guidelines">Руководство пользователя</string>
+    <string name="text_guide_record">Используйте эту функцию, чтобы записать звук музыкального инструмента, который вы играете</string>
+    <string name="text_guide_song">Используйте эту функцию, чтобы получить список песен на вашем телефоне</string>
+    <string name="text_guide_list_record">Используйте эту функцию, чтобы просмотреть список записей звуков инструментов, которые вы записали</string>
+    <string name="text_guide_audio">Используйте эту функцию, чтобы увеличить или уменьшить громкость инструмента и песни</string>
+    <string name="text_guide_note">Используйте эту функцию, чтобы создать свои собственные музыкальные ноты</string>
+    <string name="text_guide_color">Используйте эту функцию, чтобы изменить цвет инструмента</string>
+    <string name="text_guide_note_firebase">Используйте эту функцию, чтобы просмотреть ноты, предоставленные приложением</string>
+    <string name="text_done">Готово</string>
+    <string name="text_next">Далее</string>
+    <string name="text_skip">Пропустить</string>
+
 
 
 </resources>

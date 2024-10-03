@@ -85,6 +85,7 @@ import kotlinx.coroutines.launch
 import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.animation.ParticleSystem
 import sound.recorder.widget.animation.modifiers.ScaleModifier
+import sound.recorder.widget.tools.showcase.GuideView
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
@@ -115,6 +116,9 @@ open class BaseFragmentWidget : Fragment() {
     var fileName =  ""
     var dirPath = ""
     val LOG_TAG = "AudioRecordTest"
+
+    var mGuideView: GuideView? = null
+    var builder: GuideView.Builder? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

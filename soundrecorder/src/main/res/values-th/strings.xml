@@ -133,6 +133,18 @@
     <string name="volume">ระดับเสียง</string>
     <string name="text_choose_not">หมายเหตุจะแสดงที่นี่ .... กรุณาเลือกก่อน</string>
 
+    <string name="text_guidelines">แนวทางการใช้งาน</string>
+    <string name="text_guide_record">ใช้ฟีเจอร์นี้ในการบันทึกเสียงของเครื่องดนตรีที่คุณเล่น</string>
+    <string name="text_guide_song">ใช้ฟีเจอร์นี้เพื่อดึงรายชื่อเพลงในโทรศัพท์ของคุณ</string>
+    <string name="text_guide_list_record">ใช้ฟีเจอร์นี้เพื่อดูรายชื่อการบันทึกเสียงของเครื่องดนตรีที่คุณบันทึกไว้</string>
+    <string name="text_guide_audio">ใช้ฟีเจอร์นี้เพื่อเพิ่มหรือลดระดับเสียงของเครื่องดนตรีและเพลง</string>
+    <string name="text_guide_note">ใช้ฟีเจอร์นี้เพื่อสร้างโน้ตเพลงของคุณเอง</string>
+    <string name="text_guide_color">ใช้ฟีเจอร์นี้เพื่อเปลี่ยนสีของเครื่องดนตรี</string>
+    <string name="text_guide_note_firebase">ใช้ฟีเจอร์นี้เพื่อดูโน้ตที่แอปพลิเคชันจัดเตรียมไว้</string>
+    <string name="text_done">เสร็จสิ้น</string>
+    <string name="text_next">ถัดไป</string>
+    <string name="text_skip">ข้าม</string>
+
 
 
 </resources>

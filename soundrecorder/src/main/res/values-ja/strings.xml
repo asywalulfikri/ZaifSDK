@@ -135,6 +135,18 @@
     <string name="text_choose_not">ここにノートが表示されます .... 先に選択してください</string>
 
 
+    <string name="text_guidelines">使用ガイドライン</string>
+    <string name="text_guide_record">この機能を使用して、演奏している楽器の音を録音します</string>
+    <string name="text_guide_song">この機能を使用して、携帯電話の曲リストを取得します</string>
+    <string name="text_guide_list_record">この機能を使用して、録音した楽器のサウンドリストを表示します</string>
+    <string name="text_guide_audio">この機能を使用して、楽器や曲の音量を上げたり下げたりします</string>
+    <string name="text_guide_note">この機能を使用して、自分の曲のノートを作成します</string>
+    <string name="text_guide_color">この機能を使用して、楽器の色を変更します</string>
+    <string name="text_guide_note_firebase">この機能を使用して、アプリで提供されているノートを表示します</string>
+    <string name="text_done">完了</string>
+    <string name="text_next">次へ</string>
+    <string name="text_skip">スキップ</string>
+
 
 
 </resources>

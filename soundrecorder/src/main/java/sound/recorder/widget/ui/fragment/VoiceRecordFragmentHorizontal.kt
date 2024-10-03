@@ -1,3 +1,4 @@
+/*
 package sound.recorder.widget.ui.fragment
 
 import android.Manifest
@@ -134,7 +135,8 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
 
 
             binding.rlRecord.setOnClickListener {
-                /*if(Build.VERSION.SDK_INT> Build.VERSION_CODES.N){
+                */
+/*if(Build.VERSION.SDK_INT> Build.VERSION_CODES.N){
                     when {
                         pauseRecordAudio -> resumeRecordingAudio()
                         recordingAudio -> pauseRecordingAudio()
@@ -142,7 +144,8 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
                     }
                 }else{
                     setToastError(activity,requireActivity().getString(R.string.device_not_support))
-                }*/
+                }*//*
+
                 when {
                     pauseRecordAudio -> resumeRecordingAudio()
                     recordingAudio -> pauseRecordingAudio()
@@ -483,10 +486,12 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
             dialog.show()
 
             // Atur ukuran dialog (opsional)
-            /*dialog.window?.setLayout(
+            */
+/*dialog.window?.setLayout(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT
-            )*/
+            )*//*
+
         } catch (e: Exception) {
             setToast(activity, e.message.toString())
         }
@@ -591,7 +596,8 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
     }
 
     private fun animatePlayerView(){
-       /* if(recordingAudio && !pauseRecordAudio){
+       */
+/* if(recordingAudio && !pauseRecordAudio){
             try {
                 val amp = recorder?.maxAmplitude
                 binding.playerView.updateAmps(amp)
@@ -603,7 +609,8 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
             }catch (e : Exception){
                 setToastError(activity,e.message.toString())
             }
-        }*/
+        }*//*
+
     }
 
     private fun pauseRecordingAudio(){
@@ -925,4 +932,4 @@ class VoiceRecordFragmentHorizontal : BaseFragmentWidget(), BottomSheet.OnClickL
 
     }
 
-}
+}*/

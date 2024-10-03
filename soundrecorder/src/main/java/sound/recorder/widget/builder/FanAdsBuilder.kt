@@ -1,3 +1,4 @@
+/*
 package sound.recorder.widget.builder
 
 import android.content.Context
@@ -71,3 +72,4 @@ class FanAdsBuilder private constructor(
         }
     }
 }
+*/

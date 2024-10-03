@@ -103,7 +103,7 @@
 
                 <ImageView
                     android:visibility="gone"
-                    android:id="@+id/deleteBtn"
+                    android:id="@+id/ivDelete"
                     android:layout_width="40dp"
                     android:layout_height="44dp"
                     android:layout_centerInParent="true"
@@ -130,7 +130,7 @@
                     tools:ignore="DuplicateSpeakableTextCheck" />
 
                 <ImageView
-                    android:id="@+id/recordBtn"
+                    android:id="@+id/ivRecord"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerInParent="true"
@@ -154,7 +154,7 @@
 
             <ImageView
                 android:layout_marginTop="2dp"
-                android:id="@+id/listBtn"
+                android:id="@+id/ivListRecord"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:contentDescription="@string/appbar_scrolling_view_behavior"
@@ -167,7 +167,7 @@
 
                 <ImageView
                     android:layout_centerInParent="true"
-                    android:id="@+id/doneBtn"
+                    android:id="@+id/ivDone"
                     android:visibility="gone"
                     android:layout_marginTop="5dp"
                     android:layout_width="40dp"
@@ -178,7 +178,7 @@
             </RelativeLayout>
 
             <TextView
-                android:id="@+id/timerView"
+                android:id="@+id/tvTimerView"
                 android:layout_marginTop="3dp"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -192,7 +192,7 @@
             <ImageView
                 android:layout_weight="1"
                 android:contentDescription="@string/app_name"
-                android:id="@+id/settingBtn"
+                android:id="@+id/ivSetting"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginBottom="5dp"

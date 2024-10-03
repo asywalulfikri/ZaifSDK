@@ -132,5 +132,17 @@
     <string name="volume">ध्वनि</string>
     <string name="text_choose_not">नोट यहाँ दिखेगा .... पहले इसे चुनें</string>
 
+    <string name="text_guidelines">उपयोग दिशानिर्देश</string>
+    <string name="text_guide_record">इस फीचर का उपयोग उस वाद्य यंत्र की ध्वनि रिकॉर्ड करने के लिए करें जिसे आप बजा रहे हैं</string>
+    <string name="text_guide_song">इस फीचर का उपयोग अपने फोन से गानों की सूची लाने के लिए करें</string>
+    <string name="text_guide_list_record">इस फीचर का उपयोग की गई वाद्य यंत्र ध्वनियों की रिकॉर्डिंग की सूची देखने के लिए करें</string>
+    <string name="text_guide_audio">इस फीचर का उपयोग वाद्य यंत्र और गानों की ध्वनि बढ़ाने और घटाने के लिए करें</string>
+    <string name="text_guide_note">इस फीचर का उपयोग करके अपने गाने के नोट्स बनाएं</string>
+    <string name="text_guide_color">इस फीचर का उपयोग वाद्य यंत्र का रंग बदलने के लिए करें</string>
+    <string name="text_guide_note_firebase">इस फीचर का उपयोग ऐप द्वारा प्रदान किए गए नोट्स देखने के लिए करें</string>
+    <string name="text_done">समाप्त</string>
+    <string name="text_next">अगला</string>
+    <string name="text_skip">छोड़ें</string>
+
 
 </resources>

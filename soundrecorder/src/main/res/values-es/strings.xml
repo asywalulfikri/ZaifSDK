@@ -134,6 +134,18 @@
     <string name="text_choose_not">La nota se mostrará aquí .... elige primero</string>
 
 
+    <string name="text_guidelines">Guías de uso</string>
+    <string name="text_guide_record">Usa esta función para grabar el sonido del instrumento musical que estás tocando</string>
+    <string name="text_guide_song">Usa esta función para obtener la lista de canciones en tu teléfono</string>
+    <string name="text_guide_list_record">Usa esta función para ver la lista de grabaciones de sonido de instrumentos que has grabado</string>
+    <string name="text_guide_audio">Usa esta función para subir y bajar el volumen del instrumento y de las canciones</string>
+    <string name="text_guide_note">Usa esta función para crear tus propias notas musicales</string>
+    <string name="text_guide_color">Usa esta función para cambiar el color del instrumento</string>
+    <string name="text_guide_note_firebase">Usa esta función para ver las notas proporcionadas por la aplicación</string>
+    <string name="text_done">Hecho</string>
+    <string name="text_next">Siguiente</string>
+    <string name="text_skip">Omitir</string>
+
 
 
 </resources>

@@ -12,6 +12,7 @@ open class Constant {
             const val showNote = "showNote"
             const val showSetting = "showSetting"
             const val showListSong = "showListSong"
+            const val showVolume = "showVolume"
             const val showSong = "showSong"
             const val backgroundWidgetColor = "llRecordBackground"
             const val developerName = "developerName"
@@ -51,6 +52,11 @@ open class Constant {
             const val inMobiBannerId = "inMobiBannerId"
             const val inMobiInterstitialId = "inMobiInterstitialId"
             const val inMobiEnable = "inMobiEnable"
+            const val showCase = "showCase"
+
+            const val zaifSDKBuilder = "recordingWidget"
+            const val admobSDKBuilder = "admobSDKBuilder"
+            const val fanSDKBuilder = "fanSDKBuilder"
 
 
 

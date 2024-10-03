@@ -1,3 +1,4 @@
+/*
 package sound.recorder.widget.ui.fragment
 
 import android.Manifest
@@ -134,7 +135,8 @@ class VoiceRecordFragmentVerticalBlack : BaseFragmentWidget(), BottomSheet.OnCli
 
 
             binding.rlRecord.setOnClickListener {
-                /*if(Build.VERSION.SDK_INT> Build.VERSION_CODES.N){
+                */
+/*if(Build.VERSION.SDK_INT> Build.VERSION_CODES.N){
                     when {
                         pauseRecordAudio -> resumeRecordingAudio()
                         recordingAudio -> pauseRecordingAudio()
@@ -142,7 +144,8 @@ class VoiceRecordFragmentVerticalBlack : BaseFragmentWidget(), BottomSheet.OnCli
                     }
                 }else{
                     setToastError(activity,requireActivity().getString(R.string.device_not_support))
-                }*/
+                }*//*
+
                 when {
                     pauseRecordAudio -> resumeRecordingAudio()
                     recordingAudio -> pauseRecordingAudio()
@@ -508,7 +511,8 @@ class VoiceRecordFragmentVerticalBlack : BaseFragmentWidget(), BottomSheet.OnCli
 
 
     private fun animatePlayerView(){
-       /* if(recordingAudio && !pauseRecordAudio){
+       */
+/* if(recordingAudio && !pauseRecordAudio){
             try {
                 val amp = recorder?.maxAmplitude
                 binding.playerView.updateAmps(amp)
@@ -520,7 +524,8 @@ class VoiceRecordFragmentVerticalBlack : BaseFragmentWidget(), BottomSheet.OnCli
             }catch (e : Exception){
                 setToastError(activity,e.message.toString())
             }
-        }*/
+        }*//*
+
     }
 
     private fun pauseRecordingAudio(){
@@ -850,4 +855,4 @@ class VoiceRecordFragmentVerticalBlack : BaseFragmentWidget(), BottomSheet.OnCli
 
     }
 
-}
+}*/

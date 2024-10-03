@@ -131,4 +131,17 @@
     <string name="volume">音量</string>
     <string name="text_choose_not">备注将在这里显示 .... 请先选择</string>
 
+    <string name="text_guidelines">使用指南</string>
+    <string name="text_guide_record">使用此功能录制您正在演奏的乐器的声音</string>
+    <string name="text_guide_song">使用此功能获取您手机上的歌曲列表</string>
+    <string name="text_guide_list_record">使用此功能查看您录制的乐器声音录音列表</string>
+    <string name="text_guide_audio">使用此功能增加或减少乐器和歌曲的音量</string>
+    <string name="text_guide_note">使用此功能创建您自己的歌曲笔记</string>
+    <string name="text_guide_color">使用此功能更改乐器的颜色</string>
+    <string name="text_guide_note_firebase">使用此功能查看应用程序提供的笔记</string>
+    <string name="text_done">完成</string>
+    <string name="text_next">下一步</string>
+    <string name="text_skip">跳过</string>
+
+
 </resources>

@@ -1,157 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:id="@+id/llRecordBackground"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="30dp">
+    android:padding="5dp"
+    android:gravity="center">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:id="@+id/llRecordBackground"
+    <ImageView
+        android:id="@+id/ivNote"
+        android:padding="10dp"
+        android:background="@drawable/button_black"
+        app:srcCompat="@drawable/baseline_note_add_24"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/app_name" />
+
+
+
+    <ImageView
+        android:layout_marginTop="5dp"
+        android:id="@+id/ivSong"
+        android:padding="10dp"
+        android:background="@drawable/button_black"
+        app:srcCompat="@drawable/icon_music"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/app_name" />
+
+    <ImageView
+        android:layout_marginTop="5dp"
+        android:id="@+id/ivDelete"
+        android:visibility="gone"
+        android:clickable="false"
+        android:background="@drawable/button_record_color"
+        android:padding="15dp"
+        app:srcCompat="@drawable/ic_cancel"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/app_name"/>
+
+    <RelativeLayout
+        android:id="@+id/rlRecord"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp">
+
+
+        <ImageView
+            android:id="@+id/ivRecord"
+            android:layout_width="40dp"
+            android:layout_marginStart="6dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/button_record_color"
+            android:contentDescription="@string/app_name"
+            android:padding="10dp"
+            app:srcCompat="@drawable/record"
+            tools:ignore="DuplicateSpeakableTextCheck" />
+
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_marginBottom="5dp"
+        android:id="@+id/ivDone"
+        android:visibility="gone"
+        android:background="@drawable/done"
+        android:layout_width="40dp"
+        android:layout_height="40dp"/>
+
+    <ImageView
+        android:id="@+id/ivListRecord"
+        android:padding="10dp"
+        android:background="@drawable/button_black"
+        app:srcCompat="@drawable/saved_song"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/app_name" />
+
+    <ImageView
+        android:layout_marginTop="5dp"
+        android:id="@+id/ivVolume"
+        android:padding="10dp"
+        android:background="@drawable/button_black"
+        app:srcCompat="@drawable/baseline_volume_down_24"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/app_name" />
+
+
+    <TextView
+        android:id="@+id/tvTimerView"
+        android:visibility="gone"
+        android:layout_marginStart="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:gravity="center"
-        app:layout_constraintStart_toStartOf="parent">
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/red_A700"
+        android:text="REC ◉"/>
 
 
-        <RelativeLayout
-            android:id="@+id/noteBtn"
-            android:gravity="center"
-            android:visibility="gone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+    <ImageView
+        android:layout_marginTop="5dp"
+        android:background="@drawable/button_setting_color"
+        android:id="@+id/ivSetting"
+        android:padding="10dp"
+        android:src="@drawable/baseline_settings_white"
+        android:layout_width="40dp"
+        android:layout_height="40dp"/>
 
-            <ImageView
-                android:layout_centerInParent="true"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:src="@drawable/round"
-                android:contentDescription="@string/app_name"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:textSize="9sp"
-                tools:ignore="DuplicateSpeakableTextCheck,HardcodedText,SmallSp" />
-
-            <ImageView
-                android:layout_centerInParent="true"
-                android:layout_width="30dp"
-                android:layout_height="35dp"
-                android:layout_marginTop="3dp"
-                android:layout_marginBottom="3dp"
-                android:contentDescription="@string/app_name"
-                app:srcCompat="@drawable/notes"
-                tools:ignore="DuplicateSpeakableTextCheck" />
-        </RelativeLayout>
-
-
-
-
-
-        <RelativeLayout
-            android:clickable="true"
-            android:id="@+id/songBtn"
-            android:layout_marginHorizontal="2dp"
-            android:layout_width="42dp"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:layout_height="42dp"
-            android:paddingHorizontal="2dp"
-            android:background="@drawable/button_black">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/icon_music"/>
-        </RelativeLayout>
-
-        <ImageView
-            android:layout_marginTop="5dp"
-            android:id="@+id/deleteBtn"
-            android:visibility="gone"
-            android:clickable="false"
-            android:background="@drawable/button_record_color"
-            android:padding="15dp"
-            app:srcCompat="@drawable/ic_cancel"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:contentDescription="@string/app_name"/>
-
-        <RelativeLayout
-            android:id="@+id/rlRecord"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp">
-
-
-            <ImageView
-                android:id="@+id/recordBtn"
-                android:layout_width="40dp"
-                android:layout_marginStart="6dp"
-                android:layout_height="40dp"
-                android:layout_centerInParent="true"
-                android:background="@drawable/button_record_color"
-                android:contentDescription="@string/app_name"
-                android:padding="10dp"
-                app:srcCompat="@drawable/record"
-                tools:ignore="DuplicateSpeakableTextCheck" />
-
-        </RelativeLayout>
-
-        <ImageView
-            android:layout_marginBottom="5dp"
-            android:id="@+id/doneBtn"
-            android:visibility="gone"
-            android:background="@drawable/done"
-            android:layout_width="40dp"
-            android:layout_height="40dp"/>
-
-        <ImageView
-            android:id="@+id/listBtn"
-            android:padding="10dp"
-            android:background="@drawable/button_black"
-            app:srcCompat="@drawable/saved_song"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:contentDescription="@string/app_name" />
-
-
-        <TextView
-            android:id="@+id/timerView"
-            android:visibility="gone"
-            android:layout_marginStart="10dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginEnd="10dp"
-            android:textColor="@color/red_A700"
-            android:text="REC ◉"/>
-
-
-       <!-- <sound.recorder.widget.tools.RecorderWaveformView
-            android:layout_marginStart="10dp"
-            android:visibility="gone"
-            android:id="@+id/playerView"
-            android:layout_width="match_parent"
-            android:layout_height="50dp" />-->
-
-
-        <ImageView
-            android:layout_marginTop="5dp"
-            android:background="@drawable/button_setting_color"
-            android:id="@+id/settingBtn"
-            android:padding="10dp"
-            android:src="@drawable/baseline_settings_white"
-            android:layout_width="40dp"
-            android:layout_height="40dp"/>
-
-    </LinearLayout>
-
-</RelativeLayout>
+</LinearLayout>

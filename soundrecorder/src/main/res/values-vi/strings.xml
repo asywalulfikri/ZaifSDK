@@ -132,5 +132,18 @@
     <string name="text_choose_not">Ghi chú sẽ hiển thị ở đây .... vui lòng chọn trước</string>
 
 
+    <string name="text_guidelines">Hướng dẫn sử dụng</string>
+    <string name="text_guide_record">Sử dụng tính năng này để ghi âm âm thanh của nhạc cụ mà bạn đang chơi</string>
+    <string name="text_guide_song">Sử dụng tính năng này để lấy danh sách bài hát trên điện thoại của bạn</string>
+    <string name="text_guide_list_record">Sử dụng tính năng này để xem danh sách ghi âm âm thanh nhạc cụ mà bạn đã ghi lại</string>
+    <string name="text_guide_audio">Sử dụng tính năng này để tăng và giảm âm lượng của nhạc cụ và bài hát</string>
+    <string name="text_guide_note">Sử dụng tính năng này để tạo ghi chú bài hát của riêng bạn</string>
+    <string name="text_guide_color">Sử dụng tính năng này để thay đổi màu sắc của nhạc cụ</string>
+    <string name="text_guide_note_firebase">Sử dụng tính năng này để xem các ghi chú do ứng dụng cung cấp</string>
+    <string name="text_done">Hoàn tất</string>
+    <string name="text_next">Tiếp theo</string>
+    <string name="text_skip">Bỏ qua</string>
+
+
 
 </resources>

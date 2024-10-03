@@ -135,4 +135,16 @@
     <string name="text_choose_not">Note will show here .... choose it first</string>
 
 
+    <string name="text_guidelines">Usage Guidelines</string>
+    <string name="text_guide_record">Use this feature to record the sound of the musical instrument you are playing</string>
+    <string name="text_guide_song">Use this feature to fetch the list of songs on your phone</string>
+    <string name="text_guide_list_record">Use this feature to view the list of instrument sound recordings you have recorded</string>
+    <string name="text_guide_audio">Use this feature to increase and decrease the volume of the instrument and song</string>
+    <string name="text_guide_note">Use this feature to create your own song notes</string>
+    <string name="text_guide_color">Use this feature to change the color of the instrument</string>
+    <string name="text_guide_note_firebase">Use this feature to view the notes provided by the app</string>
+    <string name="text_done">Done</string>
+    <string name="text_next">Next</string>
+    <string name="text_skip">Skip</string>
+
 </resources>
