@@ -173,7 +173,7 @@ class ListRecordFragment : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
     private fun fetchAll(){
         MainScope().launch {
             withContext(Dispatchers.Default) {
-                audioRecords = db.audioRecordDAO().getAll()
+                audioRecords = db.audioRecordDAO().getAllByDateDESC()
             }
             audioRecorderAdapter.setData(audioRecords)
         }

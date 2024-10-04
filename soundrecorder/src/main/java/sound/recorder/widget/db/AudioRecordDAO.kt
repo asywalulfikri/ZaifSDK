@@ -7,6 +7,9 @@ internal interface AudioRecordDAO {
     @Query("SELECT * FROM audioRecords")
     fun getAll(): List<AudioRecord>
 
+    @Query("SELECT * FROM audioRecords ORDER BY date DESC")
+    fun getAllByDateDESC(): List<AudioRecord>
+
     @Query("SELECT * FROM audioRecords WHERE filename LIKE :searchQuery")
     fun searchDatabase(searchQuery: String): List<AudioRecord>
 
