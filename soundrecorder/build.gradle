@@ -87,7 +87,7 @@ dependencies {
 
     implementation 'androidx.annotation:annotation:1.8.2'
     //config admob
-    implementation 'com.google.android.gms:play-services-ads:23.4.0'
+    implementation 'com.google.android.gms:play-services-ads:23.3.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.1.0'
 
 

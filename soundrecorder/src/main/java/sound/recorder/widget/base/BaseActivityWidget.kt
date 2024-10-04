@@ -553,6 +553,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
                 }
                 adView.loadAd(adRequest)
+                adViewContainer.removeAllViews()
                 adViewContainer.addView(adView)
                 this.adView = adView
 

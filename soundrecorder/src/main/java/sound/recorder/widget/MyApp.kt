@@ -8,6 +8,9 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.FirebaseApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -59,12 +62,14 @@ open class MyApp : Application() {
      * Initialize AdMob SDK
      */
     private fun initializeAdMob() {
-        executor.execute {
+        val backgroundScope = CoroutineScope(Dispatchers.IO)
+        backgroundScope.launch {
+            // Initialize the Google Mobile Ads SDK on a background thread.
             try {
                 MobileAds.initialize(this@MyApp) {
                     Log.d("MyApp", "AdMob initialized successfully")
                 }
-            } catch (e: Exception) {
+            }catch (e : Exception){
                 Log.e("MyApp", "Error initializing AdMob: ${e.message}")
             }
         }
