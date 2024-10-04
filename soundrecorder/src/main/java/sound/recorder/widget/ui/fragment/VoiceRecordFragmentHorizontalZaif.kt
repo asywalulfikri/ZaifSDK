@@ -127,7 +127,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             if (isShowCase) {
                 starShowCase()
             }
-            starShowCase()
         }
     }
 
