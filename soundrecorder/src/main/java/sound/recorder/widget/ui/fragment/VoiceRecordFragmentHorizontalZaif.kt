@@ -24,7 +24,6 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.room.Room
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -44,9 +43,6 @@ import sound.recorder.widget.listener.MyPauseListener
 import sound.recorder.widget.listener.MyStopMusicListener
 import sound.recorder.widget.listener.MyStopSDKMusicListener
 import sound.recorder.widget.listener.PauseListener
-import sound.recorder.widget.tools.showcase.GuideView
-import sound.recorder.widget.tools.showcase.config.DismissType
-import sound.recorder.widget.tools.showcase.config.Gravity
 import sound.recorder.widget.ui.bottomSheet.BottomSheet
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
 import sound.recorder.widget.util.*
@@ -123,10 +119,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
             setupView()
 
-
-            if (isShowCase) {
-                starShowCase()
-            }
         }
     }
 
@@ -230,7 +222,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
     private fun starShowCase(){
 
-        if(zaifSDKBuilder?.showNote==true){
+       /* if(zaifSDKBuilder?.showNote==true){
             showCaseDialog(binding.ivNote,activity?.getString(R.string.text_guide_note))
         }else{
             if(zaifSDKBuilder?.showListSong==true){
@@ -238,11 +230,11 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             }else{
                 showCaseDialog(binding.rlRecord,activity?.getString(R.string.text_guide_record))
             }
-        }
+        }*/
 
     }
 
-    private fun showCaseDialog(view: View, message : String? ){
+    /*private fun showCaseDialog(view: View, message : String? ){
         try {
             //val customFont = Typeface.createFromAsset(activity?.assets, "font/custom_font.ttf")
             val customFont = ResourcesCompat.getFont(requireActivity(), R.font.ooredoo)
@@ -299,7 +291,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
           setLog(e.message.toString())
         }
 
-    }
+    }*/
 
     override fun onDestroyView() {
         super.onDestroyView()
