@@ -122,7 +122,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var appOpenAd: AppOpenAd? = null
     var admobSDKBuilder : AdmobSDKBuilder? =null
     var fanSDKBuilder : FanSDKBuilder? =null
-    private var mPanAnim: Animation? = null
+    var mPanAnim: Animation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -123,7 +123,7 @@ open class BaseFragmentWidget : Fragment() {
 
     var mGuideView: GuideView? = null
     var builder: GuideView.Builder? = null
-    private var mPanAnim: Animation? = null
+    var mPanAnim: Animation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
