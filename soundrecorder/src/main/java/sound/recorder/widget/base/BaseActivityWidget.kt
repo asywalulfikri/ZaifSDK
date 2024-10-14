@@ -23,10 +23,14 @@ import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.animation.AccelerateInterpolator
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -118,7 +122,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var appOpenAd: AppOpenAd? = null
     var admobSDKBuilder : AdmobSDKBuilder? =null
     var fanSDKBuilder : FanSDKBuilder? =null
-
+    private var mPanAnim: Animation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -1159,6 +1163,31 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     }
 
+
+    fun initAnim(ivStop : ImageView) {
+        try {
+            mPanAnim = AnimationUtils.loadAnimation(this, R.anim.rotate)
+            val mPanLin = LinearInterpolator()
+            mPanAnim?.interpolator = mPanLin
+            mPanAnim?.startTime = 0
+            mPanAnim?.let { anim ->
+                anim.interpolator = mPanLin
+                anim.setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationStart(animation: Animation) {}
+
+                    override fun onAnimationEnd(animation: Animation) {
+                        ivStop.visibility = View.GONE
+                    }
+
+                    override fun onAnimationRepeat(animation: Animation) {}
+                })
+            } ?: run {
+                println("Error: mPanAnim is null")
+            }
+        } catch (e: Exception) {
+            setLog(e.message.toString())
+        }
+    }
 
     fun hideKeyboard(view: View) {
         try {
