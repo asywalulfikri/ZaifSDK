@@ -1396,7 +1396,7 @@ open class BaseFragmentWidget : Fragment() {
 
     }
 
-    fun initAnim(ivStop : ImageView) {
+    fun initAnim(ivStop : ImageView? =null) {
         try {
             mPanAnim = AnimationUtils.loadAnimation(activity, R.anim.rotate)
             val mPanLin = LinearInterpolator()
@@ -1408,7 +1408,7 @@ open class BaseFragmentWidget : Fragment() {
                     override fun onAnimationStart(animation: Animation) {}
 
                     override fun onAnimationEnd(animation: Animation) {
-                        ivStop.visibility = View.GONE
+                        ivStop?.visibility = View.GONE
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {}

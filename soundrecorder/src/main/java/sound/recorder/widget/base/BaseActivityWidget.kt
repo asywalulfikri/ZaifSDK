@@ -1164,7 +1164,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun initAnim(ivStop : ImageView) {
+    fun initAnim(ivStop : ImageView? =null) {
         try {
             mPanAnim = AnimationUtils.loadAnimation(this, R.anim.rotate)
             val mPanLin = LinearInterpolator()
@@ -1176,7 +1176,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     override fun onAnimationStart(animation: Animation) {}
 
                     override fun onAnimationEnd(animation: Animation) {
-                        ivStop.visibility = View.GONE
+                        ivStop?.visibility = View.GONE
                     }
 
                     override fun onAnimationRepeat(animation: Animation) {}
