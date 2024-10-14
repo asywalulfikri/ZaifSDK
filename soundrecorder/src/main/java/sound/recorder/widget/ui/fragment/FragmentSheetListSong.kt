@@ -61,18 +61,19 @@ class FragmentSheetListSong(
         fun onNoteSong(note: String)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
         binding = BottomSheetSongBinding.inflate(inflater, container, false)
 
         activity?.let {
             try {
                 sharedPreferences = DataSession(it).getShared()
                 sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
-
                 MyStopSDKMusicListener.setMyListener(this)
-
                 initAnim()
 
+                // Handle visibility of the stop button
                 if (showBtnStop == true) {
                     binding?.ivStop?.visibility = View.VISIBLE
                     startAnimation()
@@ -80,6 +81,7 @@ class FragmentSheetListSong(
                     binding?.ivStop?.visibility = View.GONE
                 }
 
+                // Set onClick listeners
                 binding?.ivStop?.setOnClickListener {
                     listener?.onStopSong()
                     stopAnimation()
@@ -89,6 +91,7 @@ class FragmentSheetListSong(
                     onBackPressed()
                 }
 
+                // Load songs if not already loaded
                 if (!RecordingSDK.isHaveSong(it)) {
                     getSong(lisSong)
                 }
@@ -97,7 +100,7 @@ class FragmentSheetListSong(
             }
         }
 
-        return binding!!.root
+        return binding?.root ?: View(context)
     }
 
     private fun getSong(list: ArrayList<Song>) {
@@ -210,7 +213,9 @@ class FragmentSheetListSong(
 
     @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
     fun onMessageEvent(songListResponse: ArrayList<Song>?) {
-        songListResponse?.let { getSong(it) }
+        if (isAdded && isVisible) {
+            songListResponse?.let { getSong(it) }
+        }
     }
 
     override fun onResume() {

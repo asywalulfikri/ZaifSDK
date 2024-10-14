@@ -435,8 +435,8 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             val btnNo = dialogView.findViewById<TextView>(R.id.btnNo)
             val btnYes = dialogView.findViewById<TextView>(R.id.btnYes)
 
-            tvDialogTitle.text = getString(R.string.notification)
-            tvDialogMessage.text = getString(R.string.title_recording_dialog)
+            tvDialogTitle.text = activity?.getString(R.string.notification)
+            tvDialogMessage.text = activity?.getString(R.string.title_recording_dialog)
 
             builder.setView(dialogView)
 
@@ -466,14 +466,14 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             val btnNo = dialogView.findViewById<TextView>(R.id.btnNo)
             val btnYes = dialogView.findViewById<TextView>(R.id.btnYes)
 
-            tvDialogTitle.text = getString(R.string.notification)
-            tvDialogMessage.text = getString(R.string.title_recording_canceled)
+            tvDialogTitle.text = activity?.getString(R.string.notification)
+            tvDialogMessage.text = activity?.getString(R.string.title_recording_canceled)
 
             builder.setView(dialogView)
 
             val dialog = builder.create()
             btnYes.setOnClickListener {
-                stopRecordingAudio(getString(R.string.record_canceled))
+                stopRecordingAudio(activity?.getString(R.string.record_canceled).toString())
                 File(dirPath + fileName).delete()
                 dialog.dismiss()
             }
