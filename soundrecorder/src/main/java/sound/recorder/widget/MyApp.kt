@@ -2,7 +2,9 @@ package sound.recorder.widget
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.pm.PackageManager
 import android.util.Log
+import android.webkit.WebView
 import com.facebook.ads.AudienceNetworkAds
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
@@ -20,9 +22,44 @@ open class MyApp : Application() {
         super.onCreate()
 
         // Initialize SDKs
+
         initializeFirebase()
-        initializeAdMob()
-        initializeAudienceNetworkAds()
+
+        if(isWebViewSupported()&&isWebViewAvailable()){
+            if(isAdMobAvailable()){
+                initializeAdMob()
+            }
+            initializeAudienceNetworkAds()
+        }
+    }
+
+    private fun isWebViewSupported(): Boolean {
+        return try {
+            WebView(this)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun isWebViewAvailable(): Boolean {
+        val packageManager = packageManager
+        return try {
+            packageManager.getPackageInfo("com.google.android.webview", 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
+
+    private fun isAdMobAvailable(): Boolean {
+        return try {
+            Class.forName("com.google.android.gms.ads.MobileAds")
+            true
+        } catch (e: ClassNotFoundException) {
+            false
+        }
     }
 
     /**
@@ -45,16 +82,14 @@ open class MyApp : Application() {
      * Initialize AdMob SDK
      */
     private fun initializeAdMob() {
-        applicationScope.launch {
-            try {
-                withContext(Dispatchers.Main) {
-                    MobileAds.initialize(this@MyApp) {
-                        Log.d("MyApp", "AdMob initialized successfully")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("MyApp", "Error initializing AdMob: ${e.message}")
+        try {
+            val backgroundScope = CoroutineScope(Dispatchers.IO)
+            backgroundScope.launch {
+                // Initialize the Google Mobile Ads SDK on a background thread.
+                MobileAds.initialize(this@MyApp) {}
             }
+        }catch (e : Exception){
+            Log.e("MyApp", "Error initializing Admob Ads: ${e.message}")
         }
     }
 

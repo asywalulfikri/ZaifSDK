@@ -27,6 +27,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
+import android.webkit.WebView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -211,40 +212,43 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     fun setupInterstitialFacebook(){
-        try {
-            interstitialFANAd = com.facebook.ads.InterstitialAd(this, fanSDKBuilder?.interstitialId.toString())
-            val interstitialAdListener = object : InterstitialAdListener {
-                override fun onInterstitialDisplayed(ad: Ad) {
-                    setLog("ADS_FAN","show Interstitial success "+ad.placementId)
+
+        if(isWebViewSupported()&&isWebViewAvailable()){
+            try {
+                interstitialFANAd = com.facebook.ads.InterstitialAd(this, fanSDKBuilder?.interstitialId.toString())
+                val interstitialAdListener = object : InterstitialAdListener {
+                    override fun onInterstitialDisplayed(ad: Ad) {
+                        setLog("ADS_FAN","show Interstitial success "+ad.placementId)
+                    }
+
+                    override fun onInterstitialDismissed(ad: Ad) {
+                        interstitialFANAd =null
+                        Log.d("ADS_FAN", "Interstitial dismiss")
+                        setupInterstitialFacebook()
+                    }
+
+                    override fun onError(p0: Ad?, adError: com.facebook.ads.AdError?) {
+                        Log.e("ADS_FAN", "Interstitial failed to load: ${adError?.errorMessage}")
+                    }
+                    override fun onAdLoaded(ad: Ad) {
+                        Log.d("ADS_FAN", "Interstitial is loaded and ready to be displayed!")
+                        showFANInterstitial = true
+                    }
+                    override fun onAdClicked(ad: Ad) {
+                    }
+                    override fun onLoggingImpression(ad: Ad) {
+
+                    }
                 }
 
-                override fun onInterstitialDismissed(ad: Ad) {
-                    interstitialFANAd =null
-                    Log.d("ADS_FAN", "Interstitial dismiss")
-                    setupInterstitialFacebook()
-                }
-
-                override fun onError(p0: Ad?, adError: com.facebook.ads.AdError?) {
-                    Log.e("ADS_FAN", "Interstitial failed to load: ${adError?.errorMessage}")
-                }
-                override fun onAdLoaded(ad: Ad) {
-                    Log.d("ADS_FAN", "Interstitial is loaded and ready to be displayed!")
-                    showFANInterstitial = true
-                }
-                override fun onAdClicked(ad: Ad) {
-                }
-                override fun onLoggingImpression(ad: Ad) {
-
-                }
+                interstitialFANAd?.loadAd(
+                    interstitialFANAd?.buildLoadAdConfig()
+                        ?.withAdListener(interstitialAdListener)
+                        ?.build()
+                )
+            }catch (e : Exception){
+                setLog("asywalul fb :"+e.message)
             }
-
-            interstitialFANAd?.loadAd(
-                interstitialFANAd?.buildLoadAdConfig()
-                    ?.withAdListener(interstitialAdListener)
-                    ?.build()
-            )
-        }catch (e : Exception){
-            setLog("asywalul fb :"+e.message)
         }
 
     }
@@ -320,46 +324,48 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     fun setupGDPR() {
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                val params = ConsentRequestParameters
-                    .Builder()
-                    .setTagForUnderAgeOfConsent(false)
-                    .build()
+        if(isAdMobAvailable()){
+            CoroutineScope(Dispatchers.Main).launch {
+                try {
+                    val params = ConsentRequestParameters
+                        .Builder()
+                        .setTagForUnderAgeOfConsent(false)
+                        .build()
 
-                consentInformation = UserMessagingPlatform.getConsentInformation(this@BaseActivityWidget)
-                isPrivacyOptionsRequired = consentInformation.privacyOptionsRequirementStatus == ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
+                    consentInformation = UserMessagingPlatform.getConsentInformation(this@BaseActivityWidget)
+                    isPrivacyOptionsRequired = consentInformation.privacyOptionsRequirementStatus == ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
 
-                consentInformation.requestConsentInfoUpdate(
-                    this@BaseActivityWidget,
-                    params, {
-                        UserMessagingPlatform.loadAndShowConsentFormIfRequired(this@BaseActivityWidget) { loadAndShowError ->
-                            loadAndShowError?.let {
-                                Log.w(TAG, String.format("%s: %s", it.errorCode, it.message))
-                            }
+                    consentInformation.requestConsentInfoUpdate(
+                        this@BaseActivityWidget,
+                        params, {
+                            UserMessagingPlatform.loadAndShowConsentFormIfRequired(this@BaseActivityWidget) { loadAndShowError ->
+                                loadAndShowError?.let {
+                                    Log.w(TAG, String.format("%s: %s", it.errorCode, it.message))
+                                }
 
-                            if (isPrivacyOptionsRequired) {
-                                // Regenerate the options menu to include a privacy setting.
-                                UserMessagingPlatform.showPrivacyOptionsForm(this@BaseActivityWidget) { formError ->
-                                    formError?.let {
-                                        if(BuildConfig.DEBUG){
-                                            setToastError(it.message.toString())
+                                if (isPrivacyOptionsRequired) {
+                                    // Regenerate the options menu to include a privacy setting.
+                                    UserMessagingPlatform.showPrivacyOptionsForm(this@BaseActivityWidget) { formError ->
+                                        formError?.let {
+                                            if(BuildConfig.DEBUG){
+                                                setToastError(it.message.toString())
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                    },
-                    { requestConsentError ->
-                        // Consent gathering failed.
-                        Log.w(TAG, String.format("%s: %s", requestConsentError.errorCode, requestConsentError.message))
-                    })
+                        },
+                        { requestConsentError ->
+                            // Consent gathering failed.
+                            Log.w(TAG, String.format("%s: %s", requestConsentError.errorCode, requestConsentError.message))
+                        })
 
-                if (consentInformation.canRequestAds()) {
-                    //MobileAds.initialize(this@BaseActivityWidget) {}
+                    if (consentInformation.canRequestAds()) {
+                        //MobileAds.initialize(this@BaseActivityWidget) {}
+                    }
+                } catch (e: Exception) {
+                    Log.d("message", e.message.toString())
                 }
-            } catch (e: Exception) {
-                Log.d("message", e.message.toString())
             }
         }
     }
@@ -527,45 +533,91 @@ open class BaseActivityWidget : AppCompatActivity() {
         return  valueNote
     }
 
+
+    private fun isWebViewSupported(): Boolean {
+        return try {
+            WebView(this)
+            if(BuildConfig.DEBUG){
+                setToast("WebView didukung pada perangkat ini.")
+            }
+            true
+        } catch (e: Exception) {
+            if(BuildConfig.DEBUG){
+                setToast("WebView tidak didukung pada perangkat ini.")
+            }
+            false
+        }
+    }
+
+
+    private fun isWebViewAvailable(): Boolean {
+        val packageManager = packageManager
+        return try {
+            packageManager.getPackageInfo("com.google.android.webview", 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
+
+    private fun isAdMobAvailable(): Boolean {
+        return try {
+            Class.forName("com.google.android.gms.ads.MobileAds")
+            true
+        } catch (e: ClassNotFoundException) {
+            false
+        }
+    }
+
     fun setupBanner(adViewContainer:FrameLayout){
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-            setupBannerFacebook(adViewContainer)
+            if(isWebViewSupported()&&isWebViewAvailable()){
+                setupBannerFacebook(adViewContainer)
+            }
         }else{
-            try {
-                val adView = AdView(this)
-                adView.adUnitId = admobSDKBuilder?.bannerId.toString()
-                adView.setAdSize(getSize())
-                val adRequest = AdRequest.Builder().build()
-                adView.adListener = object : AdListener() {
-                    override fun onAdLoaded() {
-                        Log.d("ADS_AdMob", "banner loaded successfully "+adView.adUnitId)
-                    }
-                    override fun onAdFailedToLoad(p0: LoadAdError) {
-                        Log.d("ADS_AdMob", "banner loaded failed "+p0.message)
-                        if(getDataSession().getFanEnable()){
-                            setupBannerFacebook(adViewContainer)
-                        }
-                    }
-                    override fun onAdOpened() {
-
-                    }
-                    override fun onAdClicked() {
-
-                    }
-                    override fun onAdClosed() {
-
-                    }
+            if(isWebViewSupported()&&isWebViewAvailable()){
+                if(isAdMobAvailable()){
+                    executeBanner(adViewContainer)
                 }
-                adView.loadAd(adRequest)
-                adViewContainer.removeAllViews()
-                adViewContainer.addView(adView)
-                this.adView = adView
-
-            }catch (e : Exception){
-                setLog(e.message.toString())
             }
         }
+    }
 
+    private fun executeBanner(adViewContainer:FrameLayout){
+        try {
+            val adView = AdView(this)
+            adView.adUnitId = admobSDKBuilder?.bannerId.toString()
+            adView.setAdSize(getSize())
+            val adRequest = AdRequest.Builder().build()
+            adView.adListener = object : AdListener() {
+                override fun onAdLoaded() {
+                    Log.d("ADS_AdMob", "banner loaded successfully "+adView.adUnitId)
+                }
+                override fun onAdFailedToLoad(p0: LoadAdError) {
+                    Log.d("ADS_AdMob", "banner loaded failed "+p0.message)
+                    if(getDataSession().getFanEnable()){
+                        setupBannerFacebook(adViewContainer)
+                    }
+                }
+                override fun onAdOpened() {
+
+                }
+                override fun onAdClicked() {
+
+                }
+                override fun onAdClosed() {
+
+                }
+            }
+            adView.loadAd(adRequest)
+            adViewContainer.removeAllViews()
+            adViewContainer.addView(adView)
+            this.adView = adView
+
+        }catch (e : Exception){
+            setLog(e.message.toString())
+        }
     }
 
     fun permissionNotification(){
@@ -587,18 +639,21 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     fun setupAppOpenAd() {
-        val adRequest = AdRequest.Builder().build()
-        AppOpenAd.load(this, getDataSession().getAppOpenId(), adRequest,getDataSession().getOrientationAds(), object : AppOpenAd.AppOpenAdLoadCallback() {
-            override fun onAdLoaded(ad: AppOpenAd) {
-                appOpenAd = ad
-            }
 
-            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                if(BuildConfig.DEBUG){
-                    setToast("openAds " +loadAdError.message)
+        if(isWebViewSupported()&&isWebViewAvailable()&&isAdMobAvailable()){
+            val adRequest = AdRequest.Builder().build()
+            AppOpenAd.load(this, getDataSession().getAppOpenId(), adRequest,getDataSession().getOrientationAds(), object : AppOpenAd.AppOpenAdLoadCallback() {
+                override fun onAdLoaded(ad: AppOpenAd) {
+                    appOpenAd = ad
                 }
-            }
-        })
+
+                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                    if(BuildConfig.DEBUG){
+                        setToast("openAds " +loadAdError.message)
+                    }
+                }
+            })
+        }
     }
 
 
@@ -638,79 +693,84 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
     fun setupInterstitial() {
-        CoroutineScope(Dispatchers.Main).launch {
 
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-                try {
-                    if (getDataSession().getFanEnable()) {
-                        setupInterstitialFacebook()
+        if(isWebViewSupported()&&isWebViewAvailable()){
+
+            CoroutineScope(Dispatchers.Main).launch {
+
+                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+                    try {
+                        if (getDataSession().getFanEnable()) {
+                            setupInterstitialFacebook()
+                        }
+                    } catch (e: Exception) {
+                        setLog("asywalul fbb :${e.message}")
                     }
-                } catch (e: Exception) {
-                    setLog("asywalul fbb :${e.message}")
-                }
-            }else{
+                }else{
 
-                try {
-                    val adRequest = AdRequest.Builder().build()
-                    InterstitialAd.load(this@BaseActivityWidget, admobSDKBuilder?.interstitialId.toString(), adRequest,
-                        object : InterstitialAdLoadCallback() {
-                            override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                                mInterstitialAd = interstitialAd
-                                isLoad = true
-                                Log.d("AdMob", "Interstitial loaded successfully "+interstitialAd.adUnitId)
-                                // Set the FullScreenContentCallback
-                                mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                                    override fun onAdDismissedFullScreenContent() {
-                                        // Handle the ad dismissed event
-                                        setLog("AdMob Inters Ad Dismissed")
-                                        if (BuildConfig.DEBUG) {
-                                            setToast("ads closed")
+                    if(isAdMobAvailable()){
+                        try {
+                            val adRequest = AdRequest.Builder().build()
+                            InterstitialAd.load(this@BaseActivityWidget, admobSDKBuilder?.interstitialId.toString(), adRequest,
+                                object : InterstitialAdLoadCallback() {
+                                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                                        mInterstitialAd = interstitialAd
+                                        isLoad = true
+                                        Log.d("AdMob", "Interstitial loaded successfully "+interstitialAd.adUnitId)
+                                        // Set the FullScreenContentCallback
+                                        mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                                            override fun onAdDismissedFullScreenContent() {
+                                                // Handle the ad dismissed event
+                                                setLog("AdMob Inters Ad Dismissed")
+                                                if (BuildConfig.DEBUG) {
+                                                    setToast("ads closed")
+                                                }
+                                                // Load a new interstitial ad
+                                                mInterstitialAd = null
+                                                setupInterstitial()
+                                            }
+
+                                            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                                // Handle the ad failed to show event
+                                                setLog("AdMob Inters Ad Failed to Show: ${adError.message}")
+                                                if (BuildConfig.DEBUG) {
+                                                    setToast(adError.message)
+                                                }
+                                            }
+
+                                            override fun onAdShowedFullScreenContent() {
+                                                // Handle the ad showed event
+                                                setLog("AdMob Inters Ad Showed")
+                                                mInterstitialAd = null // Reset the interstitial ad
+                                            }
                                         }
-                                        // Load a new interstitial ad
+                                    }
+
+                                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                                         mInterstitialAd = null
-                                        setupInterstitial()
-                                    }
+                                        isLoad = false
+                                        Log.d("Admob","Interstitial Loaded Failed id = ${admobSDKBuilder?.interstitialId.toString()} ---> ${loadAdError.message}")
 
-                                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                                        // Handle the ad failed to show event
-                                        setLog("AdMob Inters Ad Failed to Show: ${adError.message}")
-                                        if (BuildConfig.DEBUG) {
-                                            setToast(adError.message)
+                                        try {
+                                            if (getDataSession().getFanEnable()) {
+                                                setupInterstitialFacebook()
+                                            }
+                                        } catch (e: Exception) {
+                                            setLog("asywalul fbb :${e.message}")
                                         }
                                     }
-
-                                    override fun onAdShowedFullScreenContent() {
-                                        // Handle the ad showed event
-                                        setLog("AdMob Inters Ad Showed")
-                                        mInterstitialAd = null // Reset the interstitial ad
-                                    }
-                                }
-                            }
-
-                            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                                mInterstitialAd = null
-                                isLoad = false
-                                Log.d("Admob","Interstitial Loaded Failed id = ${admobSDKBuilder?.interstitialId.toString()} ---> ${loadAdError.message}")
-
-                                try {
-                                    if (getDataSession().getFanEnable()) {
-                                        setupInterstitialFacebook()
-                                    }
-                                } catch (e: Exception) {
-                                    setLog("asywalul fbb :${e.message}")
-                                }
-                            }
-                        })
-                } catch (e: Exception) {
-                    setLog("asywalul inters :${e.message}")
+                                })
+                        } catch (e: Exception) {
+                            setLog("asywalul inters :${e.message}")
+                        }
+                    }
                 }
+
             }
-
         }
-
     }
 
-    fun setupInterstitial1() {
+   /* fun setupInterstitial1() {
         try {
             if (getDataSession().getFanEnable()) {
                 setupInterstitialFacebook()
@@ -767,7 +827,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         } catch (e: Exception) {
             setLog("asywalul inters :"+e.message.toString())
         }
-    }
+    }*/
 
     fun releaseInterstitialAdmob(){
         mInterstitialAd = null

@@ -1,0 +1,151 @@
+<resources>
+    <!--Spanyol-->
+    <string name="default_notification_channel_id">ID de canal predeterminado</string>
+
+    <string name="colorpicker_dialog_title">Elige el color</string>
+    <string name="colorpicker_dialog_cancel">CANCELAR</string>
+    <string name="colorpicker_dialog_ok">ACEPTAR</string>
+
+    <string name="please_wait_dialog_default_title" />
+    <string name="please_wait_dialog_default_message" />
+
+    <string name="dialog_maintenance">Lo sentimos... La aplicación está en mantenimiento. Por favor, inténtalo de nuevo más tarde.</string>
+    <string name="dialog_msg_update_app_version">La nueva versión está disponible en la Play Store, por favor, actualiza tu aplicación</string>
+    <string name="dialog_msg_update_app">Por favor, actualiza tu aplicación</string>
+
+    <string name="lbl_new_note_title">Nueva nota de canción</string>
+    <string name="lbl_edit_note_title">Editar nota de canción</string>
+
+    <string name="cover_song">Canción de\nportada</string>
+    <string name="record">Grabar</string>
+    <string name="text_continue">Continuar</string>
+    <string name="record_started">Grabación iniciada</string>
+    <string name="record_paused">Grabación en pausa</string>
+    <string name="record_resumed">Grabación reanudada</string>
+    <string name="record_saved">Grabación guardada con éxito</string>
+    <string name="record_canceled">La grabación ha sido cancelada</string>
+    <string name="no_internet_connection">Sin conexión a Internet, inténtalo de nuevo</string>
+    <string name="device_not_support">Tu dispositivo no admite la grabación de audio</string>
+    <string name="allow_permission">Permite el permiso en la configuración de audio</string>
+
+    <string name="choose_language">Elegir idioma</string>
+    <string name="indonesia">Indonesia</string>
+    <string name="choose">Elegir</string>
+    <string name="save">Guardar</string>
+    <string name="information">Información</string>
+    <string name="update">Actualizar</string>
+    <string name="no">No</string>
+
+    <string name="setting">Configuración</string>
+    <string name="language">Idioma</string>
+    <string name="rate_us">Califícanos</string>
+    <string name="help_suggest">Ayuda y sugerencias</string>
+    <string name="share_with_friends">Compartir con amigos</string>
+    <string name="choose_one">Elegir uno</string>
+    <string name="text_video">Video</string>
+
+    <string name="please_wait">Por favor, espera</string>
+    <string name="loading_audio">Procesando carga de audio...</string>
+
+    <string name="title">Título</string>
+    <string name="write_note_here">Escribe la nota aquí</string>
+    <string name="search_record">Buscar grabación</string>
+    <string name="delete">Borrar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="recordings">Grabaciones</string>
+    <string name="saved_recording_ask">¿Guardar grabación?</string>
+    <string name="exit">Salir</string>
+    <string name="send">Enviar</string>
+    <string name="input_message_here">Ingresa un mensaje aquí</string>
+    <string name="message_cannot_empty">El mensaje no puede estar vacío</string>
+    <string name="more_apps">Más aplicaciones</string>
+
+    <string name="use_note">Usar nota</string>
+    <string name="edit_note">Editar nota</string>
+    <string name="delete_not">Borrar nota</string>
+
+    <string name="default_language">Idioma predeterminado</string>
+
+    <string name="background_color">Color de fondo</string>
+    <string name="song_volume">Volumen de la canción</string>
+
+    <string name="note">Nota</string>
+
+    <string name="indonesian">Indonesio</string>
+    <string name="english">Inglés</string>
+    <string name="filipino">Filipino</string>
+    <string name="japanese">Japonés</string>
+    <string name="korean">Coreano</string>
+    <string name="vietnamese">Vietnamita</string>
+    <string name="thai">Tailandés</string>
+    <string name="Portuguese">Portugués</string>
+    <string name="dutch">Holandés</string>
+    <string name="malay">Malayo</string>
+    <string name="spanish">Español</string>
+    <string name="arabic">Árabe</string>
+
+
+    <string name="download_success">Descarga exitosa, espere 5 segundos</string>
+    <string name="data_empty">Datos Vacíos</string>
+
+    <string name="yes">Sí</string>
+    <string name="title_recording_dialog">El proceso de grabación comenzará después de seleccionar SÍ</string>
+    <string name="title_recording_canceled">¿Deseas cancelar la grabación?</string>
+    <string name="title_recording_stop">¿Deseas guardar la grabación?</string>
+    <string name="notification">Notificación</string>
+    <string name="skip">Saltar</string>
+    <string name="next">Siguiente</string>
+    <string name="stop">Detener</string>
+    <string name="pause">Pausa</string>
+    <string name="open">Abrir</string>
+    <string name="close">Cerrar</string>
+    <string name="play">Reproducir</string>
+    <string name="previously">Anteriormente</string>
+    <string name="version">Versión</string>
+    <string name="share">Compartir</string>
+    <string name="write_note">Escribir Notas</string>
+    <string name="song_key">Tonalidad de la Canción</string>
+    <string name="beginner">Principiante</string>
+    <string name="middle">Intermedio</string>
+    <string name="Master">Maestro</string>
+    <string name="remove_ads">Eliminar Anuncios</string>
+    <string name="search">Buscar</string>
+    <string name="recommend_message">Déjame recomendarte esta aplicación</string>
+    <string name="loading">Cargando...</string>
+
+    <string name="whatsapp_support">Soporte de WhatsApp</string>
+    <string name="share_via">Compartir vía</string>
+
+
+    <string name="note_song">Notas de la canción</string>
+    <string name="choose_color">Elegir color</string>
+    <string name="note_empty">No hay notas aún</string>
+    <string name="enter_note">¡Introduce una nota!</string>
+    <string name="enter_note_title">¡Introduce un título de nota!</string>
+    <string name="play_music_text">Toca tu instrumento musical favorito</string>
+    <string name="play_together">Aprendamos instrumentos musicales juntos</string>
+    <string name="exit_title">¿Estás seguro de que quieres salir?</string>
+    <string name="mode_32_tuts_audio1">Modo 32 Teclas Sonido 1</string>
+    <string name="mode_32_tuts_audio2">Modo 32 Teclas Sonido 2</string>
+    <string name="mode_basuri">Modo Basuri</string>
+    <string name="mode_8_tuts">Modo 8 Teclas</string>
+
+    <string name="volume">Volumen</string>
+    <string name="text_choose_not">La nota se mostrará aquí .... elige primero</string>
+
+
+    <string name="text_guidelines">Guías de uso</string>
+    <string name="text_guide_record">Usa esta función para grabar el sonido del instrumento musical que estás tocando</string>
+    <string name="text_guide_song">Usa esta función para obtener la lista de canciones en tu teléfono</string>
+    <string name="text_guide_list_record">Usa esta función para ver la lista de grabaciones de sonido de instrumentos que has grabado</string>
+    <string name="text_guide_audio">Usa esta función para subir y bajar el volumen del instrumento y de las canciones</string>
+    <string name="text_guide_note">Usa esta función para crear tus propias notas musicales</string>
+    <string name="text_guide_color">Usa esta función para cambiar el color del instrumento</string>
+    <string name="text_guide_note_firebase">Usa esta función para ver las notas proporcionadas por la aplicación</string>
+    <string name="text_done">Hecho</string>
+    <string name="text_next">Siguiente</string>
+    <string name="text_skip">Omitir</string>
+
+
+
+</resources>

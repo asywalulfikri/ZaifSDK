@@ -95,6 +95,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         val zaifSDKBuilder = ZaifSDKBuilder.builder(this).loadFromSharedPreferences()
 
 
+       // binding.tvRunningText.startScroll()
 
         // binding.tvRunningText.startScroll()
         val progress = sharedPreferences?.getInt(Constant.KeyShared.volume,100)
