@@ -1,11 +1,9 @@
-/*
 package sound.recorder.widget.ui.fragment
 
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -22,8 +20,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
-import android.widget.Button
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -33,6 +30,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import sound.recorder.widget.R
+import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.base.BaseFragmentWidget
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.databinding.WidgetRecordVerticalZaifBinding
@@ -45,12 +43,8 @@ import sound.recorder.widget.listener.MyPauseListener
 import sound.recorder.widget.listener.MyStopMusicListener
 import sound.recorder.widget.listener.MyStopSDKMusicListener
 import sound.recorder.widget.listener.PauseListener
-import sound.recorder.widget.tools.showcase.GuideView
-import sound.recorder.widget.tools.showcase.config.DismissType
-import sound.recorder.widget.tools.showcase.config.Gravity
 import sound.recorder.widget.ui.bottomSheet.BottomSheet
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
-import sound.recorder.widget.ui.bottomSheet.BottomSheetSetting
 import sound.recorder.widget.util.*
 import java.io.File
 import java.io.IOException
@@ -74,17 +68,13 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
     private var showBtnStop = false
     private var songIsPlaying = false
 
-    //ScreenRecorder
-    private var screenRecorder: ScreenRecorder? =null
-    private var recordingScreen = false
-    private var pauseRecordScreen = false
-
-    private var volumes : Float? =null
     private val blinkHandler = Handler(Looper.getMainLooper())
     private var isBlinking = false
     private var isShowCase = true
-
     private var zaifSDKBuilder : ZaifSDKBuilder? =null
+
+    private var volumeMusic: Float = 1.0f // Volume default 100% for MediaPlayer
+    private var volumeAudio: Float = 1.0f // Volume default 100% for SoundPool
 
 
     companion object {
@@ -112,94 +102,97 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             //init SDK Zaif
             zaifSDKBuilder = ZaifSDKBuilder.builder(requireActivity()).loadFromSharedPreferences()
 
-            setupHideShowMenu()
-
 
             //init sharedPreferences
             sharedPreferences = DataSession(requireActivity()).getShared()
             sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
             isShowCase   = DataSession(requireActivity()).getShowCase()
 
+            volumeMusic =  DataSession(requireActivity()).getVolumeMusic()
+            volumeAudio =  DataSession(requireActivity()).getVolumeAudio()
 
 
             MyPauseListener.setMyListener(this)
 
-            val tintList = ColorStateList.valueOf(Color.parseColor(zaifSDKBuilder?.backgroundWidgetColor.toString()))
-            ViewCompat.setBackgroundTintList(binding.llRecordBackground, tintList)
-
-            val progress = sharedPreferences?.getInt(Constant.KeyShared.volume,100)
-            volumes = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
-                ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
-
-
-
-            if(isShowCase){
-                starShowCase()
-            }
-
             handler = Handler(Looper.myLooper()!!)
 
 
-            binding.rlRecord.setOnClickListener {
-                when {
-                    pauseRecordAudio -> resumeRecordingAudio()
-                    recordingAudio -> pauseRecordingAudio()
-                    else -> startPermission()
-                }
-            }
+            setupView()
 
-            binding.ivDone.setOnClickListener {
-                try {
-                    stopRecordingAudio("")
-                    showBottomSheet()
-                }catch (e : Exception){
-                    setToast(activity,e.message.toString())
-                }
-            }
-
-            binding.ivDone.setOnClickListener {
-                try {
-                    MyFragmentListener.openFragment(ListRecordFragment())
-                    MyAdsListener.setAds(false)
-                }catch (e : Exception){
-                    setToast(activity,e.message.toString())
-                }
-            }
-
-            binding.ivDone.setOnClickListener {
-                try {
-                    showCancelDialog()
-                }catch (e : Exception){
-                    setToast(activity,e.message.toString())
-                }
-            }
-
-            binding.ivSong.setOnClickListener {
-                startPermissionSong()
-            }
-
-            binding.ivDone.isClickable = false
-
-            binding.ivSetting.setOnClickListener {
-                try {
-                    val bottomSheet = BottomSheetSetting()
-                    bottomSheet.show(requireActivity().supportFragmentManager, LOG_TAG)
-                }catch (e : Exception){
-                    setToast(activity,e.message.toString())
-                }
-
-            }
-
-            binding.ivNote.setOnClickListener {
-                try {
-                    val bottomSheet = BottomSheetNote()
-                    bottomSheet.show(requireActivity().supportFragmentManager, LOG_TAG)
-                }catch (e : Exception){
-                    setToast(activity,e.message.toString())
-                }
-            }
         }
     }
+
+
+    private fun setupView(){
+
+        val tintList = ColorStateList.valueOf(Color.parseColor(zaifSDKBuilder?.backgroundWidgetColor.toString()))
+        ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
+
+
+        binding.rlRecord.setOnClickListener {
+            when {
+                pauseRecordAudio -> resumeRecordingAudio()
+                recordingAudio -> pauseRecordingAudio()
+                else -> startPermission()
+            }
+        }
+
+        binding.ivDone.setOnClickListener {
+            try {
+                stopRecordingAudio("")
+                showBottomSheet()
+            }catch (e : Exception){
+                setToast(activity,e.message.toString())
+            }
+        }
+
+        binding.ivListRecord.setOnClickListener {
+            try {
+                MyFragmentListener.openFragment(ListRecordFragment())
+                MyAdsListener.setAds(false)
+            }catch (e : Exception){
+                setToast(activity,e.message.toString())
+            }
+        }
+
+        binding.ivDelete.setOnClickListener {
+            try {
+                showCancelDialog()
+            }catch (e : Exception){
+                setToast(activity,e.message.toString())
+            }
+        }
+
+        binding.ivSong.setOnClickListener {
+            startPermissionSong()
+        }
+
+        binding.ivChangeColor.setOnClickListener {
+            try {
+                RecordingSDK.showDialogColorPicker(requireActivity())
+            }catch (e : Exception){
+                setToast(activity,e.message.toString())
+            }
+
+        }
+
+        binding.ivNote.setOnClickListener {
+            try {
+                val bottomSheet = BottomSheetNote()
+                bottomSheet.show(requireActivity().supportFragmentManager, LOG_TAG)
+            }catch (e : Exception){
+                setToast(activity,e.message.toString())
+            }
+        }
+
+        binding.ivVolume.setOnClickListener {
+            showVolumeDialog()
+        }
+
+        setupHideShowMenu()
+
+    }
+
 
     private fun setupHideShowMenu(){
         if(zaifSDKBuilder?.showNote ==true){
@@ -208,10 +201,10 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             binding.ivNote.visibility = View.GONE
         }
 
-        if(zaifSDKBuilder?.showSetting==true){
-            binding.ivSetting.visibility = View.VISIBLE
+        if(zaifSDKBuilder?.showChangeColor==true){
+            binding.ivChangeColor.visibility = View.VISIBLE
         }else{
-            binding.ivSetting.visibility = View.GONE
+            binding.ivChangeColor.visibility = View.GONE
         }
 
         if(zaifSDKBuilder?.showListSong==true){
@@ -221,35 +214,43 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
         }
 
         if(zaifSDKBuilder?.showVolume==true){
-            binding.ivSong.visibility = View.VISIBLE
+            binding.ivVolume.visibility = View.VISIBLE
         }else{
-            binding.ivSong.visibility = View.GONE
+            binding.ivVolume.visibility = View.GONE
         }
     }
 
     private fun starShowCase(){
 
-        if(zaifSDKBuilder?.showListSong==true){
-            showCaseDialog(binding.ivSong,activity?.getString(R.string.text_guide_song))
+       /* if(zaifSDKBuilder?.showNote==true){
+            showCaseDialog(binding.ivNote,activity?.getString(R.string.text_guide_note))
         }else{
-            showCaseDialog(binding.rlRecord,activity?.getString(R.string.text_guide_record))
-        }
+            if(zaifSDKBuilder?.showListSong==true){
+                showCaseDialog(binding.ivSong,activity?.getString(R.string.text_guide_song))
+            }else{
+                showCaseDialog(binding.rlRecord,activity?.getString(R.string.text_guide_record))
+            }
+        }*/
 
     }
 
-    private fun showCaseDialog(view: View, message : String? ){
+    /*private fun showCaseDialog(view: View, message : String? ){
         try {
+            //val customFont = Typeface.createFromAsset(activity?.assets, "font/custom_font.ttf")
+            val customFont = ResourcesCompat.getFont(requireActivity(), R.font.ooredoo)
             GuideView.Builder(activity)
-                .setTitle(activity?.getString(R.string.text_guidelines))
                 .setContentText(message.toString())
-                .setGravity(Gravity.center)
+                .setContentTypeFace(customFont)
+                .setGravity(Gravity.auto)
                 .setTargetView(view)
+                .setTitleTextSize(16)
+                .setContentTextSize(18)
                 .setDismissType(DismissType.anywhere) //optional - default dismissible by TargetView
                 .setGuideListener {
                     when (view.id) {
                         R.id.ivNote->{
                             if(zaifSDKBuilder?.showListSong==true){
-                                showCaseDialog(binding.ivSong,activity?.getString(R.string.text_guide_record))
+                                showCaseDialog(binding.ivSong,activity?.getString(R.string.text_guide_song))
                             }else{
                                 showCaseDialog(binding.rlRecord,activity?.getString(R.string.text_guide_record))
                             }
@@ -262,20 +263,23 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                         }
                         R.id.ivListRecord -> {
                             if(zaifSDKBuilder?.showVolume==true){
-                                builder?.setTargetView(binding.ivVolume)?.build()
+                                showCaseDialog(binding.ivVolume,activity?.getString(R.string.text_guide_audio))
                             }else{
-                                builder?.setTargetView(binding.ivSetting)?.build()
+                                DataSession(requireActivity()).saveShowCase(false)
+                                return@setGuideListener
                             }
                         }
 
                         R.id.ivVolume -> {
-                            if(zaifSDKBuilder?.showSetting==true){
-                                builder?.setTargetView(binding.ivSetting)?.build()
+                            if(zaifSDKBuilder?.showChangeColor==true){
+                                showCaseDialog(binding.ivChangeColor,activity?.getString(R.string.text_guide_color))
                             }else{
+                                DataSession(requireActivity()).saveShowCase(false)
                                 return@setGuideListener
                             }
                         }
-                        R.id.ivSetting -> {
+                        R.id.ivChangeColor -> {
+                            DataSession(requireActivity()).saveShowCase(false)
                             return@setGuideListener
                         }
                     }
@@ -287,7 +291,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
           setLog(e.message.toString())
         }
 
-    }
+    }*/
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -313,43 +317,6 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             showLayoutStopRecord()
         }
     }
-
-    private fun showDialogRecord() {
-        // custom dialog
-        val dialog = Dialog(requireActivity())
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.dialog_alert)
-        dialog.setCancelable(true)
-
-        // set the custom dialog components - text, image and button
-        val btnAudio = dialog.findViewById<View>(R.id.btn_primary) as Button
-        val btnScreenAudio = dialog.findViewById<View>(R.id.btn_cancel) as Button
-
-        btnAudio.setOnClickListener {
-            showRecordDialog()
-            dialog.dismiss()
-        }
-
-
-        btnScreenAudio.visibility = View.GONE
-        btnScreenAudio.setOnClickListener {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (ContextCompat.checkSelfPermission(activity as Context, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
-                    // Pass any permission you want while launching
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        requestPermissionForeGround.launch(Manifest.permission.FOREGROUND_SERVICE)
-                    }
-                } else {
-                    recordingScreen = true
-                    startScreenRecorder()
-                    dialog.dismiss()
-                }
-            }
-        }
-        dialog.show()
-    }
-
-
 
     private fun showBottomSheetSong(){
         try {
@@ -408,16 +375,6 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
         }
 
 
-    private val requestPermissionForeGround =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            // do something
-            if(isGranted){
-                screenRecorder?.start(this,requireActivity())
-            }else{
-                showAllowPermission()
-            }
-        }
-
     private val requestPermissionSong =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             // do something
@@ -428,13 +385,6 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             }
         }
 
-
-
-    private fun startScreenRecorder(){
-        screenRecorder?.start(this,requireActivity())
-        showLayoutStartRecord()
-
-    }
 
     private fun showLayoutStartRecord(){
         binding.ivDone.visibility = View.VISIBLE
@@ -469,53 +419,29 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
 
         try {
             stopBlinking()
-        }catch (e: IllegalStateException) {
-            // Handle IllegalStateException (e.g., recording already started)
-            e.printStackTrace()
+        }catch (e: Exception) {
             setToastError(activity,e.message.toString())
-
-            // Perform error handling or show appropriate message to the user
-        } catch (e: IOException) {
-            // Handle IOException (e.g., failed to prepare or write to file)
-            e.printStackTrace()
-            setToastError(activity,e.message.toString())
-            // Perform error handling or show appropriate message to the user
-        } catch (e: Exception) {
-            // Handle other exceptions
-            e.printStackTrace()
-            setToastError(activity,e.message.toString())
-            // Perform error handling or show appropriate message to the user
         }
-
-        //binding.timerView.text = "00:00.00"
     }
 
 
     private fun showRecordDialog() {
         try {
-            // Buat AlertDialog baru menggunakan AlertDialog.Builder
             val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
-
-            // Inflate custom layout
             val dialogView = layoutInflater.inflate(R.layout.custom_cancel_dialog, null)
 
-            // Get references to the TextViews and Buttons in the custom layout
             val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
             val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
             val btnNo = dialogView.findViewById<TextView>(R.id.btnNo)
             val btnYes = dialogView.findViewById<TextView>(R.id.btnYes)
 
-            // Set custom text (optional)
-            tvDialogTitle.text = getString(R.string.notification)
-            tvDialogMessage.text = getString(R.string.title_recording_dialog)
+            tvDialogTitle.text = activity?.getString(R.string.notification)
+            tvDialogMessage.text = activity?.getString(R.string.title_recording_dialog)
 
-            // Set custom layout to the dialog
             builder.setView(dialogView)
 
-            // Buat dialog dari builder
             val dialog = builder.create()
 
-            // Set up button click listeners
             btnYes.setOnClickListener {
                 startRecordingAudio()
                 dialog.dismiss()
@@ -524,17 +450,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             btnNo.setOnClickListener {
                 dialog.dismiss()
             }
-
-            // Tampilkan dialog
             dialog.show()
-
-            // Atur ukuran dialog (opsional)
-            */
-/*dialog.window?.setLayout(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT
-            )*//*
-
         } catch (e: Exception) {
             setToast(activity, e.message.toString())
         }
@@ -542,31 +458,22 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
 
     private fun showCancelDialog() {
         try {
-            // Buat AlertDialog baru menggunakan AlertDialog.Builder
             val builder = AlertDialog.Builder(requireContext())
-
-            // Inflate custom layout
             val dialogView = layoutInflater.inflate(R.layout.custom_cancel_dialog, null)
 
-            // Get references to the TextViews and Buttons in the custom layout
             val tvDialogTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
             val tvDialogMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
             val btnNo = dialogView.findViewById<TextView>(R.id.btnNo)
             val btnYes = dialogView.findViewById<TextView>(R.id.btnYes)
 
-            // Set custom text (optional)
-            tvDialogTitle.text = getString(R.string.notification)
-            tvDialogMessage.text = getString(R.string.title_recording_canceled)
+            tvDialogTitle.text = activity?.getString(R.string.notification)
+            tvDialogMessage.text = activity?.getString(R.string.title_recording_canceled)
 
-            // Set custom layout to the dialog
             builder.setView(dialogView)
 
-            // Buat dialog dari builder
             val dialog = builder.create()
-
-            // Set up button click listeners
             btnYes.setOnClickListener {
-                stopRecordingAudio(getString(R.string.record_canceled))
+                stopRecordingAudio(activity?.getString(R.string.record_canceled).toString())
                 File(dirPath + fileName).delete()
                 dialog.dismiss()
             }
@@ -574,16 +481,78 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             btnNo.setOnClickListener {
                 dialog.dismiss()
             }
-
-            // Tampilkan dialog
             dialog.show()
-
-            // Atur ukuran dialog (opsional)
 
         } catch (e: Exception) {
             setToast(activity, e.message.toString())
         }
     }
+
+
+    private fun showVolumeDialog() {
+        try {
+            val builder = AlertDialog.Builder(requireContext())
+            val dialogView = layoutInflater.inflate(R.layout.dialog_volume_control, null)
+
+            val seekBarMusic = dialogView.findViewById<SeekBar>(R.id.seekBarMusic)
+            val seekBarAudio = dialogView.findViewById<SeekBar>(R.id.seekBarAudio)
+
+
+            // Set progress default ke 70%
+            seekBarMusic.progress = (volumeMusic * 100).toInt()
+            seekBarAudio.progress = (volumeAudio * 100).toInt()
+
+            // Listener for SeekBar volume music (MediaPlayer)
+            seekBarMusic.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    try {
+                        volumeMusic = progress / 100f
+                        if(mp!=null){
+                            mp?.setVolume(volumeMusic, volumeMusic) // Setting volume MediaPlayer
+                            DataSession(requireActivity()).saveVolumeMusic(volumeMusic)
+                        }
+                    }catch (e : Exception){
+                        setLog(e.message)
+                    }
+
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            })
+
+
+
+            // Listener For SeekBar volume marching bell (SoundPool)
+            seekBarAudio.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    try {
+                        volumeAudio = progress / 100f
+                        MyMusicListener.postVolumeAudio(volumeAudio)
+                        DataSession(requireActivity()).saveVolumeAudio(volumeAudio)
+                    }catch (e : Exception){
+                        setLog(e.message)
+                    }
+
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            })
+
+            // Set custom layout to the dialog
+            builder.setView(dialogView)
+
+            // Make dialog dari builder
+            val dialog = builder.create()
+            dialog.show()
+
+
+        } catch (e: Exception) {
+            setToast(activity, e.message.toString())
+        }
+    }
+
 
 
 
@@ -615,24 +584,12 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                     setOutputFile(dirPath + fileName)
                     prepare()
                     start()
-                    //animatePlayerView()
                     setToastInfo(activity,requireActivity().getString(R.string.record_started))
                 }
-            } catch (e: IllegalStateException) {
-                // Handle IllegalStateException (e.g., recording already started)
-                e.printStackTrace()
-                setToastError(activity,e.message.toString())
-                // Perform error handling or show appropriate message to the user
-            } catch (e: IOException) {
-                // Handle IOException (e.g., failed to prepare or write to file)
-                e.printStackTrace()
-                setToastError(activity,e.message.toString())
-                // Perform error handling or show appropriate message to the user
             } catch (e: Exception) {
                 // Handle other exceptions
                 e.printStackTrace()
                 setToastError(activity,e.message.toString())
-                // Perform error handling or show appropriate message to the user
             }
 
         }
@@ -650,22 +607,9 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                         setToastInfo(activity,requireActivity().getString(R.string.record_paused))
                     }
                 }
-            } catch (e: IllegalStateException) {
-                // Handle IllegalStateException (e.g., recording already started)
-                e.printStackTrace()
-                setToastError(activity,e.message.toString())
-
-                // Perform error handling or show appropriate message to the user
-            } catch (e: IOException) {
-                // Handle IOException (e.g., failed to prepare or write to file)
-                e.printStackTrace()
-                setToastError(activity,e.message.toString())
-                // Perform error handling or show appropriate message to the user
             } catch (e: Exception) {
-                // Handle other exceptions
                 e.printStackTrace()
                 setToastError(activity,e.message.toString())
-                // Perform error handling or show appropriate message to the user
             }
         }
     }
@@ -703,18 +647,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                     }
                 }
 
-            } catch (e: IllegalStateException) {
-                // Handle IllegalStateException (e.g., recording already started)
-                e.printStackTrace()
-                setToastError(activity,e.message.toString())
-
-                // Perform error handling or show appropriate message to the user
-            } catch (e: IOException) {
-                // Handle IOException (e.g., failed to prepare or write to file)
-                e.printStackTrace()
-                setToastError(activity,e.message.toString())
-                // Perform error handling or show appropriate message to the user
-            } catch (e: Exception) {
+            }catch (e: Exception) {
                 // Handle other exceptions
                 e.printStackTrace()
                 setToastError(activity,e.message.toString())
@@ -742,38 +675,10 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                 }
 
                 recorder = null
-            } catch (e: IllegalStateException) {
-                // Handle IllegalStateException (e.g., recording already started)
-                //e.printStackTrace()
-                setToastError(activity,e.message.toString())
-
-                // Perform error handling or show appropriate message to the user
-            } catch (e: IOException) {
-                // Handle IOException (e.g., failed to prepare or write to file)
-                //e.printStackTrace()
-                setToastError(activity,e.message.toString())
-                // Perform error handling or show appropriate message to the user
             } catch (e: Exception) {
-                // Handle other exceptions
-                //e.printStackTrace()
                 setToastError(activity,e.message.toString())
-                // Perform error handling or show appropriate message to the user
             }
 
-        }
-    }
-
-
-    @SuppressLint("SetTextI18n")
-    private fun pauseRecordingScreen(){
-        if(screenRecorder!=null){
-            showLayoutPauseRecord()
-            pauseRecordScreen = true
-            screenRecorder?.apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    pause()
-                }
-            }
         }
     }
 
@@ -828,18 +733,18 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                 setToastError(activity,e.message.toString())
             }
 
-            Handler().postDelayed({
+            Handler(Looper.getMainLooper()).postDelayed({
                 try {
                     mp = MediaPlayer()
                     mp?.apply {
-                        setDataSource(requireActivity(),Uri.parse(filePath))
-                        volumes?.let { setVolume(it, volumes!!) }
-                        setOnPreparedListener{
+                        setDataSource(requireActivity(), Uri.parse(filePath))
+                        setVolume(volumeMusic, volumeMusic)
+                        setOnPreparedListener {
                             mp?.start()
                             MyMusicListener.postAction(mp)
                             MyStopSDKMusicListener.onStartAnimation()
                         }
-                        mp?.prepareAsync()
+                        prepareAsync()
                         setOnCompletionListener {
                             MyStopSDKMusicListener.postAction(true)
                             MyStopMusicListener.postAction(true)
@@ -849,7 +754,6 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                         MyPauseListener.showButtonStop(true)
                         showBtnStop = true
                         songIsPlaying = true
-
                     }
                 } catch (e: Exception) {
                     try {
@@ -857,12 +761,13 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                         MyStopMusicListener.postAction(true)
                         MyPauseListener.showButtonStop(false)
                         showBtnStop = false
-                        setToastError(activity,e.message.toString())
-                    }catch (e : Exception){
+                        setToastError(activity, e.message.toString())
+                    } catch (e: Exception) {
                         setLog(e.message)
                     }
                 }
             }, 100)
+
         }
     }
 
@@ -946,16 +851,6 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
         MyMusicListener.postNote(note)
     }
 
-   */
-/* override fun onTimerUpdate(duration: String) {
-        activity?.runOnUiThread{
-            if(recordingAudio)
-                binding.timerView.text = duration
-        }
-    }
-*//*
-
-
     override fun onResume() {
         super.onResume()
         sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
@@ -976,10 +871,6 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
         }
     }
 
-
-
-
-
     override fun onPause(pause: Boolean) {
        if(pause){
            showBtnStop = false
@@ -991,4 +882,4 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
 
     }
 
-}*/
+}
