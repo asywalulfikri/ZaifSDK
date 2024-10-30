@@ -41,7 +41,7 @@
 
     <ImageView
         android:layout_marginStart="@dimen/_3sdp"
-        android:visibility="visible"
+        android:visibility="gone"
         android:id="@+id/ivDelete"
         android:layout_gravity="center"
         android:background="@drawable/button_record_color"
@@ -81,7 +81,7 @@
         android:id="@+id/ivDone"
         android:layout_gravity="center"
         android:contentDescription="@string/app_name"
-        android:visibility="visible"
+        android:visibility="gone"
         android:padding="@dimen/_7sdp"
         android:background="@drawable/button_green_color"
         android:layout_marginStart="@dimen/_3sdp"
