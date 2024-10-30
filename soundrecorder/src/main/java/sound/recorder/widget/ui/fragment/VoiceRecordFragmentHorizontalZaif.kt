@@ -125,9 +125,10 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
     private fun setupView(){
 
-        val tintList = ColorStateList.valueOf(Color.parseColor(zaifSDKBuilder?.backgroundWidgetColor.toString()))
-        ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
-
+        if(zaifSDKBuilder?.backgroundWidgetColor.toString().isNotEmpty()){
+            val tintList = ColorStateList.valueOf(Color.parseColor(zaifSDKBuilder?.backgroundWidgetColor.toString()))
+            ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
+        }
 
         binding.rlRecord.setOnClickListener {
             when {
