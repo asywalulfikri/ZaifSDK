@@ -13,13 +13,14 @@
         android:orientation="vertical">
 
         <TextView
+            android:layout_marginVertical="@dimen/_10sdp"
             android:id="@+id/tvDialogTitle"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/notification"
             android:textColor="@color/yellow_200"
-            android:textSize="30sp"
+            android:textSize="@dimen/_20ssp"
             android:fontFamily="@font/rodfellows_wacky" />
 
         <TextView
@@ -32,7 +33,7 @@
             android:maxLines="2"
             android:layout_height="wrap_content"
             android:text="@string/title_recording_dialog"
-            android:textSize="20sp"
+            android:textSize="@dimen/_12ssp"
             android:paddingTop="8dp"/>
 
 
@@ -44,29 +45,31 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_margin="5dp"
+                android:layout_margin="@dimen/_5sdp"
                 android:id="@+id/btnNo"
                 android:background="@drawable/button_gradient"
                 android:text="@string/no"
                 android:gravity="center"
                 android:textColor="@color/yellow_50"
                 android:textStyle="bold"
+                android:textSize="@dimen/_12ssp"
                 android:fontFamily="@font/rodfellows_wacky"
-                android:layout_width="100dp"
-                android:layout_height="50dp"/>
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_30sdp"/>
 
             <TextView
-                android:layout_margin="5dp"
+                android:layout_margin="@dimen/_5sdp"
                 android:layout_gravity="center"
                 android:gravity="center"
+                android:textSize="@dimen/_12ssp"
                 android:id="@+id/btnYes"
                 android:background="@drawable/button_gradient"
                 android:textColor="@color/yellow_50"
                 android:text="@string/yes"
                 android:textStyle="bold"
                 android:fontFamily="@font/rodfellows_wacky"
-                android:layout_width="100dp"
-                android:layout_height="50dp"/>
+                android:layout_width="@dimen/_80sdp"
+                android:layout_height="@dimen/_30sdp"/>
         </LinearLayout>
 
     </LinearLayout>

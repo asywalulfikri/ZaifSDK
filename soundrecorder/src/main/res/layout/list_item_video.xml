@@ -32,8 +32,8 @@
                     android:id="@+id/iv_play"
                     android:layout_centerInParent="true"
                     app:srcCompat="@drawable/ic_play_circle"
-                    android:layout_width="50dp"
-                    android:layout_height="55dp" />
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_40sdp" />
 
             </RelativeLayout>
 
@@ -48,12 +48,13 @@
                     android:id="@+id/tv_title"
                     tools:text="Cover Gendang Koplo"
                     android:fontFamily="@font/ooredoo"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/_14ssp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
                 <TextView
                     android:id="@+id/tv_description"
+                    android:textSize="@dimen/_12ssp"
                     tools:text="Mari Belajar Cover Gendang"
                     android:fontFamily="@font/intercom_roboto_medium"
                     android:layout_width="match_parent"
@@ -69,12 +70,11 @@
                 <TextView
                     android:id="@+id/tv_datepublish"
                     tools:text="17 Februari 2019"
+                    android:textSize="@dimen/_12ssp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
             </LinearLayout>
-
-
 
         </LinearLayout>
 

@@ -9,7 +9,7 @@
     android:background="@color/colorPrimary"
     android:fontFamily="@font/ooredoo"
     tools:text="  Raisa Mencoba Mengerti"
-    android:textSize="16sp"
+    android:textSize="@dimen/_12ssp"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"

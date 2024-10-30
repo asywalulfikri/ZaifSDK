@@ -15,7 +15,7 @@
         android:lineSpacingExtra="8sp"
         android:text="@string/lbl_new_note_title"
         android:textColor="@color/colorAccent"
-        android:textSize="25sp"
+        android:textSize="@dimen/_15ssp"
         android:textStyle="normal" />
 
 
@@ -28,7 +28,7 @@
         android:inputType="textCapSentences"
         android:lines="1"
         android:textColorHint="#89c3c3c3"
-        android:textSize="20sp"
+        android:textSize="@dimen/_12ssp"
         tools:ignore="HardcodedText" />
 
     <EditText
@@ -40,7 +40,7 @@
         android:inputType="textCapSentences|textMultiLine"
         android:lines="4"
         android:textColorHint="#89c3c3c3"
-        android:textSize="17sp"
+        android:textSize="@dimen/_12ssp"
         tools:ignore="HardcodedText" />
 
 </LinearLayout>
