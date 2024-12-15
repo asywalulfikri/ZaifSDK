@@ -88,10 +88,9 @@ dependencies {
     //noinspection GradleDependency
     annotationProcessor "androidx.room:room-compiler:2.5.2"
 
-    implementation 'androidx.annotation:annotation:1.9.0'
     //config admob
-    implementation 'com.google.android.gms:play-services-ads:23.4.0'
-    implementation 'com.google.android.gms:play-services-ads-identifier:18.1.0'
+    implementation 'com.google.android.gms:play-services-ads:23.6.0'
+    implementation 'com.google.android.gms:play-services-ads-identifier:18.2.0'
 
     //config facebook
     implementation 'com.facebook.android:audience-network-sdk:6.16.0'
@@ -99,17 +98,17 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'org.greenrobot:eventbus:3.3.1'
 
-    implementation platform('com.google.firebase:firebase-bom:33.5.1')
-    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.9.0')
+    implementation platform('com.google.firebase:firebase-bom:33.7.0')
+    //implementation platform('org.jetbrains.kotlin:kotlin-bom:1.9.0')
 
     // Add the dependencies for the Firebase Cloud Messaging and Analytics libraries
     // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-messaging:24.0.3'
+    implementation 'com.google.firebase:firebase-messaging:24.1.0'
     implementation 'com.google.firebase:firebase-firestore:25.1.1'
 
     //implementation 'androidx.work:work-runtime-ktx:2.8.1'
     implementation("com.google.code.gson:gson:2.11.0")
-    implementation 'com.google.android.ump:user-messaging-platform:3.0.0'
+    implementation 'com.google.android.ump:user-messaging-platform:3.1.0'
     implementation("com.google.android.play:app-update:2.1.0")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
 
@@ -117,7 +116,6 @@ dependencies {
     implementation ("androidx.multidex:multidex:2.0.1")
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'

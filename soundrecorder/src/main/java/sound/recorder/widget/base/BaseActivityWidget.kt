@@ -2,7 +2,6 @@ package sound.recorder.widget.base
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -18,7 +17,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.Window
@@ -32,11 +30,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -104,8 +100,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var isLoadInterstitialReward = false
     private var rewardedInterstitialAd : RewardedInterstitialAd? =null
 
-    private val isMobileAdsInitializeCalled = AtomicBoolean(false)
-    private val initialLayoutComplete = AtomicBoolean(false)
     private var adView: AdView? =null
     private var adViewFacebook : com.facebook.ads.AdView? = null
     private lateinit var googleMobileAdsConsentManager: GoogleMobileAdsConsentManager
