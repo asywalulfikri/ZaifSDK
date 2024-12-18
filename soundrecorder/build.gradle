@@ -28,15 +28,9 @@ android {
 
     kapt {
         includeCompileClasspath = false
-    }
-
-    kapt {
         arguments {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
-    }
-
-    kapt {
         correctErrorTypes = true
     }
 
@@ -45,7 +39,6 @@ android {
     }
 
     buildTypes {
-
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -57,7 +50,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -67,72 +60,52 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'com.karumi:dexter:6.2.3'
-    //noinspection GradleDependency
-   // implementation 'com.airbnb.android:lottie:6.0.0'
-
-    implementation ("com.intuit.ssp:ssp-android:1.0.6")
-    implementation ("com.intuit.sdp:sdp-android:1.0.6")
-
-    //noinspection GradleDependency
-    implementation 'androidx.room:room-runtime:2.5.2'
-    //noinspection GradleDependency,KaptUsageInsteadOfKsp
-    kapt 'androidx.room:room-compiler:2.5.2'
-    //noinspection GradleDependency
-    implementation 'androidx.room:room-ktx:2.5.2'
-    //noinspection GradleDependency
-    annotationProcessor "androidx.room:room-compiler:2.5.2"
-
-    //config admob
+    implementation 'com.intuit.ssp:ssp-android:1.0.6'
+    implementation 'com.intuit.sdp:sdp-android:1.0.6'
+    implementation 'androidx.room:room-runtime:2.6.1'
+    kapt 'androidx.room:room-compiler:2.6.1'
+    implementation 'androidx.room:room-ktx:2.6.1'
     implementation 'com.google.android.gms:play-services-ads:23.6.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.2.0'
-
-    //config facebook
     implementation 'com.facebook.android:audience-network-sdk:6.16.0'
-
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'org.greenrobot:eventbus:3.3.1'
-
     implementation platform('com.google.firebase:firebase-bom:33.7.0')
-    //implementation platform('org.jetbrains.kotlin:kotlin-bom:1.9.0')
-
-    // Add the dependencies for the Firebase Cloud Messaging and Analytics libraries
-    // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-messaging:24.1.0'
     implementation 'com.google.firebase:firebase-firestore:25.1.1'
-
-    //implementation 'androidx.work:work-runtime-ktx:2.8.1'
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.google.android.ump:user-messaging-platform:3.1.0'
-    implementation("com.google.android.play:app-update:2.1.0")
-    implementation("com.google.android.play:app-update-ktx:2.1.0")
-
-    implementation 'com.android.support:multidex:1.0.3'
-    implementation ("androidx.multidex:multidex:2.0.1")
+    implementation 'com.google.android.play:app-update:2.1.0'
+    implementation 'com.google.android.play:app-update-ktx:2.1.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.core:core-ktx:1.15.0'
-    implementation 'com.google.android.material:material:1.12.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-
 }
 
 project.afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
+                // Include the release build's AAR file
                 from components.release
-                groupId = 'recording'
-                artifactId = 'recordingSDK'
-                version = '0.0.7'
+                groupId = 'com.sound.recorder' // Update with your reverse domain
+                artifactId = 'recording-sdk'
+                version = '0.0.56'
+
+                // Include additional artifacts like source/javadoc JARs (optional)
+               // artifact("$buildDir/outputs/aar/${project.name}-release.aar")
             }
         }
     }
 }
+
