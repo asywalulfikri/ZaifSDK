@@ -24,6 +24,7 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.Window
+import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -138,6 +139,29 @@ open class BaseFragmentWidget : Fragment() {
 
     }
 
+
+    fun setStatusBarColor(color : Int){
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                requireActivity().window.apply {
+                    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                    clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                    statusBarColor = ContextCompat.getColor(requireContext(), color)
+                }
+            }
+        } catch (e: Exception) {
+            setLog("not support")
+        }
+    }
+
+    fun setBottomStatusColor(color : Int){
+        try {
+            requireActivity().window?.navigationBarColor = ContextCompat.getColor(requireContext(), color)
+        } catch (e: Exception) {
+            setLog("not support")
+        }
+
+    }
 
     fun initFANSDK(){
         if(getDataSession().getFanEnable()){

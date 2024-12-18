@@ -20,6 +20,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.Window
+import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -84,8 +85,6 @@ import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.notes.Note
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.Toastic
-import java.util.Locale
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration.Companion.seconds
 
@@ -124,6 +123,28 @@ open class BaseActivityWidget : AppCompatActivity() {
 
         admobSDKBuilder = AdmobSDKBuilder.builder(this).loadFromSharedPreferences()
         fanSDKBuilder = FanSDKBuilder.builder(this).loadFromSharedPreferences()
+
+    }
+
+
+    fun setStatusBarColor(color : Int){
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                window.statusBarColor = ContextCompat.getColor(this,color)
+            }
+        }catch (e : Exception){
+            setLog("not support")
+        }
+    }
+
+    fun setBottomStatusColor(color : Int){
+        try {
+            window?.navigationBarColor = ContextCompat.getColor(this, color)
+        }catch (e : Exception){
+            setLog("not support")
+        }
 
     }
 
