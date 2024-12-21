@@ -143,7 +143,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 stopRecordingAudio("")
                 showBottomSheet()
             }catch (e : Exception){
-                setToast(activity,e.message.toString())
+                setToast(e.message.toString())
             }
         }
 
@@ -152,7 +152,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 MyFragmentListener.openFragment(ListRecordFragment())
                 MyAdsListener.setAds(false)
             }catch (e : Exception){
-                setToast(activity,e.message.toString())
+                setToast(e.message.toString())
             }
         }
 
@@ -160,7 +160,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             try {
                 showCancelDialog()
             }catch (e : Exception){
-                setToast(activity,e.message.toString())
+                setToast(e.message.toString())
             }
         }
 
@@ -172,7 +172,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             try {
                 RecordingSDK.showDialogColorPicker(requireActivity())
             }catch (e : Exception){
-                setToast(activity,e.message.toString())
+                setToast(e.message.toString())
             }
 
         }
@@ -182,7 +182,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 val bottomSheet = BottomSheetNote()
                 bottomSheet.show(requireActivity().supportFragmentManager, LOG_TAG)
             }catch (e : Exception){
-                setToast(activity,e.message.toString())
+                setToast(e.message.toString())
             }
         }
 
@@ -453,7 +453,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             }
             dialog.show()
         } catch (e: Exception) {
-            setToast(activity, e.message.toString())
+            setToast(e.message.toString())
         }
     }
 
@@ -485,7 +485,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             dialog.show()
 
         } catch (e: Exception) {
-            setToast(activity, e.message.toString())
+            setToast(e.message.toString())
         }
     }
 
@@ -550,7 +550,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
 
         } catch (e: Exception) {
-            setToast(activity, e.message.toString())
+            setToast(e.message.toString())
         }
     }
 
@@ -561,7 +561,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     private fun startRecordingAudio(){
 
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-            setToast(activity,requireActivity().getString(R.string.device_not_support))
+            setToast(activity?.getString(R.string.device_not_support).toString())
         }else{
             showLayoutStartRecord()
 
@@ -585,7 +585,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                     setOutputFile(dirPath + fileName)
                     prepare()
                     start()
-                    setToastInfo(activity,requireActivity().getString(R.string.record_started))
+                    setToastInfo(activity?.getString(R.string.record_started).toString())
                 }
             } catch (e: Exception) {
                 // Handle other exceptions
@@ -605,7 +605,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                         pause()
                         showLayoutPauseRecord()
                         pauseRecordAudio = true
-                        setToastInfo(activity,requireActivity().getString(R.string.record_paused))
+                        setToastInfo(activity?.getString(R.string.record_paused).toString())
                     }
                 }
             } catch (e: Exception) {
@@ -636,7 +636,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 recorder?.apply {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         resume()
-                        setToastInfo(activity,requireActivity().getString(R.string.record_resumed))
+                        setToastInfo(activity?.getString(R.string.record_resumed).toString())
                         pauseRecordAudio = false
 
                         binding.ivRecord.setImageResource(R.drawable.ic_pause)
@@ -671,7 +671,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                     pauseRecordAudio= false
                     showLayoutStopRecord()
                     if(message.isNotEmpty()){
-                        setToastInfo(activity,message)
+                        setToastInfo(message)
                     }
                 }
 
@@ -690,7 +690,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
     @SuppressLint("SetTextI18n")
     override fun onCancelClicked() {
-        setToastSuccess(activity,requireActivity().getString(R.string.record_canceled))
+        setToastSuccess(activity?.getString(R.string.record_canceled).toString())
         stopRecordingAudio("")
     }
 
@@ -713,7 +713,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             GlobalScope.launch {
                 db.audioRecordDAO().insert(AudioRecord(filename, filePath, Date().time, getFormattedAudioDuration(filePath)))
             }
-            setToastSuccess(activity,requireActivity().getString(R.string.record_saved))
+            setToastSuccess(activity?.getString(R.string.record_saved).toString())
             showRewardInterstitial()
         }
 

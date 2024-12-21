@@ -92,7 +92,6 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         sharedPreferences = DataSession(this).getShared()
         sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
 
-        val zaifSDKBuilder = ZaifSDKBuilder.builder(this).loadFromSharedPreferences()
 
 
        // binding.tvRunningText.startScroll()

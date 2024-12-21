@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import sound.recorder.widget.R
 import sound.recorder.widget.adapter.VideoListAdapter
 import sound.recorder.widget.base.BaseFragmentWidget
 import sound.recorder.widget.databinding.ActivityListVideoBinding
@@ -86,12 +87,12 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        setToast(activity, "Failed to get data")
+                        setToast("Failed Get Data")
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    setToast(activity, "Error: ${e.message}")
+                    setToast("Error: ${e.message}")
                 }
             }
         }
@@ -102,7 +103,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
         if (wrapper != null) {
             try {
                 if (wrapper.list.isEmpty()) {
-                    setToastInfo(activity, "No Data")
+                    setToastInfo("No Data")
                 } else {
                     mVideoList = ArrayList()
                     updateList(wrapper)
@@ -118,7 +119,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
                 setLog(e.message.toString())
             }
         } else {
-            setToast(activity, "No Data")
+            setToast("No Data")
         }
     }
 

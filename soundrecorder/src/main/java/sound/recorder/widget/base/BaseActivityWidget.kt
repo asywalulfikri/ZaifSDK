@@ -385,10 +385,6 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    fun getDataSession() : DataSession{
-        return DataSession(this)
-    }
-
 
     private fun getSize(): AdSize {
         val widthPixels = resources.displayMetrics.widthPixels.toFloat()
@@ -611,7 +607,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
                 override fun onAdFailedToLoad(p0: LoadAdError) {
                     Log.d("ADS_AdMob", "banner loaded failed "+p0.message)
-                    if(getDataSession().getFanEnable()){
+                    if(fanSDKBuilder?.enable==true){
                         setupBannerFacebook(adViewContainer)
                     }
                 }
@@ -655,9 +651,9 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun setupAppOpenAd() {
 
-        if(isWebViewSupported()&&isWebViewAvailable()&&isAdMobAvailable()){
+       /* if(isWebViewSupported()&&isWebViewAvailable()&&isAdMobAvailable()){
             val adRequest = AdRequest.Builder().build()
-            AppOpenAd.load(this, getDataSession().getAppOpenId(), adRequest,getDataSession().getOrientationAds(), object : AppOpenAd.AppOpenAdLoadCallback() {
+            AppOpenAd.load(this, admobSDKBuilder?.appOpenId.toString(), adRequest,getDataSession().getOrientationAds(), object : AppOpenAd.AppOpenAdLoadCallback() {
                 override fun onAdLoaded(ad: AppOpenAd) {
                     appOpenAd = ad
                 }
@@ -668,7 +664,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
                 }
             })
-        }
+        }*/
     }
 
 
@@ -715,7 +711,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
                 if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
                     try {
-                        if (getDataSession().getFanEnable()) {
+                        if (fanSDKBuilder?.enable==true) {
                             setupInterstitialFacebook()
                         }
                     } catch (e: Exception) {
@@ -767,7 +763,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                                         Log.d("Admob","Interstitial Loaded Failed id = ${admobSDKBuilder?.interstitialId.toString()} ---> ${loadAdError.message}")
 
                                         try {
-                                            if (getDataSession().getFanEnable()) {
+                                            if (fanSDKBuilder?.enable==true) {
                                                 setupInterstitialFacebook()
                                             }
                                         } catch (e: Exception) {
