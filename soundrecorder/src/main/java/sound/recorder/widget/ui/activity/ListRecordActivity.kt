@@ -21,6 +21,7 @@ import sound.recorder.widget.base.BaseActivityWidget
 import sound.recorder.widget.databinding.ActivityListingNewBinding
 import sound.recorder.widget.db.AppDatabase
 import sound.recorder.widget.db.AudioRecord
+import sound.recorder.widget.util.Toastic
 import java.io.File
 
 
@@ -226,7 +227,7 @@ internal class ListRecordActivity : BaseActivityWidget(), AudioRecorderAdapter.O
                 intent.putExtra("filename", audioRecord.filename)
                 startActivity(intent)
             }else{
-                setToastError("This Audio Not Found Anymore \uD83D\uDE1E")
+                setToastTic(Toastic.ERROR,"This Audio Not Found Anymore \uD83D\uDE1E")
             }
         }
 

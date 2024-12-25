@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:background="@color/grey_600"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="@dimen/_2sdp"
+    android:layout_margin="@dimen/_10sdp"
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:layout_margin="16dp"
+        android:background="@color/amber_50"
+        android:padding="@dimen/_10sdp"
         android:layout_gravity="center"
         android:gravity="center"
         android:layout_width="match_parent"
@@ -19,17 +22,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/notification"
-            android:textColor="@color/yellow_200"
+            android:textColor="@color/black_de"
             android:textSize="@dimen/_20ssp"
-            android:fontFamily="@font/rodfellows_wacky" />
+            android:fontFamily="@font/ooredoo" />
 
         <TextView
             android:id="@+id/tvDialogMessage"
             android:gravity="center"
-            android:textColor="@color/yellow_200"
+            android:textColor="@color/black_de"
             android:fontFamily="@font/ooredoo"
             android:layout_marginHorizontal="16dp"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:maxLines="2"
             android:layout_height="wrap_content"
             android:text="@string/title_recording_dialog"
@@ -40,7 +43,7 @@
         <LinearLayout
             android:layout_marginTop="10dp"
             android:gravity="center"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
@@ -53,7 +56,7 @@
                 android:textColor="@color/yellow_50"
                 android:textStyle="bold"
                 android:textSize="@dimen/_12ssp"
-                android:fontFamily="@font/rodfellows_wacky"
+                android:fontFamily="@font/ooredoo"
                 android:layout_width="@dimen/_80sdp"
                 android:layout_height="@dimen/_30sdp"/>
 
@@ -67,13 +70,11 @@
                 android:textColor="@color/yellow_50"
                 android:text="@string/yes"
                 android:textStyle="bold"
-                android:fontFamily="@font/rodfellows_wacky"
+                android:fontFamily="@font/ooredoo"
                 android:layout_width="@dimen/_80sdp"
                 android:layout_height="@dimen/_30sdp"/>
         </LinearLayout>
 
     </LinearLayout>
 
-
-
-</LinearLayout>
+</androidx.cardview.widget.CardView>

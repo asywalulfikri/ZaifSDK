@@ -56,7 +56,6 @@ import kotlin.math.ln
 class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClickListener,
     FragmentSheetListSong.OnClickListener ,SharedPreferences.OnSharedPreferenceChangeListener,PauseListener {
 
-    private var recorder: MediaRecorder? = null
     private var recordingAudio = false
     private var pauseRecordAudio = false
 
@@ -584,7 +583,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                     setOutputFile(dirPath + fileName)
                     prepare()
                     start()
-                    setToastInfo(activity?.getString(R.string.record_started).toString())
+                    setToastTic(Toastic.INFO,activity?.getString(R.string.record_started).toString())
                 }
             } catch (e: Exception) {
                 // Handle other exceptions
@@ -604,7 +603,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                         pause()
                         showLayoutPauseRecord()
                         pauseRecordAudio = true
-                        setToastInfo(activity?.getString(R.string.record_paused).toString())
+                        setToastTic(Toastic.INFO,activity?.getString(R.string.record_paused).toString())
                     }
                 }
             } catch (e: Exception) {
@@ -635,15 +634,13 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                 recorder?.apply {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         resume()
-                        setToastInfo(activity?.getString(R.string.record_resumed).toString())
+                        setToastTic(Toastic.INFO,activity?.getString(R.string.record_resumed).toString())
                         pauseRecordAudio = false
 
                         binding.ivRecord.setImageResource(R.drawable.ic_pause)
                         //animatePlayerView()
                         //timer.start()
                         startBlinking()
-
-
                     }
                 }
 
@@ -670,7 +667,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                     pauseRecordAudio= false
                     showLayoutStopRecord()
                     if(message.isNotEmpty()){
-                        setToastInfo(message)
+                        setToastTic(Toastic.INFO,message)
                     }
                 }
 
@@ -689,7 +686,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
 
     @SuppressLint("SetTextI18n")
     override fun onCancelClicked() {
-        setToastSuccess(activity?.getString(R.string.record_canceled).toString())
+        setToastTic(Toastic.SUCCESS,activity?.getString(R.string.record_canceled).toString())
         stopRecordingAudio("")
     }
 
@@ -712,7 +709,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             GlobalScope.launch {
                 db.audioRecordDAO().insert(AudioRecord(filename, filePath, Date().time, getFormattedAudioDuration(filePath)))
             }
-            setToastSuccess(activity?.getString(R.string.record_saved).toString())
+            setToastTic(Toastic.SUCCESS,activity?.getString(R.string.record_saved).toString())
             showRewardInterstitial()
         }
 

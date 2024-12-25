@@ -4,12 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:id="@+id/layoutBackground"
-    android:background="@color/white"
+    android:background="@color/yellow_100"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
     <FrameLayout
         android:id="@+id/bannerView"
+        android:background="@color/blue_100"
+        android:layout_marginEnd="5dp"
         android:layout_width="match_parent"
         android:layout_height="60dp"/>
 
@@ -78,10 +80,12 @@ Pembaruan UI: Kode ini sudah berada di thread UI, sehingga runOnUiThread tidak p
 
 
     <LinearLayout
+        android:layout_marginEnd="2dp"
+        android:background="@color/yellow_700"
         android:layout_marginTop="60dp"
         android:layout_toEndOf="@+id/record1"
         android:layout_below="@+id/bannerView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -98,8 +102,8 @@ Pembaruan UI: Kode ini sudah berada di thread UI, sehingga runOnUiThread tidak p
             tools:ignore="HardcodedText" />
 
         <Button
-            android:id="@+id/btn2"
-            android:text="2"
+            android:id="@+id/openPlayStore"
+            android:text="Open Play Store"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:ignore="HardcodedText" />

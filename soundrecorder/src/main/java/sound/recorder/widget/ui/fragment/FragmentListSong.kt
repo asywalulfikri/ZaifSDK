@@ -7,6 +7,7 @@ import android.provider.MediaStore
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -38,11 +39,6 @@ class FragmentListSong(private var showBtnStop: Boolean, private var listener: O
     }
 
 
-    fun FragmentListSong() {
-        // Required empty public constructor
-    }
-
-
     private lateinit var binding : BottomSheetSongBinding
     private var sharedPreferences : SharedPreferences? =null
     private var lisSong = ArrayList<Song>()
@@ -50,9 +46,9 @@ class FragmentListSong(private var showBtnStop: Boolean, private var listener: O
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = BottomSheetSongBinding.inflate(layoutInflater)
 
-        if(activity!=null&&requireActivity()!=null){
+        if(activity!=null){
 
-            sharedPreferences = DataSession(requireActivity()).getShared()
+            sharedPreferences = DataSession(requireContext()).getShared()
             sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
             if(showBtnStop){
                 binding.ivStop.visibility = View.VISIBLE
@@ -72,7 +68,7 @@ class FragmentListSong(private var showBtnStop: Boolean, private var listener: O
             listTitleSong = ArrayList()
             listLocationSong = ArrayList()
 
-            if(!RecordingSDK.isHaveSong(requireActivity())){
+            if(!RecordingSDK.isHaveSong(requireContext())){
                 getSong(lisSong)
             }
         }
@@ -108,73 +104,48 @@ class FragmentListSong(private var showBtnStop: Boolean, private var listener: O
         }
     }
 
+
     @SuppressLint("Recycle")
-    private fun getAllMediaMp3Files(songList : ArrayList<Song>) {
-        if(activity!=null&&requireActivity()!=null){
+    private fun getAllMediaMp3Files(songList: ArrayList<Song>) {
+        if (activity != null && requireActivity() != null) {
             val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            val cursor = requireActivity().contentResolver?.query(uri,
-                null,
-                null,
-                null,
-                null
-            )
-            if (cursor == null) {
-                Toast.makeText(requireActivity(), "Something Went Wrong.", Toast.LENGTH_LONG).show()
-            } else if (!cursor.moveToFirst()) {
-                Toast.makeText(requireActivity(), "No Music Found on SD Card.", Toast.LENGTH_LONG).show()
-            } else {
-                val title    = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-                val location = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
 
+            // Jalankan query di background thread
+            lifecycleScope.launch(Dispatchers.IO) {
+                val cursor = requireActivity().contentResolver?.query(
+                    uri, null, null, null, null
+                )
 
-                MainScope().launch {
-
-                    var songTitle1: String
-                    var songLocation1: String
-
-                    withContext(Dispatchers.Default) {
-
-                        //Process Background 2
-                        for (i in songList.indices) {
-                            songTitle1 = songList[i].title.toString()
-                            songLocation1  = songList[i].pathRaw.toString()
-                            listLocationSong?.add(songLocation1)
-                            listTitleSong?.add(songTitle1)
-                        }
+                if (cursor == null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireActivity(), "Something Went Wrong.", Toast.LENGTH_LONG).show()
                     }
-
-                    //Result Process Background 2
-
-                    MainScope().launch {
-
-                        //Background Process 1
-                        withContext(Dispatchers.Default) {
-
-                            do {
-                                var songTitle = ""
-                                var songLocation = ""
-                                if(cursor.getString(title)!=null){
-                                    songTitle = cursor.getString(title)
-                                }
-
-                                if(cursor.getString(location)!=null){
-                                    songLocation = cursor.getString(location)
-                                }
-
-                                listLocationSong?.add(songLocation)
-                                listTitleSong?.add(songTitle)
-
-                            } while (cursor.moveToNext())
-                        }
-                        updateView()
+                } else if (!cursor.moveToFirst()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireActivity(), "No Music Found on SD Card.", Toast.LENGTH_LONG).show()
                     }
+                } else {
+                    val title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+                    val location = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
 
+                    while (cursor.moveToNext()) {
+                        val songTitle = cursor.getString(title) ?: ""
+                        val songLocation = cursor.getString(location) ?: ""
+
+                        listLocationSong?.add(songLocation)
+                        listTitleSong?.add(songTitle)
+                    }
+                    cursor.close()
                 }
 
+                // Setelah data selesai diproses, perbarui UI di thread utama
+                withContext(Dispatchers.Main) {
+                    updateView()
+                }
             }
-
         }
     }
+
 
     private fun updateView(){
         if(activity!=null){

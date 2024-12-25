@@ -13,6 +13,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.media.AudioManager
 import android.media.MediaMetadataRetriever
+import android.media.MediaRecorder
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
@@ -118,6 +119,9 @@ open class BaseFragmentWidget : Fragment() {
     var admobSDKBuilder : AdmobSDKBuilder? =null
     private var adViewFacebook : com.facebook.ads.AdView? = null
     var fanSDKBuilder : FanSDKBuilder? =null
+
+
+    var recorder: MediaRecorder? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -318,7 +322,7 @@ open class BaseFragmentWidget : Fragment() {
     private val installStateUpdatedListener = InstallStateUpdatedListener{ state ->
         if (state.installStatus() == InstallStatus.DOWNLOADED) {
             try {
-                setToastInfo(getString(R.string.download_success))
+                setToastTic(Toastic.INFO,getString(R.string.download_success))
                 lifecycleScope.launch {
                     delay(5.seconds)
                     appUpdateManager.completeUpdate()
@@ -596,7 +600,7 @@ open class BaseFragmentWidget : Fragment() {
         btnSend.setOnClickListener {
             val message = etMessage.text.toString().trim()
             if(message.isEmpty()){
-                setToastWarning(activity?.getString(R.string.message_cannot_empty).toString())
+                setToastTic(Toastic.WARNING,activity?.getString(R.string.message_cannot_empty).toString())
                 return@setOnClickListener
             }else{
                 sendEmail("Feed Back $appName", "$message\n\n\n\nfrom $info")
@@ -1289,13 +1293,13 @@ open class BaseFragmentWidget : Fragment() {
 
     }
 
-    fun setToastWarning(message : String){
+    fun setToastTic(code : Int,message : String){
         try {
             if(activity!=null){
                 Toastic.toastic(requireContext(),
                     message = "$message.",
                     duration = Toastic.LENGTH_SHORT,
-                    type = Toastic.WARNING,
+                    type = code,
                     isIconAnimated = true
                 ).show()
             }
@@ -1304,41 +1308,11 @@ open class BaseFragmentWidget : Fragment() {
         }
     }
 
-    fun setToastSuccess(message : String){
-        try {
-            if(activity!=null){
-                Toastic.toastic(
-                    requireContext(),
-                    message = "$message.",
-                    duration = Toastic.LENGTH_SHORT,
-                    type = Toastic.SUCCESS,
-                    isIconAnimated = true
-                ).show()
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
-
-    fun setToastInfo(message : String){
-        try {
-            if(activity!=null){
-                Toastic.toastic(requireContext(),
-                    message = "$message.",
-                    duration = Toastic.LENGTH_SHORT,
-                    type = Toastic.INFO,
-                    isIconAnimated = true
-                ).show()
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
 
 
     fun showAllowPermission(){
         try {
-            setToastInfo(activity?.getString(R.string.allow_permission).toString())
+            setToastTic(Toastic.INFO,activity?.getString(R.string.allow_permission).toString())
             openSettings(activity)
         }catch (e : Exception){
             setLog(e.message)

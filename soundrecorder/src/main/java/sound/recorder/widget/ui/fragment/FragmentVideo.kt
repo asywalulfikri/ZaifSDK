@@ -22,6 +22,7 @@ import sound.recorder.widget.databinding.ActivityListVideoBinding
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.model.Video
 import sound.recorder.widget.model.VideoWrapper
+import sound.recorder.widget.util.Toastic
 
 class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener {
 
@@ -103,7 +104,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
         if (wrapper != null) {
             try {
                 if (wrapper.list.isEmpty()) {
-                    setToastInfo("No Data")
+                    setToastTic(Toastic.INFO,"No Data")
                 } else {
                     mVideoList = ArrayList()
                     updateList(wrapper)

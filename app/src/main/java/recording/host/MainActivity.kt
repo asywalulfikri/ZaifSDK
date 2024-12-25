@@ -42,9 +42,11 @@ import sound.recorder.widget.ui.fragment.FragmentSettings
 import sound.recorder.widget.ui.fragment.FragmentSheetListSong
 import sound.recorder.widget.ui.fragment.FragmentVideo
 import sound.recorder.widget.ui.fragment.ListRecordFragment
+import sound.recorder.widget.util.AppRatingHelper
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.SnowFlakesLayout
+import sound.recorder.widget.util.Toastic
 import java.io.IOException
 import kotlin.math.ln
 
@@ -103,6 +105,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
         setupBanner(binding.bannerView)
         setupBannerFacebook(binding.bannerFacebook)
+        setupHideStatusBar(binding.root)
        // setupAppOpenAd()
 
         val xx = DataSession(this).getBackgroundColor()
@@ -169,8 +172,11 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             sp.play(ss1, 1f, 1f, 0, 0, 1f)
         }
 
-        binding.btn2.setOnClickListener {
-            sp.play(ss2, 1f, 1f, 0, 0, 1f)
+        val appRatingHelper = AppRatingHelper(this)
+
+
+        binding.openPlayStore.setOnClickListener {
+           appRatingHelper.openRating()
         }
 
 
@@ -207,13 +213,13 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
                     .commit()
 
             } catch (e: Exception) {
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             } catch (e : IllegalStateException){
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             } catch (e : IllegalAccessException){
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             }catch (e : NoSuchFieldException){
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             }
         }
 
@@ -228,13 +234,13 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
                         .commit()
                 }
             } catch (e: Exception) {
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             } catch (e : IllegalStateException){
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             } catch (e : IllegalAccessException){
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             }catch (e : NoSuchFieldException){
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             }
         }
 
@@ -277,7 +283,6 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             .setTitle("Guide Title Text")
             .setContentText("Ini Berfungsi untuk Membesarkan suara")
             .setGravity(Gravity.center)
-            .setTargetView(binding.btn2)
             .setDismissType(DismissType.outside) //optional - default dismissible by TargetView
             .setGuideListener {
                 //TODO ...
@@ -328,7 +333,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
     private fun showAllowPermission(){
         try {
-            setToastInfo(getString(sound.recorder.widget.R.string.allow_permission))
+            setToastTic(Toastic.INFO,getString(sound.recorder.widget.R.string.allow_permission))
             openSettings()
         }catch (e : Exception){
             setLog(e.message.toString())
@@ -454,7 +459,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
                 }
             }
         }catch (e : Exception){
-            setToastError(e.message.toString())
+            setToastTic(Toastic.ERROR,e.message.toString())
         }
         Handler().postDelayed({
             try {
@@ -485,7 +490,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
                     MyStopMusicListener.postAction(true)
                     MyPauseListener.showButtonStop(false)
                     showBtnStop = false
-                    setToastError(e.message.toString())
+                    setToastTic(Toastic.ERROR,e.message.toString())
                 }catch (e : Exception){
                     setLog(e.message.toString())
                 }
@@ -507,11 +512,11 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
                 MyStopMusicListener.postAction(true)
             }
         } catch (e: IOException) {
-            setToastError(e.message.toString())
+            setToastTic(Toastic.ERROR,e.message.toString())
         } catch (e: IllegalStateException) {
-            setToastError(e.message.toString())
+            setToastTic(Toastic.ERROR,e.message.toString())
         }catch (e : Exception){
-            setToastError(e.message.toString())
+            setToastTic(Toastic.ERROR,e.message.toString())
         }
     }
 

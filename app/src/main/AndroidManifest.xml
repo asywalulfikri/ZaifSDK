@@ -23,7 +23,7 @@
 
         <activity
             android:name=".BeforeSplashScreen"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="landscape"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,11 +34,11 @@
 
 
         <activity android:name="sound.recorder.widget.ui.activity.PlayerActivityWidget"
-            android:screenOrientation="sensorLandscape"
+            android:screenOrientation="landscape"
             android:configChanges="orientation|screenSize"/>
 
         <activity android:name=".MainActivity"
-            android:screenOrientation="sensorLandscape"/>
+            android:screenOrientation="landscape"/>
     </application>
 
 </manifest>

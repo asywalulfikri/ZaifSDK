@@ -1,14 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" >
-    <corners
-        android:radius="12dp"
-        />
-    <gradient
-        android:angle="0"
-        android:centerX="0%"
-        android:startColor="@color/colorPrimary"
-        android:endColor="@color/colorPrimaryDark"
-        android:type="linear"
-        />
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- State saat ditekan -->
+    <item android:state_pressed="true">
+        <layer-list>
+            <!-- Shadow layer -->
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="10dp" />
+                    <solid android:color="#40000000" /> <!-- Hitam dengan opacity 25% -->
+                    <padding android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="4dp" />
+                </shape>
+            </item>
 
-</shape>
+            <!-- Button layer dengan warna berbeda saat ditekan -->
+            <item android:top="0dp" android:left="0dp">
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:startColor="#00454B"
+                        android:endColor="#00454B"
+                        android:angle="45" />
+                    <corners android:radius="10dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <!-- State default (tidak ditekan) -->
+    <item>
+        <layer-list>
+            <!-- Shadow layer -->
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="10dp" />
+                    <solid android:color="#40000000" /> <!-- Hitam dengan opacity 25% -->
+                    <padding android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="4dp" />
+                </shape>
+            </item>
+
+            <!-- Button layer dengan warna default -->
+            <item android:top="0dp" android:left="0dp">
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:startColor="@color/colorPrimary"
+                        android:endColor="@color/colorPrimaryDark"
+                        android:angle="45" />
+                    <corners android:radius="10dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+</selector>

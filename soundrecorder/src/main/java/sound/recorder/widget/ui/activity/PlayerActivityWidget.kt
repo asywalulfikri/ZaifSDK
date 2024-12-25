@@ -13,6 +13,7 @@ import androidx.core.content.res.ResourcesCompat
 import sound.recorder.widget.R
 import sound.recorder.widget.base.BaseActivityWidget
 import sound.recorder.widget.databinding.ActivityPlayerBinding
+import sound.recorder.widget.util.Toastic
 import java.io.IOException
 
 internal class PlayerActivityWidget : BaseActivityWidget() {
@@ -50,11 +51,11 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
                     mediaPlayer.prepare()
                 }
             } catch (e: IOException) {
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             } catch (e: IllegalStateException) {
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             }catch (e : Exception){
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             }
 
             /*mediaPlayer = MediaPlayer()
@@ -84,11 +85,11 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
                             binding.seekBar.progress += 1000
                         }
                     } catch (e: IOException) {
-                        setToastError(e.message.toString())
+                        setToastTic(Toastic.ERROR,e.message.toString())
                     } catch (e: IllegalStateException) {
-                        setToastError(e.message.toString())
+                        setToastTic(Toastic.ERROR,e.message.toString())
                     }catch (e : Exception){
-                        setToastError(e.message.toString())
+                        setToastTic(Toastic.ERROR,e.message.toString())
                     }
                 }
             }
@@ -102,11 +103,11 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
                             binding.seekBar.progress += 1000
                         }
                     } catch (e: IOException) {
-                        setToastError(e.message.toString())
+                        setToastTic(Toastic.ERROR,e.message.toString())
                     } catch (e: IllegalStateException) {
-                        setToastError(e.message.toString())
+                        setToastTic(Toastic.ERROR,e.message.toString())
                     }catch (e : Exception){
-                        setToastError(e.message.toString())
+                        setToastTic(Toastic.ERROR,e.message.toString())
                     }
                 }
             }
@@ -142,7 +143,7 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
                 binding.chip.text = "x $playbackSpeed"
             }
         }else{
-            setToastError("Audio not found")
+            setToastTic(Toastic.ERROR,"Audio not found")
             finish()
         }
 
@@ -174,7 +175,7 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
                 handler.removeCallbacks(runnable)
             }
         }catch (e : Exception){
-            setToastError(e.message.toString())
+            setToastTic(Toastic.ERROR,e.message.toString())
         }
     }
 
@@ -200,11 +201,11 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
                     handler.removeCallbacks(runnable)
                 }
             } catch (e: IOException) {
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             } catch (e: IllegalStateException) {
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             }catch (e : Exception){
-                setToastError(e.message.toString())
+                setToastTic(Toastic.ERROR,e.message.toString())
             }
         }
     }

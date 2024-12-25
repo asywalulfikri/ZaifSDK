@@ -3,15 +3,12 @@ package sound.recorder.widget.base
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,6 +17,8 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.Window
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.Animation
@@ -35,6 +34,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.facebook.ads.Ad
@@ -77,8 +77,6 @@ import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.R
 import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.ads.GoogleMobileAdsConsentManager
-import sound.recorder.widget.animation.ParticleSystem
-import sound.recorder.widget.animation.modifiers.ScaleModifier
 import sound.recorder.widget.builder.AdmobSDKBuilder
 import sound.recorder.widget.builder.FanSDKBuilder
 import sound.recorder.widget.listener.MyAdsListener
@@ -118,12 +116,49 @@ open class BaseActivityWidget : AppCompatActivity() {
     var fanSDKBuilder : FanSDKBuilder? =null
     var mPanAnim: Animation? = null
 
+    private val displayMetrics by lazy { resources.displayMetrics }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         admobSDKBuilder = AdmobSDKBuilder.builder(this).loadFromSharedPreferences()
         fanSDKBuilder = FanSDKBuilder.builder(this).loadFromSharedPreferences()
 
+    }
+
+
+    @SuppressLint("WrongConstant")
+    fun setupHideStatusBar(rootView : View){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // API 30+ (Android 11 dan lebih baru)
+            try {
+                window.setDecorFitsSystemWindows(false)
+                window.insetsController?.apply {
+                    hide(WindowInsets.Type.statusBars()) // Sembunyikan status bar
+                    systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+                ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, windowInsets ->
+                    val insets = windowInsets.getInsets(WindowInsets.Type.navigationBars())
+                    setLog("gogo",insets.right.toString()+"--"+insets.left+"--"+insets.top+"--"+insets.bottom)
+                    view.setPadding(0, 0, insets.right, 0) // Tambahkan padding untuk navigation bar
+                    windowInsets
+                }
+            }catch (e : Exception){
+                //do nothing
+            }
+
+        } else {
+            // API < 30 (Android 10 dan sebelumnya)
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            rootView.setOnApplyWindowInsetsListener { view, windowInsets ->
+                val insets = windowInsets.systemWindowInsetBottom
+                view.setPadding(0, 0, 0, insets) // Tambahkan padding untuk navigation bar
+                windowInsets
+            }
+        }
     }
 
 
@@ -326,7 +361,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private val installStateUpdatedListener = InstallStateUpdatedListener{ state ->
         if (state.installStatus() == InstallStatus.DOWNLOADED) {
             try {
-                setToastInfo(getString(R.string.download_success))
+                setToastTic(Toastic.INFO,getString(R.string.download_success))
                 lifecycleScope.launch {
                     delay(5.seconds)
                     appUpdateManager.completeUpdate()
@@ -363,7 +398,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                                     UserMessagingPlatform.showPrivacyOptionsForm(this@BaseActivityWidget) { formError ->
                                         formError?.let {
                                             if(BuildConfig.DEBUG){
-                                                setToastError(it.message.toString())
+                                                setToastTic(Toastic.ERROR,it.message.toString())
                                             }
                                         }
                                     }
@@ -387,26 +422,10 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     private fun getSize(): AdSize {
-        val widthPixels = resources.displayMetrics.widthPixels.toFloat()
-        val density = resources.displayMetrics.density
+        val widthPixels = displayMetrics.widthPixels.toFloat()
+        val density = displayMetrics.density.takeIf { it > 0 } ?: 1f
         val adWidth = (widthPixels / density).toInt()
-
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-    }
-
-
-
-    fun openPlayStoreForMoreApps(devName : String) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://developer?id=$devName"))
-            intent.setPackage("com.android.vending") // Specify the Play Store app package name
-
-            startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/developer?id=$devName"))
-
-            startActivity(intent)
-        }
     }
 
 
@@ -429,7 +448,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         btnSend.setOnClickListener {
             val message = etMessage.text.toString().trim()
             if(message.isEmpty()){
-                setToastWarning(getString(R.string.message_cannot_empty))
+                setToastTic(Toastic.WARNING,getString(R.string.message_cannot_empty))
                 return@setOnClickListener
             }else{
                 sendEmail("Feed Back $appName", "$message\n\n\n\nfrom $info")
@@ -448,7 +467,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         try {
             RecordingSDK.openEmail(this,subject,body)
         }catch (e : Exception){
-            setToastError(e.message.toString())
+            setToastTic(Toastic.ERROR,e.message.toString())
         }
 
     }
@@ -485,30 +504,6 @@ open class BaseActivityWidget : AppCompatActivity() {
             }, long)
         }catch (e : Exception){
             Log.d("message",e.message.toString())
-        }
-    }
-
-    fun isInternetConnected(context: Context): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val networkCapabilities = connectivityManager.activeNetwork ?: return false
-            val actNw = connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
-
-            return when {
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                // for other device how are able to connect with Ethernet
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                // for check internet over Bluetooth
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
-                else -> false
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            val networkInfo = connectivityManager.activeNetworkInfo ?: return false
-            @Suppress("DEPRECATION")
-            return networkInfo.isConnected
         }
     }
 
@@ -607,8 +602,12 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
                 override fun onAdFailedToLoad(p0: LoadAdError) {
                     Log.d("ADS_AdMob", "banner loaded failed "+p0.message)
-                    if(fanSDKBuilder?.enable==true){
-                        setupBannerFacebook(adViewContainer)
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        if (fanSDKBuilder?.enable == true) {
+                            withContext(Dispatchers.Main) {
+                                setupBannerFacebook(adViewContainer)
+                            }
+                        }
                     }
                 }
                 override fun onAdOpened() {
@@ -738,6 +737,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                                                 }
                                                 // Load a new interstitial ad
                                                 mInterstitialAd = null
+                                               // resetInsetsAfterAd()
                                                 setupInterstitial()
                                             }
 
@@ -747,11 +747,13 @@ open class BaseActivityWidget : AppCompatActivity() {
                                                 if (BuildConfig.DEBUG) {
                                                     setToast(adError.message)
                                                 }
+
                                             }
 
                                             override fun onAdShowedFullScreenContent() {
                                                 // Handle the ad showed event
                                                 setLog("AdMob Inters Ad Showed")
+                                                //ensureInsetsForAd()
                                                 mInterstitialAd = null // Reset the interstitial ad
                                             }
                                         }
@@ -779,66 +781,27 @@ open class BaseActivityWidget : AppCompatActivity() {
 
             }
         }
+
     }
 
-   /* fun setupInterstitial1() {
-        try {
-            if (getDataSession().getFanEnable()) {
-                setupInterstitialFacebook()
-            }
-        }catch (e : Exception){
-            setLog("asywalul fbb :"+e.message)
+    private fun ensureInsetsForAd() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.show(WindowInsets.Type.navigationBars())
+        } else {
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         }
-        try {
-            val adRequest = AdRequest.Builder().build()
-            adRequest.let {
-                InterstitialAd.load(this, getDataSession().getInterstitialId(), it,
-                    object : InterstitialAdLoadCallback() {
-                        override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                            mInterstitialAd = interstitialAd
-                            isLoad = true
-                            setLog("AdMob Inters Loaded Success")
+    }
 
-                            // Set the FullScreenContentCallback
-                            mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                                override fun onAdDismissedFullScreenContent() {
-                                    // Handle the ad dismissed event
-                                    setLog("AdMob Inters Ad Dismissed")
-                                    if(BuildConfig.DEBUG){
-                                        setToast("ads closed")
-                                    }
-                                    // Load a new interstitial ad
-                                    mInterstitialAd = null
-                                    setupInterstitial()
-                                }
-
-                                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                                    // Handle the ad failed to show event
-                                    setLog("AdMob Inters Ad Failed to Show: ${adError.message}")
-                                    if(BuildConfig.DEBUG){
-                                        setToast(adError.message)
-                                    }
-                                }
-
-                                override fun onAdShowedFullScreenContent() {
-                                    // Handle the ad showed event
-                                    setLog("AdMob Inters Ad Showed")
-                                    mInterstitialAd = null // Reset the interstitial ad
-                                }
-                            }
-                        }
-
-                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                            mInterstitialAd = null
-                            isLoad = false
-                            setLog("AdMob Inters Loaded Failed id = " + getDataSession().getInterstitialId() + " ---> " + loadAdError.message)
-                        }
-                    })
-            }
-        } catch (e: Exception) {
-            setLog("asywalul inters :"+e.message.toString())
+    private fun resetInsetsAfterAd() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.hide(WindowInsets.Type.systemBars())
+        } else {
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         }
-    }*/
+    }
+
 
     fun releaseInterstitialAdmob(){
         mInterstitialAd = null
@@ -921,74 +884,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun setupReward(){
-        try {
-            val adRequest = AdRequest.Builder().build()
-            RewardedAd.load(this,DataSession(this).getRewardId(), adRequest, object : RewardedAdLoadCallback() {
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    rewardedAd = null
-                }
-                override fun onAdLoaded(ad: RewardedAd) {
-                    rewardedAd = ad
-                    isLoadReward = true
-                    rewardedAd?.fullScreenContentCallback = object: FullScreenContentCallback() {
-                        override fun onAdClicked() {
-                            // Called when a click is recorded for an ad.
-                            Log.d("yametere", "Ad was clicked.")
-                        }
-
-                        override fun onAdDismissedFullScreenContent() {
-                            // Called when ad is dismissed.
-                            // Set the ad reference to null so you don't show the ad a second time.
-                            Log.d("yametere", "Ad dismissed fullscreen content.")
-                            rewardedAd = null
-                        }
-
-                        override fun onAdFailedToShowFullScreenContent(p0: AdError) {
-                            // Called when ad fails to show.
-                            Log.d("yametere", "Ad failed to show fullscreen content.")
-                            rewardedAd = null
-                        }
-
-                        override fun onAdImpression() {
-                            // Called when an impression is recorded for an ad.
-                            Log.d("yametere", "Ad recorded an impression.")
-                        }
-
-                        override fun onAdShowedFullScreenContent() {
-                            // Called when ad is shown.
-                            Log.d("yametere","Ad showed fullscreen content.")
-                        }
-                    }
-                }
-            })
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
-
-    fun showRewardAds(){
-        try {
-            if(isLoadReward){
-                Log.d("yametere", "show")
-                rewardedAd?.let { ad ->
-                    ad.show(this) { rewardItem ->
-                        // Handle the reward.
-                        val rewardAmount = rewardItem.amount
-                        val rewardType = rewardItem.type
-                        Log.d("yametere", "User earned the reward.$rewardAmount--$rewardType")
-                    }
-                } ?: run {
-                    Log.d("yametere", "The rewarded ad wasn't ready yet.")
-                    showInterstitial()
-                }
-            }else{
-                Log.d("yametere", "nall")
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
     protected open fun getFirebaseToken(): String? {
         val tokens = AtomicReference("")
         FirebaseMessaging.getInstance().token
@@ -1040,32 +935,14 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    protected fun showReward(){
-        try {
-            if(isLoadReward){
-                rewardedAd?.let { ad ->
-                    ad.show(this) { rewardItem ->
-                        // Handle the reward.
-                        val rewardAmount = rewardItem.amount
-                        val rewardType = rewardItem.type
-                    }
-                } ?: run {
-                    showInterstitial()
-                }
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
 
-
-    protected fun setToastError(message : String){
+    protected fun setToastTic(code : Int,message : String){
         try {
             Toastic.toastic(
                 context = this,
                 message = "$message.",
                 duration = Toastic.LENGTH_SHORT,
-                type = Toastic.ERROR,
+                type = code,
                 isIconAnimated = true
             ).show()
         }catch (e : Exception){
@@ -1078,56 +955,18 @@ open class BaseActivityWidget : AppCompatActivity() {
     protected fun setToast(message : String){
         Toast.makeText(this, "$message.",Toast.LENGTH_SHORT).show()
     }
-    fun setToastWarning(message : String){
-        try {
-            Toastic.toastic(
-                context = this,
-                message = "$message.",
-                duration = Toastic.LENGTH_SHORT,
-                type = Toastic.WARNING,
-                isIconAnimated = true
-            ).show()
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
-
-    protected fun setToastSuccess(message : String){
-        try {
-            Toastic.toastic(
-                context = this,
-                message = "$message.",
-                duration = Toastic.LENGTH_SHORT,
-                type = Toastic.SUCCESS,
-                isIconAnimated = true
-            ).show()
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
-
-    fun setToastInfo(message : String){
-        try {
-            Toastic.toastic(
-                context = this,
-                message = "$message.",
-                duration = Toastic.LENGTH_SHORT,
-                type = Toastic.INFO,
-                isIconAnimated = true
-            ).show()
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-
-    }
 
 
     fun setLog(message: String){
-        Log.d("response", "$message - ")
+        if(BuildConfig.DEBUG){
+            Log.d("response", "$message - ")
+        }
     }
 
     fun setLog(name : String, message: String){
-        Log.d(name, "$message - ")
+        if(BuildConfig.DEBUG){
+            Log.d(name, "$message - ")
+        }
     }
 
     fun openSettings() {
@@ -1136,103 +975,18 @@ open class BaseActivityWidget : AppCompatActivity() {
         startActivity(intent)
     }
 
-    protected fun simpleAnimation(view: View , drawable:Int? = null) {
-        try {
-            var icon  = R.drawable.star_pink
-            if(drawable!=null){
-                icon = drawable
-            }
-            ParticleSystem(this, 100, icon, 800)
-                .setSpeedRange(0.1f, 0.25f)
-                .oneShot(view, 100)
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-
-    }
-
-    protected fun advanceAnimation(view: View , drawable:Int? = null) {
-        // Launch 2 particle systems one for each image
-        try {
-            var icon  = R.drawable.star_white_border
-            if(drawable!=null){
-                icon = drawable
-            }
-            val ps = ParticleSystem(this, 100, icon, 800)
-            ps.setScaleRange(0.7f, 1.3f)
-            ps.setSpeedRange(0.1f, 0.25f)
-            ps.setAcceleration(0.0001f, 90)
-            ps.setRotationSpeedRange(90f, 180f)
-            ps.setFadeOut(200, AccelerateInterpolator())
-            ps.oneShot(view, 100)
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
-
-    open fun starAnimation(view: View , drawable:Int? = null) {
-
-        try{
-            var icon  = R.drawable.star_white_border
-            if(drawable!=null){
-                icon = drawable
-            }
-            ParticleSystem(this, 10, icon, 3000)
-                .setSpeedByComponentsRange(-0.1f, 0.1f, -0.1f, 0.02f)
-                .setAcceleration(0.000003f, 90)
-                .setInitialRotationRange(0, 360)
-                .setRotationSpeed(120f)
-                .setFadeOut(2000)
-                .addModifier(ScaleModifier(0f, 1.5f, 0, 1500))
-                .oneShot(view, 10)
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-
-    }
 
     open fun getActivity(): BaseActivityWidget? {
         return this
     }
 
-    open fun rating(){
-        val appPackageName = packageName
 
-        try {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=$appPackageName")
-                )
-            )
-        } catch (e: ActivityNotFoundException) {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName")
-                )
-            )
-        }
-    }
 
     fun isDarkTheme(): Boolean {
         return resources?.configuration?.uiMode!! and
                 Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     }
 
-
-
-    fun showKeyboard(view: View) {
-        try {
-            if (view.requestFocus()) {
-                val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-                imm?.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-
-    }
 
 
     fun initAnim(ivStop : ImageView? =null) {
@@ -1258,16 +1012,6 @@ open class BaseActivityWidget : AppCompatActivity() {
         } catch (e: Exception) {
             setLog(e.message.toString())
         }
-    }
-
-    fun hideKeyboard(view: View) {
-        try {
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-            imm?.hideSoftInputFromWindow(view.windowToken, 0)
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-
     }
 
 }
