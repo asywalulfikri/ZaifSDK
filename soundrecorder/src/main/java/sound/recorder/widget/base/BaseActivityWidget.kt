@@ -431,12 +431,36 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    private fun getSize(): AdSize {
+    /*private fun getSize(): AdSize {
         val widthPixels = displayMetrics.widthPixels.toFloat()
         val density = displayMetrics.density.takeIf { it > 0 } ?: 1f
         val adWidth = (widthPixels / density).toInt()
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+    }*/
+
+    private fun getSize(): AdSize {
+        val displayMetrics = resources.displayMetrics
+        val widthPixels: Float
+        val density: Float
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // API 30+ (Android 11 dan lebih baru)
+            val windowMetrics = windowManager.currentWindowMetrics
+            val insets = windowMetrics.windowInsets.getInsets(WindowInsets.Type.systemBars())
+            val bounds = windowMetrics.bounds
+            widthPixels = (bounds.width() - insets.left - insets.right).toFloat()
+            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
+        } else {
+            // API < 30 (Android 10 dan sebelumnya)
+            widthPixels = displayMetrics.widthPixels.toFloat()
+            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
+        }
+
+        val adWidth = (widthPixels / density).toInt()
+
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
     }
+
 
 
     @SuppressLint("SetTextI18n")
@@ -747,7 +771,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                                                 }
                                                 // Load a new interstitial ad
                                                 mInterstitialAd = null
-                                               // resetInsetsAfterAd()
+                                                resetInsetsAfterAd()
                                                 setupInterstitial()
                                             }
 
@@ -919,6 +943,14 @@ open class BaseActivityWidget : AppCompatActivity() {
             Log.d("showInters","execute")
             if(isLoad){
                 Log.d("showIntersAdmob","true")
+                window.decorView.systemUiVisibility = (
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        )
                 mInterstitialAd?.show(this)
             }else{
                 if(showFANInterstitial){
