@@ -126,6 +126,17 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     }
 
+    fun isLanguageIdEn(context: Context): Boolean {
+        val deviceLanguage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            context.resources.configuration.locales[0].language
+        } else {
+            @Suppress("DEPRECATION")
+            context.resources.configuration.locale.language
+        }
+
+        return deviceLanguage == "id" || deviceLanguage == "en"|| deviceLanguage == "in"
+    }
+
 
     @SuppressLint("WrongConstant")
     fun setupHideStatusBar(rootView : View){
@@ -139,7 +150,6 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
                 ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, windowInsets ->
                     val insets = windowInsets.getInsets(WindowInsets.Type.navigationBars())
-                    setLog("gogo",insets.right.toString()+"--"+insets.left+"--"+insets.top+"--"+insets.bottom)
                     view.setPadding(0, 0, insets.right, 0) // Tambahkan padding untuk navigation bar
                     windowInsets
                 }
@@ -154,8 +164,8 @@ open class BaseActivityWidget : AppCompatActivity() {
                         View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                         View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             rootView.setOnApplyWindowInsetsListener { view, windowInsets ->
-                val insets = windowInsets.systemWindowInsetBottom
-                view.setPadding(0, 0, 0, insets) // Tambahkan padding untuk navigation bar
+                val insetsRight = windowInsets.systemWindowInsetRight
+                view.setPadding(0, 0,insetsRight , 0) // Tambahkan padding untuk navigation bar
                 windowInsets
             }
         }

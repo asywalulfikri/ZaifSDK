@@ -536,6 +536,8 @@ open class BaseFragmentWidget : Fragment() {
         builder.show()
     }
 
+
+
     fun isInternetConnected(): Boolean {
         val connectivityManager = requireActivity().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
@@ -646,6 +648,17 @@ open class BaseFragmentWidget : Fragment() {
          return locale.displayLanguage*/
         val currentLocale: Locale = Locale.getDefault()
         return currentLocale.language
+    }
+
+    fun isLanguageIdEn(context: Context): Boolean {
+        val deviceLanguage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            context.resources.configuration.locales[0].language
+        } else {
+            @Suppress("DEPRECATION")
+            context.resources.configuration.locale.language
+        }
+
+        return deviceLanguage == "id" || deviceLanguage == "en"|| deviceLanguage == "in"
     }
 
     private fun setLocale(language : String) {
