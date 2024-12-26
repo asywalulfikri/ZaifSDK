@@ -16,6 +16,7 @@ import android.os.Handler
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
@@ -139,34 +140,46 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     @SuppressLint("WrongConstant")
-    fun setupHideStatusBar(rootView : View){
+    fun setupHideStatusBar(rootView : View,hide : Boolean){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // API 30+ (Android 11 dan lebih baru)
             try {
-                window.setDecorFitsSystemWindows(false)
+                // Hide the status and navigation bars
                 window.insetsController?.apply {
-                    hide(WindowInsets.Type.statusBars()) // Sembunyikan status bar
+                    hide(WindowInsets.Type.statusBars()) // Hide status bar
+                    if(hide){
+                        hide(WindowInsets.Type.navigationBars()) // Hide navigation bar
+                    }
                     systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 }
+
+                // Ensure the root view gets the correct padding and margins
                 ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, windowInsets ->
-                    val insets = windowInsets.getInsets(WindowInsets.Type.navigationBars())
-                    view.setPadding(0, 0, insets.right, 0) // Tambahkan padding untuk navigation bar
+                    val insets = windowInsets.getInsets(WindowInsets.Type.systemBars())
+                    val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
+                    layoutParams.rightMargin = insets.right
+                    view.layoutParams = layoutParams
                     windowInsets
                 }
-            }catch (e : Exception){
-                //do nothing
+            } catch (e: Exception) {
+                Log.e("FullscreenSetup", "Error handling insets: ${e.message}")
             }
-
         } else {
             // API < 30 (Android 10 dan sebelumnya)
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            rootView.setOnApplyWindowInsetsListener { view, windowInsets ->
-                val insetsRight = windowInsets.systemWindowInsetRight
-                view.setPadding(0, 0,insetsRight , 0) // Tambahkan padding untuk navigation bar
-                windowInsets
+            try {
+                window.decorView.systemUiVisibility =
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                rootView.setOnApplyWindowInsetsListener { view, windowInsets ->
+                    val rightInset = windowInsets.systemWindowInsetRight
+                    val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
+                    layoutParams.rightMargin = rightInset
+                    view.layoutParams = layoutParams
+                    windowInsets
+                }
+            } catch (e: Exception) {
+                Log.e("FullscreenSetup", "Error handling insets for API < 30: ${e.message}")
             }
         }
     }
@@ -771,7 +784,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                                                 }
                                                 // Load a new interstitial ad
                                                 mInterstitialAd = null
-                                                resetInsetsAfterAd()
+                                               // resetInsetsAfterAd()
                                                 setupInterstitial()
                                             }
 
@@ -943,14 +956,6 @@ open class BaseActivityWidget : AppCompatActivity() {
             Log.d("showInters","execute")
             if(isLoad){
                 Log.d("showIntersAdmob","true")
-                window.decorView.systemUiVisibility = (
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        )
                 mInterstitialAd?.show(this)
             }else{
                 if(showFANInterstitial){

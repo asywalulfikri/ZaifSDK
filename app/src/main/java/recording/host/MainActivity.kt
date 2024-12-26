@@ -105,7 +105,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
         setupBanner(binding.bannerView)
         setupBannerFacebook(binding.bannerFacebook)
-        setupHideStatusBar(binding.root)
+        setupHideStatusBar(binding.root,true)
        // setupAppOpenAd()
 
         val xx = DataSession(this).getBackgroundColor()
