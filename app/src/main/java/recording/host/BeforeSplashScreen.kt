@@ -22,6 +22,14 @@ class BeforeSplashScreen : BaseActivityWidget(){
     private val goToNextPageRunnable = Runnable { goToNextPage() }
     private val appId = "balera.music.android"
 
+    val admobBannerId           = "ca-app-pub-4503297165525769/8869314001" //correct
+    val admobInterstitialId     = "ca-app-pub-4503297165525769/6993052482" //correct
+    val admobId                 = "ca-app-pub-4503297165525769~2938330478" //correct
+    val homeBanner               = "ca-app-pub-4503297165525769/8322544586" //correct
+    val admobRewardInterstitialId = "ca-app-pub-4503297165525769/2856073839" //correct
+    val admobRewardId             = "ca-app-pub-4503297165525769/2839761965" //correct
+    val admobNativeId =""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashSdkBinding.inflate(layoutInflater)
@@ -36,20 +44,25 @@ class BeforeSplashScreen : BaseActivityWidget(){
             Log.d("BeforeSplashScreen", "updateData called")
             // Initialize AdmobAdsBuilder based on the build type
 
-            AdmobSDKBuilder.builder(this)
-                .apply {
-                    if (BuildConfig.DEBUG) {
-                        setAdmobId("ca-app-pub-3940256099942544~3347511713")
-                        setBannerId(Constant.AdsTesterId.admobBannerId)
-                        setInterstitialId(Constant.AdsTesterId.admobInterstitialId)
-                        setRewardId(Constant.AdsTesterId.admobRewardId)
-                        setRewardInterstitialId(Constant.AdsTesterId.admobRewardInterstitialId)
-                        setNativeId(Constant.AdsTesterId.admobNativeId)
-                        setAppOpenId(Constant.AdsTesterId.admobOpenAdId)
-                        setOrientationAds(2)
-                    }
-                }
-                .build()
+            if (BuildConfig.DEBUG) {
+                AdmobSDKBuilder.builder(this@BeforeSplashScreen)
+                    .setAdmobId(admobId)
+                    .setBannerId(Constant.AdsTesterId.admobBannerId)
+                    .setInterstitialId(Constant.AdsTesterId.admobInterstitialId)
+                    .setRewardId(Constant.AdsTesterId.admobRewardId)
+                    .setRewardInterstitialId(Constant.AdsTesterId.admobRewardInterstitialId)
+                    .setNativeId(Constant.AdsTesterId.admobNativeId)
+                    .build()
+            } else {
+                AdmobSDKBuilder.builder(this@BeforeSplashScreen)
+                    .setAdmobId(admobId)
+                    .setBannerId(admobBannerId)
+                    .setInterstitialId(admobInterstitialId)
+                    .setRewardId(admobRewardId)
+                    .setRewardInterstitialId(admobRewardInterstitialId)
+                    .setNativeId("")
+                    .build()
+            }
 
             val fanId             = "6371696286185210"
             val fanBannerId       = "6371696286185210_7264663670221796"
@@ -61,7 +74,7 @@ class BeforeSplashScreen : BaseActivityWidget(){
                 .setApplicationId(fanId)
                 .setBannerId(fanBannerId)
                 .setInterstitialId(fanInterstitialId)
-                .setEnable(true)
+                .setEnable(false)
                 .build()
 
 

@@ -104,8 +104,8 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
 
         setupBanner(binding.bannerView)
-        setupBannerFacebook(binding.bannerFacebook)
-        setupHideStatusBar(binding.root,true)
+       // setupBannerFacebook(binding.bannerFacebook)
+        setupHideStatusBar(binding.root,false)
        // setupAppOpenAd()
 
         val xx = DataSession(this).getBackgroundColor()

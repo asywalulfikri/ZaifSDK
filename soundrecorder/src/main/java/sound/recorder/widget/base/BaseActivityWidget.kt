@@ -21,11 +21,9 @@ import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
-import android.view.animation.AccelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
-import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
 import android.widget.Button
 import android.widget.EditText
@@ -94,12 +92,12 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var isLoad = false
     private var rewardedAd: RewardedAd? = null
     private var isLoadReward = false
-    private var interstitialFANAd : com.facebook.ads.InterstitialAd? =null
+    private var interstitialFANAd: com.facebook.ads.InterstitialAd? = null
     private var isLoadInterstitialReward = false
-    private var rewardedInterstitialAd : RewardedInterstitialAd? =null
+    private var rewardedInterstitialAd: RewardedInterstitialAd? = null
 
-    private var adView: AdView? =null
-    private var adViewFacebook : com.facebook.ads.AdView? = null
+    private var adView: AdView? = null
+    private var adViewFacebook: com.facebook.ads.AdView? = null
     private lateinit var googleMobileAdsConsentManager: GoogleMobileAdsConsentManager
     private lateinit var consentInformation: ConsentInformation
     private var TAG = "GDPR_App"
@@ -110,11 +108,11 @@ open class BaseActivityWidget : AppCompatActivity() {
     private lateinit var appUpdateManager: AppUpdateManager       // in app update
     private val updateType = AppUpdateType.FLEXIBLE
 
-    var sharedPreferences : SharedPreferences? =null
+    var sharedPreferences: SharedPreferences? = null
 
     private var appOpenAd: AppOpenAd? = null
-    var admobSDKBuilder : AdmobSDKBuilder? =null
-    var fanSDKBuilder : FanSDKBuilder? =null
+    var admobSDKBuilder: AdmobSDKBuilder? = null
+    var fanSDKBuilder: FanSDKBuilder? = null
     var mPanAnim: Animation? = null
 
     private val displayMetrics by lazy { resources.displayMetrics }
@@ -135,22 +133,23 @@ open class BaseActivityWidget : AppCompatActivity() {
             context.resources.configuration.locale.language
         }
 
-        return deviceLanguage == "id" || deviceLanguage == "en"|| deviceLanguage == "in"
+        return deviceLanguage == "id" || deviceLanguage == "en" || deviceLanguage == "in"
     }
 
 
     @SuppressLint("WrongConstant")
-    fun setupHideStatusBar(rootView : View,hide : Boolean){
+    fun setupHideStatusBar(rootView: View, hide: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // API 30+ (Android 11 dan lebih baru)
             try {
                 // Hide the status and navigation bars
                 window.insetsController?.apply {
                     hide(WindowInsets.Type.statusBars()) // Hide status bar
-                    if(hide){
+                    if (hide) {
                         hide(WindowInsets.Type.navigationBars()) // Hide navigation bar
                     }
-                    systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    systemBarsBehavior =
+                        WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 }
 
                 // Ensure the root view gets the correct padding and margins
@@ -185,36 +184,36 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun setStatusBarColor(color : Int){
+    fun setStatusBarColor(color: Int) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                 window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                window.statusBarColor = ContextCompat.getColor(this,color)
+                window.statusBarColor = ContextCompat.getColor(this, color)
             }
-        }catch (e : Exception){
+        } catch (e: Exception) {
             setLog("not support")
         }
     }
 
-    fun setBottomStatusColor(color : Int){
+    fun setBottomStatusColor(color: Int) {
         try {
             window?.navigationBarColor = ContextCompat.getColor(this, color)
-        }catch (e : Exception){
+        } catch (e: Exception) {
             setLog("not support")
         }
 
     }
 
-    protected fun setupFragment(id : Int, fragment : Fragment?){
+    protected fun setupFragment(id: Int, fragment: Fragment?) {
         try {
-            if(fragment!=null){
+            if (fragment != null) {
                 val fragmentManager = supportFragmentManager
                 val fragmentTransaction = fragmentManager.beginTransaction()
                 fragmentTransaction.replace(id, fragment)
                 fragmentTransaction.commit()
             }
-        }catch (e : Exception){
+        } catch (e: Exception) {
             setLog(e.message.toString())
         }
     }
@@ -227,7 +226,8 @@ open class BaseActivityWidget : AppCompatActivity() {
                     appUpdateManager.appUpdateInfo.await()
                 }
 
-                val isUpdateAvailable = info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                val isUpdateAvailable =
+                    info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
 
                 val isUpdateAllowed = when (updateType) {
                     AppUpdateType.FLEXIBLE -> info.isFlexibleUpdateAllowed
@@ -255,47 +255,56 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    fun setupBannerFacebook(adContainer : FrameLayout){
+    fun setupBannerFacebook(adContainer: FrameLayout) {
         try {
             val adListener = object : com.facebook.ads.AdListener {
                 override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
-                    setLog("ADS_FAN","Banner error loaded id = "+ ad.placementId +"---> "+ adError.errorMessage)
+                    setLog(
+                        "ADS_FAN",
+                        "Banner error loaded id = " + ad.placementId + "---> " + adError.errorMessage
+                    )
                 }
 
                 override fun onAdLoaded(ad: Ad) {
-                    setLog("ADS_FAN","Banner Successfully Loaded id = "+ ad.placementId)
+                    setLog("ADS_FAN", "Banner Successfully Loaded id = " + ad.placementId)
                 }
 
                 override fun onAdClicked(ad: Ad) {
                 }
+
                 override fun onLoggingImpression(ad: Ad) {
                 }
             }
 
-            val adView = com.facebook.ads.AdView(this, fanSDKBuilder?.bannerId.toString(), com.facebook.ads.AdSize.BANNER_HEIGHT_50)
+            val adView = com.facebook.ads.AdView(
+                this,
+                fanSDKBuilder?.bannerId.toString(),
+                com.facebook.ads.AdSize.BANNER_HEIGHT_50
+            )
             adView.loadAd(adView.buildLoadAdConfig().withAdListener(adListener).build())
             this.adViewFacebook = adView
             adContainer.addView(adView)
 
-        }catch (e : Exception){
+        } catch (e: Exception) {
             setLog(e.message.toString())
         }
 
     }
 
 
-    fun setupInterstitialFacebook(){
+    fun setupInterstitialFacebook() {
 
-        if(isWebViewSupported()&&isWebViewAvailable()){
+        if (isWebViewSupported() && isWebViewAvailable()) {
             try {
-                interstitialFANAd = com.facebook.ads.InterstitialAd(this, fanSDKBuilder?.interstitialId.toString())
+                interstitialFANAd =
+                    com.facebook.ads.InterstitialAd(this, fanSDKBuilder?.interstitialId.toString())
                 val interstitialAdListener = object : InterstitialAdListener {
                     override fun onInterstitialDisplayed(ad: Ad) {
-                        setLog("ADS_FAN","show Interstitial success "+ad.placementId)
+                        setLog("ADS_FAN", "show Interstitial success " + ad.placementId)
                     }
 
                     override fun onInterstitialDismissed(ad: Ad) {
-                        interstitialFANAd =null
+                        interstitialFANAd = null
                         Log.d("ADS_FAN", "Interstitial dismiss")
                         setupInterstitialFacebook()
                     }
@@ -303,12 +312,15 @@ open class BaseActivityWidget : AppCompatActivity() {
                     override fun onError(p0: Ad?, adError: com.facebook.ads.AdError?) {
                         Log.e("ADS_FAN", "Interstitial failed to load: ${adError?.errorMessage}")
                     }
+
                     override fun onAdLoaded(ad: Ad) {
                         Log.d("ADS_FAN", "Interstitial is loaded and ready to be displayed!")
                         showFANInterstitial = true
                     }
+
                     override fun onAdClicked(ad: Ad) {
                     }
+
                     override fun onLoggingImpression(ad: Ad) {
 
                     }
@@ -319,8 +331,8 @@ open class BaseActivityWidget : AppCompatActivity() {
                         ?.withAdListener(interstitialAdListener)
                         ?.build()
                 )
-            }catch (e : Exception){
-                setLog("asywalul fb :"+e.message)
+            } catch (e: Exception) {
+                setLog("asywalul fb :" + e.message)
             }
         }
 
@@ -332,15 +344,15 @@ open class BaseActivityWidget : AppCompatActivity() {
             if (updateType == AppUpdateType.FLEXIBLE) {
                 appUpdateManager.unregisterListener(installStateUpdatedListener)
             }
-        }catch (e : Exception){
-            Log.d("not","support")
+        } catch (e: Exception) {
+            Log.d("not", "support")
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         mInterstitialAd = null
-        if(adView!=null){
+        if (adView != null) {
             adView?.destroy()
         }
 
@@ -348,56 +360,54 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        if(adView!=null){
+        if (adView != null) {
             adView?.pause()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if(adView!=null){
+        if (adView != null) {
             adView?.resume()
         }
     }
 
-    fun destroyAds(){
-        if(adView!=null){
+    fun destroyAds() {
+        if (adView != null) {
             adView?.destroy()
         }
     }
 
-    fun pauseAds(){
-        if(adView!=null){
+    fun pauseAds() {
+        if (adView != null) {
             adView?.pause()
         }
     }
 
-    fun resumeAds(){
-        if(adView!=null){
+    fun resumeAds() {
+        if (adView != null) {
             adView?.resume()
         }
     }
 
 
-
-
-    private val installStateUpdatedListener = InstallStateUpdatedListener{ state ->
+    private val installStateUpdatedListener = InstallStateUpdatedListener { state ->
         if (state.installStatus() == InstallStatus.DOWNLOADED) {
             try {
-                setToastTic(Toastic.INFO,getString(R.string.download_success))
+                setToastTic(Toastic.INFO, getString(R.string.download_success))
                 lifecycleScope.launch {
                     delay(5.seconds)
                     appUpdateManager.completeUpdate()
                 }
-            }catch (e : Exception){
-                Log.d("not","support")
+            } catch (e: Exception) {
+                Log.d("not", "support")
             }
         }
     }
 
 
     fun setupGDPR() {
-        if(isAdMobAvailable()){
+        if (isAdMobAvailable()) {
             CoroutineScope(Dispatchers.Main).launch {
                 try {
                     val params = ConsentRequestParameters
@@ -405,8 +415,10 @@ open class BaseActivityWidget : AppCompatActivity() {
                         .setTagForUnderAgeOfConsent(false)
                         .build()
 
-                    consentInformation = UserMessagingPlatform.getConsentInformation(this@BaseActivityWidget)
-                    isPrivacyOptionsRequired = consentInformation.privacyOptionsRequirementStatus == ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
+                    consentInformation =
+                        UserMessagingPlatform.getConsentInformation(this@BaseActivityWidget)
+                    isPrivacyOptionsRequired =
+                        consentInformation.privacyOptionsRequirementStatus == ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
 
                     consentInformation.requestConsentInfoUpdate(
                         this@BaseActivityWidget,
@@ -420,8 +432,8 @@ open class BaseActivityWidget : AppCompatActivity() {
                                     // Regenerate the options menu to include a privacy setting.
                                     UserMessagingPlatform.showPrivacyOptionsForm(this@BaseActivityWidget) { formError ->
                                         formError?.let {
-                                            if(BuildConfig.DEBUG){
-                                                setToastTic(Toastic.ERROR,it.message.toString())
+                                            if (BuildConfig.DEBUG) {
+                                                setToastTic(Toastic.ERROR, it.message.toString())
                                             }
                                         }
                                     }
@@ -430,7 +442,14 @@ open class BaseActivityWidget : AppCompatActivity() {
                         },
                         { requestConsentError ->
                             // Consent gathering failed.
-                            Log.w(TAG, String.format("%s: %s", requestConsentError.errorCode, requestConsentError.message))
+                            Log.w(
+                                TAG,
+                                String.format(
+                                    "%s: %s",
+                                    requestConsentError.errorCode,
+                                    requestConsentError.message
+                                )
+                            )
                         })
 
                     if (consentInformation.canRequestAds()) {
@@ -444,40 +463,8 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    /*private fun getSize(): AdSize {
-        val widthPixels = displayMetrics.widthPixels.toFloat()
-        val density = displayMetrics.density.takeIf { it > 0 } ?: 1f
-        val adWidth = (widthPixels / density).toInt()
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-    }*/
-
-    private fun getSize(): AdSize {
-        val displayMetrics = resources.displayMetrics
-        val widthPixels: Float
-        val density: Float
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // API 30+ (Android 11 dan lebih baru)
-            val windowMetrics = windowManager.currentWindowMetrics
-            val insets = windowMetrics.windowInsets.getInsets(WindowInsets.Type.systemBars())
-            val bounds = windowMetrics.bounds
-            widthPixels = (bounds.width() - insets.left - insets.right).toFloat()
-            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
-        } else {
-            // API < 30 (Android 10 dan sebelumnya)
-            widthPixels = displayMetrics.widthPixels.toFloat()
-            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
-        }
-
-        val adWidth = (widthPixels / density).toInt()
-
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-    }
-
-
-
     @SuppressLint("SetTextI18n")
-    fun showDialogEmail(appName : String ,info : String) {
+    fun showDialogEmail(appName: String, info: String) {
 
         // custom dialog
         val dialog = Dialog(this)
@@ -494,10 +481,10 @@ open class BaseActivityWidget : AppCompatActivity() {
         // if button is clicked, close the custom dialog
         btnSend.setOnClickListener {
             val message = etMessage.text.toString().trim()
-            if(message.isEmpty()){
-                setToastTic(Toastic.WARNING,getString(R.string.message_cannot_empty))
+            if (message.isEmpty()) {
+                setToastTic(Toastic.WARNING, getString(R.string.message_cannot_empty))
                 return@setOnClickListener
-            }else{
+            } else {
                 sendEmail("Feed Back $appName", "$message\n\n\n\nfrom $info")
                 dialog.dismiss()
             }
@@ -512,26 +499,24 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private fun sendEmail(subject: String, body: String) {
         try {
-            RecordingSDK.openEmail(this,subject,body)
-        }catch (e : Exception){
-            setToastTic(Toastic.ERROR,e.message.toString())
+            RecordingSDK.openEmail(this, subject, body)
+        } catch (e: Exception) {
+            setToastTic(Toastic.ERROR, e.message.toString())
         }
 
     }
 
 
-
-
-    fun showLoadingLayout(context: Context,long : Long){
+    fun showLoadingLayout(context: Context, long: Long) {
         try {
-            showLoadingProgress(context,long)
+            showLoadingProgress(context, long)
         } catch (e: Exception) {
             setLog(e.message.toString())
         }
     }
 
     @SuppressLint("SetTextI18n")
-    fun showLoadingProgress(context: Context,long : Long) {
+    fun showLoadingProgress(context: Context, long: Long) {
 
         try {
             var dialogLoading: Dialog? = Dialog(context)
@@ -549,13 +534,13 @@ open class BaseActivityWidget : AppCompatActivity() {
                     dialogLoading = null // Release the dialog instance
                 }
             }, long)
-        }catch (e : Exception){
-            Log.d("message",e.message.toString())
+        } catch (e: Exception) {
+            Log.d("message", e.message.toString())
         }
     }
 
 
-    fun getNoteValue(note: Note) : String{
+    fun getNoteValue(note: Note): String {
         val valueNote = try {
             val jsonObject = JSONObject(note.note.toString())
             val value = Gson().fromJson(note.note, Note::class.java)
@@ -567,10 +552,10 @@ open class BaseActivityWidget : AppCompatActivity() {
             note.note
         }
 
-        return  valueNote
+        return valueNote
     }
 
-    fun getTitleValue(note: Note) : String{
+    fun getTitleValue(note: Note): String {
         var valueNote = ""
         valueNote = try {
             val jsonObject = JSONObject(note.note.toString())
@@ -583,19 +568,19 @@ open class BaseActivityWidget : AppCompatActivity() {
             "No title"
         }
 
-        return  valueNote
+        return valueNote
     }
 
 
     private fun isWebViewSupported(): Boolean {
         return try {
             WebView(this)
-            if(BuildConfig.DEBUG){
+            if (BuildConfig.DEBUG) {
                 setToast("WebView didukung pada perangkat ini.")
             }
             true
         } catch (e: Exception) {
-            if(BuildConfig.DEBUG){
+            if (BuildConfig.DEBUG) {
                 setToast("WebView tidak didukung pada perangkat ini.")
             }
             false
@@ -623,32 +608,35 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    fun setupBanner(adViewContainer:FrameLayout){
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-            if(isWebViewSupported()&&isWebViewAvailable()){
+    fun setupBanner(adViewContainer: FrameLayout) {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+            if (isWebViewSupported() && isWebViewAvailable()) {
                 setupBannerFacebook(adViewContainer)
             }
-        }else{
-            if(isWebViewSupported()&&isWebViewAvailable()){
-                if(isAdMobAvailable()){
+        } else {
+            if (isWebViewSupported() && isWebViewAvailable()) {
+                if (isAdMobAvailable()) {
                     executeBanner(adViewContainer)
                 }
             }
         }
     }
 
-    private fun executeBanner(adViewContainer:FrameLayout){
+    private fun executeBanner(adViewContainer: FrameLayout) {
         try {
             val adView = AdView(this)
             adView.adUnitId = admobSDKBuilder?.bannerId.toString()
             adView.setAdSize(getSize())
-            val adRequest = AdRequest.Builder().build()
+            val adRequest = AdRequest.Builder()
+                .build()
+
             adView.adListener = object : AdListener() {
                 override fun onAdLoaded() {
-                    Log.d("ADS_AdMob", "banner loaded successfully "+adView.adUnitId)
+                    Log.d("ADS_AdMob", "banner loaded successfully " + adView.adUnitId)
                 }
+
                 override fun onAdFailedToLoad(p0: LoadAdError) {
-                    Log.d("ADS_AdMob", "banner loaded failed "+p0.message)
+                    Log.d("ADS_AdMob", "banner loaded failed " + p0.message)
                     lifecycleScope.launch(Dispatchers.IO) {
                         if (fanSDKBuilder?.enable == true) {
                             withContext(Dispatchers.Main) {
@@ -657,12 +645,15 @@ open class BaseActivityWidget : AppCompatActivity() {
                         }
                     }
                 }
+
                 override fun onAdOpened() {
 
                 }
+
                 override fun onAdClicked() {
 
                 }
+
                 override fun onAdClosed() {
 
                 }
@@ -672,10 +663,86 @@ open class BaseActivityWidget : AppCompatActivity() {
             adViewContainer.addView(adView)
             this.adView = adView
 
-        }catch (e : Exception){
+        } catch (e: Exception) {
             setLog(e.message.toString())
         }
     }
+
+   /* private val adSize: AdSize
+        get() {
+            val displayMetrics = resources.displayMetrics
+            val adWidthPixels =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val windowMetrics: WindowMetrics = this.windowManager.currentWindowMetrics
+                    windowMetrics.bounds.width()
+                } else {
+                    displayMetrics.widthPixels
+                }
+            val density = displayMetrics.density
+            val adWidth = (adWidthPixels / density).toInt()
+            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+        }*/
+
+
+    private fun getSize(): AdSize {
+        val widthPixels = displayMetrics.widthPixels.toFloat()
+        val density = displayMetrics.density.takeIf { it > 0 } ?: 1f
+        val adWidth = (widthPixels / density).toInt()
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+    }
+
+    /*private fun getSize88(): AdSize {
+        val displayMetrics = resources.displayMetrics
+        val widthPixels: Float
+        val density: Float
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // API 30+ (Android 11 and above)
+            val windowMetrics = windowManager.currentWindowMetrics
+            val insets = WindowInsetsCompat.toWindowInsetsCompat(windowMetrics.windowInsets)
+                .getInsets(WindowInsetsCompat.Type.systemBars())
+            val bounds = windowMetrics.bounds
+            widthPixels = (bounds.width() - insets.left - insets.right).toFloat()
+            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
+        } else {
+            // API < 30 (Android 10 and below)
+            widthPixels = displayMetrics.widthPixels.toFloat()
+            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
+        }
+
+        // Calculate ad width and ensure it doesn't exceed max allowed size
+        val maxAdWidth = 1200 // Adjust based on ad provider specs
+        val adWidth = (widthPixels / density).toInt().coerceAtMost(maxAdWidth)
+
+        Log.d("AdSize", "WidthPixels: $widthPixels, Density: $density, AdWidth: $adWidth")
+
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+    }
+
+    private fun getSize1hh(): AdSize {
+        val displayMetrics = resources.displayMetrics
+        val widthPixels: Float
+        val density: Float
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // API 30+ (Android 11 dan lebih baru)
+            val windowMetrics = windowManager.currentWindowMetrics
+            val insets = windowMetrics.windowInsets.getInsets(WindowInsets.Type.systemBars())
+            val bounds = windowMetrics.bounds
+            widthPixels = (bounds.width() - insets.left - insets.right).toFloat()
+            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
+        } else {
+            // API < 30 (Android 10 dan sebelumnya)
+            widthPixels = displayMetrics.widthPixels.toFloat()
+            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
+        }
+
+        val adWidth = (widthPixels / density).toInt()
+
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+    }
+
+*/
 
     fun permissionNotification(){
         try {
