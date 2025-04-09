@@ -26,11 +26,6 @@
                 tools:node="remove"/>
         </provider>
 
-        <property
-            android:name="android.adservices.AD_SERVICES_CONFIG"
-            android:resource="@xml/gma_ad_services_config"
-            tools:replace="android:resource" />
-
         <meta-data
             android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
             android:value="true"/>
@@ -57,8 +52,6 @@
 
         <meta-data android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_baseline_notifications_active_24" />
-
-        <activity android:name=".tools.showcase.ShowcaseActivity"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"
