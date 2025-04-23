@@ -16,6 +16,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,9 +26,7 @@ import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -99,38 +98,45 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Pastikan context dan activity valid
         if (activity != null && context != null) {
-
-            CoroutineScope(Dispatchers.Main).launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
-                    zaifSDKBuilder = ZaifSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
+                    try {
+                        zaifSDKBuilder = ZaifSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
+                    } catch (e: Exception) {
+                        Log.e("VoiceRecordFragment", "Error initializing SDK", e)
+                    }
 
-                    // Inisialisasi SharedPreferences dan volume
-                    sharedPreferences = DataSession(requireContext()).getShared()
-                    volumeMusic = DataSession(requireContext()).getVolumeMusic()
-                    volumeAudio = DataSession(requireContext()).getVolumeAudio()
+                    val dataSession = DataSession(requireContext())
+                    sharedPreferences = dataSession.getShared()
+                    volumeMusic = dataSession.getVolumeMusic()
+                    volumeAudio = dataSession.getVolumeAudio()
 
-                    // Setup listener dan handler
                     MyPauseListener.setMyListener(this@VoiceRecordFragmentHorizontalZaif)
                     handler = Handler(Looper.getMainLooper())
                 }
+
                 setupView()
             }
         }
+
     }
 
 
     private fun setupView() {
-        zaifSDKBuilder?.backgroundWidgetColor?.let { colorString ->
-            if (colorString.isNotEmpty()) {
-                try {
-                    val tintList = ColorStateList.valueOf(Color.parseColor(colorString))
-                    ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
-                } catch (e: IllegalArgumentException) {
-                    setToast("Invalid color value: $colorString")
+        try {
+            zaifSDKBuilder?.backgroundWidgetColor?.let { colorString ->
+                if (colorString.isNotEmpty()) {
+                    try {
+                        val tintList = ColorStateList.valueOf(Color.parseColor(colorString))
+                        ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
+                    } catch (e: IllegalArgumentException) {
+                        setToast("Invalid color value: $colorString")
+                    }
                 }
             }
+        }catch (e : Exception){
+            //
         }
 
         binding.rlRecord.setOnClickListener {
@@ -203,14 +209,18 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
 
     private fun setupHideShowMenu() {
-        zaifSDKBuilder?.let { builder ->
-            binding.ivNote.visibility = if (builder.showNote) View.VISIBLE else View.GONE
-            binding.ivChangeColor.visibility = if (builder.showChangeColor) View.VISIBLE else View.GONE
-            binding.ivSong.visibility = if (builder.showListSong) View.VISIBLE else View.GONE
-            binding.ivVolume.visibility = if (builder.showVolume) View.VISIBLE else View.GONE
-        } ?: run {
-            // Optional: Log or handle the case where zaifSDKBuilder is null
-            setLog("zaifSDKBuilder is null, menu items not updated")
+        try {
+            zaifSDKBuilder?.let { builder ->
+                binding.ivNote.visibility = if (builder.showNote) View.VISIBLE else View.GONE
+                binding.ivChangeColor.visibility = if (builder.showChangeColor) View.VISIBLE else View.GONE
+                binding.ivSong.visibility = if (builder.showListSong) View.VISIBLE else View.GONE
+                binding.ivVolume.visibility = if (builder.showVolume) View.VISIBLE else View.GONE
+            } ?: run {
+                // Optional: Log or handle the case where zaifSDKBuilder is null
+                setLog("zaifSDKBuilder is null, menu items not updated")
+            }
+        }catch (e : Exception){
+            //
         }
     }
 
