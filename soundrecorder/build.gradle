@@ -8,11 +8,11 @@ plugins {
 
 android {
     namespace 'sound.recorder.widget'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
-        targetSdk 35
+        targetSdk 36
         versionCode 1
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
@@ -100,7 +100,7 @@ project.afterEvaluate {
                 from components.release
                 groupId = 'com.sound.recorder' // Update with your reverse domain
                 artifactId = 'recording-sdk'
-                version = '0.0.56'
+                version = '0.0.64'
 
                 // Include additional artifacts like source/javadoc JARs (optional)
                // artifact("$buildDir/outputs/aar/${project.name}-release.aar")

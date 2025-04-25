@@ -169,7 +169,7 @@ class ScreenRecorder(app: Application) {
             mediaRecorder?.surface,
             null,
             null
-        )
+        )!!
     }
 
 }

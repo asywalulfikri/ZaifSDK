@@ -441,6 +441,10 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
        }
     }
 
+    override fun onViewButtonHome(show: Boolean) {
+
+    }
+
     override fun onPause(pause: Boolean) {
 
     }

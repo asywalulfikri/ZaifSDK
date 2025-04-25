@@ -10,5 +10,8 @@ object MyAdsListener {
     fun setAds(show : Boolean) {
         myListener?.onViewAds(show)
     }
+    fun setShowButtonHome(show : Boolean) {
+        myListener?.onViewButtonHome(show)
+    }
 
 }

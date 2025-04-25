@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace 'recording.host'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "balera.music.android"
         minSdk 23
-        targetSdk 35
+        targetSdk 36
         versionCode 35
         versionName "0.0.35"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
