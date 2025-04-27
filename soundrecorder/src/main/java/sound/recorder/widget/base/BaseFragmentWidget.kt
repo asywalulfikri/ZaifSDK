@@ -816,13 +816,25 @@ open class BaseFragmentWidget : Fragment() {
 
 
 
-    private fun getSize(): AdSize {
+   /* private fun getSize(): AdSize {
         val widthPixels = resources.displayMetrics.widthPixels.toFloat()
         val density = resources.displayMetrics.density
         val adWidth = (widthPixels / density).toInt()
 
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(requireContext(), adWidth)
+    }*/
+
+    private fun getSize(): AdSize {
+        val widthPixels = resources.displayMetrics.widthPixels.toFloat()
+        val density = resources.displayMetrics.density.takeIf { it > 0 } ?: 1f
+        val adWidth = (widthPixels / density).toInt()
+
+        val adaptiveSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(requireContext(), adWidth)
+        val adHeight = adaptiveSize.height.coerceAtMost(60)
+
+        return AdSize(adWidth, adHeight)
     }
+
 
     private fun executeBanner(adViewContainer:FrameLayout?){
         try {

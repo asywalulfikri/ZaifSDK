@@ -684,12 +684,24 @@ open class BaseActivityWidget : AppCompatActivity() {
         }*/
 
 
-    private fun getSize(): AdSize {
+    /*private fun getSize(): AdSize {
         val widthPixels = displayMetrics.widthPixels.toFloat()
         val density = displayMetrics.density.takeIf { it > 0 } ?: 1f
         val adWidth = (widthPixels / density).toInt()
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+    }*/
+
+    private fun getSize(): AdSize {
+        val widthPixels = displayMetrics.widthPixels.toFloat()
+        val density = displayMetrics.density.takeIf { it > 0 } ?: 1f
+        val adWidth = (widthPixels / density).toInt()
+
+        val adaptiveSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+        val adHeight = adaptiveSize.height.coerceAtMost(60)
+
+        return AdSize(adWidth, adHeight)
     }
+
 
     /*private fun getSize88(): AdSize {
         val displayMetrics = resources.displayMetrics
