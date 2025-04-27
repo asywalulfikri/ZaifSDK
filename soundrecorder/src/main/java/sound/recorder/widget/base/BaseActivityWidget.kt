@@ -14,6 +14,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.Settings
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -542,7 +543,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun getNoteValue(note: Note): String {
         val valueNote = try {
-            val jsonObject = JSONObject(note.note.toString())
+            JSONObject(note.note.toString())
             val value = Gson().fromJson(note.note, Note::class.java)
             // The JSON string is valid
             value.note.toString()
@@ -558,7 +559,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     fun getTitleValue(note: Note): String {
         var valueNote = ""
         valueNote = try {
-            val jsonObject = JSONObject(note.note.toString())
+            JSONObject(note.note.toString())
             val value = Gson().fromJson(note.title, Note::class.java)
             // The JSON string is valid
             value.note.toString()
@@ -668,39 +669,50 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-   /* private val adSize: AdSize
-        get() {
-            val displayMetrics = resources.displayMetrics
-            val adWidthPixels =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    val windowMetrics: WindowMetrics = this.windowManager.currentWindowMetrics
-                    windowMetrics.bounds.width()
-                } else {
-                    displayMetrics.widthPixels
-                }
-            val density = displayMetrics.density
-            val adWidth = (adWidthPixels / density).toInt()
-            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-        }*/
-
-
-    /*private fun getSize(): AdSize {
-        val widthPixels = displayMetrics.widthPixels.toFloat()
-        val density = displayMetrics.density.takeIf { it > 0 } ?: 1f
-        val adWidth = (widthPixels / density).toInt()
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-    }*/
 
     private fun getSize(): AdSize {
-        val widthPixels = displayMetrics.widthPixels.toFloat()
-        val density = displayMetrics.density.takeIf { it > 0 } ?: 1f
+        val widthPixels = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowMetrics = (getSystemService(WINDOW_SERVICE) as WindowManager).currentWindowMetrics
+            val insets = windowMetrics.windowInsets
+                .getInsetsIgnoringVisibility(
+                    WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
+                )
+            val insetsWidth = insets.left + insets.right
+            windowMetrics.bounds.width() - insetsWidth
+        } else {
+            @Suppress("DEPRECATION")
+            val metrics = DisplayMetrics()
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.getMetrics(metrics)
+            metrics.widthPixels
+        }
+
+        val density = resources.displayMetrics.density.takeIf { it > 0 } ?: 1f
         val adWidth = (widthPixels / density).toInt()
 
+        // Get adaptive size dari AdMob
         val adaptiveSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-        val adHeight = adaptiveSize.height.coerceAtMost(60)
 
-        return AdSize(adWidth, adHeight)
+        // Force height max 60dp
+        val customHeight = adaptiveSize.height.coerceAtMost(60)
+
+        // Buat AdSize custom
+        return AdSize(adWidth, customHeight)
     }
+
+
+
+
+    /*  private fun getSize(): AdSize {
+          val widthPixels = displayMetrics.widthPixels.toFloat()
+          val density = displayMetrics.density.takeIf { it > 0 } ?: 1f
+          val adWidth = (widthPixels / density).toInt()
+
+          val adaptiveSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+          val adHeight = adaptiveSize.height.coerceAtMost(60)
+
+          return AdSize(adWidth, adHeight)
+      }*/
 
 
     /*private fun getSize88(): AdSize {
