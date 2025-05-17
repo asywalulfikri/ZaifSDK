@@ -281,16 +281,20 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
 
     private fun startPermission(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                // Pass any permission you want while launching
-                requestPermission.launch(Manifest.permission.RECORD_AUDIO)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    // Pass any permission you want while launching
+                    requestPermission.launch(Manifest.permission.RECORD_AUDIO)
+                }else{
+                    showRecordDialog()
+
+                }
             }else{
                 showRecordDialog()
-
             }
-        }else{
-            showRecordDialog()
+        }catch (e : Exception){
+
         }
 
     }
@@ -376,45 +380,57 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
 
     private  fun showRecordDialog(){
-        DialogUtils().showRecordDialog(
-            context = requireContext(),
-            title = activity?.getString(R.string.notification).toString(),
-            message = activity?.getString(R.string.title_recording_dialog).toString(),
-            onYesClick = {
-                startRecordingAudio()
-            }
-        )
+        try {
+            DialogUtils().showRecordDialog(
+                context = requireContext(),
+                title = activity?.getString(R.string.notification).toString(),
+                message = activity?.getString(R.string.title_recording_dialog).toString(),
+                onYesClick = {
+                    startRecordingAudio()
+                }
+            )
+        }catch (e : Exception){
+
+        }
     }
 
     private fun showCancelDialog(){
-        DialogUtils().showCancelDialog(
-            context = requireContext(),
-            title =activity?.getString(R.string.notification).toString(),
-            message = activity?.getString(R.string.title_recording_canceled).toString(),
-            dirPath = dirPath,
-            fileName = fileName,
-            stopRecordingAudio = { message ->
-                stopRecordingAudio(message) // Logika untuk menghentikan perekaman audio
-            },
-        )
+        try {
+            DialogUtils().showCancelDialog(
+                context = requireContext(),
+                title =activity?.getString(R.string.notification).toString(),
+                message = activity?.getString(R.string.title_recording_canceled).toString(),
+                dirPath = dirPath,
+                fileName = fileName,
+                stopRecordingAudio = { message ->
+                    stopRecordingAudio(message) // Logika untuk menghentikan perekaman audio
+                },
+            )
+        }catch (e : Exception){
+
+        }
     }
 
 
 
     private fun showVolumeDialog(){
-        DialogUtils().showVolumeDialog(
-            context = requireContext(),
-            initialVolumeMusic = volumeMusic, // Volume musik awal
-            initialVolumeAudio = volumeAudio, // Volume audio awal
-            onVolumeMusicChanged = { newVolumeMusic ->
-                volumeMusic = newVolumeMusic
-                mp?.setVolume(newVolumeMusic, newVolumeMusic) // Update volume pada MediaPlayer
-            },
-            onVolumeAudioChanged = { newVolumeAudio ->
-                volumeAudio = newVolumeAudio
-                MyMusicListener.postVolumeAudio(newVolumeAudio) // Update volume pada SoundPool
-            }
-        )
+        try {
+            DialogUtils().showVolumeDialog(
+                context = requireContext(),
+                initialVolumeMusic = volumeMusic, // Volume musik awal
+                initialVolumeAudio = volumeAudio, // Volume audio awal
+                onVolumeMusicChanged = { newVolumeMusic ->
+                    volumeMusic = newVolumeMusic
+                    mp?.setVolume(newVolumeMusic, newVolumeMusic) // Update volume pada MediaPlayer
+                },
+                onVolumeAudioChanged = { newVolumeAudio ->
+                    volumeAudio = newVolumeAudio
+                    MyMusicListener.postVolumeAudio(newVolumeAudio) // Update volume pada SoundPool
+                }
+            )
+        }catch (e : Exception){
+
+        }
     }
 
 
@@ -567,8 +583,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
     @SuppressLint("SetTextI18n")
     override fun onCancelClicked() {
-        setToastTic(Toastic.SUCCESS, requireContext().getString(R.string.record_canceled))
-        stopRecordingAudio("")
+        try {
+            setToastTic(Toastic.SUCCESS, requireContext().getString(R.string.record_canceled))
+            stopRecordingAudio("")
+        }catch (e : Exception){
+
+        }
     }
 
 

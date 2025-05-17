@@ -58,7 +58,11 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment {
                 binding.fab.visibility = View.GONE
 
                 binding.ivClose.setOnClickListener {
-                    dismiss()
+                    try {
+                        dismiss()
+                    }catch (e : Exception){
+
+                    }
                 }
             }catch (e : Exception){
                 setToastWarning(activity,e.message.toString())
@@ -187,9 +191,13 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment {
     }
 
     private fun showActionsDialog(position: Int) {
-        notesList[position]
-        MyNoteListener.postActionCompleted(notesList[position])
-        dismiss()
+        try {
+            notesList[position]
+            MyNoteListener.postActionCompleted(notesList[position])
+            dismiss()
+        }catch (e : Exception){
+
+        }
     }
 
 
