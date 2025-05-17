@@ -17,7 +17,6 @@ import androidx.appcompat.widget.AppCompatTextView
 import sound.recorder.widget.R
 import sound.recorder.widget.base.BaseFragmentWidget
 import sound.recorder.widget.databinding.FragmentSettingBinding
-import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.util.DataSession
 import java.util.Locale
 

@@ -15,11 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import sound.recorder.widget.R
 import sound.recorder.widget.adapter.VideoListAdapter
 import sound.recorder.widget.base.BaseFragmentWidget
 import sound.recorder.widget.databinding.ActivityListVideoBinding
-import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.model.Video
 import sound.recorder.widget.model.VideoWrapper
 import sound.recorder.widget.util.Toastic
@@ -43,7 +41,6 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
         setupRecyclerView()
         load(false)
         binding.ivClose.visibility = View.GONE
-        MyAdsListener.setAds(false)
         return binding.root
     }
 
