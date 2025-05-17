@@ -57,6 +57,7 @@ open class Constant {
             const val zaifSDKBuilder = "recordingWidget"
             const val admobSDKBuilder = "admobSDKBuilder"
             const val fanSDKBuilder = "fanSDKBuilder"
+            const val unitySDKBuilder = "unitySDKBuilder"
 
 
 

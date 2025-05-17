@@ -2,6 +2,7 @@ package sound.recorder.widget.base
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -16,6 +17,7 @@ import android.os.Handler
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
@@ -30,6 +32,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -66,6 +69,15 @@ import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
+import com.unity3d.ads.IUnityAdsInitializationListener
+import com.unity3d.ads.IUnityAdsLoadListener
+import com.unity3d.ads.IUnityAdsShowListener
+import com.unity3d.ads.UnityAds
+import com.unity3d.ads.UnityAds.UnityAdsLoadError
+import com.unity3d.ads.UnityAds.UnityAdsShowCompletionState
+import com.unity3d.ads.UnityAds.UnityAdsShowError
+import com.unity3d.services.banners.BannerView
+import com.unity3d.services.banners.UnityBannerSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -79,6 +91,7 @@ import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.ads.GoogleMobileAdsConsentManager
 import sound.recorder.widget.builder.AdmobSDKBuilder
 import sound.recorder.widget.builder.FanSDKBuilder
+import sound.recorder.widget.builder.UnitySDKBuilder
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.notes.Note
 import sound.recorder.widget.util.DataSession
@@ -114,6 +127,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var appOpenAd: AppOpenAd? = null
     var admobSDKBuilder: AdmobSDKBuilder? = null
     var fanSDKBuilder: FanSDKBuilder? = null
+    var unitySDKBuilder : UnitySDKBuilder? =null
     var mPanAnim: Animation? = null
 
     private val displayMetrics by lazy { resources.displayMetrics }
@@ -123,6 +137,25 @@ open class BaseActivityWidget : AppCompatActivity() {
 
         admobSDKBuilder = AdmobSDKBuilder.builder(this).loadFromSharedPreferences()
         fanSDKBuilder = FanSDKBuilder.builder(this).loadFromSharedPreferences()
+        unitySDKBuilder = UnitySDKBuilder.builder(this).loadFromSharedPreferences()
+
+
+    }
+
+    fun setupUnityAds(unityId : String){
+       // UnityAds.initialize(this, unitySDKBuilder?.unityId, unitySDKBuilder?.testMode == true, this)
+        UnityAds.initialize(this, unityId, testMode = true, object : IUnityAdsInitializationListener {
+            override fun onInitializationComplete() {
+                Log.d("UnityAds", "Initialization Complete")
+            }
+
+            override fun onInitializationFailed(
+                error: UnityAds.UnityAdsInitializationError?,
+                message: String?
+            ) {
+                Log.e("UnityAds", "Initialization Failed: $message")
+            }
+        })
 
     }
 
@@ -701,73 +734,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-
-
-    /*  private fun getSize(): AdSize {
-          val widthPixels = displayMetrics.widthPixels.toFloat()
-          val density = displayMetrics.density.takeIf { it > 0 } ?: 1f
-          val adWidth = (widthPixels / density).toInt()
-
-          val adaptiveSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-          val adHeight = adaptiveSize.height.coerceAtMost(60)
-
-          return AdSize(adWidth, adHeight)
-      }*/
-
-
-    /*private fun getSize88(): AdSize {
-        val displayMetrics = resources.displayMetrics
-        val widthPixels: Float
-        val density: Float
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // API 30+ (Android 11 and above)
-            val windowMetrics = windowManager.currentWindowMetrics
-            val insets = WindowInsetsCompat.toWindowInsetsCompat(windowMetrics.windowInsets)
-                .getInsets(WindowInsetsCompat.Type.systemBars())
-            val bounds = windowMetrics.bounds
-            widthPixels = (bounds.width() - insets.left - insets.right).toFloat()
-            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
-        } else {
-            // API < 30 (Android 10 and below)
-            widthPixels = displayMetrics.widthPixels.toFloat()
-            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
-        }
-
-        // Calculate ad width and ensure it doesn't exceed max allowed size
-        val maxAdWidth = 1200 // Adjust based on ad provider specs
-        val adWidth = (widthPixels / density).toInt().coerceAtMost(maxAdWidth)
-
-        Log.d("AdSize", "WidthPixels: $widthPixels, Density: $density, AdWidth: $adWidth")
-
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-    }
-
-    private fun getSize1hh(): AdSize {
-        val displayMetrics = resources.displayMetrics
-        val widthPixels: Float
-        val density: Float
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // API 30+ (Android 11 dan lebih baru)
-            val windowMetrics = windowManager.currentWindowMetrics
-            val insets = windowMetrics.windowInsets.getInsets(WindowInsets.Type.systemBars())
-            val bounds = windowMetrics.bounds
-            widthPixels = (bounds.width() - insets.left - insets.right).toFloat()
-            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
-        } else {
-            // API < 30 (Android 10 dan sebelumnya)
-            widthPixels = displayMetrics.widthPixels.toFloat()
-            density = displayMetrics.density.takeIf { it > 0 } ?: 1f
-        }
-
-        val adWidth = (widthPixels / density).toInt()
-
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-    }
-
-*/
-
     fun permissionNotification(){
         try {
             if (Build.VERSION.SDK_INT >= 33) {
@@ -922,6 +888,25 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     }
 
+    fun hideSystemNavigationBar() {
+        val window = window
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val controller = window.insetsController
+            if (controller != null) {
+                controller.hide(WindowInsets.Type.navigationBars() or WindowInsets.Type.statusBars())
+                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    )
+        }
+    }
+
     private fun ensureInsetsForAd() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.show(WindowInsets.Type.navigationBars())
@@ -1041,8 +1026,48 @@ open class BaseActivityWidget : AppCompatActivity() {
         return tokens.get()
     }
 
+    fun showInterstitial() {
+        try {
+            Log.d("showInters", "execute")
+            if (isLoad) {
+                Log.d("showIntersAdmob", "true")
+                mInterstitialAd?.let { ad ->
+                    window.decorView.rootView.post {
+                        try {
+                            ad.show(this@BaseActivityWidget)
+                        } catch (e: Exception) {
+                            setLog("Error showing AdMob Interstitial: ${e.message}")
+                        }
+                    }
+                }
+            } else {
+                if(fanSDKBuilder?.enable==true){
+                    if (showFANInterstitial) {
+                        Log.d("showIntersFA", "true")
+                        interstitialFANAd?.let { fanAd ->
+                            window.decorView.rootView.post {
+                                try {
+                                    fanAd.show()
+                                } catch (e: Exception) {
+                                    setLog("Error showing FAN Interstitial: ${e.message}")
+                                    showInterstitialUnity()
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    showInterstitialUnity()
+                }
+            }
+        } catch (e: Exception) {
+            Log.d("showInters", "false")
+            setLog(e.message.toString())
+        }
+    }
 
-    fun showInterstitial(){
+
+
+   /* fun showInterstitial(){
         try {
             Log.d("showInters","execute")
             if(isLoad){
@@ -1059,7 +1084,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             setLog(e.message.toString())
         }
     }
-
+*/
     fun showInterstitialFAN(){
         try {
             Log.d("showInters","execute")
@@ -1150,6 +1175,75 @@ open class BaseActivityWidget : AppCompatActivity() {
         } catch (e: Exception) {
             setLog(e.message.toString())
         }
+    }
+
+
+    fun setupBannerUnity(adContainer: FrameLayout) {
+        try {
+            val bannerView = BannerView(this, "Banner_Android", UnityBannerSize(320, 50))
+            bannerView.load()
+            bannerView.gravity = Gravity.CENTER
+            adContainer.addView(bannerView)
+
+            loadInterstitialUnityAds()
+        }catch (e : Exception){
+
+        }
+    }
+
+
+    private val interstitialAdId = "Interstitial_Android"
+
+    // Load dulu
+    fun loadInterstitialUnityAds() {
+        try {
+            UnityAds.load(interstitialAdId, object : IUnityAdsLoadListener {
+                override fun onUnityAdsAdLoaded(placementId: String?) {
+                    Log.d("UnityAds", "Ad Loaded: $placementId")
+                }
+
+                override fun onUnityAdsFailedToLoad(
+                    placementId: String?,
+                    error: UnityAdsLoadError?,
+                    message: String?
+                ) {
+                    Log.e("UnityAds", "Failed to load: $placementId - $message")
+                }
+            })
+        }catch (e : Exception){
+            //
+        }
+    }
+
+    // Tampilkan saat dibutuhkan
+    fun showInterstitialUnity() {
+        UnityAds.show(this,"Interstitial_Android", object : IUnityAdsShowListener {
+            override fun onUnityAdsShowComplete(
+                placementId: String?,
+                state: UnityAdsShowCompletionState?
+            ) {
+                if (placementId == interstitialAdId && state == UnityAdsShowCompletionState.COMPLETED) {
+                    Log.d("UnityAds", "Ad Completed")
+                    // Reward atau lanjutkan
+                }
+            }
+
+            override fun onUnityAdsShowStart(placementId: String?) {
+                Log.d("UnityAds", "Ad Started")
+            }
+
+            override fun onUnityAdsShowClick(placementId: String?) {
+                Log.d("UnityAds", "Ad Clicked")
+            }
+
+            override fun onUnityAdsShowFailure(
+                placementId: String?,
+                error: UnityAdsShowError?,
+                message: String?
+            ) {
+                Log.e("UnityAds", "Ad Show Failed: $message")
+            }
+        })
     }
 
 }

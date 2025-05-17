@@ -95,6 +95,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
 
 
+        hideSystemNavigationBar()
 
        // binding.tvRunningText.startScroll()
 
@@ -104,6 +105,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
 
         setupBanner(binding.bannerView)
+        setupBannerUnity(binding.bannerView)
        // setupBannerFacebook(binding.bannerFacebook)
         setupHideStatusBar(binding.root,false)
        // setupAppOpenAd()
@@ -181,7 +183,8 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
 
         binding.btnInterstitialAdmob.setOnClickListener {
-            showInterstitial()
+           // showInterstitial()
+            showInterstitialUnity()
         }
 
         binding.btnOpenMusic.setOnClickListener {

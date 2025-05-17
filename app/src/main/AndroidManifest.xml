@@ -21,6 +21,14 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-4503297165525769~2938330478"/>
 
+      <!--  <meta-data
+            android:name="unityads-game-id"
+            android:value="5278177" /> &lt;!&ndash; Ganti dengan Game ID kamu &ndash;&gt;
+
+        <meta-data
+            android:name="unityads-test-mode"
+            android:value="true" />  true saat testing, false di production -->
+
         <activity
             android:name=".BeforeSplashScreen"
             android:screenOrientation="landscape"

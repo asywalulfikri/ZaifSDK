@@ -12,7 +12,10 @@
         android:id="@+id/bannerView"
         android:background="@color/blue_100"
         android:layout_marginEnd="5dp"
-        android:layout_width="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_height="60dp"/>
 
     <FrameLayout

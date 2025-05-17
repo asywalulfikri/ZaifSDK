@@ -4,6 +4,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven { url 'https://jitpack.io' }
+        maven { url 'https://unityads.unity3d.com/unityads-maven' }
     }
 }
 dependencyResolutionManagement {
@@ -12,6 +13,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+        maven { url 'https://unityads.unity3d.com/unityads-maven' }
     }
 }
 

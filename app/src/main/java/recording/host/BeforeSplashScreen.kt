@@ -10,6 +10,7 @@ import android.util.Log
 import sound.recorder.widget.base.BaseActivityWidget
 import sound.recorder.widget.builder.AdmobSDKBuilder
 import sound.recorder.widget.builder.FanSDKBuilder
+import sound.recorder.widget.builder.UnitySDKBuilder
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.databinding.ActivitySplashSdkBinding
 import sound.recorder.widget.util.Constant
@@ -29,6 +30,8 @@ class BeforeSplashScreen : BaseActivityWidget(){
     val admobRewardInterstitialId = "ca-app-pub-4503297165525769/2856073839" //correct
     val admobRewardId             = "ca-app-pub-4503297165525769/2839761965" //correct
     val admobNativeId =""
+
+    val unityGameId = "5278177"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +79,26 @@ class BeforeSplashScreen : BaseActivityWidget(){
                 .setInterstitialId(fanInterstitialId)
                 .setEnable(false)
                 .build()
+
+
+            if(BuildConfig.DEBUG){
+                UnitySDKBuilder.builder(this)
+                    .setUnityId(unityGameId)
+                    .setEnable(true)
+                    .setTestMode(true)
+                    .build()
+            }
+
+
+            if(BuildConfig.DEBUG){
+
+                setupUnityAds(unityGameId)
+                UnitySDKBuilder.builder(this)
+                    .setUnityId(unityGameId)
+                    .setEnable(true)
+                    .setTestMode(false)
+                    .build()
+            }
 
 
 

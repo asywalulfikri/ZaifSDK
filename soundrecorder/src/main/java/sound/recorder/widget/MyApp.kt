@@ -34,8 +34,17 @@ open class MyApp : Application() {
                 withTimeoutOrNull(10_000) { // Timeout for Audience Network initialization
                     initializeAudienceNetworkAds()
                 }
+
+                withTimeoutOrNull(10_000) { // Timeout for Audience Network initialization
+                    initializeAudienceNetworkAds()
+                }
             }
         }
+    }
+
+
+    private  fun initUnity(){
+
     }
 
     override fun onTerminate() {
@@ -88,6 +97,8 @@ open class MyApp : Application() {
             }
         }
     }
+
+
 
     /**
      * Initialize AdMob SDK in a background thread
