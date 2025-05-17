@@ -8,7 +8,6 @@ import sound.recorder.widget.util.Constant
 
 class UnitySDKBuilder private constructor(
     val unityId : String?,
-    var testMode : Boolean?,
     var enable : Boolean?
 ) {
 
@@ -25,11 +24,6 @@ class UnitySDKBuilder private constructor(
             return this
         }
 
-        fun setTestMode(testMode: Boolean?): Builder {
-            this.testMode = testMode
-            return this
-        }
-
         fun setEnable(enable: Boolean): Builder {
             this.enable = enable
             return this
@@ -40,7 +34,7 @@ class UnitySDKBuilder private constructor(
         // Build function to create and save the ZaifSDKBuilder instance
         fun build(): UnitySDKBuilder {
             val zaifSDKBuilder = UnitySDKBuilder(
-                unityId,testMode,enable)
+                unityId,enable)
 
             // Save the object to SharedPreferences as JSON
             saveToSharedPreferences(zaifSDKBuilder)

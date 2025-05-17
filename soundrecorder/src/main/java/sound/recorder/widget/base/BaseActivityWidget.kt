@@ -143,8 +143,15 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
     fun setupUnityAds(unityId : String){
+        var testMode = true
+
+        testMode = if(BuildConfig.DEBUG){
+            true
+        }else{
+            false
+        }
        // UnityAds.initialize(this, unitySDKBuilder?.unityId, unitySDKBuilder?.testMode == true, this)
-        UnityAds.initialize(this, unityId, testMode = true, object : IUnityAdsInitializationListener {
+        UnityAds.initialize(this, unityId, testMode, object : IUnityAdsInitializationListener {
             override fun onInitializationComplete() {
                 Log.d("UnityAds", "Initialization Complete")
             }
