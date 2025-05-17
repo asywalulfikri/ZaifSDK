@@ -182,7 +182,6 @@ open class FragmentSettings : BaseFragmentWidget() {
 
 
     fun onBackPressed(): Boolean {
-        MyAdsListener.setAds(true)
         activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         return false
     }
