@@ -85,7 +85,6 @@ class BeforeSplashScreen : BaseActivityWidget(){
                 UnitySDKBuilder.builder(this)
                     .setUnityId(unityGameId)
                     .setEnable(true)
-                    .setTestMode(true)
                     .build()
             }
 
@@ -96,7 +95,6 @@ class BeforeSplashScreen : BaseActivityWidget(){
                 UnitySDKBuilder.builder(this)
                     .setUnityId(unityGameId)
                     .setEnable(true)
-                    .setTestMode(false)
                     .build()
             }
 
