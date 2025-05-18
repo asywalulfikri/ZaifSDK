@@ -10,9 +10,8 @@ object MyAdsListener {
     fun setAds(show : Boolean) {
         myListener?.onViewAds(show)
     }
-
     fun setUnityAds(show : Boolean) {
-        myListener?.onViewAds(show)
+        myListener?.onViewUnityAds(show)
     }
     fun setShowButtonHome(show : Boolean) {
         myListener?.onViewButtonHome(show)
