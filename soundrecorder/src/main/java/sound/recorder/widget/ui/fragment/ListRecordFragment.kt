@@ -66,6 +66,7 @@ class ListRecordFragment : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
 
         }
 
+        MyAdsListener.setUnityAds(false)
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -276,6 +277,7 @@ class ListRecordFragment : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
 
     fun onBackPressed(): Boolean {
         MyAdsListener.setAds(true)
+        MyAdsListener.setUnityAds(true)
         activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         return false
     }

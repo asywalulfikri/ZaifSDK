@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import sound.recorder.widget.adapter.VideoListAdapter
 import sound.recorder.widget.base.BaseFragmentWidget
 import sound.recorder.widget.databinding.ActivityListVideoBinding
+import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.model.Video
 import sound.recorder.widget.model.VideoWrapper
 import sound.recorder.widget.util.Toastic
@@ -41,6 +42,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
         setupRecyclerView()
         load(false)
         binding.ivClose.visibility = View.GONE
+        MyAdsListener.setUnityAds(false)
         return binding.root
     }
 
@@ -141,6 +143,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
     }
 
     fun onBackPressed(): Boolean {
+        MyAdsListener.setUnityAds(true)
         activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         return false
     }

@@ -68,6 +68,7 @@ class FragmentSheetListSong(
 
         activity?.let {
             try {
+                MyAdsListener.setUnityAds(false)
                 sharedPreferences = DataSession(it).getShared()
                 sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
                 MyStopSDKMusicListener.setMyListener(this)
@@ -261,6 +262,7 @@ class FragmentSheetListSong(
 
     fun onBackPressed(): Boolean {
         MyAdsListener.setAds(true)
+        MyAdsListener.setUnityAds(true)
         activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         return false
     }

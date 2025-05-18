@@ -444,6 +444,10 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
        }
     }
 
+    override fun onViewUnityAds(show: Boolean) {
+
+    }
+
     override fun onViewButtonHome(show: Boolean) {
 
     }
