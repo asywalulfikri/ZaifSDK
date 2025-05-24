@@ -145,4 +145,27 @@
     <string name="text_skip">छोड़ें</string>
 
 
+    <string name="tooltip_note">यह गाने के नोट्स को सहेजने के लिए है</string>
+    <string name="tooltip_music">यह उस गाने को चुनने के लिए है जिसे आप बजाना चाहते हैं</string>
+    <string name="tooltip_record">यह तब रिकॉर्ड करने के लिए है जब आप बजा रहे हों</string>
+    <string name="tooltip_volume">यह वॉल्यूम को समायोजित करने के लिए है</string>
+    <string name="tooltip_color">यह रंग बदलने के लिए है</string>
+    <string name="text_welcome">नमस्ते। खेलने का आनंद लें :D</string>
+
+    <string name="how_to_add_new_song">गाना कैसे जोड़ें</string>
+    <string name="how_add_song1">1. ऐप से बाहर निकलें</string>
+    <string name="how_add_song2">2. ब्राउज़र से मैनुअल रूप से mp3 फॉर्मेट में गाना डाउनलोड करें</string>
+    <string name="how_add_song3">3. ऐप को फिर से खोलें और संगीत आइकन चुनें</string>
+    <string name="how_add_song4">4. डाउनलोड किया गया गाना प्लेलिस्ट में आ जाएगा</string>
+
+    <string name="how_to_add_note">गाने का नोट कैसे जोड़ें</string>
+    <string name="how_to_add_note1">नोट जोड़ने वाले डायलॉग में जोड़ने वाले आइकन पर क्लिक करें</string>
+    <string name="how_to_add_note2">नोट का शीर्षक भरें</string>
+    <string name="how_to_add_note3">गाने के नोट्स या गाना भरें</string>
+    <string name="how_to_add_note4">सहेजें बटन दबाएं और यह नोट्स सूची में दिखेगा</string>
+
+    <string name="choose_song">गीत चुनें</string>
+    <string name="tooltip_saved_record">यह रिकॉर्डिंग देखने के लिए है</string>
+    <string name="recorded_saved">रिकॉर्डिंग सहेज ली गई</string>
+
 </resources>

@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -79,8 +80,8 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
     private var songIsPlaying = false
     private var volumes : Float? =null
 
-    private var mGuideView: GuideView? = null
-    private var builder: GuideView.Builder? = null
+    private var seekBarCallback: ((Int) -> Unit)? = null
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -273,6 +274,10 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
 
 
+    }
+
+    fun setSeekBarUpdateCallback(callback: ((Int) -> Unit)?) {
+        seekBarCallback = callback
     }
 
     private fun updatingForDynamicLocationViews() {
@@ -478,9 +483,11 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
                 mp?.apply {
                     setDataSource(this@MainActivity, Uri.parse(filePath))
                     volumes?.let { setVolume(it, volumes!!) }
+                    setToast("babiii")
                     setOnPreparedListener{
                         mp?.start()
                         MyMusicListener.postAction(mp)
+                        startSeekBarUpdates()
                         MyStopSDKMusicListener.onStartAnimation()
                     }
                     mp?.prepareAsync()
@@ -507,6 +514,17 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
                 }
             }
         }, 100)
+    }
+
+    private fun startSeekBarUpdates() {
+        handler.post(object : Runnable {
+            override fun run() {
+                if (mp!!.isPlaying) {
+                    seekBarCallback?.invoke(mp!!.currentPosition)
+                    handler.postDelayed(this, 1000)
+                }
+            }
+        })
     }
 
     override fun onStopSong() {
@@ -536,15 +554,15 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
     }
 
     override fun onMusic(mediaPlayer: MediaPlayer?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onComplete() {
-        TODO("Not yet implemented")
+
     }
 
     override fun onNote(note: String?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onVolumeAudio(volume: Float?) {

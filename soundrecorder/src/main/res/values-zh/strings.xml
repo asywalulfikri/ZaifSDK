@@ -143,5 +143,29 @@
     <string name="text_next">下一步</string>
     <string name="text_skip">跳过</string>
 
+    <string name="tooltip_note">用于保存歌曲笔记</string>
+    <string name="tooltip_music">用于选择您想演奏的歌曲</string>
+    <string name="tooltip_record">用于录制您演奏时的声音</string>
+    <string name="tooltip_volume">用于调节音量</string>
+    <string name="tooltip_color">用于更改颜色</string>
+    <string name="text_welcome">您好。祝您玩得开心 :D</string>
+
+    <string name="how_to_add_new_song">如何添加新歌曲</string>
+    <string name="how_add_song1">1. 退出应用程序</string>
+    <string name="how_add_song2">2. 通过浏览器手动下载mp3格式的歌曲</string>
+    <string name="how_add_song3">3. 重新打开应用并选择音乐图标</string>
+    <string name="how_add_song4">4. 您下载的歌曲将出现在播放列表中</string>
+
+    <string name="how_to_add_note">如何添加歌曲笔记</string>
+    <string name="how_to_add_note1">点击添加笔记对话框中的添加图标</string>
+    <string name="how_to_add_note2">填写笔记标题</string>
+    <string name="how_to_add_note3">填写歌曲音符或歌词</string>
+    <string name="how_to_add_note4">点击保存按钮，笔记将显示在笔记列表中</string>
+
+
+    <string name="choose_song">选择歌曲</string>
+    <string name="tooltip_saved_record">用于查看录音结果</string>
+    <string name="recorded_saved">录音已保存</string>
+
 
 </resources>

@@ -147,4 +147,26 @@
     <string name="text_next">Next</string>
     <string name="text_skip">Skip</string>
 
+    <string name="tooltip_note">This is for saving song notes</string>
+    <string name="tooltip_music">This is for selecting the song you want to play</string>
+    <string name="tooltip_record">This is for recording when you play</string>
+    <string name="tooltip_volume">This is for adjusting the volume</string>
+    <string name="tooltip_color">This is for changing the color</string>
+    <string name="text_welcome">Hello. Have fun playing :D</string>
+
+    <string name="how_to_add_new_song">How to Add a Song</string>
+    <string name="how_add_song1">1. Exit the app</string>
+    <string name="how_add_song2">2. Download the song manually using a browser in mp3 format</string>
+    <string name="how_add_song3">3. Reopen the app and select the music icon</string>
+    <string name="how_add_song4">4. The downloaded song will appear in the playlist</string>
+
+    <string name="how_to_add_note">How to Add a Song Note</string>
+    <string name="how_to_add_note1">Click the add icon in the add note dialog</string>
+    <string name="how_to_add_note2">Fill in the note title</string>
+    <string name="how_to_add_note3">Enter the song notes or the song</string>
+    <string name="how_to_add_note4">Click the Save button and it will appear in the note list</string>
+
+    <string name="choose_song">Choose Song</string>
+    <string name="tooltip_saved_record">This is to view the recorded result</string>
+    <string name="recorded_saved">Recording saved</string>
 </resources>

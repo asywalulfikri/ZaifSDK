@@ -56,7 +56,7 @@
                     android:id="@+id/tv_description"
                     android:textSize="@dimen/_12ssp"
                     tools:text="Mari Belajar Cover Gendang"
-                    android:fontFamily="@font/intercom_roboto_medium"
+                    android:fontFamily="@font/campton_medium"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 

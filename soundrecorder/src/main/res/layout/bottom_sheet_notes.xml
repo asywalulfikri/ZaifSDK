@@ -7,8 +7,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
+    <TextView
+        android:id="@+id/tvNoteSong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/CustomTextTitleBold"
+        android:textSize="@dimen/_14ssp"
+        android:layout_centerHorizontal="true"
+        android:text="@string/note_song"/>
+
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinator_layout"
+        android:layout_marginTop="@dimen/_5sdp"
+        android:layout_below="@+id/tvNoteSong"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/white">

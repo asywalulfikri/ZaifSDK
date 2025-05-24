@@ -1,5 +1,5 @@
 <resources>
-    <!--Spanyol-->
+    <!--Prancis-->
     <string name="default_notification_channel_id">ID de canal predeterminado</string>
 
     <string name="colorpicker_dialog_title">Elige el color</string>
@@ -146,6 +146,29 @@
     <string name="text_next">Siguiente</string>
     <string name="text_skip">Omitir</string>
 
+    <string name="tooltip_note">Ceci sert à enregistrer les notes de chanson</string>
+    <string name="tooltip_music">Ceci sert à choisir la chanson que vous souhaitez jouer</string>
+    <string name="tooltip_record">Ceci sert à enregistrer pendant que vous jouez</string>
+    <string name="tooltip_volume">Ceci sert à régler le volume</string>
+    <string name="tooltip_color">Ceci sert à changer la couleur</string>
+    <string name="text_welcome">Bonjour. Amusez-vous bien à jouer :D</string>
+
+    <string name="how_to_add_new_song">Comment ajouter une chanson</string>
+    <string name="how_add_song1">1. Quittez lapplication</string>
+    <string name="how_add_song2">2. Téléchargez la chanson manuellement via le navigateur au format mp3</string>
+    <string name="how_add_song3">3. Rouvrez lapplication et sélectionnez licône musique</string>
+    <string name="how_add_song4">4. La chanson téléchargée apparaîtra dans la playlist</string>
+
+    <string name="how_to_add_note">Comment ajouter une note de chanson</string>
+    <string name="how_to_add_note1">Cliquez sur licône ajouter dans la fenêtre dajout de note</string>
+    <string name="how_to_add_note2">Remplissez le titre de la note</string>
+    <string name="how_to_add_note3">Remplissez les notes de la chanson ou la chanson</string>
+    <string name="how_to_add_note4">Cliquez sur le bouton Enregistrer et elle apparaîtra dans la liste des notes</string>
+
+
+    <string name="choose_song">Choisir une chanson</string>
+    <string name="tooltip_saved_record">Ceci permet de voir l’enregistrement</string>
+    <string name="recorded_saved">Enregistrement sauvegardé</string>
 
 
 </resources>

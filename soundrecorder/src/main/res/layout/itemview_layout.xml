@@ -29,7 +29,7 @@
             android:id="@+id/filename"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/intercom_roboto_medium"
+            android:fontFamily="@font/campton_medium"
             android:textColor="@color/black_de"
             android:textStyle="bold"
             android:textSize="@dimen/_12ssp"
@@ -38,7 +38,7 @@
             android:id="@+id/file_meta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/intercom_roboto_medium"
+            android:fontFamily="@font/campton_medium"
             android:textColor="@color/black_de"
             android:textSize="@dimen/_10ssp"
             tools:text="00:60 27/01/24" />

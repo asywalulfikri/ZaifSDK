@@ -147,5 +147,28 @@
     <string name="text_next">Susunod</string>
     <string name="text_skip">Laktawan</string>
 
+    <string name="tooltip_note">Ito ay para sa pag-save ng tala ng kanta</string>
+    <string name="tooltip_music">Ito ay para pumili ng kantang gusto mong tugtugin</string>
+    <string name="tooltip_record">Ito ay para mag-record habang tumutugtog ka</string>
+    <string name="tooltip_volume">Ito ay para i-adjust ang volume</string>
+    <string name="tooltip_color">Ito ay para baguhin ang kulay</string>
+    <string name="text_welcome">Kumusta. Masayang pagtugtog! :D</string>
+
+    <string name="how_to_add_new_song">Paano Magdagdag ng Kanta</string>
+    <string name="how_add_song1">1. Lumabas muna sa app</string>
+    <string name="how_add_song2">2. I-download ang kanta nang manu-mano gamit ang browser sa mp3 format</string>
+    <string name="how_add_song3">3. Buksan muli ang app at piliin ang icon ng musika</string>
+    <string name="how_add_song4">4. Awtomatikong madaragdag ang kanta sa playlist</string>
+
+    <string name="how_to_add_note">Paano Magdagdag ng Tala ng Kanta</string>
+    <string name="how_to_add_note1">Pindutin ang add icon sa add note dialog</string>
+    <string name="how_to_add_note2">Ilagay ang pamagat ng tala</string>
+    <string name="how_to_add_note3">Ilagay ang mga nota o kanta</string>
+    <string name="how_to_add_note4">Pindutin ang Save na button at lalabas ito sa listahan ng tala</string>
+
+    <string name="choose_song">Pumili ng Kanta</string>
+    <string name="tooltip_saved_record">Ito ay para tingnan ang nairecord</string>
+    <string name="recorded_saved">Na-save ang recording</string>
+
 
 </resources>

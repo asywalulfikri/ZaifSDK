@@ -146,6 +146,29 @@
     <string name="text_next">Lanjut</string>
     <string name="text_skip">Lewati</string>
 
+    <string name="tooltip_note">Ini untuk menyimpan catatan lagu</string>
+    <string name="tooltip_music">Ini untuk memilih lagu yang ingin di mainkan</string>
+    <string name="tooltip_record">Ini untuk merekam ketika anda main</string>
+    <string name="tooltip_volume">Ini untuk mengatur volume </string>
+    <string name="tooltip_color">Ini untuk mengganti warna</string>
+    <string name="text_welcome">Halo. Selamat Bermain :D</string>
+
+    <string name="how_to_add_new_song">Cara Menambahkan Lagu</string>
+    <string name="how_add_song1">1. Keluar dari aplikasi</string>
+    <string name="how_add_song2">2. Unduh Lagu secara manual lewat browser dengan format mp3</string>
+    <string name="how_add_song3">3. Buka Kembali Aplikasi dan pilih icon musik</string>
+    <string name="how_add_song4">4. Lagu yang kamu unduh sudah masuk ke playlist</string>
+
+    <string name="how_to_add_note">Cara Menambahkan Catatan Lagu</string>
+    <string name="how_to_add_note1">Klik Icon tambah pada dialog tambah catatan</string>
+    <string name="how_to_add_note2">Isi Judul Catatan</string>
+    <string name="how_to_add_note3">Isi Nada Lagu atau lagu </string>
+    <string name="how_to_add_note4">Klik Tombol Simpan dan akan muncul di list catatan</string>
+
+    <string name="choose_song">Pilih Lagu</string>
+    <string name="tooltip_saved_record">Ini untuk melihat hasil rekaman</string>
+    <string name="recorded_saved">Rekaman tersimpan</string>
+
 
 
 </resources>

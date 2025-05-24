@@ -617,12 +617,12 @@ open class BaseActivityWidget : AppCompatActivity() {
         return try {
             WebView(this)
             if (BuildConfig.DEBUG) {
-                setToast("WebView didukung pada perangkat ini.")
+               // setToast("WebView didukung pada perangkat ini.")
             }
             true
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
-                setToast("WebView tidak didukung pada perangkat ini.")
+               // setToast("WebView tidak didukung pada perangkat ini.")
             }
             false
         }

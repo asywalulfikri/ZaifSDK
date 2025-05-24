@@ -143,6 +143,30 @@
     <string name="text_next">Далее</string>
     <string name="text_skip">Пропустить</string>
 
+    <string name="tooltip_note">Это для сохранения заметок к песне</string>
+    <string name="tooltip_music">Это для выбора песни, которую вы хотите сыграть</string>
+    <string name="tooltip_record">Это для записи во время игры</string>
+    <string name="tooltip_volume">Это для регулировки громкости</string>
+    <string name="tooltip_color">Это для изменения цвета</string>
+    <string name="text_welcome">Здравствуйте. Приятной игры :D</string>
+
+    <string name="how_to_add_new_song">Как добавить новую песню</string>
+    <string name="how_add_song1">1. Выйдите из приложения</string>
+    <string name="how_add_song2">2. Скачайте песню вручную через браузер в формате mp3</string>
+    <string name="how_add_song3">3. Снова откройте приложение и выберите иконку музыки</string>
+    <string name="how_add_song4">4. Скачанная песня появится в плейлисте</string>
+
+    <string name="how_to_add_note">Как добавить заметку к песне</string>
+    <string name="how_to_add_note1">Нажмите на иконку добавления в диалоговом окне добавления заметки</string>
+    <string name="how_to_add_note2">Введите заголовок заметки</string>
+    <string name="how_to_add_note3">Введите ноты песни или песню</string>
+    <string name="how_to_add_note4">Нажмите кнопку Сохранить, и заметка появится в списке заметок</string>
+
+    <string name="choose_song">Выбрать песню</string>
+    <string name="tooltip_saved_record">Это для просмотра записи</string>
+    <string name="recorded_saved">Запись сохранена</string>
+
+
 
 
 </resources>

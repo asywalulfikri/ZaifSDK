@@ -315,7 +315,7 @@
     <color name="grey_800">#424242</color>
     <color name="grey_900">#212121</color>
 
-
+    <color name="black_transparent">#B3000000</color>
 
     <color name="icon_color">#C2C2C2</color>
     <color name="icon_selected_color">#757575</color>

@@ -37,6 +37,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RadioButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatTextView
@@ -65,6 +66,9 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.gson.Gson
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.Balloon
+import com.skydoves.balloon.BalloonAnimation
 import org.json.JSONObject
 import sound.recorder.widget.R
 import sound.recorder.widget.RecordingSDK
@@ -137,6 +141,31 @@ open class BaseFragmentWidget : Fragment() {
             setToastError(activity,e.message.toString())
         }*/
 
+    }
+
+    fun createBalloonWithText(
+        title: String,
+        message: String,
+        isLast: Boolean = false
+    ): Balloon {
+        val balloon = Balloon.Builder(requireContext())
+            .setLayout(R.layout.tooltip_layout)
+            .setArrowSize(10)
+            .setCornerRadius(8f)
+            .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+            .setPadding(8)
+            .setBackgroundColorResource(R.color.black_transparent)
+            .setBalloonAnimation(BalloonAnimation.FADE)
+            .setDismissWhenTouchOutside(false)
+            .build()
+
+        val layout = balloon.getContentView()
+        layout.findViewById<TextView>(R.id.tvTitle).text = title
+        layout.findViewById<TextView>(R.id.tvMessage).text = message
+        val btn = layout.findViewById<TextView>(R.id.btnNext)
+        btn.text = if (isLast) getString(R.string.text_done) else getString(R.string.next)
+
+        return balloon
     }
 
 

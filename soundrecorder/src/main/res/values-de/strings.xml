@@ -144,6 +144,29 @@
     <string name="text_next">Weiter</string>
     <string name="text_skip">Überspringen</string>
 
+    <string name="tooltip_note">Dies dient zum Speichern von Liednotizen</string>
+    <string name="tooltip_music">Dies dient zur Auswahl des Liedes, das du abspielen möchtest</string>
+    <string name="tooltip_record">Dies dient zur Aufnahme während des Spielens</string>
+    <string name="tooltip_volume">Dies dient zur Lautstärkeregelung</string>
+    <string name="tooltip_color">Dies dient zum Ändern der Farbe</string>
+    <string name="text_welcome">Hallo. Viel Spaß beim Spielen :D</string>
+
+    <string name="how_to_add_new_song">So fügst du ein Lied hinzu</string>
+    <string name="how_add_song1">1. Beende die App</string>
+    <string name="how_add_song2">2. Lade das Lied manuell über den Browser im MP3-Format herunter</string>
+    <string name="how_add_song3">3. Öffne die App erneut und wähle das Musiksymbol</string>
+    <string name="how_add_song4">4. Das heruntergeladene Lied wird zur Playlist hinzugefügt</string>
+
+    <string name="how_to_add_note">So fügst du eine Liednotiz hinzu</string>
+    <string name="how_to_add_note1">Klicke auf das Plus-Symbol im Notizdialog</string>
+    <string name="how_to_add_note2">Gib den Notiztitel ein</string>
+    <string name="how_to_add_note3">Gib die Liednoten oder den Liedtext ein</string>
+    <string name="how_to_add_note4">Klicke auf die Schaltfläche „Speichern“, und die Notiz erscheint in der Liste</string>
+
+
+    <string name="choose_song">Lied auswählen</string>
+    <string name="tooltip_saved_record">Dies ist, um die Aufnahme anzusehen</string>
+    <string name="recorded_saved">Aufnahme gespeichert</string>
 
 
 </resources>

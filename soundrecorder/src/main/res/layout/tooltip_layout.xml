@@ -1,0 +1,38 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:text="Judul"
+        android:textColor="@android:color/white"
+        style="@style/CustomTextTitleBold"
+        android:layout_marginBottom="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_below="@+id/tvTitle"
+        android:id="@+id/tvMessage"
+        android:text="Isi pesan"
+        android:textColor="@android:color/white"
+        style="@style/CustomTextTitleThin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/btnNext"
+        android:text="@string/next"
+        android:layout_below="@+id/tvMessage"
+        android:background="@drawable/circle_full_champ"
+        android:layout_alignParentEnd="true"
+        style="@style/CustomTextTitleLight"
+        android:layout_marginTop="8dp"
+        android:layout_width="@dimen/_100sdp"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:paddingHorizontal="@dimen/_10sdp"
+        android:layout_height="@dimen/_30sdp" />
+</RelativeLayout>

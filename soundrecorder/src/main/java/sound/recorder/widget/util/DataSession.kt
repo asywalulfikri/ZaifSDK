@@ -11,10 +11,14 @@ open class DataSession(private val mContext: Context) {
     companion object {
         const val TAG = "Preferences"
         lateinit var sharedPref: SharedPreferences
+        lateinit var editor : SharedPreferences.Editor
+
+
     }
 
     init {
         sharedPref = mContext.getSharedPreferences("recordingWidget", 0)
+        editor = sharedPref.edit()
     }
 
     fun getShared(): SharedPreferences{
@@ -62,6 +66,10 @@ open class DataSession(private val mContext: Context) {
         return sharedPref.getBoolean(Constant.KeyShared.showSetting,false)
     }
 
+    fun isDoneTooltip(): Boolean {
+        return sharedPref.getBoolean(Constant.KeyShared.doneTooltip, false)
+    }
+
     fun getShowListSong(): Boolean{
         return sharedPref.getBoolean(Constant.KeyShared.showListSong,false)
     }
@@ -84,7 +92,6 @@ open class DataSession(private val mContext: Context) {
     }
 
     fun setupAds(status : Boolean,admobId : String, bannerId : String, interstitialId : String,rewardInterstitialId : String,rewardId : String, nativeId : String){
-        val editor = sharedPref.edit()
         editor.putBoolean("initiate", status)
         editor.putString(Constant.KeyShared.admobId, admobId)
         editor.putString(Constant.KeyShared.admobBannerId, bannerId)
@@ -96,8 +103,12 @@ open class DataSession(private val mContext: Context) {
         editor.apply()
     }
 
+    fun saveTooltip(isDone : Boolean) {
+        editor.putBoolean(Constant.KeyShared.doneTooltip, isDone)
+        editor.apply()
+    }
+
     fun setInfoApp(versionCode : Int,versionName : String,appId : String,appName: String, jsonName : String,splashScreenType: String,showNote: Boolean,showSong : Boolean, llRecordBackground : String){
-        val editor = sharedPref.edit()
         editor.putInt("versionCode", versionCode)
         editor.putString("backgroundSplashScreen", splashScreenType)
         editor.putString("appName",appName)
@@ -112,13 +123,11 @@ open class DataSession(private val mContext: Context) {
     }
 
     fun saveVolumeAudio(volume :  Float){
-        val editor = sharedPref.edit()
         editor.putFloat(Constant.KeyShared.volumeAudio,volume)
         editor.apply()
     }
 
     fun saveVolumeMusic(volume :  Float){
-        val editor = sharedPref.edit()
         editor.putFloat(Constant.KeyShared.volumeMusic,volume)
         editor.apply()
     }
@@ -133,7 +142,6 @@ open class DataSession(private val mContext: Context) {
 
 
     fun addColor(colorWidget : Int, colorRunningText: Int){
-        val editor = sharedPref.edit()
         if(colorWidget!=0){
             editor.putInt(Constant.KeyShared.colorWidget, colorWidget)
         }

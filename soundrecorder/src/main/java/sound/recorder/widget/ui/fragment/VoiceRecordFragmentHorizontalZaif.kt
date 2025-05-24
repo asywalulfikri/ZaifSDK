@@ -20,9 +20,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import kotlinx.coroutines.CoroutineScope
@@ -46,11 +48,13 @@ import sound.recorder.widget.listener.MyStopSDKMusicListener
 import sound.recorder.widget.listener.PauseListener
 import sound.recorder.widget.ui.bottomSheet.BottomSheet
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
+import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.*
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.getValue
 import kotlin.math.ln
 
 
@@ -72,10 +76,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     private val blinkHandler = Handler(Looper.getMainLooper())
     private var isBlinking = false
     private var zaifSDKBuilder : ZaifSDKBuilder? =null
+    lateinit var dataSession : DataSession
 
     private var volumeMusic: Float = 1.0f // Volume default 100% for MediaPlayer
     private var volumeAudio: Float = 1.0f // Volume default 100% for SoundPool
 
+    private val musicViewModel: MusicViewModel by activityViewModels()
 
     companion object {
         fun newInstance(): VoiceRecordFragmentHorizontalZaif {
@@ -107,23 +113,192 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                         Log.e("VoiceRecordFragment", "Error initializing SDK", e)
                     }
 
-                    val dataSession = DataSession(requireContext())
+                    dataSession = DataSession(requireContext())
                     sharedPreferences = dataSession.getShared()
                     volumeMusic = dataSession.getVolumeMusic()
                     volumeAudio = dataSession.getVolumeAudio()
 
                     MyPauseListener.setMyListener(this@VoiceRecordFragmentHorizontalZaif)
                     handler = Handler(Looper.getMainLooper())
-                }
 
+
+                }
+                if(dataSession.isDoneTooltip()==false) {
+                   showTooltipSequence()
+                }
+                //showTooltipSequence()
                 setupView()
             }
+        }
+
+
+
+    }
+
+    fun showTooltipSequence() {
+        try {
+            zaifSDKBuilder?.let { builder ->
+
+                val balloonNote       = createBalloonWithText(requireContext().getString(R.string.note_song), getString(R.string.tooltip_note))
+                val balloonSong       = createBalloonWithText(requireContext().getString(R.string.choose_song), getString(R.string.tooltip_music))
+
+                // Gunakan 'var' karena nilainya mungkin akan diubah berdasarkan kondisi
+                var balloonRecording  = createBalloonWithText(
+                    requireContext().getString(R.string.recordings),
+                    getString(R.string.tooltip_record)
+                )
+                var balloonListRecord = createBalloonWithText(
+                    requireContext().getString(R.string.recorded_saved),
+                    getString(R.string.tooltip_saved_record)
+                )
+                var balloonVolume     = createBalloonWithText(
+                    requireContext().getString(R.string.volume),
+                    getString(R.string.tooltip_volume)
+                )
+                var balloonColor      = createBalloonWithText(
+                    requireContext().getString(R.string.choose_color),
+                    getString(R.string.tooltip_color),
+                    true
+                )
+
+// Tampilkan balloon tertentu langsung berdasarkan kondisi
+                if (!builder.showVolume && !builder.showChangeColor) {
+                    balloonListRecord = createBalloonWithText(
+                        requireContext().getString(R.string.recorded_saved),
+                        getString(R.string.tooltip_saved_record),
+                        true
+                    )
+                } else if (builder.showVolume && !builder.showChangeColor) {
+                    balloonVolume = createBalloonWithText(
+                        requireContext().getString(R.string.volume),
+                        getString(R.string.tooltip_volume),
+                        true
+                    )
+                }
+
+
+                balloonNote.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonNote.dismiss()
+                    binding.ivNote.post {
+                        balloonSong.showAlignBottom(binding.ivSong)
+                    }
+                }
+
+                balloonSong.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonSong.dismiss()
+                    binding.ivSong.post {
+                        balloonRecording.showAlignBottom(binding.ivRecord)
+                    }
+                }
+
+                balloonRecording.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonRecording.dismiss()
+                    binding.ivRecord.post {
+                        balloonListRecord.showAlignBottom(binding.ivListRecord)
+                    }
+                }
+
+                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonListRecord.dismiss()
+
+                    if(builder.showVolume){
+                        binding.ivListRecord.post {
+                            balloonVolume.showAlignBottom(binding.ivVolume)
+                        }
+                    }else{
+                        if(builder.showChangeColor){
+                            balloonColor.showAlignBottom(binding.ivChangeColor)
+                        }else{
+                            dataSession.saveTooltip(true)
+                        }
+                    }
+                }
+
+                balloonVolume.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonVolume.dismiss()
+                    if(builder.showChangeColor){
+                        binding.ivVolume.post {
+                            balloonColor.showAlignBottom(binding.ivChangeColor)
+                        }
+                    }else{
+                        dataSession.saveTooltip(true)
+                    }
+                }
+
+                balloonColor.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonColor.dismiss()
+                    dataSession.saveTooltip(true)
+                    //save session
+                }
+
+
+                if (builder.showNote){
+                    binding.ivNote.post {
+                        balloonNote.showAlignBottom(binding.ivNote)
+                    }
+                }else{
+                    binding.ivSong.post {
+                        balloonSong.showAlignBottom(binding.ivSong)
+                    }
+                }
+            } ?: run {
+                // Optional: Log or handle the case where zaifSDKBuilder is null
+                setLog("zaifSDKBuilder is null, menu items not updated")
+            }
+        }catch (e : Exception){
         }
 
     }
 
 
     private fun setupView() {
+
+        musicViewModel.playRequest.observe(viewLifecycleOwner) { path ->
+            path?.let {
+                onPlaySong(it)
+                musicViewModel.clearPlayRequest()
+            }
+        }
+
+        musicViewModel.stopRequest.observe(viewLifecycleOwner) { isStop ->
+            isStop?.let {
+                onStopSong()
+                musicViewModel.clearStopRequest()
+            }
+        }
+
+        musicViewModel.seekToRequest.observe(viewLifecycleOwner) { pos ->
+            pos?.let {
+                if(mp!=null){
+                    mp?.seekTo(it)
+                    musicViewModel.clearSeekToRequest()
+                }
+            }
+        }
+
+        musicViewModel.pauseRequest.observe(viewLifecycleOwner) { isPause ->
+            isPause?.let {
+                if(mp!=null){
+                    mp?.pause()
+                    musicViewModel.setIsPlaying(false,true)
+                    musicViewModel.clearPauseRequest()
+                }
+            }
+        }
+
+        musicViewModel.resumeRequest.observe(viewLifecycleOwner) { isResume ->
+            isResume?.let {
+                if(mp!=null){
+                    mp?.apply {
+                        start()
+                        musicViewModel.setDuration(duration)
+                        musicViewModel.setIsPlaying(true,true)
+                        handler.post(updateProgressRunnable)
+                    }
+                }
+            }
+        }
+
         try {
             zaifSDKBuilder?.backgroundWidgetColor?.let { colorString ->
                 if (colorString.isNotEmpty()) {
@@ -631,6 +806,16 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         }
     }
 
+    private val updateProgressRunnable = object : Runnable {
+        override fun run() {
+            mp?.let {
+                if (it.isPlaying) {
+                    musicViewModel.updateProgress(it.currentPosition)
+                    handler.postDelayed(this, 500)
+                }
+            }
+        }
+    }
 
 
     override fun onPlaySong(filePath: String) {
@@ -658,12 +843,17 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                             start()
                             MyMusicListener.postAction(mp)
                             MyStopSDKMusicListener.onStartAnimation()
+                            musicViewModel.setDuration(duration)
+                            musicViewModel.setIsPlaying(true,true)
+                            handler.post(updateProgressRunnable)
                         }
                         prepareAsync()
                         setOnCompletionListener {
                             MyStopSDKMusicListener.postAction(true)
                             MyStopMusicListener.postAction(true)
                             MyPauseListener.showButtonStop(false)
+                            musicViewModel.completeRequest(true)
+                            musicViewModel.setIsPlaying(false,false)
                             showBtnStop = false
                         }
                         MyPauseListener.showButtonStop(true)
@@ -721,6 +911,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 MyStopSDKMusicListener.setMyListener(null)
                 MyStopMusicListener.setMyListener(null)
                 MyPauseListener.setMyListener(null)
+                handler.removeCallbacks(updateProgressRunnable)
             }
         }
         if(recorder!=null&&recordingAudio){
@@ -744,6 +935,9 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                     mp = null
                     songIsPlaying = false
                     showBtnStop = false
+                    musicViewModel.setIsPlaying(false,false)
+                    musicViewModel.clearPlayRequest()
+                    musicViewModel.clearStopRequest()
                     MyPauseListener.showButtonStop(false)
                     MyMusicListener.postAction(null)
                     MyStopMusicListener.postAction(true)
@@ -759,7 +953,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     }
 
     override fun onNoteSong(note: String) {
-        MyMusicListener.postNote(note)
+       // MyMusicListener.postNote(note)
     }
 
     override fun onResume() {

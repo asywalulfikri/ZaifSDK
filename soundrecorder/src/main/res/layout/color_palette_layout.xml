@@ -13,7 +13,7 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/intercom_roboto_medium"
+            android:fontFamily="@font/campton_medium"
             android:layout_alignStart="@+id/color_palette"
             android:layout_marginBottom="10dp"
             android:layout_marginStart="5dp"

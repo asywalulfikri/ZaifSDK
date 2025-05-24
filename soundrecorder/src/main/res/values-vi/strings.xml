@@ -1,4 +1,5 @@
 <resources>
+    <!--Vietnam-->
     <string name="default_notification_channel_id">ID kênh thông báo mặc định</string>
 
     <string name="colorpicker_dialog_title">Chọn màu sắc</string>
@@ -144,6 +145,29 @@
     <string name="text_next">Tiếp theo</string>
     <string name="text_skip">Bỏ qua</string>
 
+
+    <string name="tooltip_note">Dùng để lưu ghi chú bài hát</string>
+    <string name="tooltip_music">Dùng để chọn bài hát bạn muốn chơi</string>
+    <string name="tooltip_record">Dùng để ghi âm khi bạn chơi</string>
+    <string name="tooltip_volume">Dùng để điều chỉnh âm lượng</string>
+    <string name="tooltip_color">Dùng để thay đổi màu sắc</string>
+    <string name="text_welcome">Xin chào. Chúc bạn chơi vui vẻ :D</string>
+
+    <string name="how_to_add_new_song">Cách thêm bài hát mới</string>
+    <string name="how_add_song1">1. Thoát ứng dụng</string>
+    <string name="how_add_song2">2. Tải bài hát thủ công qua trình duyệt với định dạng mp3</string>
+    <string name="how_add_song3">3. Mở lại ứng dụng và chọn biểu tượng âm nhạc</string>
+    <string name="how_add_song4">4. Bài hát bạn tải về sẽ được thêm vào danh sách phát</string>
+
+    <string name="how_to_add_note">Cách thêm ghi chú bài hát</string>
+    <string name="how_to_add_note1">Nhấn biểu tượng thêm trong hộp thoại thêm ghi chú</string>
+    <string name="how_to_add_note2">Điền tiêu đề ghi chú</string>
+    <string name="how_to_add_note3">Điền nốt nhạc hoặc bài hát</string>
+    <string name="how_to_add_note4">Nhấn nút Lưu và nó sẽ xuất hiện trong danh sách ghi chú</string>
+
+    <string name="choose_song">Chọn bài hát</string>
+    <string name="tooltip_saved_record">Đây là để xem bản ghi âm</string>
+    <string name="recorded_saved">Bản ghi đã được lưu</string>
 
 
 </resources>

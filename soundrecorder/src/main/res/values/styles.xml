@@ -34,6 +34,10 @@
         <item name="android:thumb">@drawable/custom_seekbar_thumb</item>
     </style>
 
+    <style name="SeekBarStyle2">
+        <item name="android:thumb">@drawable/custom_seekbar_thumb</item>
+    </style>
+
     <style name="TextAppearance.App.CollapsingToolbar.Collapsed" parent="TextAppearance.MaterialComponents.Headline6">
         <item name="android:textColor">@color/colorText</item>
     </style>
@@ -60,5 +64,23 @@
         <item name="boxCornerRadiusBottomStart">26dp</item>
         <item name="boxCornerRadiusTopEnd">26dp</item>
         <item name="boxCornerRadiusTopStart">26dp</item>
+    </style>
+
+    <style name="CustomTextTitleLight" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">@color/black_de</item>
+        <item name="android:textSize">@dimen/_11ssp</item>
+        <item name="fontFamily">@font/campton_medium</item>
+    </style>
+
+    <style name="CustomTextTitleThin" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">@color/black_de</item>
+        <item name="android:textSize">@dimen/_11ssp</item>
+        <item name="fontFamily">@font/campton_thin</item>
+    </style>
+
+    <style name="CustomTextTitleBold" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">@color/black_de</item>
+        <item name="android:textSize">@dimen/_11ssp</item>
+        <item name="fontFamily">@font/campton_bold</item>
     </style>
 </resources>

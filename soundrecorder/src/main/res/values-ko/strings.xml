@@ -148,5 +148,28 @@
     <string name="text_next">다음</string>
     <string name="text_skip">건너뛰기</string>
 
+    <string name="tooltip_note">이것은 노래 메모를 저장하기 위한 것입니다</string>
+    <string name="tooltip_music">이것은 연주할 노래를 선택하기 위한 것입니다</string>
+    <string name="tooltip_record">이것은 연주할 때 녹음하기 위한 것입니다</string>
+    <string name="tooltip_volume">이것은 볼륨을 조절하기 위한 것입니다</string>
+    <string name="tooltip_color">이것은 색상을 변경하기 위한 것입니다</string>
+    <string name="text_welcome">안녕하세요. 즐겁게 연주하세요 :D</string>
+
+    <string name="how_to_add_new_song">노래 추가 방법</string>
+    <string name="how_add_song1">1. 앱을 종료하세요</string>
+    <string name="how_add_song2">2. 브라우저를 통해 mp3 형식으로 수동으로 노래를 다운로드하세요</string>
+    <string name="how_add_song3">3. 앱을 다시 열고 음악 아이콘을 선택하세요</string>
+    <string name="how_add_song4">4. 다운로드한 노래가 재생 목록에 추가됩니다</string>
+
+    <string name="how_to_add_note">노래 메모 추가 방법</string>
+    <string name="how_to_add_note1">메모 추가 대화 상자에서 추가 아이콘을 클릭하세요</string>
+    <string name="how_to_add_note2">메모 제목을 입력하세요</string>
+    <string name="how_to_add_note3">노래 음표 또는 노래를 입력하세요</string>
+    <string name="how_to_add_note4">저장 버튼을 클릭하면 메모 목록에 나타납니다</string>
+
+    <string name="choose_song">노래 선택</string>
+    <string name="tooltip_saved_record">녹음 결과를 보기 위한 것입니다</string>
+    <string name="recorded_saved">녹음이 저장되었습니다</string>
+
 
 </resources>

@@ -145,5 +145,29 @@
     <string name="text_next">Próximo</string>
     <string name="text_skip">Saltar</string>
 
+    <string name="tooltip_note">Isto serve para guardar notas da música</string>
+    <string name="tooltip_music">Isto serve para escolher a música que quer tocar</string>
+    <string name="tooltip_record">Isto serve para gravar enquanto toca</string>
+    <string name="tooltip_volume">Isto serve para ajustar o volume</string>
+    <string name="tooltip_color">Isto serve para mudar a cor</string>
+    <string name="text_welcome">Olá. Divirta-se a tocar :D</string>
+
+    <string name="how_to_add_new_song">Como adicionar uma nova música</string>
+    <string name="how_add_song1">1. Saia da aplicação</string>
+    <string name="how_add_song2">2. Faça o download da música manualmente pelo navegador em formato mp3</string>
+    <string name="how_add_song3">3. Abra novamente a aplicação e selecione o ícone de música</string>
+    <string name="how_add_song4">4. A música que baixou será adicionada à playlist</string>
+
+    <string name="how_to_add_note">Como adicionar uma nota à música</string>
+    <string name="how_to_add_note1">Clique no ícone de adicionar na caixa de diálogo para adicionar nota</string>
+    <string name="how_to_add_note2">Preencha o título da nota</string>
+    <string name="how_to_add_note3">Preencha as notas ou a música</string>
+    <string name="how_to_add_note4">Clique no botão Guardar e aparecerá na lista de notas</string>
+
+    <string name="choose_song">Escolher música</string>
+    <string name="tooltip_saved_record">Isto é para ver a gravação</string>
+    <string name="recorded_saved">Gravação salva</string>
+
+
 
 </resources>

@@ -148,5 +148,28 @@
     <string name="text_skip">スキップ</string>
 
 
+    <string name="tooltip_note">これは曲のメモを保存するためのものです</string>
+    <string name="tooltip_music">これは再生したい曲を選ぶためのものです</string>
+    <string name="tooltip_record">これは演奏中に録音するためのものです</string>
+    <string name="tooltip_volume">これは音量を調整するためのものです</string>
+    <string name="tooltip_color">これは色を変更するためのものです</string>
+    <string name="text_welcome">こんにちは。楽しく演奏してください :D</string>
+
+    <string name="how_to_add_new_song">曲の追加方法</string>
+    <string name="how_add_song1">1. アプリを終了する</string>
+    <string name="how_add_song2">2. ブラウザで手動でmp3形式の曲をダウンロードする</string>
+    <string name="how_add_song3">3. アプリを再度開き、音楽アイコンを選択する</string>
+    <string name="how_add_song4">4. ダウンロードした曲がプレイリストに追加されます</string>
+
+    <string name="how_to_add_note">曲のメモの追加方法</string>
+    <string name="how_to_add_note1">メモ追加ダイアログの追加アイコンをクリックする</string>
+    <string name="how_to_add_note2">メモのタイトルを入力する</string>
+    <string name="how_to_add_note3">曲の音符や歌詞を入力する</string>
+    <string name="how_to_add_note4">保存ボタンをクリックすると、メモリストに表示されます</string>
+
+    <string name="choose_song">曲を選ぶ</string>
+    <string name="tooltip_saved_record">これは録音結果を見るためのものです</string>
+    <string name="recorded_saved">録音が保存されました</string>
+
 
 </resources>

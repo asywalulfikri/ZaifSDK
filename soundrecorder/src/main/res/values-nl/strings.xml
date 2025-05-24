@@ -147,5 +147,28 @@
     <string name="text_next">Volgende</string>
     <string name="text_skip">Overslaan</string>
 
+    <string name="tooltip_note">Dit is om songnotities op te slaan</string>
+    <string name="tooltip_music">Dit is om het nummer te kiezen dat je wilt afspelen</string>
+    <string name="tooltip_record">Dit is om op te nemen terwijl je speelt</string>
+    <string name="tooltip_volume">Dit is om het volume aan te passen</string>
+    <string name="tooltip_color">Dit is om de kleur te veranderen</string>
+    <string name="text_welcome">Hallo. Veel speelplezier :D</string>
+
+    <string name="how_to_add_new_song">Hoe voeg je een nummer toe</string>
+    <string name="how_add_song1">1. Verlaat de app</string>
+    <string name="how_add_song2">2. Download het nummer handmatig via de browser in mp3-formaat</string>
+    <string name="how_add_song3">3. Open de app opnieuw en selecteer het muziekicoon</string>
+    <string name="how_add_song4">4. Het gedownloade nummer verschijnt in de afspeellijst</string>
+
+    <string name="how_to_add_note">Hoe voeg je een songnotitie toe</string>
+    <string name="how_to_add_note1">Klik op het plus-icoon in het notitie toevoegen dialoogvenster</string>
+    <string name="how_to_add_note2">Vul de titel van de notitie in</string>
+    <string name="how_to_add_note3">Vul de songnotities of het nummer in</string>
+    <string name="how_to_add_note4">Klik op de knop Opslaan en deze verschijnt in de notitielijst</string>
+
+    <string name="choose_song">Kies een nummer</string>
+    <string name="tooltip_saved_record">Dit is om de opname te bekijken</string>
+    <string name="recorded_saved">Opname opgeslagen</string>
+
 
 </resources>

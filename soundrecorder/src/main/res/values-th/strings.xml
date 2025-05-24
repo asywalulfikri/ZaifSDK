@@ -146,5 +146,28 @@
     <string name="text_skip">ข้าม</string>
 
 
+    <string name="tooltip_note">นี่คือสำหรับบันทึกโน้ตเพลง</string>
+    <string name="tooltip_music">นี่คือสำหรับเลือกเพลงที่คุณต้องการเล่น</string>
+    <string name="tooltip_record">นี่คือสำหรับอัดเสียงขณะที่คุณกำลังเล่น</string>
+    <string name="tooltip_volume">นี่คือสำหรับปรับระดับเสียง</string>
+    <string name="tooltip_color">นี่คือสำหรับเปลี่ยนสี</string>
+    <string name="text_welcome">สวัสดี สนุกกับการเล่นนะ :D</string>
+
+    <string name="how_to_add_new_song">วิธีเพิ่มเพลงใหม่</string>
+    <string name="how_add_song1">1. ออกจากแอป</string>
+    <string name="how_add_song2">2. ดาวน์โหลดเพลงด้วยตนเองผ่านเบราว์เซอร์ในรูปแบบ mp3</string>
+    <string name="how_add_song3">3. เปิดแอปอีกครั้งและเลือกไอคอนเพลง</string>
+    <string name="how_add_song4">4. เพลงที่ดาวน์โหลดจะถูกเพิ่มในเพลย์ลิสต์</string>
+
+    <string name="how_to_add_note">วิธีเพิ่มโน้ตเพลง</string>
+    <string name="how_to_add_note1">คลิกไอคอนเพิ่มในกล่องโต้ตอบเพิ่มโน้ต</string>
+    <string name="how_to_add_note2">กรอกชื่อโน้ต</string>
+    <string name="how_to_add_note3">กรอกโน้ตเพลงหรือเพลง</string>
+    <string name="how_to_add_note4">คลิกปุ่มบันทึกและจะปรากฏในรายการโน้ต</string>
+
+    <string name="choose_song">เลือกเพลง</string>
+    <string name="tooltip_saved_record">นี่คือสำหรับดูผลการบันทึก</string>
+    <string name="recorded_saved">บันทึกเสียงเสร็จแล้ว</string>
+
 
 </resources>
