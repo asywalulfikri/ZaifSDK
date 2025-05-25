@@ -1,0 +1,30 @@
+<!-- res/drawable/progress_seekbar.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Track (background) -->
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <size android:height="2dp" /> <!-- Ubah ke 2dp -->
+            <solid android:color="#D3D3D3" />
+        </shape>
+    </item>
+
+    <!-- Secondary progress (optional) -->
+    <item android:id="@android:id/secondaryProgress">
+        <clip>
+            <shape android:shape="rectangle">
+                <size android:height="2dp" />
+                <solid android:color="#AAAAAA" />
+            </shape>
+        </clip>
+    </item>
+
+    <!-- Progress -->
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape android:shape="rectangle">
+                <size android:height="2dp" />
+                <solid android:color="#4fa6ff" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>

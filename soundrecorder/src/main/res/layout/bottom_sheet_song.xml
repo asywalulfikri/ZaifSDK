@@ -38,7 +38,7 @@
         android:layout_width="0dp"
         android:layout_margin="@dimen/_10sdp"
         android:background="@drawable/button_black"
-        android:backgroundTint="@color/common_google_signin_btn_text_light"
+        android:backgroundTint="@color/black_transparent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="@dimen/_12sdp"
         android:paddingBottom="@dimen/_5sdp"
@@ -52,17 +52,36 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:fontFamily="@font/ooredoo"
+            android:layout_marginVertical="@dimen/_5sdp"
+            style="@style/CustomTextTitleThin"
             android:textColor="@color/white"
             android:textSize="@dimen/_12ssp"
             android:gravity="center" />
 
-        <SeekBar
-            android:id="@+id/seekBar"
-            style="@style/SeekBarStyle2"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center"
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_10ssp"
+                android:gravity="start" />
+
+            <SeekBar
+                android:layout_marginEnd="@dimen/_40sdp"
+                android:layout_marginStart="@dimen/_10ssp"
+                android:id="@+id/seekBar"
+                style="@style/SeekBarStyle2"
+                android:thumbOffset="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -75,7 +94,7 @@
                 android:id="@+id/btnPause"
                 android:drawableStart="@drawable/ic_pause"
                 android:layout_width="@dimen/_90sdp"
-                android:background="@drawable/button_black"
+                android:background="@drawable/button_black_color"
                 android:layout_height="@dimen/_25sdp"
                 android:fontFamily="@font/ooredoo"
                 android:textAllCaps="false"
@@ -101,10 +120,10 @@
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnStop"
-                android:drawableStart="@drawable/ic_stop"
+                android:drawableStart="@drawable/ic_baseline_stop_24"
                 android:layout_width="@dimen/_90sdp"
                 android:layout_marginHorizontal="@dimen/_10sdp"
-                android:background="@drawable/button_green_color"
+                android:background="@drawable/button_record_color"
                 android:layout_height="@dimen/_25sdp"
                 android:fontFamily="@font/ooredoo"
                 android:textAllCaps="false"

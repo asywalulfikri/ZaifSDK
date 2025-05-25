@@ -54,7 +54,7 @@ import kotlin.math.ln
 
 
 class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClickListener,
-    FragmentSheetListSong.OnClickListener ,SharedPreferences.OnSharedPreferenceChangeListener,PauseListener {
+    FragmentListSong.OnClickListener ,SharedPreferences.OnSharedPreferenceChangeListener,PauseListener {
 
     private var recordingAudio = false
     private var pauseRecordAudio = false
@@ -70,7 +70,6 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
     private val blinkHandler = Handler(Looper.getMainLooper())
     private var isBlinking = false
     private var isShowCase = true
-    private var zaifSDKBuilder : ZaifSDKBuilder? =null
 
     private var volumeMusic: Float = 1.0f // Volume default 100% for MediaPlayer
     private var volumeAudio: Float = 1.0f // Volume default 100% for SoundPool
@@ -147,7 +146,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
 
         binding.ivListRecord.setOnClickListener {
             try {
-                MyFragmentListener.openFragment(ListRecordFragment())
+                MyFragmentListener.openFragment(FragmentListRecord())
                 MyAdsListener.setAds(false)
             }catch (e : Exception){
                 setToast(e.message.toString())
@@ -320,7 +319,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
     private fun showBottomSheetSong(){
         try {
             if(activity!=null){
-                MyFragmentListener.openFragment(FragmentSheetListSong(showBtnStop,this))
+                MyFragmentListener.openFragment(FragmentListSong(showBtnStop,this))
                 MyAdsListener.setAds(false)
             }
         }catch (e : Exception){

@@ -35,7 +35,8 @@
     </style>
 
     <style name="SeekBarStyle2">
-        <item name="android:thumb">@drawable/custom_seekbar_thumb</item>
+        <item name="android:thumb">@drawable/thumb_seekbar</item>
+        <item name="android:progressDrawable">@drawable/seekbar_progress_music</item>
     </style>
 
     <style name="TextAppearance.App.CollapsingToolbar.Collapsed" parent="TextAppearance.MaterialComponents.Headline6">

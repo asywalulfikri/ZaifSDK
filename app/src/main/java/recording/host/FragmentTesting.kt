@@ -30,7 +30,7 @@ open class FragmentTesting : BaseFragmentWidget() {
     ): View? {
         binding = FragmentExampleBinding.inflate(inflater, container, false)
 
-        setupBanner(binding?.bannerView)
+       // setupBanner(binding?.bannerView)
 
 
         return binding?.root

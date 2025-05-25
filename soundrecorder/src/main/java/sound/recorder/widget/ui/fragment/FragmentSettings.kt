@@ -25,7 +25,6 @@ open class FragmentSettings : BaseFragmentWidget() {
     private var binding: FragmentSettingBinding? = null
     private var type = ""
     var language = ""
-    private var dataSession: DataSession? = null
 
     companion object {
         fun newInstance(): FragmentSettings {

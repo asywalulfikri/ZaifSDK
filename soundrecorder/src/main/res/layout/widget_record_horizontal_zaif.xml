@@ -75,6 +75,19 @@
             app:srcCompat="@drawable/record"
             tools:ignore="DuplicateSpeakableTextCheck" />
 
+        <ImageView
+            android:id="@+id/ivPause"
+            android:visibility="gone"
+            android:layout_width="@dimen/_35sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/button_record_color"
+            android:contentDescription="@string/app_name"
+            android:padding="@dimen/_8sdp"
+            app:srcCompat="@drawable/ic_pause"
+            tools:ignore="DuplicateSpeakableTextCheck" />
+
+
     </RelativeLayout>
 
     <ImageView

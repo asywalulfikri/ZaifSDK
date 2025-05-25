@@ -2,6 +2,7 @@ package recording.host
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.media.AudioAttributes
@@ -22,7 +23,6 @@ import androidx.fragment.app.Fragment
 import recording.host.databinding.ActivityMainBinding
 import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.base.BaseActivityWidget
-import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.FragmentListener
 import sound.recorder.widget.listener.MusicListener
@@ -37,12 +37,11 @@ import sound.recorder.widget.model.Song
 import sound.recorder.widget.tools.showcase.GuideView
 import sound.recorder.widget.tools.showcase.config.DismissType
 import sound.recorder.widget.tools.showcase.config.Gravity
-import sound.recorder.widget.tools.showcase.config.PointerType
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
 import sound.recorder.widget.ui.fragment.FragmentSettings
-import sound.recorder.widget.ui.fragment.FragmentSheetListSong
+import sound.recorder.widget.ui.fragment.FragmentListSong
 import sound.recorder.widget.ui.fragment.FragmentVideo
-import sound.recorder.widget.ui.fragment.ListRecordFragment
+import sound.recorder.widget.ui.fragment.FragmentListRecord
 import sound.recorder.widget.util.AppRatingHelper
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
@@ -52,7 +51,7 @@ import java.io.IOException
 import kotlin.math.ln
 
 
-class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPreferences.OnSharedPreferenceChangeListener,PauseListener,FragmentSheetListSong.OnClickListener,MusicListener {
+class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPreferences.OnSharedPreferenceChangeListener,PauseListener,FragmentListSong.OnClickListener,MusicListener {
 
     private lateinit var sp : SoundPool
 
@@ -196,6 +195,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             showOpenAd()
         }
 
+
         //showCase(binding.btnOpenId)
 
         binding.btnNote.setOnClickListener {
@@ -205,6 +205,11 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             }catch (e : Exception){
                 Log.d("error","error")
             }
+        }
+
+        binding.btnChangePage.setOnClickListener {
+            val intent = Intent(this@MainActivity, ActivityGame::class.java)
+            startActivity(intent)
         }
 
         binding.btnInterstitialStarApp.setOnClickListener {
@@ -371,7 +376,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
     private fun showBottomSheetSong(){
         try {
-            MyFragmentListener.openFragment(FragmentSheetListSong(showBtnStop,this))
+            MyFragmentListener.openFragment(FragmentListSong(showBtnStop,this))
             MyAdsListener.setAds(false)
 
         }catch (e : Exception){
@@ -416,12 +421,12 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
     override fun onBackPressed() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragmentFileViewer)
 
-        if (fragment is ListRecordFragment) {
+        if (fragment is FragmentListRecord) {
             val consumed = fragment.onBackPressed()
             if (consumed) {
                 return
             }
-        } else if (fragment is FragmentSheetListSong) {
+        } else if (fragment is FragmentListSong) {
             val consumed = fragment.onBackPressed()
             if (consumed) {
                 return

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_game"
+    app:startDestination="@id/FragmentTesting">
+
+
+    <include app:graph="@navigation/nav_sdk" />
+
+    <fragment
+        android:id="@+id/FragmentTesting"
+        android:name="recording.host.FragmentTesting"
+        android:label=""
+        tools:layout="@layout/fragment_example">
+
+        <action
+            android:id="@+id/action_widget_to_list_song"
+            app:destination="@id/FragmentListSong" />
+
+        <action
+            android:id="@+id/action_widget_to_list_record"
+            app:destination="@id/FragmentListRecord" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/FragmentListSong"
+        android:name="sound.recorder.widget.ui.fragment.FragmentListSong"
+        android:label=""
+        tools:layout="@layout/bottom_sheet_song"/>
+
+    <fragment
+        android:id="@+id/FragmentListRecord"
+        android:name="sound.recorder.widget.ui.fragment.FragmentListRecord"
+        android:label=""
+        tools:layout="@layout/activity_listing_new/">
+
+    </fragment>
+
+
+
+</navigation>

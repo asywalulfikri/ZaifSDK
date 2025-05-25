@@ -15,9 +15,17 @@ open class MyApp : Application() {
     // Coroutine scope with SupervisorJob to isolate failures
     private val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
+    companion object {
+        private lateinit var instance: MyApp
+        fun getApplicationContext(): MyApp {
+            return instance
+        }
+
+    }
+
     override fun onCreate() {
         super.onCreate()
-
+        instance = this
         // Initialize SDKs in the background
         applicationScope.launch {
             withTimeoutOrNull(10_000) { // Timeout to prevent hanging

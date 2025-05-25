@@ -10,7 +10,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.Color
 import android.media.AudioManager
 import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
@@ -43,6 +45,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.facebook.ads.Ad
@@ -80,11 +83,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.animation.ParticleSystem
 import sound.recorder.widget.animation.modifiers.ScaleModifier
 import sound.recorder.widget.builder.AdmobSDKBuilder
 import sound.recorder.widget.builder.FanSDKBuilder
+import sound.recorder.widget.builder.ZaifSDKBuilder
+import sound.recorder.widget.databinding.WidgetRecordHorizontalZaifBinding
 import sound.recorder.widget.tools.showcase.GuideView
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
@@ -123,6 +129,8 @@ open class BaseFragmentWidget : Fragment() {
     var admobSDKBuilder : AdmobSDKBuilder? =null
     private var adViewFacebook : com.facebook.ads.AdView? = null
     var fanSDKBuilder : FanSDKBuilder? =null
+    var zaifSDKBuilder : ZaifSDKBuilder? =null
+    lateinit var dataSession : DataSession
 
 
     var recorder: MediaRecorder? = null
@@ -130,18 +138,56 @@ open class BaseFragmentWidget : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        admobSDKBuilder = AdmobSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
-        fanSDKBuilder = FanSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
+        // Run in background thread
+        CoroutineScope(Dispatchers.IO).launch {
+            val admob = AdmobSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
+            val fan   = FanSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
 
-       /* try {
-            val languageCode = Locale.getDefault().language
-            getDataSession().saveDefaultLanguage(languageCode)
-            setLocale(getDataSession().getDefaultLanguage())
-        }catch (e : Exception){
-            setToastError(activity,e.message.toString())
-        }*/
-
+            withContext(Dispatchers.Main) {
+                admobSDKBuilder = admob
+                fanSDKBuilder = fan
+            }
+        }
     }
+
+
+    @SuppressLint("UseKtx")
+    fun setupWidget(builder : ZaifSDKBuilder?, binding : WidgetRecordHorizontalZaifBinding){
+        try {
+            builder?.backgroundWidgetColor?.let { colorString ->
+                if (colorString.isNotEmpty()) {
+                    try {
+                        val tintList = ColorStateList.valueOf(Color.parseColor(colorString))
+                        ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
+                    } catch (e: IllegalArgumentException) {
+                        setToast("Invalid color value: $colorString")
+                    }
+                }
+            }
+        }catch (e : Exception){
+            //
+        }
+
+        binding.ivChangeColor.setOnClickListener {
+            activity?.let {
+                try {
+                    RecordingSDK.showDialogColorPicker(it)
+                } catch (e: Exception) {
+                    setToast(e.message.toString())
+                }
+            } ?: setToast("Activity is not available")
+        }
+
+        try {
+            binding.ivNote.visibility = if (builder?.showNote==true) View.VISIBLE else View.GONE
+            binding.ivChangeColor.visibility = if (builder?.showChangeColor==true) View.VISIBLE else View.GONE
+            binding.ivSong.visibility = if (builder?.showListSong==true) View.VISIBLE else View.GONE
+            binding.ivVolume.visibility = if (builder?.showVolume==true) View.VISIBLE else View.GONE
+        }catch (e : Exception){
+            //
+        }
+    }
+
 
     fun createBalloonWithText(
         title: String,
@@ -209,6 +255,124 @@ open class BaseFragmentWidget : Fragment() {
         }catch (e : Exception){
             setLog(e.message.toString())
         }
+    }
+
+
+    @SuppressLint("CutPasteId")
+    fun showTooltipSequence(binding : WidgetRecordHorizontalZaifBinding) {
+
+        try {
+            zaifSDKBuilder?.let { builder ->
+
+                val balloonNote       = createBalloonWithText(requireContext().getString(R.string.note_song), getString(R.string.tooltip_note))
+                val balloonSong       = createBalloonWithText(requireContext().getString(R.string.choose_song), getString(R.string.tooltip_music))
+
+                // Gunakan 'var' karena nilainya mungkin akan diubah berdasarkan kondisi
+                var balloonRecording  = createBalloonWithText(
+                    requireContext().getString(R.string.recordings),
+                    getString(R.string.tooltip_record)
+                )
+                var balloonListRecord = createBalloonWithText(
+                    requireContext().getString(R.string.recorded_saved),
+                    getString(R.string.tooltip_saved_record)
+                )
+                var balloonVolume     = createBalloonWithText(
+                    requireContext().getString(R.string.volume),
+                    getString(R.string.tooltip_volume)
+                )
+                var balloonColor      = createBalloonWithText(
+                    requireContext().getString(R.string.choose_color),
+                    getString(R.string.tooltip_color),
+                    true
+                )
+
+// Tampilkan balloon tertentu langsung berdasarkan kondisi
+                if (!builder.showVolume && !builder.showChangeColor) {
+                    balloonListRecord = createBalloonWithText(
+                        requireContext().getString(R.string.recorded_saved),
+                        getString(R.string.tooltip_saved_record),
+                        true
+                    )
+                } else if (builder.showVolume && !builder.showChangeColor) {
+                    balloonVolume = createBalloonWithText(
+                        requireContext().getString(R.string.volume),
+                        getString(R.string.tooltip_volume),
+                        true
+                    )
+                }
+
+
+                balloonNote.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonNote.dismiss()
+                    binding.ivNote.post {
+                        balloonSong.showAlignBottom(binding.ivSong)
+                    }
+                }
+
+                balloonSong.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonSong.dismiss()
+                    binding.ivSong.post {
+                        balloonRecording.showAlignBottom(binding.ivRecord)
+                    }
+                }
+
+                balloonRecording.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonRecording.dismiss()
+                    binding.ivRecord.post {
+                        balloonListRecord.showAlignBottom(binding.ivListRecord)
+                    }
+                }
+
+                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonListRecord.dismiss()
+
+                    if(builder.showVolume){
+                        binding.ivListRecord.post {
+                            balloonVolume.showAlignBottom(binding.ivVolume)
+                        }
+                    }else{
+                        if(builder.showChangeColor){
+                            balloonColor.showAlignBottom(binding.ivChangeColor)
+                        }else{
+                            dataSession.saveTooltip(true)
+                        }
+                    }
+                }
+
+                balloonVolume.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonVolume.dismiss()
+                    if(builder.showChangeColor){
+                        binding.ivVolume.post {
+                            balloonColor.showAlignBottom(binding.ivChangeColor)
+                        }
+                    }else{
+                        dataSession.saveTooltip(true)
+                    }
+                }
+
+                balloonColor.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
+                    balloonColor.dismiss()
+                    dataSession.saveTooltip(true)
+                    //save session
+                }
+
+
+                if (builder.showNote){
+                    binding.ivNote.post {
+                        balloonNote.showAlignBottom(binding.ivNote)
+                    }
+                }else{
+                    binding.ivSong.post {
+                        balloonSong.showAlignBottom(binding.ivSong)
+                    }
+                }
+            } ?: run {
+                // Optional: Log or handle the case where zaifSDKBuilder is null
+                setLog("zaifSDKBuilder is null, menu items not updated")
+            }
+        }catch (e : Exception){
+        }
+
     }
 
 

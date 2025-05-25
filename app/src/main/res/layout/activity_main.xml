@@ -97,12 +97,27 @@ Pembaruan UI: Kode ini sudah berada di thread UI, sehingga runOnUiThread tidak p
         app:layout_constraintTop_toTopOf="parent">
 
 
-        <Button
-            android:id="@+id/btn1"
-            android:text="1"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:ignore="HardcodedText" />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn1"
+                android:text="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/btnChangePage"
+                android:text="Pindah Page"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
 
         <Button
             android:id="@+id/openPlayStore"
@@ -177,5 +192,11 @@ Pembaruan UI: Kode ini sudah berada di thread UI, sehingga runOnUiThread tidak p
         android:id="@+id/fragmentFileViewer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <fragment
+        android:id="@+id/nav_sdk"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </RelativeLayout>
