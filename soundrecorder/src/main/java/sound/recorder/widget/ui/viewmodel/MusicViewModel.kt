@@ -91,6 +91,17 @@ class MusicViewModel : ViewModel() {
     private var volumeAudio: Float = 1.0f // Volume default 100% for SoundPool
 
 
+    var isInitialized = false
+    private val _init= MutableLiveData<Boolean?>()
+    val init: LiveData<Boolean?> = _init
+
+    fun initializeIfNeeded() {
+        if (!isInitialized) {
+            isInitialized = true
+            _init.postValue(true)
+        }
+    }
+
     fun updateProgress(position: Int) {
         _currentPosition.postValue(position)
     }
@@ -223,14 +234,21 @@ class MusicViewModel : ViewModel() {
 
     private val updateProgressRunnable = object : Runnable {
         override fun run() {
-            mediaPlayer?.let {
-                if (it.isPlaying) {
-                    updateProgress(it.currentPosition)
-                    handler.postDelayed(this, 500)
+            if(mediaPlayer!=null){
+                try {
+                    mediaPlayer?.let {
+                        if (it.isPlaying) {
+                            updateProgress(it.currentPosition)
+                            handler.postDelayed(this, 500)
+                        }
+                    }
+                }catch (e : Exception){
+                    //
                 }
             }
         }
     }
+
 
     fun seekbarMusic(position : Int){
         viewModelScope.launch {
@@ -244,8 +262,10 @@ class MusicViewModel : ViewModel() {
     fun releaseMediaPlayerOnDestroy(){
         viewModelScope.launch {
             if(mediaPlayer!=null){
+                handler.removeCallbacks(updateProgressRunnable)
                 mediaPlayer?.apply {
                     try {
+                        stop()
                         release()
                     } catch (e: Exception) {
                         setLog(e.message)
@@ -262,7 +282,6 @@ class MusicViewModel : ViewModel() {
                     //release pause listener
                     MyPauseListener.showButtonStop(false)
                     MyPauseListener.setMyListener(null)
-                    handler.removeCallbacks(updateProgressRunnable)
                 }
             }
         }
