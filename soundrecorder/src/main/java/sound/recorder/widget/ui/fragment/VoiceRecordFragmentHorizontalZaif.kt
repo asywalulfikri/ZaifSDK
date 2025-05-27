@@ -262,20 +262,20 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
     override fun onDestroy() {
         super.onDestroy()
-        setToast("ondestroyyyy")
         musicViewModel.releaseMediaPlayerOnDestroy()
+        musicViewModel.stopRecord()
         MyPauseListener.showButtonStop(false)
         MyMusicListener.setMyListener(null)
         MyStopSDKMusicListener.setMyListener(null)
         MyStopMusicListener.setMyListener(null)
         MyPauseListener.setMyListener(null)
-        _binding = null
     }
 
 
     override fun onDestroyView() {
         super.onDestroyView()
         stopBlinking()
+        _binding = null
     }
 
     private fun showBottomSheetSong(){
@@ -374,9 +374,13 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     }
 
     private fun stopBlinking() {
-        isBlinking = false
-        blinkHandler.removeCallbacksAndMessages(null)
-        binding.tvTimerView.visibility = View.GONE
+        try {
+            isBlinking = false
+            blinkHandler.removeCallbacksAndMessages(null)
+            binding.tvTimerView.visibility = View.GONE
+        }catch (e : Exception){
+
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -477,8 +481,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
 
     private fun showBottomSheet(){
-        val bottomSheet = BottomSheet(dirPath, fileName, this)
-        bottomSheet.show(requireActivity().supportFragmentManager, LOG_TAG)
+        try {
+            val bottomSheet = BottomSheet(dirPath, fileName, this)
+            bottomSheet.show(requireActivity().supportFragmentManager, LOG_TAG)
+        }catch (e : Exception){
+            //
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -503,7 +511,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
     override fun onPause() {
         super.onPause()
         sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
-        if (mp != null) {
+       /* if (mp != null) {
             mp.apply {
                 mp?.release()
                 MyMusicListener.postAction(null)
@@ -513,7 +521,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 showBtnStop = false
                 songIsPlaying = false
             }
-        }
+        }*/
     }
 
 

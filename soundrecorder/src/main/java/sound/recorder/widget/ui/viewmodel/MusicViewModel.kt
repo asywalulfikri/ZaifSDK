@@ -371,23 +371,18 @@ class MusicViewModel : ViewModel() {
 
 
     fun stopRecord() {
-        viewModelScope.launch {
-            try {
-                recorder?.apply {
-                    stop()
-                    reset()
-                    release()
-                }
-                recorder = null
-
-                withContext(Dispatchers.Main) {
-                    _stopRecord.value = Event(true)
-                    _setRecord.postValue(false)
-                }
-
-            } catch (e: Exception) {
-               setLog(e.message)
+        try {
+            recorder?.apply {
+                stop()
+                reset()
+                release()
             }
+            recorder = null
+            _stopRecord.value = Event(true)
+            _setRecord.postValue(false)
+
+        } catch (e: Exception) {
+            setLog(e.message)
         }
     }
 
