@@ -310,11 +310,11 @@ class FragmentListSong(
                                     } while (cursor.moveToNext())
                                 }
                                 updateView()
-                                setLog("cepet111")
                             } else {
-                                setLog("cepet222")
                                 updateView()
                             }
+
+                            musicViewModel.songIsLoaded = true
                         }
 
                     } catch (e: Exception) {
@@ -412,7 +412,9 @@ class FragmentListSong(
     @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
     fun onMessageEvent(songListResponse: ArrayList<Song>?) {
         if (isAdded && isVisible) {
-            songListResponse?.let { getSong(it) }
+            if(!musicViewModel.songIsLoaded){
+                songListResponse?.let { getSong(it) }
+            }
         }
     }
 
@@ -437,6 +439,7 @@ class FragmentListSong(
         sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
         MyStopSDKMusicListener.setMyListener(null)
         weakContext = null
+        musicViewModel.songIsLoaded = false
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {

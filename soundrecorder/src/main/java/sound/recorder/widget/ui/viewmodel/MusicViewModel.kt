@@ -92,6 +92,7 @@ class MusicViewModel : ViewModel() {
 
 
     var isInitialized = false
+    var songIsLoaded = false
     private val _init= MutableLiveData<Boolean?>()
     val init: LiveData<Boolean?> = _init
 
@@ -100,6 +101,10 @@ class MusicViewModel : ViewModel() {
             isInitialized = true
             _init.postValue(true)
         }
+    }
+
+    fun setSongLoaded(){
+        songIsLoaded = true
     }
 
     fun updateProgress(position: Int) {
@@ -260,29 +265,27 @@ class MusicViewModel : ViewModel() {
 
 
     fun releaseMediaPlayerOnDestroy(){
-        viewModelScope.launch {
-            if(mediaPlayer!=null){
-                handler.removeCallbacks(updateProgressRunnable)
-                mediaPlayer?.apply {
-                    try {
-                        stop()
-                        release()
-                    } catch (e: Exception) {
-                        setLog(e.message)
-                    } finally {
-                        mediaPlayer = null
-                    }
-
-                    MyMusicListener.setMyListener(null)
-
-                    //release stop listener
-                    MyStopSDKMusicListener.setMyListener(null)
-                    MyStopMusicListener.setMyListener(null)
-
-                    //release pause listener
-                    MyPauseListener.showButtonStop(false)
-                    MyPauseListener.setMyListener(null)
+        if(mediaPlayer!=null){
+            handler.removeCallbacks(updateProgressRunnable)
+            mediaPlayer?.apply {
+                try {
+                    stop()
+                    release()
+                } catch (e: Exception) {
+                    setLog(e.message)
+                } finally {
+                    mediaPlayer = null
                 }
+
+                MyMusicListener.setMyListener(null)
+
+                //release stop listener
+                MyStopSDKMusicListener.setMyListener(null)
+                MyStopMusicListener.setMyListener(null)
+
+                //release pause listener
+                MyPauseListener.showButtonStop(false)
+                MyPauseListener.setMyListener(null)
             }
         }
     }

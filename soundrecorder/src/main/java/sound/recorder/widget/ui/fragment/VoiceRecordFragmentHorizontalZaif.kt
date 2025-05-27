@@ -262,6 +262,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
 
     override fun onDestroy() {
         super.onDestroy()
+        setToast("ondestroyyyy")
         musicViewModel.releaseMediaPlayerOnDestroy()
         MyPauseListener.showButtonStop(false)
         MyMusicListener.setMyListener(null)
