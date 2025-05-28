@@ -458,6 +458,10 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
     }
 
+    override fun onShowInterstitial() {
+
+    }
+
     override fun onViewButtonHome(show: Boolean) {
 
     }
