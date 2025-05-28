@@ -73,7 +73,7 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.7.1'
     kapt 'androidx.room:room-compiler:2.7.1'
     implementation 'androidx.room:room-ktx:2.7.1'
-    implementation("com.github.skydoves:balloon:1.5.4")
+    implementation("com.github.skydoves:balloon:1.6.9")
     implementation 'com.unity3d.ads:unity-ads:4.14.2'
     implementation 'com.google.android.gms:play-services-ads:24.3.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.2.0'

@@ -72,6 +72,7 @@ import com.google.gson.Gson
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.overlay.BalloonOverlayRoundRect
 import org.json.JSONObject
 import sound.recorder.widget.R
 import sound.recorder.widget.RecordingSDK
@@ -200,16 +201,41 @@ open class BaseFragmentWidget : Fragment() {
             .setCornerRadius(8f)
             .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
             .setPadding(8)
-            .setBackgroundColorResource(R.color.black_transparent)
-            .setBalloonAnimation(BalloonAnimation.FADE)
+            .setOverlayShape(BalloonOverlayRoundRect(com.intuit.sdp.R.dimen._5sdp, com.intuit.sdp.R.dimen._5sdp))
+
+
+            // ❌ Ini mengatur background tooltip-nya saja
+            .setBackgroundColorResource(R.color.yellow_50) // Ganti dengan putih atau warna solid untuk tooltip
+
+            // ✅ Tambahkan overlay luar
+            .setIsVisibleOverlay(true)
+            .setOverlayColorResource(R.color.tooltip_overlay_dark) // <== ini yang bikin luar gelap
+
+            // ✅ Supaya tidak bisa klik luar
             .setDismissWhenTouchOutside(false)
+            .setDismissWhenOverlayClicked(false)
+            .setDismissWhenTouchMargin(false)
+            .setFocusable(false)
+
+            .setBalloonAnimation(BalloonAnimation.FADE)
             .build()
 
         val layout = balloon.getContentView()
         layout.findViewById<TextView>(R.id.tvTitle).text = title
         layout.findViewById<TextView>(R.id.tvMessage).text = message
-        val btn = layout.findViewById<TextView>(R.id.btnNext)
-        btn.text = if (isLast) getString(R.string.text_done) else getString(R.string.next)
+        val btn = layout.findViewById<Button>(R.id.btnNext)
+        val btnSkip = layout.findViewById<TextView>(R.id.btnSkip)
+        btn.text = if (isLast){
+            requireContext().getString(R.string.text_done)
+        } else{
+            requireContext().getString(R.string.next)
+        }
+
+        btnSkip.visibility =  if (isLast){
+            View.GONE
+        } else{
+            View.VISIBLE
+        }
 
         return balloon
     }
@@ -309,6 +335,11 @@ open class BaseFragmentWidget : Fragment() {
                     }
                 }
 
+                balloonNote.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
+                    balloonNote.dismiss()
+                    dataSession.saveTooltip(true)
+                }
+
                 balloonSong.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
                     balloonSong.dismiss()
                     binding.ivSong.post {
@@ -316,11 +347,21 @@ open class BaseFragmentWidget : Fragment() {
                     }
                 }
 
+                balloonSong.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
+                    balloonSong.dismiss()
+                    dataSession.saveTooltip(true)
+                }
+
                 balloonRecording.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
                     balloonRecording.dismiss()
                     binding.ivRecord.post {
                         balloonListRecord.showAlignBottom(binding.ivListRecord)
                     }
+                }
+
+                balloonRecording.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
+                    balloonRecording.dismiss()
+                    dataSession.saveTooltip(true)
                 }
 
                 balloonListRecord.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
@@ -339,6 +380,11 @@ open class BaseFragmentWidget : Fragment() {
                     }
                 }
 
+                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
+                    balloonListRecord.dismiss()
+                    dataSession.saveTooltip(true)
+                }
+
                 balloonVolume.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
                     balloonVolume.dismiss()
                     if(builder.showChangeColor){
@@ -348,6 +394,11 @@ open class BaseFragmentWidget : Fragment() {
                     }else{
                         dataSession.saveTooltip(true)
                     }
+                }
+
+                balloonVolume.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
+                    balloonVolume.dismiss()
+                    dataSession.saveTooltip(true)
                 }
 
                 balloonColor.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {

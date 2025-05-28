@@ -103,7 +103,11 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                     handler = Handler(Looper.getMainLooper())
                 }
                 if(dataSession.isDoneTooltip()==false) {
-                   showTooltipSequence(binding)
+                    try {
+                        showTooltipSequence(binding)
+                    }catch (e : Exception){
+                       //
+                    }
                 }
                 setupView()
 
@@ -122,19 +126,16 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
             isRecord?.let {
                 if(isRecord){
                     if(musicViewModel.isPause){
-                        Log.d("cepetPP","qqq")
                         showLayoutPauseRecord()
                     }else{
                         if(musicViewModel.recorder==null){
                             showLayoutStopRecord()
-                            Log.d("cepetPP","zzz")
+
                         }else{
                             showLayoutStartRecord()
-                            Log.d("cepetPP","mmm")
                         }
                     }
                 }else{
-                    Log.d("cepetPP","hhh")
                     showLayoutStopRecord()
                 }
             }
