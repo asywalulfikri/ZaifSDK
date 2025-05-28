@@ -16,5 +16,8 @@ object MyAdsListener {
     fun setShowButtonHome(show : Boolean) {
         myListener?.onViewButtonHome(show)
     }
+    fun setOnShowInterstitial() {
+        myListener?.onShowInterstitial()
+    }
 
 }
