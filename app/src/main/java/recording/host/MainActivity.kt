@@ -104,10 +104,10 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         volumes = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
             ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
 
-        setupBanner(binding.bannerView)
+       /* setupBanner(binding.bannerView)
         setupBannerUnity(binding.bannerView)
        // setupBannerFacebook(binding.bannerFacebook)
-        setupHideStatusBar(binding.root,false)
+        setupHideStatusBar(binding.root,false)*/
        // setupAppOpenAd()
 
         val xx = DataSession(this).getBackgroundColor()
@@ -475,54 +475,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
     }
 
     override fun onPlaySong(filePath: String) {
-        try {
-            if(mp!=null){
-                mp.apply {
-                    mp?.release()
-                    mp = null
-                    MyMusicListener.postAction(null)
-                }
-            }
-        }catch (e : Exception){
-            setToastTic(Toastic.ERROR,e.message.toString())
-        }
-        Handler().postDelayed({
-            try {
-                mp = MediaPlayer()
-                mp?.apply {
-                    setDataSource(this@MainActivity, Uri.parse(filePath))
-                    volumes?.let { setVolume(it, volumes!!) }
-                    setToast("babiii")
-                    setOnPreparedListener{
-                        mp?.start()
-                        MyMusicListener.postAction(mp)
-                        startSeekBarUpdates()
-                        MyStopSDKMusicListener.onStartAnimation()
-                    }
-                    mp?.prepareAsync()
-                    setOnCompletionListener {
-                        MyStopSDKMusicListener.postAction(true)
-                        MyStopMusicListener.postAction(true)
-                        MyPauseListener.showButtonStop(false)
-                        showBtnStop = false
-                    }
-                    MyPauseListener.showButtonStop(true)
-                    showBtnStop = true
-                    songIsPlaying = true
 
-                }
-            } catch (e: Exception) {
-                try {
-                    MyStopSDKMusicListener.postAction(true)
-                    MyStopMusicListener.postAction(true)
-                    MyPauseListener.showButtonStop(false)
-                    showBtnStop = false
-                    setToastTic(Toastic.ERROR,e.message.toString())
-                }catch (e : Exception){
-                    setLog(e.message.toString())
-                }
-            }
-        }, 100)
     }
 
     private fun startSeekBarUpdates() {
@@ -537,37 +490,11 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
     }
 
     override fun onStopSong() {
-        try {
-            mp?.apply {
-                stop()
-                reset()
-                release()
-                mp = null
-                songIsPlaying = false
-                showBtnStop = false
-                MyPauseListener.showButtonStop(false)
-                MyMusicListener.postAction(null)
-                MyStopMusicListener.postAction(true)
-            }
-        } catch (e: IOException) {
-            setToastTic(Toastic.ERROR,e.message.toString())
-        } catch (e: IllegalStateException) {
-            setToastTic(Toastic.ERROR,e.message.toString())
-        }catch (e : Exception){
-            setToastTic(Toastic.ERROR,e.message.toString())
-        }
+
     }
 
     override fun onNoteSong(note: String) {
         MyMusicListener.postNote(note)
-    }
-
-    override fun onMusic(mediaPlayer: MediaPlayer?) {
-
-    }
-
-    override fun onComplete() {
-
     }
 
     override fun onNote(note: String?) {

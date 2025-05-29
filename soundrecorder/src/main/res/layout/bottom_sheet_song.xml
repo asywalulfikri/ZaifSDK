@@ -84,11 +84,26 @@
         </LinearLayout>
 
         <LinearLayout
+            android:layout_marginTop="@dimen/_5sdp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center">
 
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnVolume"
+                android:drawableStart="@drawable/baseline_volume_up_24"
+                android:layout_width="@dimen/_80sdp"
+                android:background="@drawable/button_black_color"
+                android:layout_height="@dimen/_25sdp"
+                android:fontFamily="@font/campton_medium"
+                android:textAllCaps="false"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:paddingHorizontal="@dimen/_5sdp"
+                android:textColor="@color/white"
+                app:srcCompat="@drawable/volume_loud_svgrepo_com"
+                android:gravity="center"
+                android:text="@string/volume" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnPause"

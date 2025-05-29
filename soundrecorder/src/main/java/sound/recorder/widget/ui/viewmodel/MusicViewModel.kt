@@ -18,10 +18,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,13 +27,7 @@ import sound.recorder.widget.MyApp
 import sound.recorder.widget.R
 import sound.recorder.widget.db.AppDatabase
 import sound.recorder.widget.db.AudioRecord
-import sound.recorder.widget.listener.MyMusicListener
-import sound.recorder.widget.listener.MyPauseListener
-import sound.recorder.widget.listener.MyStopMusicListener
-import sound.recorder.widget.listener.MyStopSDKMusicListener
-import sound.recorder.widget.util.Toastic
 import java.io.File
-import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
@@ -88,7 +80,6 @@ class MusicViewModel : ViewModel() {
     val completeRequest: LiveData<Boolean?> = _completeRequest
 
     private var volumeMusic: Float = 1.0f // Volume default 100% for MediaPlayer
-    private var volumeAudio: Float = 1.0f // Volume default 100% for SoundPool
 
 
     var isInitialized = false
@@ -109,6 +100,17 @@ class MusicViewModel : ViewModel() {
 
     fun updateProgress(position: Int) {
         _currentPosition.postValue(position)
+    }
+
+    fun setVolume(volume : Float){
+        if(mediaPlayer!=null){
+            try {
+                mediaPlayer?.setVolume(volume,volume)
+            }catch (e : Exception){
+                //
+            }
+        }
+
     }
 
 
@@ -172,25 +174,17 @@ class MusicViewModel : ViewModel() {
                 setVolume(volumeMusic, volumeMusic)
                 setOnPreparedListener {
                     start()
-                    MyMusicListener.postAction(mediaPlayer)
-                    MyStopSDKMusicListener.onStartAnimation()
                     setDuration(duration)
                     setIsPlaying(true, true)
                     handler.post(updateProgressRunnable)
                 }
                 prepareAsync()
                 setOnCompletionListener {
-                    MyStopSDKMusicListener.postAction(true)
-                    MyStopMusicListener.postAction(true)
-                    MyPauseListener.showButtonStop(false)
                     setIsPlaying(false, false)
                 }
-                MyPauseListener.showButtonStop(true)
             }
             }catch (e: Exception) {
-            MyStopSDKMusicListener.postAction(true)
-            MyStopMusicListener.postAction(true)
-            MyPauseListener.showButtonStop(false)
+                setLog(e.message)
         }
 
     }
@@ -199,7 +193,6 @@ class MusicViewModel : ViewModel() {
         if(mediaPlayer!=null){
             mediaPlayer?.pause()
             setIsPlaying(false,true)
-            //pauseRequest(true)
         }
     }
 
@@ -226,9 +219,6 @@ class MusicViewModel : ViewModel() {
                     release()
                     mediaPlayer = null
                     setIsPlaying(false,false)
-                    MyPauseListener.showButtonStop(false)
-                    MyMusicListener.postAction(null)
-                    MyStopMusicListener.postAction(true)
                 }
             } catch (e: Exception) {
                 setLog(e.message)
@@ -248,7 +238,7 @@ class MusicViewModel : ViewModel() {
                         }
                     }
                 }catch (e : Exception){
-                    //
+                    setLog(e.message)
                 }
             }
         }
@@ -269,6 +259,7 @@ class MusicViewModel : ViewModel() {
             handler.removeCallbacks(updateProgressRunnable)
             mediaPlayer?.apply {
                 try {
+                    setIsPlaying(false,false)
                     stop()
                     release()
                 } catch (e: Exception) {
@@ -276,16 +267,6 @@ class MusicViewModel : ViewModel() {
                 } finally {
                     mediaPlayer = null
                 }
-
-                MyMusicListener.setMyListener(null)
-
-                //release stop listener
-                MyStopSDKMusicListener.setMyListener(null)
-                MyStopMusicListener.setMyListener(null)
-
-                //release pause listener
-                MyPauseListener.showButtonStop(false)
-                MyPauseListener.setMyListener(null)
             }
         }
     }

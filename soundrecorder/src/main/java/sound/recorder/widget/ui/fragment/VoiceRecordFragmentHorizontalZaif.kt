@@ -6,13 +6,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.media.MediaPlayer
 import android.media.ToneGenerator
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,10 +28,6 @@ import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.databinding.WidgetRecordHorizontalZaifBinding
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyMusicListener
-import sound.recorder.widget.listener.MyPauseListener
-import sound.recorder.widget.listener.MyStopMusicListener
-import sound.recorder.widget.listener.MyStopSDKMusicListener
-import sound.recorder.widget.listener.PauseListener
 import sound.recorder.widget.ui.bottomSheet.BottomSheet
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
@@ -44,17 +38,11 @@ import kotlin.getValue
 import kotlin.math.ln
 
 
-class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnClickListener,
-    SharedPreferences.OnSharedPreferenceChangeListener,PauseListener {
+class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences.OnSharedPreferenceChangeListener, BottomSheet.OnClickListener{
 
     private lateinit var handler: Handler
     private var _binding: WidgetRecordHorizontalZaifBinding? = null
     private val binding get() = _binding!!
-
-    private var mp :  MediaPlayer? =null
-    private var showBtnStop = false
-    private var songIsPlaying = false
-
     private val blinkHandler = Handler(Looper.getMainLooper())
     private var isBlinking = false
 
@@ -98,19 +86,16 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                     volumeMusic = dataSession.getVolumeMusic()
                     volumeAudio = dataSession.getVolumeAudio()
                     zaifSDKBuilder = ZaifSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
-
-                    MyPauseListener.setMyListener(this@VoiceRecordFragmentHorizontalZaif)
                     handler = Handler(Looper.getMainLooper())
                 }
                 if(dataSession.isDoneTooltip()==false) {
                     try {
                         showTooltipSequence(binding)
                     }catch (e : Exception){
-                       //
+                       setLog(e.message)
                     }
                 }
                 setupView()
-
             }
         }
     }
@@ -130,7 +115,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                     }else{
                         if(musicViewModel.recorder==null){
                             showLayoutStopRecord()
-
                         }else{
                             showLayoutStartRecord()
                         }
@@ -172,7 +156,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         musicViewModel.stopRecord.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { isStop ->
                 if(isStop){
-                    //setToastTic(Toastic.SUCCESS,(requireContext().getString(R.string.record_canceled).toString()))
                     showLayoutStopRecord()
                 }
             }
@@ -265,11 +248,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         super.onDestroy()
         musicViewModel.releaseMediaPlayerOnDestroy()
         musicViewModel.stopRecord()
-        MyPauseListener.showButtonStop(false)
-        MyMusicListener.setMyListener(null)
-        MyStopSDKMusicListener.setMyListener(null)
-        MyStopMusicListener.setMyListener(null)
-        MyPauseListener.setMyListener(null)
     }
 
 
@@ -299,7 +277,6 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                     requestPermission.launch(Manifest.permission.RECORD_AUDIO)
                 }else{
                     showRecordDialog()
-
                 }
             }else{
                 showRecordDialog()
@@ -309,24 +286,24 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         }
     }
 
-    private fun startPermissionSong(){
-        if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU){
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                showBottomSheetSong()
-            } else {
-                requestPermissionSong.launch(Manifest.permission.READ_MEDIA_AUDIO)
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(activity as Context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissionSong.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }else{
-                showBottomSheetSong()
-            }
-        }else{
-            showBottomSheetSong()
-        }
 
-    }
+    private fun startPermissionSong(){
+         if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU){
+             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                 showBottomSheetSong()
+             } else {
+                 requestPermissionSong.launch(Manifest.permission.READ_MEDIA_AUDIO)
+             }
+         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+             if (ContextCompat.checkSelfPermission(activity as Context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                 requestPermissionSong.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+             }else{
+                 showBottomSheetSong()
+             }
+         }else{
+             showBottomSheetSong()
+         }
+     }
 
     private val requestPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -430,7 +407,8 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 initialVolumeAudio = volumeAudio, // Volume audio awal
                 onVolumeMusicChanged = { newVolumeMusic ->
                     volumeMusic = newVolumeMusic
-                    mp?.setVolume(newVolumeMusic, newVolumeMusic) // Update volume pada MediaPlayer
+                    musicViewModel.setVolume(newVolumeMusic)
+                   // mp?.setVolume(newVolumeMusic, newVolumeMusic) // Update volume pada MediaPlayer
                 },
                 onVolumeAudioChanged = { newVolumeAudio ->
                     volumeAudio = newVolumeAudio
@@ -438,7 +416,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 }
             )
         }catch (e : Exception){
-
+            setToast(e.message.toString())
         }
     }
 
@@ -456,7 +434,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
                 }
             )
         }catch (e : Exception){
-
+            setToast(e.message.toString())
         }
     }
 
@@ -507,54 +485,22 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(), BottomSheet.OnCl
         }
     }
 
-
-
     override fun onPause() {
         super.onPause()
         sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
-       /* if (mp != null) {
-            mp.apply {
-                mp?.release()
-                MyMusicListener.postAction(null)
-                MyStopSDKMusicListener.postAction(true)
-                MyStopMusicListener.postAction(true)
-                MyPauseListener.showButtonStop(false)
-                showBtnStop = false
-                songIsPlaying = false
-            }
-        }*/
     }
-
 
     override fun onResume() {
         super.onResume()
         sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
     }
 
-
-
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         if(key==Constant.KeyShared.volume){
-            if(mp!=null){
-                val progress = sharedPreferences?.getInt(Constant.KeyShared.volume,100)
-                val volume = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
-                    ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
-                if(songIsPlaying){
-                    mp?.setVolume(volume,volume)
-                }
-            }
+            val progress = sharedPreferences?.getInt(Constant.KeyShared.volume,100)
+            val volume = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
+                ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
+            musicViewModel.setVolume(volume)
         }
     }
-
-    override fun onPause(pause: Boolean) {
-       if(pause){
-           showBtnStop = false
-           MyPauseListener.showButtonStop(false)
-       }
-    }
-
-    override fun showButtonStop(stop: Boolean) {
-
-    }
-
 }

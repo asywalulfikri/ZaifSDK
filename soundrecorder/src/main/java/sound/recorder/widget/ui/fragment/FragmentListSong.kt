@@ -28,17 +28,16 @@ import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.databinding.BottomSheetSongBinding
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyMusicListener
-import sound.recorder.widget.listener.MyStopSDKMusicListener
-import sound.recorder.widget.listener.StopSDKMusicListener
 import sound.recorder.widget.model.Song
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.DataSession
+import sound.recorder.widget.util.DialogUtils
 import java.lang.ref.WeakReference
 
 class FragmentListSong(
     private var showBtnStop: Boolean? = null,
     private var listener: OnClickListener? = null
-) : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener, StopSDKMusicListener {
+) : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     private var weakContext: WeakReference<Context>? = null
     private var binding: BottomSheetSongBinding? = null
@@ -50,6 +49,9 @@ class FragmentListSong(
     private var mPanAnim: Animation? = null
     private var lisSong = ArrayList<Song>()
     private val musicViewModel: MusicViewModel by activityViewModels()
+    private var volumeMusic: Float = 1.0f // Volume default 100% for MediaPlayer
+    private var volumeAudio: Float = 1.0f // Volume default 100% for SoundPool
+    lateinit var dataSession : DataSession
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -78,9 +80,11 @@ class FragmentListSong(
                 MyAdsListener.setUnityAds(false)
                 sharedPreferences = DataSession(it).getShared()
                 sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
-                MyStopSDKMusicListener.setMyListener(this)
                 initAnim()
 
+                dataSession = DataSession(requireContext())
+                volumeMusic = dataSession.getVolumeMusic()
+                volumeAudio = dataSession.getVolumeAudio()
 
                 binding?.btnCLose?.setOnClickListener {
                     findNavController().navigateUp()
@@ -98,6 +102,10 @@ class FragmentListSong(
 
                 binding?.btnPause?.setOnClickListener {
                     musicViewModel.pauseMusic()
+                }
+
+                binding?.btnVolume?.setOnClickListener {
+                    showVolumeDialog()
                 }
 
                 lifecycleScope.launch {
@@ -165,7 +173,6 @@ class FragmentListSong(
 
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {
                         val pos = seekBar?.progress ?: 0
-                        //musicViewModel.requestSeekTo(pos)
                         musicViewModel.seekbarMusic(pos)
                     }
                 })
@@ -178,8 +185,32 @@ class FragmentListSong(
         return binding?.root ?: View(context)
     }
 
-    fun setToast(message : String){
-        Toast.makeText(requireContext(),message, Toast.LENGTH_SHORT).show()
+    private fun showVolumeDialog(){
+        try {
+            DialogUtils().showVolumeDialog(
+                context = requireContext(),
+                initialVolumeMusic = volumeMusic, // Volume musik awal
+                initialVolumeAudio = volumeAudio, // Volume audio awal
+                onVolumeMusicChanged = { newVolumeMusic ->
+                    volumeMusic = newVolumeMusic
+                    musicViewModel.setVolume(newVolumeMusic)
+                },
+                onVolumeAudioChanged = { newVolumeAudio ->
+                    volumeAudio = newVolumeAudio
+                    MyMusicListener.postVolumeAudio(newVolumeAudio) // Update volume pada SoundPool
+                }
+            )
+        }catch (e : Exception){
+            setToast(e.message.toString())
+        }
+    }
+
+    fun setToast(message : String?){
+        try {
+            Toast.makeText(requireContext(), "$message.", Toast.LENGTH_SHORT).show()
+        }catch (e : Exception){
+            setLog(e.message)
+        }
     }
 
     private fun formatTime(millis: Int): String {
@@ -338,14 +369,11 @@ class FragmentListSong(
                         run {
                             try {
                                 binding?.tvTitle?.text = listTitleSong[i].toString()
-                                //musicViewModel.requestPlaySong(listLocationSong[i].toString())
                                 musicViewModel.playMusic(requireContext(),listLocationSong[i].toString())
                                 MyMusicListener.postNote(listNoteSong[i].toString())
                             }catch (e : Exception){
-
+                                setToast(e.message)
                             }
-                           // listener?.onPlaySong(listLocationSong.get(i).toString())
-                           // listener?.onNoteSong(listNoteSong.get(i).toString())
                         }
                     }
             } catch (e: Exception) {
@@ -353,24 +381,6 @@ class FragmentListSong(
             }
         }
     }
-
-   /* private fun updateView11() {
-        activity?.let {
-            try {
-                val songAdapter = SongAdapter(it, lisSong)
-                binding?.listView?.adapter = songAdapter
-
-                binding?.listView?.onItemClickListener = AdapterView.OnItemClickListener { _, _, i, _ ->
-                   // listener?.onPlaySong(lisSong[i].pathRaw ?: "")
-                   // listener?.onNoteSong(lisSong[i].note ?: "")
-                    musicViewModel.requestPlaySong(lisSong[i].pathRaw?:"")
-                    MyMusicListener.postNote(lisSong[i].note?:"")
-                }
-            } catch (e: Exception) {
-                setLog(e.message.toString())
-            }
-        }
-    }*/
 
 
     private fun startAnimation() {
@@ -437,7 +447,6 @@ class FragmentListSong(
         super.onDestroy()
         stopAnimation()
         sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
-        MyStopSDKMusicListener.setMyListener(null)
         weakContext = null
         musicViewModel.songIsLoaded = false
     }
@@ -447,16 +456,14 @@ class FragmentListSong(
     }
 
     private fun setLog(message: String? = null) {
-        Log.e("FragmentSheetListSong", message ?: "Unknown error.")
-    }
-
-    override fun onStop(stop: Boolean) {
-        if (stop) {
-            stopAnimation()
+        try {
+            Log.e("FragmentSheetListSong", message ?: "Unknown error.")
+        }catch (e : Exception){
+           //
         }
     }
 
-    override fun onStartAnimation() {
+    fun onStartAnimation() {
         startAnimation()
     }
 

@@ -82,7 +82,6 @@ open class FragmentSettings : BaseFragmentWidget() {
                     startActivity(Intent.createChooser(shareIntent, requireActivity().getString(R.string.choose_one)))
                 }
 
-
             }
 
         }

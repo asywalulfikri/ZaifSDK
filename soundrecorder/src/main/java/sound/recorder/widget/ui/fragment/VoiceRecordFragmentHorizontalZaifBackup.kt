@@ -792,7 +792,7 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
                 mp?.apply {
                     release()
                     mp = null
-                    MyMusicListener.postAction(null)
+                    //MyMusicListener.postAction(null)
                 }
             } catch (e: Exception) {
                 setToastError(activity, e.message.toString())
@@ -808,7 +808,7 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
                         setVolume(volumeMusic, volumeMusic)
                         setOnPreparedListener {
                             start()
-                            MyMusicListener.postAction(mp)
+                            //MyMusicListener.postAction(mp)
                             MyStopSDKMusicListener.onStartAnimation()
                             musicViewModel.setDuration(duration)
                             musicViewModel.setIsPlaying(true,true)
@@ -846,7 +846,7 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
         if (mp != null) {
             mp.apply {
                 mp?.release()
-                MyMusicListener.postAction(null)
+              //  MyMusicListener.postAction(null)
                 MyStopSDKMusicListener.postAction(true)
                 MyStopMusicListener.postAction(true)
                 MyPauseListener.showButtonStop(false)
@@ -906,7 +906,7 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
                    // musicViewModel.clearPlayRequest()
                    // musicViewModel.clearStopRequest()
                     MyPauseListener.showButtonStop(false)
-                    MyMusicListener.postAction(null)
+                   // MyMusicListener.postAction(null)
                     MyStopMusicListener.postAction(true)
                 }
             } catch (e: IOException) {

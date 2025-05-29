@@ -722,7 +722,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                     mp.apply {
                         mp?.release()
                         mp = null
-                        MyMusicListener.postAction(null)
+                        //MyMusicListener.postAction(null)
                     }
                 }
             }catch (e : Exception){
@@ -737,7 +737,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                         setVolume(volumeMusic, volumeMusic)
                         setOnPreparedListener {
                             mp?.start()
-                            MyMusicListener.postAction(mp)
+                            //MyMusicListener.postAction(mp)
                             MyStopSDKMusicListener.onStartAnimation()
                         }
                         prepareAsync()
@@ -774,7 +774,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
         if (mp != null) {
             mp.apply {
                 mp?.release()
-                MyMusicListener.postAction(null)
+               // MyMusicListener.postAction(null)
                 MyStopSDKMusicListener.postAction(true)
                 MyStopMusicListener.postAction(true)
                 MyPauseListener.showButtonStop(false)
@@ -830,7 +830,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
                     songIsPlaying = false
                     showBtnStop = false
                     MyPauseListener.showButtonStop(false)
-                    MyMusicListener.postAction(null)
+                    //MyMusicListener.postAction(null)
                     MyStopMusicListener.postAction(true)
                 }
             } catch (e: IOException) {
