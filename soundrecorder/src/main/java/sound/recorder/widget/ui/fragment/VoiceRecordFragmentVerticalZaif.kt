@@ -1,3 +1,4 @@
+/*
 package sound.recorder.widget.ui.fragment
 
 
@@ -220,7 +221,8 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
 
     private fun starShowCase(){
 
-       /* if(zaifSDKBuilder?.showNote==true){
+       */
+/* if(zaifSDKBuilder?.showNote==true){
             showCaseDialog(binding.ivNote,activity?.getString(R.string.text_guide_note))
         }else{
             if(zaifSDKBuilder?.showListSong==true){
@@ -228,11 +230,13 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
             }else{
                 showCaseDialog(binding.rlRecord,activity?.getString(R.string.text_guide_record))
             }
-        }*/
+        }*//*
+
 
     }
 
-    /*private fun showCaseDialog(view: View, message : String? ){
+    */
+/*private fun showCaseDialog(view: View, message : String? ){
         try {
             //val customFont = Typeface.createFromAsset(activity?.assets, "font/custom_font.ttf")
             val customFont = ResourcesCompat.getFont(requireActivity(), R.font.ooredoo)
@@ -289,7 +293,8 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
           setLog(e.message.toString())
         }
 
-    }*/
+    }*//*
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -878,4 +883,4 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(), BottomSheet.OnClic
 
     }
 
-}
+}*/

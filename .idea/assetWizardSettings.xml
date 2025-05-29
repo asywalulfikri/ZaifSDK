@@ -18,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/check/baseline_check_24.xml" />
+                                      <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material/icons/materialicons/volume_up/baseline_volume_up_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -28,7 +28,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="baseline_check_24" />
+                            <entry key="outputName" value="baseline_volume_up_24" />
                             <entry key="sourceFile" value="$USER_HOME$/Downloads/volume-loud-svgrepo-com.svg" />
                           </map>
                         </option>

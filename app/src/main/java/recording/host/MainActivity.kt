@@ -376,7 +376,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
     private fun showBottomSheetSong(){
         try {
-            MyFragmentListener.openFragment(FragmentListSong(showBtnStop,this))
+            //MyFragmentListener.openFragment(FragmentListSong(showBtnStop,this))
             MyAdsListener.setAds(false)
 
         }catch (e : Exception){

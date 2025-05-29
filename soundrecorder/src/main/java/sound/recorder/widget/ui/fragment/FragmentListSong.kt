@@ -35,8 +35,6 @@ import sound.recorder.widget.util.DialogUtils
 import java.lang.ref.WeakReference
 
 class FragmentListSong(
-    private var showBtnStop: Boolean? = null,
-    private var listener: OnClickListener? = null
 ) : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     private var weakContext: WeakReference<Context>? = null
@@ -370,7 +368,7 @@ class FragmentListSong(
                             try {
                                 binding?.tvTitle?.text = listTitleSong[i].toString()
                                 musicViewModel.playMusic(requireContext(),listLocationSong[i].toString())
-                                MyMusicListener.postNote(listNoteSong[i].toString())
+                                musicViewModel.setNote(listNoteSong[i].toString())
                             }catch (e : Exception){
                                 setToast(e.message)
                             }
