@@ -3,7 +3,6 @@ package sound.recorder.widget.ui.viewmodel
 // MusicViewModel.kt
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
@@ -13,7 +12,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -33,6 +31,10 @@ import java.util.concurrent.TimeUnit
 
 class MusicViewModel : ViewModel() {
 
+    var marqueeLastScrollX: Int = 0
+    private val _setRunningTextMarque = MutableLiveData<Boolean>()
+    val setRunningTextMarque: LiveData<Boolean> = _setRunningTextMarque
+
     private var mediaPlayer: MediaPlayer? = null
     var recorder: MediaRecorder? = null
 
@@ -42,7 +44,6 @@ class MusicViewModel : ViewModel() {
     val currentPosition: LiveData<Int> = _currentPosition
 
     private val _setNote = MutableLiveData<String?>()
-    val setNote: LiveData<String?> = _setNote
 
     private val _duration = MutableLiveData<Int>()
     val duration: LiveData<Int> = _duration
@@ -99,6 +100,10 @@ class MusicViewModel : ViewModel() {
 
     fun setSongLoaded(){
         songIsLoaded = true
+    }
+
+    fun setRunningTextMarquee(isRunning : Boolean){
+        _setRunningTextMarque.postValue(isRunning)
     }
 
     fun updateProgress(position: Int) {

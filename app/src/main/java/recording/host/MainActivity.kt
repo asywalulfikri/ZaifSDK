@@ -29,9 +29,6 @@ import sound.recorder.widget.listener.MusicListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyFragmentListener
 import sound.recorder.widget.listener.MyMusicListener
-import sound.recorder.widget.listener.MyPauseListener
-import sound.recorder.widget.listener.MyStopMusicListener
-import sound.recorder.widget.listener.MyStopSDKMusicListener
 import sound.recorder.widget.listener.PauseListener
 import sound.recorder.widget.model.Song
 import sound.recorder.widget.tools.showcase.GuideView
@@ -494,12 +491,9 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
     }
 
     override fun onNoteSong(note: String) {
-        MyMusicListener.postNote(note)
-    }
-
-    override fun onNote(note: String?) {
 
     }
+
 
     override fun onVolumeAudio(volume: Float?) {
 

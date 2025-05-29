@@ -59,4 +59,12 @@ open class FragmentTesting : BaseFragmentWidget() {
 
     }
 
+    override fun onPause() {
+        super.onPause()
+        musicViewModel.marqueeScrollX = speedMarquee.textScroller?.currX ?: 0
+        speedMarquee.pauseScroll()
+    }
+
+
+
 }

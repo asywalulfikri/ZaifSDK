@@ -8,10 +8,6 @@ object MyMusicListener {
         myListener = listener
     }
 
-    fun postNote(note : String?){
-        myListener?.onNote(note)
-    }
-
     fun postVolumeAudio(volume : Float?){
         myListener?.onVolumeAudio(volume)
     }
