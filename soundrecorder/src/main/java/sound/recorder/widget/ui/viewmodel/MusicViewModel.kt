@@ -43,7 +43,9 @@ class MusicViewModel : ViewModel() {
     private val _currentPosition = MutableLiveData<Int>()
     val currentPosition: LiveData<Int> = _currentPosition
 
+
     private val _setNote = MutableLiveData<String?>()
+    val setNote: LiveData<String?> = _setNote
 
     private val _duration = MutableLiveData<Int>()
     val duration: LiveData<Int> = _duration
