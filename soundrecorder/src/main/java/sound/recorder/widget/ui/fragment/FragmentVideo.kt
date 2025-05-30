@@ -8,6 +8,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.activity.OnBackPressedCallback
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -54,6 +56,17 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
         val mainMenuLayoutManager = GridLayoutManager(activity, 3)
         binding.recyclerView.layoutManager = mainMenuLayoutManager
         binding.recyclerView.setHasFixedSize(true)
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                try {
+                    MyAdsListener.setUnityAds(true)
+                    findNavController().navigateUp()
+                }catch (e : Exception){
+                    setToast(e.message.toString())
+                }
+            }
+        })
     }
 
 

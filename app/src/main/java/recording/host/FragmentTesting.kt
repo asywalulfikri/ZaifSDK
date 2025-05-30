@@ -44,10 +44,10 @@ open class FragmentTesting : BaseFragmentWidget(), CompleteMarqueeListener {
         super.onViewCreated(view, savedInstanceState)
 
         if(!musicViewModel.isInitialized) {
-            setToastTic(Toastic.SUCCESS,musicViewModel.isInitialized.toString())
+           // setToastTic(Toastic.SUCCESS,musicViewModel.isInitialized.toString())
             musicViewModel.initializeIfNeeded()
         }else{
-            setToastTic(Toastic.SUCCESS,musicViewModel.isInitialized.toString())
+            //setToastTic(Toastic.SUCCESS,musicViewModel.isInitialized.toString())
         }
 
         MyCompleteMarqueeListener.setMyListener(this)

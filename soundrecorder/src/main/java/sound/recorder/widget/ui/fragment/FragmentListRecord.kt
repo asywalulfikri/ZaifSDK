@@ -14,8 +14,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.FileProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.google.android.material.appbar.AppBarLayout
@@ -65,6 +67,18 @@ class FragmentListRecord : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
         binding.toolbar.setNavigationOnClickListener {
 
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                try {
+                    MyAdsListener.setAds(true)
+                    MyAdsListener.setUnityAds(true)
+                    findNavController().navigateUp()
+                }catch (e : Exception){
+                    setToast(e.message.toString())
+                }
+            }
+        })
 
         MyAdsListener.setUnityAds(false)
 

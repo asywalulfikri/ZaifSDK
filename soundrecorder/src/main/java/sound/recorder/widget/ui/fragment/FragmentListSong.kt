@@ -11,6 +11,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -75,6 +76,18 @@ class FragmentListSong(
 
         activity?.let {
             try {
+                requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        try {
+                            MyAdsListener.setAds(true)
+                            MyAdsListener.setUnityAds(true)
+                            findNavController().navigateUp()
+                        }catch (e : Exception){
+                            setToast(e.message.toString())
+                        }
+                    }
+                })
+
                 MyAdsListener.setUnityAds(false)
                 sharedPreferences = DataSession(it).getShared()
                 sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
@@ -85,6 +98,8 @@ class FragmentListSong(
                 volumeAudio = dataSession.getVolumeAudio()
 
                 binding?.btnCLose?.setOnClickListener {
+                    MyAdsListener.setAds(true)
+                    MyAdsListener.setUnityAds(true)
                     findNavController().navigateUp()
                 }
 
@@ -205,7 +220,7 @@ class FragmentListSong(
 
     fun setToast(message : String?){
         try {
-            Toast.makeText(requireContext(), "$message.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext().applicationContext, "$message.", Toast.LENGTH_SHORT).show()
         }catch (e : Exception){
             setLog(e.message)
         }
