@@ -183,6 +183,7 @@ class MusicViewModel : ViewModel() {
                 setDataSource(context, Uri.parse(filePath))
                 setVolume(volumeMusic, volumeMusic)
                 setOnPreparedListener {
+                    marqueeLastScrollX = 0
                     start()
                     setDuration(duration)
                     setIsPlaying(true, true)
@@ -198,6 +199,11 @@ class MusicViewModel : ViewModel() {
         }
 
     }
+
+
+   /* fun setLastIndexMarquee(last : Int){
+        marqueeLastScrollX = last
+    }*/
 
     fun pauseMusic() {
         if(mediaPlayer!=null){

@@ -47,14 +47,14 @@ Pembaruan UI: Kode ini sudah berada di thread UI, sehingga runOnUiThread tidak p
         app:marquee_speed="100.0"
         tools:ignore="HardcodedText" />
 
-    <androidx.fragment.app.FragmentContainerView
+  <!--  <androidx.fragment.app.FragmentContainerView
         android:layout_below="@+id/tvRunningText"
         android:id="@+id/recordingViewVerticalZaif"
         android:name="sound.recorder.widget.ui.fragment.VoiceRecordFragmentVerticalZaif"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-
+-->
    <!-- <androidx.fragment.app.FragmentContainerView
         android:layout_below="@+id/tvRunningText"
         android:layout_toEndOf="@+id/recordingViewVerticalZaif"

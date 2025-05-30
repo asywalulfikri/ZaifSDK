@@ -14,6 +14,7 @@ class ActivityGame : BaseActivityWidget(){
         binding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupHideStatusBar(binding.root,false)
 
         // Menyiapkan NavHostFragment dan Navigation Controller
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment

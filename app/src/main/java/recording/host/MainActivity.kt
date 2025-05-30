@@ -57,10 +57,86 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
     private lateinit var binding : ActivityMainBinding
 
-    private val listTitle = arrayOf(
+    val listTitle = arrayOf(
         "Gundul Gundul Pacul",
         "Ampar Ampar Pisang"
     )
+
+
+    var listNote = arrayOf(
+
+        "Gundul gundul pacul cul\n" +
+                "1   3       1    3    4  5    5\n" +
+                "Gembelengan\n" +
+                "7  1'  7  1'  7  5\n" +
+                "Nyunggi nyunggi wakul kul\n" +
+                "1         3    1    3     4    5    5\n" +
+                "Gembelengan\n" +
+                "7  1'  7  1'  7  5\n" +
+                "Wakul ngglimpang segane dadi sak latar\n" +
+                "  1   3     5     4         4   5     4   3  1 4 3 1\n" +
+                "Wakul ngglimpang segane dadi sak latar\n" +
+                "  1  3      5     4         4   5     4   3   1 4 3 1",
+
+
+        "5 1   1 7   1 2\n" +
+                "Ampar ampar pisang\n" +
+
+                "\n" +
+                "5 5   2  2 1   2 3\n" +
+                "Pisangku belum masak\n" +
+                "\n" +
+
+                "4 2     2 3  1  1 2    2 1  7 1\n" +
+                "Masak sabigi di hurung bari-bari\n" +
+                "\n" +
+
+                "4 2     2 3  1  1 2    2 1  7 1\n" +
+                "Masak sabigi di hurung bari-bari\n" +
+                "\n" +
+
+                "5   5  5 1   1   7  1 2\n" +
+                "Mangga lepak mangga lepok\n" +
+                "\n" +
+
+                "5 2   2 1  2   3\n" +
+                "Patah kayu bengkok\n" +
+                "\n" +
+
+                "3   4   4 2 2   33\n" +
+                "Bengkok dimakan api\n" +
+                "\n" +
+
+                "11 2   2    1 7 1\n" +
+                "Apinya cang curupan\n" +
+                "\n" +
+
+                "3   4   4 2 2   33\n" +
+                "Bengkok dimakan api\n" +
+                "\n" +
+
+                "11 2   2    1 7 1\n" +
+                "Apinya cang curupan\n" +
+                "\n" +
+
+                "3    5 5  4 4   5 2\n" +
+                "Nang mana batis kutung\n" +
+                "\n" +
+
+                "2 4 4 3  2 1\n" +
+                "Dikitipi dawang\n" +
+                "\n" +
+
+                "3    5 5  4 4   5 2\n" +
+                "Nang mana batis kutung\n" +
+                "\n" +
+
+                "2 4 4 3  2 1\n" +
+                "Dikitipi dawang..."
+
+
+    )
+
 
     private var song = ArrayList<Song>()
 
@@ -135,6 +211,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             val itemSong = Song()
             itemSong.title = listTitle[i]
             itemSong.pathRaw = pathRaw[i]
+            itemSong.note = listNote[i]
             song.add(itemSong)
         }
         RecordingSDK.addSong(this,song)
