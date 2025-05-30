@@ -62,11 +62,16 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    /*override fun onCreate(savedInstanceState: Bundle?) {
         newInstance()
         val b = Bundle()
         super.onCreate(b)
+    }*/
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)  // Gunakan savedInstanceState yang dikirim Android
     }
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = WidgetRecordHorizontalZaifBinding.inflate(inflater, container, false)
@@ -79,15 +84,18 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
 
         if (activity != null && context != null) {
             viewLifecycleOwner.lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
 
-                    dataSession = DataSession(requireContext())
+                val safeContext = requireContext()
+                withContext(Dispatchers.IO) {
+                    dataSession = DataSession(safeContext)
                     sharedPreferences = dataSession.getShared()
                     volumeMusic = dataSession.getVolumeMusic()
                     volumeAudio = dataSession.getVolumeAudio()
-                    zaifSDKBuilder = ZaifSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
+                    zaifSDKBuilder = ZaifSDKBuilder.builder(safeContext).loadFromSharedPreferences()
                     handler = Handler(Looper.getMainLooper())
+
                 }
+
                 if(dataSession.isDoneTooltip()==false) {
                     try {
                         showTooltipSequence(binding)
@@ -243,17 +251,18 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
 
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
+        blinkHandler.removeCallbacksAndMessages(null)
         musicViewModel.releaseMediaPlayerOnDestroy()
         musicViewModel.stopRecord()
+        sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
         stopBlinking()
+        blinkHandler.removeCallbacksAndMessages(null)  // Tambahkan ini untuk memastikan tidak ada callback tertunda
         _binding = null
     }
 
@@ -489,6 +498,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
         super.onPause()
         sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
     }
+
 
     override fun onResume() {
         super.onResume()

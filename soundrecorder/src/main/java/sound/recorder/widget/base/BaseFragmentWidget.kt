@@ -1541,7 +1541,7 @@ open class BaseFragmentWidget : Fragment() {
     fun setToastError(activity: Activity?, message : String){
         try {
             if(activity!=null){
-                Toastic.toastic(activity,
+                Toastic.toastic(activity.applicationContext,
                     message = "Error : $message",
                     duration = Toastic.LENGTH_SHORT,
                     type = Toastic.ERROR,
@@ -1555,7 +1555,7 @@ open class BaseFragmentWidget : Fragment() {
 
     fun setToast(message : String){
         try {
-            Toast.makeText(requireContext(), "$message.",Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext().applicationContext, "$message.",Toast.LENGTH_SHORT).show()
         }catch (e : Exception){
             setLog(e.message.toString())
         }
@@ -1565,7 +1565,7 @@ open class BaseFragmentWidget : Fragment() {
     fun setToastTic(code : Int,message : String){
         try {
             if(activity!=null){
-                Toastic.toastic(requireContext(),
+                Toastic.toastic(requireContext().applicationContext,
                     message = "$message.",
                     duration = Toastic.LENGTH_SHORT,
                     type = code,
