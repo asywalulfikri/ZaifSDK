@@ -28,8 +28,7 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:visibility="gone"
-            android:background="@drawable/button_black_color_circle"
-            app:srcCompat="@drawable/minus"
+            android:background="@drawable/button_min_selector"
             tools:ignore="HardcodedText" />
 
         <sound.recorder.widget.util.SpeedMarquee
@@ -64,8 +63,7 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:visibility="gone"
-            android:background="@drawable/button_black_color_circle"
-            app:srcCompat="@drawable/plus"
+            android:background="@drawable/button_plus_selector"
             tools:ignore="HardcodedText" />
 
     </RelativeLayout>
