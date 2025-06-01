@@ -173,6 +173,7 @@ open class BaseFragmentWidget : Fragment() {
             activity?.let {
                 try {
                     RecordingSDK.showDialogColorPicker(it)
+                   // RecordingSDK.changeColor(it)
                 } catch (e: Exception) {
                     setToast(e.message.toString())
                 }
@@ -669,6 +670,20 @@ open class BaseFragmentWidget : Fragment() {
 
         val adWidth = (adWidthPixels / density).toInt()
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(requireContext(), adWidth)
+    }
+
+    fun convertColorCodeToHex(colorCode: Int): String {
+        return String.format("#%06X", colorCode)
+    }
+
+    @SuppressLint("UseKtx")
+    fun setBottomStatusColor1(color : String){
+        try {
+            requireActivity().window?.navigationBarColor = Color.parseColor(color)
+        } catch (e: Exception) {
+            setLog("not support")
+        }
+
     }
 
     /*private fun initializeMobileAdsSdk(adViewContainer: FrameLayout,bannerId: String? =null) {

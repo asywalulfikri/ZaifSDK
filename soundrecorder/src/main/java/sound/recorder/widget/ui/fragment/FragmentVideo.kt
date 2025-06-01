@@ -70,7 +70,6 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
     }
 
 
-
     @SuppressLint("NotifyDataSetChanged")
     private fun load(loadMore: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
