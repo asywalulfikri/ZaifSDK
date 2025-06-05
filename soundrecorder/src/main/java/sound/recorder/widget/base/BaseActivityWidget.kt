@@ -788,7 +788,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         if(BuildConfig.DEBUG){
                             setToast("close by user")
                         }
-                        MyAdsListener.setAds(true)
+                        MyAdsListener.setBannerHome(true)
                     }
 
                     override fun onAdFailedToShowFullScreenContent(p0: AdError) {
@@ -796,7 +796,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
 
                     override fun onAdShowedFullScreenContent() {
-                        MyAdsListener.setAds(false)
+                        MyAdsListener.setBannerHome(false)
                         Log.d("AppOpenAd", "Ad showed")
                     }
                 }

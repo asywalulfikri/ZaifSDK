@@ -145,7 +145,7 @@ open class NoteFragmentFirebase : BottomSheetDialogFragment() {
     }
 
     fun onBackPressed(): Boolean {
-        MyAdsListener.setAds(true)
+        MyAdsListener.setBannerHome(true)
         activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         return false
     }

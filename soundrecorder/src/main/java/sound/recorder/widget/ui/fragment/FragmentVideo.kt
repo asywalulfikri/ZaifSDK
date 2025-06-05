@@ -44,7 +44,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
         setupRecyclerView()
         load(false)
         binding.ivClose.visibility = View.GONE
-        MyAdsListener.setUnityAds(false)
+        MyAdsListener.setBannerUnity(false)
         return binding.root
     }
 
@@ -60,7 +60,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 try {
-                    MyAdsListener.setUnityAds(true)
+                    MyAdsListener.setBannerUnity(true)
                     findNavController().navigateUp()
                 }catch (e : Exception){
                     setToast(e.message.toString())
@@ -155,7 +155,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
     }
 
     fun onBackPressed(): Boolean {
-        MyAdsListener.setUnityAds(true)
+        MyAdsListener.setBannerUnity(true)
         activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         return false
     }

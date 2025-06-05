@@ -213,7 +213,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
             activity?.let {
                 try {
                     findNavController().navigate(R.id.action_widget_to_list_record)
-                    MyAdsListener.setAds(false)
+                    MyAdsListener.setBannerHome(false)
                 } catch (e: Exception) {
                     setToast(e.message.toString())
                 }
@@ -270,7 +270,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
         try {
             if(activity!=null){
                 findNavController().navigate(R.id.action_widget_to_list_song)
-                MyAdsListener.setAds(false)
+                MyAdsListener.setBannerHome(false)
             }
         }catch (e : Exception){
             setLog(e.message)

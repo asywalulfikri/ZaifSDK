@@ -290,7 +290,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             try {
                 // some code
                 val fragment = FragmentSettings.newInstance()
-                MyAdsListener.setAds(false)
+                MyAdsListener.setBannerHome(false)
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragmentFileViewer, fragment)
                     .commit()
@@ -311,7 +311,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
                 // some code
                 if (savedInstanceState == null) {
                     val fragment = FragmentVideo.newInstance()
-                    MyAdsListener.setAds(false)
+                    MyAdsListener.setBannerHome(false)
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.fragmentFileViewer, fragment)
                         .commit()
@@ -451,7 +451,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
     private fun showBottomSheetSong(){
         try {
             //MyFragmentListener.openFragment(FragmentListSong(showBtnStop,this))
-            MyAdsListener.setAds(false)
+            MyAdsListener.setBannerHome(false)
 
         }catch (e : Exception){
             setLog(e.message.toString())

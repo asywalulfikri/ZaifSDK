@@ -7,13 +7,15 @@ object MyAdsListener {
     fun setMyListener(listener: AdsListener?=null) {
         myListener = listener
     }
-    fun setAds(show : Boolean) {
+    fun setBannerHome(show : Boolean) {
         myListener?.onViewBannerHome(show)
     }
-    fun setUnityAds(show : Boolean) {
+    fun setBannerUnity(show : Boolean) {
         myListener?.onViewBannerUnity(show)
     }
-
+    fun setHideAllBanner(){
+        myListener?.onHideAllBanner()
+    }
     fun setOnShowInterstitial() {
         myListener?.onShowInterstitial()
     }

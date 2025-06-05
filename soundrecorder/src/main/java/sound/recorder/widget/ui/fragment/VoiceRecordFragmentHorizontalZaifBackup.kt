@@ -301,7 +301,7 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
                 try {
                     //MyFragmentListener.openFragment(FragmentListRecord())
                     findNavController().navigate(R.id.action_widget_to_list_record)
-                    MyAdsListener.setAds(false)
+                    MyAdsListener.setBannerHome(false)
                 } catch (e: Exception) {
                     setToast(e.message.toString())
                 }
@@ -414,7 +414,7 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
             if(activity!=null){
                 findNavController().navigate(R.id.action_widget_to_list_song)
                // MyFragmentListener.openFragment(FragmentListSong(showBtnStop,this))
-                MyAdsListener.setAds(false)
+                MyAdsListener.setBannerHome(false)
             }
         }catch (e : Exception){
             setLog(e.message)
