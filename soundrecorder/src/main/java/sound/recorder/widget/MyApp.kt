@@ -7,6 +7,8 @@ import android.util.Log
 import com.facebook.ads.AudienceNetworkAds
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
+import com.unity3d.ads.IUnityAdsInitializationListener
+import com.unity3d.ads.UnityAds
 import kotlinx.coroutines.*
 
 @SuppressLint("Registered")
@@ -106,6 +108,37 @@ open class MyApp : Application() {
         }
     }
 
+
+    public suspend fun initializeUnity(unityId : String){
+
+        withContext(Dispatchers.IO) {
+            try {
+                var testMode = true
+
+                testMode = if(BuildConfig.DEBUG){
+                    true
+                }else{
+                    false
+                }
+                // UnityAds.initialize(this, unitySDKBuilder?.unityId, unitySDKBuilder?.testMode == true, this)
+                UnityAds.initialize(this@MyApp, unityId, testMode, object : IUnityAdsInitializationListener {
+                    override fun onInitializationComplete() {
+                        Log.d("UnityAds", "Initialization Complete")
+                    }
+
+                    override fun onInitializationFailed(
+                        error: UnityAds.UnityAdsInitializationError?,
+                        message: String?
+                    ) {
+                        Log.e("UnityAds", "Initialization Failed: $message")
+                    }
+                })
+            } catch (e: Exception) {
+                Log.e("MyApp", "Error initializing AdMob: ${e.message}")
+            }
+        }
+
+    }
 
 
     /**

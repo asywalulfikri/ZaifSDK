@@ -2,8 +2,8 @@ package sound.recorder.widget.listener
 
 interface AdsListener {
 
-    fun onViewAds(show: Boolean)
-    fun onViewUnityAds(show: Boolean)
+    fun onViewBannerHome(show: Boolean)
+    fun onViewBannerUnity(show: Boolean)
+    fun onHideAllBanner()
     fun onShowInterstitial()
-    fun onViewButtonHome(show : Boolean)
 }

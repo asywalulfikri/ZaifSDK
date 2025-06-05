@@ -520,7 +520,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         setupFragment(binding.fragmentFileViewer.id,fragment)
     }
 
-    override fun onViewAds(boolean: Boolean) {
+    override fun onViewBannerHome(boolean: Boolean) {
        if(boolean){
            binding.bannerView.visibility = View.VISIBLE
        }else{
@@ -528,7 +528,11 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
        }
     }
 
-    override fun onViewUnityAds(show: Boolean) {
+    override fun onViewBannerUnity(show: Boolean) {
+
+    }
+
+    override fun onHideAllBanner() {
 
     }
 
@@ -536,9 +540,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
 
     }
 
-    override fun onViewButtonHome(show: Boolean) {
 
-    }
 
     override fun onPause(pause: Boolean) {
 
