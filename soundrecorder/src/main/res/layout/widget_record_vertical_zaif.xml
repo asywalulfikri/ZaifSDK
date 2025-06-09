@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:id="@+id/llBackground"
-    android:paddingVertical="3dp"
-    android:background="@drawable/button_white"
+    android:paddingVertical="@dimen/_3sdp"
+    android:background="@drawable/gradient_yellow"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
@@ -14,37 +14,38 @@
     <ImageView
         android:layout_gravity="center"
         android:id="@+id/ivNote"
+        android:layout_marginHorizontal="@dimen/_3sdp"
+        android:paddingVertical="@dimen/_7sdp"
         android:clickable="true"
         android:focusable="true"
-        android:background="@drawable/button_black"
+        android:background="@drawable/button_black_color"
         app:srcCompat="@drawable/baseline_note_add_24"
         android:layout_width="@dimen/_35sdp"
         android:layout_height="@dimen/_30sdp"
-        android:padding="@dimen/_7sdp"
         android:contentDescription="@string/app_name" />
 
 
     <ImageView
         android:layout_gravity="center"
-        android:layout_marginTop="5dp"
+        android:layout_marginHorizontal="@dimen/_3sdp"
         android:id="@+id/ivSong"
-        android:background="@drawable/button_black"
+        android:padding="@dimen/_7sdp"
+        android:background="@drawable/button_black_color"
         app:srcCompat="@drawable/icon_music"
         android:layout_width="@dimen/_35sdp"
         android:layout_height="@dimen/_30sdp"
-        android:padding="@dimen/_7sdp"
         android:clickable="true"
         android:focusable="true"
         android:contentDescription="@string/app_name" />
 
 
     <ImageView
-        android:layout_marginTop="5dp"
+        android:layout_marginHorizontal="@dimen/_3sdp"
         android:visibility="gone"
         android:id="@+id/ivDelete"
         android:layout_gravity="center"
         android:background="@drawable/button_record_color"
-        android:padding="15dp"
+        android:padding="@dimen/_10sdp"
         app:srcCompat="@drawable/ic_cancel"
         android:layout_width="@dimen/_35sdp"
         android:layout_height="@dimen/_30sdp"
@@ -55,8 +56,7 @@
     <RelativeLayout
         android:gravity="center"
         android:id="@+id/rlRecord"
-        android:layout_marginTop="3dp"
-        android:padding="2dp"
+        android:layout_marginHorizontal="@dimen/_3sdp"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -68,12 +68,25 @@
             android:id="@+id/ivRecord"
             android:layout_width="@dimen/_35sdp"
             android:layout_height="@dimen/_30sdp"
-            android:padding="@dimen/_7sdp"
             android:layout_centerInParent="true"
             android:background="@drawable/button_record_color"
             android:contentDescription="@string/app_name"
+            android:padding="@dimen/_8sdp"
             app:srcCompat="@drawable/record"
             tools:ignore="DuplicateSpeakableTextCheck" />
+
+        <ImageView
+            android:id="@+id/ivPause"
+            android:visibility="gone"
+            android:layout_width="@dimen/_35sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/button_record_color"
+            android:contentDescription="@string/app_name"
+            android:padding="@dimen/_8sdp"
+            app:srcCompat="@drawable/ic_pause"
+            tools:ignore="DuplicateSpeakableTextCheck" />
+
 
     </RelativeLayout>
 
@@ -82,10 +95,10 @@
         android:layout_gravity="center"
         android:contentDescription="@string/app_name"
         android:visibility="gone"
-        android:background="@drawable/button_green_color"
-        android:layout_marginTop="3dp"
-        app:srcCompat="@drawable/baseline_check_24"
         android:padding="@dimen/_7sdp"
+        android:background="@drawable/button_green_color"
+        android:layout_marginHorizontal="@dimen/_3sdp"
+        app:srcCompat="@drawable/baseline_check_24"
         android:layout_width="@dimen/_35sdp"
         android:layout_height="@dimen/_30sdp"
         android:clickable="true"
@@ -93,24 +106,24 @@
 
     <ImageView
         android:layout_gravity="center"
-        android:layout_marginTop="3dp"
+        android:layout_marginHorizontal="@dimen/_3sdp"
         android:id="@+id/ivListRecord"
-        android:background="@drawable/button_black"
+        android:padding="@dimen/_7sdp"
+        android:background="@drawable/button_black_color"
         app:srcCompat="@drawable/saved_song"
         android:layout_width="@dimen/_35sdp"
         android:layout_height="@dimen/_30sdp"
-        android:padding="@dimen/_7sdp"
         android:clickable="true"
         android:focusable="true"
         android:contentDescription="@string/app_name" />
 
 
     <ImageView
-        android:layout_marginTop="5dp"
+        android:layout_marginHorizontal="@dimen/_3sdp"
         android:id="@+id/ivVolume"
         android:padding="@dimen/_7sdp"
         android:layout_gravity="center"
-        android:background="@drawable/button_black"
+        android:background="@drawable/button_black_color"
         app:srcCompat="@drawable/baseline_volume_down_24"
         android:layout_width="@dimen/_35sdp"
         android:layout_height="@dimen/_30sdp"
@@ -124,10 +137,10 @@
         android:id="@+id/tvTimerView"
         android:visibility="gone"
         android:layout_gravity="center"
-        android:layout_marginStart="10dp"
+        android:layout_marginHorizontal="@dimen/_3sdp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/_12ssp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginEnd="5dp"
         android:textColor="@color/red_900"
@@ -137,11 +150,11 @@
 
     <ImageView
         android:layout_gravity="center"
-        android:layout_marginTop="5dp"
-        android:background="@drawable/button_black"
+        android:layout_marginHorizontal="@dimen/_3sdp"
+        android:background="@drawable/button_black_color"
         android:id="@+id/ivChangeColor"
         android:contentDescription="@string/app_name"
-        android:padding="@dimen/_7sdp"
+        android:paddingVertical="@dimen/_7sdp"
         android:src="@drawable/fill_color"
         android:layout_width="@dimen/_35sdp"
         android:layout_height="@dimen/_30sdp"
