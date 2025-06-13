@@ -235,15 +235,25 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(),SharedPreferences.O
 
 
         binding.ivNote.setOnClickListener {
+            binding.ivNote.isEnabled = false // 🔒 disable klik dulu
+
             activity?.let {
                 try {
                     val bottomSheet = BottomSheetNote()
                     bottomSheet.show(it.supportFragmentManager, LOG_TAG)
                 } catch (e: Exception) {
                     setToast(e.message.toString())
+                } finally {
+                    binding.ivNote.postDelayed({
+                        binding.ivNote.isEnabled = true // 🔓 enable lagi setelah delay
+                    }, 500)
                 }
-            } ?: setToast("Activity is not available")
+            } ?: run {
+                binding.ivNote.isEnabled = true
+                setToast("Activity is not available")
+            }
         }
+
 
         binding.ivVolume.setOnClickListener {
             showVolumeDialog()
@@ -410,6 +420,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(),SharedPreferences.O
 
     private fun showVolumeDialog(){
         try {
+            if (!isAdded) return
             DialogUtils().showVolumeDialog(
                 context = requireContext(),
                 initialVolumeMusic = volumeMusic, // Volume musik awal
@@ -431,19 +442,20 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(),SharedPreferences.O
 
     private  fun showRecordDialog(){
         try {
+            if (!isAdded) return
             DialogUtils().showRecordDialog(
                 context = requireContext(),
-                title = activity?.getString(R.string.information).toString(),
-                message = activity?.getString(R.string.title_recording_dialog).toString(),
+                title = getString(R.string.information),
+                message = getString(R.string.title_recording_dialog),
                 onYesClick = {
-                    dirPath = "${activity?.externalCacheDir?.absolutePath}/"
-                    fileName = "record_${date}.mp3"
-                    musicViewModel.recordAudioStart(fileName,dirPath)
-                    setToastTic(Toastic.SUCCESS,requireContext().getString(R.string.record_started))
+                    val dirPath = "${requireContext().externalCacheDir?.absolutePath}/"
+                    val fileName = "record_${date}.mp3"
+                    musicViewModel.recordAudioStart(fileName, dirPath)
+                    setToastTic(Toastic.SUCCESS, getString(R.string.record_started))
                 }
             )
         }catch (e : Exception){
-            setToast(e.message.toString())
+            //
         }
     }
 
