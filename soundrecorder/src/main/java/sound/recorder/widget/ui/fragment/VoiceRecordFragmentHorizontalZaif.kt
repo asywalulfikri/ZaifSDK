@@ -440,22 +440,23 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
         }
     }
 
+
     private  fun showRecordDialog(){
         try {
             if (!isAdded) return
             DialogUtils().showRecordDialog(
                 context = requireContext(),
-                title = getString(R.string.information),
-                message = getString(R.string.title_recording_dialog),
+                title = activity?.getString(R.string.information).toString(),
+                message = activity?.getString(R.string.title_recording_dialog).toString(),
                 onYesClick = {
-                    val dirPath = "${requireContext().externalCacheDir?.absolutePath}/"
-                    val fileName = "record_${date}.mp3"
-                    musicViewModel.recordAudioStart(fileName, dirPath)
-                    setToastTic(Toastic.SUCCESS, getString(R.string.record_started))
+                    dirPath = "${activity?.externalCacheDir?.absolutePath}/"
+                    fileName = "record_${date}.mp3"
+                    musicViewModel.recordAudioStart(fileName,dirPath)
+                    setToastTic(Toastic.SUCCESS,requireContext().getString(R.string.record_started))
                 }
             )
         }catch (e : Exception){
-            //
+            setToast(e.message.toString())
         }
     }
 
