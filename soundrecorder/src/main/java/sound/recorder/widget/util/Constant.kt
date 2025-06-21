@@ -17,6 +17,7 @@ open class Constant {
             const val backgroundWidgetColor = "llRecordBackground"
             const val developerName = "developerName"
             const val doneTooltip = "doneTooltip"
+            const val showTooltip = "showTooltip"
 
 
 

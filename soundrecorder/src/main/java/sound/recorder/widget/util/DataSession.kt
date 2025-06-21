@@ -70,6 +70,10 @@ open class DataSession(private val mContext: Context) {
         return sharedPref.getBoolean(Constant.KeyShared.doneTooltip, false)
     }
 
+    fun showTooltip(): Boolean {
+        return sharedPref.getBoolean(Constant.KeyShared.showTooltip, false)
+    }
+
     fun getShowListSong(): Boolean{
         return sharedPref.getBoolean(Constant.KeyShared.showListSong,false)
     }

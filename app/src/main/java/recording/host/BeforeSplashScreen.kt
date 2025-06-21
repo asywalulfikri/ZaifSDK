@@ -110,6 +110,7 @@ class BeforeSplashScreen : BaseActivityWidget(){
                 .showListSong(true)
                 .showVolume(true)
                 .showChangeColor(true)
+                .showTooltip(true)
                 .build()
 
             // Update UI elements

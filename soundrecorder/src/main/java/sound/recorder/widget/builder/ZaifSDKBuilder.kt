@@ -16,7 +16,8 @@ class ZaifSDKBuilder private constructor(
     val showChangeColor: Boolean,
     val backgroundWidgetColor: String,
     val showListSong: Boolean,
-    val showVolume: Boolean
+    val showVolume: Boolean,
+    val showTooltip : Boolean,
 ) {
 
     // Builder class
@@ -31,6 +32,7 @@ class ZaifSDKBuilder private constructor(
         private var backgroundWidgetColor: String? = null
         private var showListSong = false
         private var showVolume = false
+        private var showTooltip = false
         private var volumeMusic : Float? =null
         private var volumeInstrument : Float? =null
 
@@ -84,11 +86,16 @@ class ZaifSDKBuilder private constructor(
             return this
         }
 
+        fun showTooltip(showTooltip: Boolean): Builder {
+            this.showTooltip = showTooltip
+            return this
+        }
+
         // Build function to create and save the ZaifSDKBuilder instance
         fun build(): ZaifSDKBuilder {
             val zaifSDKBuilder = ZaifSDKBuilder(
                 appName, versionCode, versionName, applicationId, developerName,
-                showNote, showChangeColor, backgroundWidgetColor ?: "#FFFFFF", showListSong, showVolume
+                showNote, showChangeColor, backgroundWidgetColor ?: "#FFFFFF", showListSong, showVolume,showTooltip
             )
 
             // Save the object to SharedPreferences as JSON

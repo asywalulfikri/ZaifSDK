@@ -98,14 +98,17 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
 
                 }
 
-                if(dataSession.isDoneTooltip()==false) {
-                    try {
-                        showTooltipSequence(binding)
-                    }catch (e : Exception){
-                       setLog(e.message)
+                if(dataSession.showTooltip()){
+                    if(dataSession.isDoneTooltip()==false) {
+                        try {
+                            showTooltipSequence(binding)
+                        }catch (e : Exception){
+                            setLog(e.message)
+                        }
                     }
+                    setupView()
                 }
-                setupView()
+
             }
         }
     }
