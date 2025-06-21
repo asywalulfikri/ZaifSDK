@@ -2,7 +2,6 @@ package sound.recorder.widget.base
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -32,7 +31,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -53,7 +51,6 @@ import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.rewarded.RewardedAd
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.android.gms.tasks.Task
@@ -225,7 +222,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun setStatusBarColor(color: Int) {
+  /*  fun setStatusBarColor(color: Int) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -244,7 +241,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             setLog("not support")
         }
 
-    }
+    }*/
 
     protected fun setupFragment(id: Int, fragment: Fragment?) {
         try {

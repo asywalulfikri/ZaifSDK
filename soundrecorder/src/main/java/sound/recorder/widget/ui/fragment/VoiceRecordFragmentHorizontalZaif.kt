@@ -14,6 +14,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -41,8 +42,9 @@ import kotlin.math.ln
 class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences.OnSharedPreferenceChangeListener, BottomSheet.OnClickListener{
 
     private lateinit var handler: Handler
-    private var _binding: WidgetRecordHorizontalZaifBinding? = null
-    private val binding get() = _binding!!
+   // private var _binding: WidgetRecordHorizontalZaifBinding? = null
+   // private val binding get() = _binding!!
+    private var binding : WidgetRecordHorizontalZaifBinding? =null
     private val blinkHandler = Handler(Looper.getMainLooper())
     private var isBlinking = false
 
@@ -69,13 +71,13 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
     }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)  // Gunakan savedInstanceState yang dikirim Android
+        super.onCreate(savedInstanceState)  // Use savedInstanceState Android
     }
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = WidgetRecordHorizontalZaifBinding.inflate(inflater, container, false)
-        return binding.root
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): LinearLayout? {
+        binding = WidgetRecordHorizontalZaifBinding.inflate(inflater, container, false)
+        return binding?.root
     }
 
 
@@ -182,7 +184,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
             }
         }
 
-        binding.ivRecord.setOnClickListener {
+        binding?.ivRecord?.setOnClickListener {
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
                 setToast(activity?.getString(R.string.device_not_support).toString())
             } else {
@@ -195,12 +197,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
 
         }
 
-        binding.ivPause.setOnClickListener {
+        binding?.ivPause?.setOnClickListener {
             musicViewModel.pauseRecord()
         }
 
         //action for save record
-        binding.ivDone.setOnClickListener {
+        binding?.ivDone?.setOnClickListener {
             try {
                 musicViewModel.stopRecord()
                 showBottomSheet()
@@ -209,7 +211,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
             }
         }
 
-        binding.ivListRecord.setOnClickListener {
+        binding?.ivListRecord?.setOnClickListener {
             activity?.let {
                 try {
                     findNavController().navigate(R.id.action_widget_to_list_record)
@@ -220,7 +222,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
             } ?: setToast("Activity is not available")
         }
 
-        binding.ivDelete.setOnClickListener {
+        binding?.ivDelete?.setOnClickListener {
             try {
                 showCancelDialog()
             } catch (e: Exception) {
@@ -228,14 +230,14 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
             }
         }
 
-        binding.ivSong.setOnClickListener {
+        binding?.ivSong?.setOnClickListener {
             startPermissionSong()
         }
 
 
 
-        binding.ivNote.setOnClickListener {
-            binding.ivNote.isEnabled = false // 🔒 disable klik dulu
+        binding?.ivNote?.setOnClickListener {
+            binding?.ivNote?.isEnabled = false // 🔒 disable click
 
             activity?.let {
                 try {
@@ -244,18 +246,18 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
                 } catch (e: Exception) {
                     setToast(e.message.toString())
                 } finally {
-                    binding.ivNote.postDelayed({
-                        binding.ivNote.isEnabled = true // 🔓 enable lagi setelah delay
+                    binding?.ivNote?.postDelayed({
+                        binding?.ivNote?.isEnabled = true // 🔓 enable after delay
                     }, 500)
                 }
             } ?: run {
-                binding.ivNote.isEnabled = true
+                binding?.ivNote?.isEnabled = true
                 setToast("Activity is not available")
             }
         }
 
 
-        binding.ivVolume.setOnClickListener {
+        binding?.ivVolume?.setOnClickListener {
             showVolumeDialog()
         }
 
@@ -272,8 +274,8 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
     override fun onDestroyView() {
         super.onDestroyView()
         stopBlinking()
-        blinkHandler.removeCallbacksAndMessages(null)  // Tambahkan ini untuk memastikan tidak ada callback tertunda
-        _binding = null
+        blinkHandler.removeCallbacksAndMessages(null)  // Add this to make sure no callback delay
+        binding = null
     }
 
     private fun showBottomSheetSong(){
@@ -301,7 +303,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
                 showRecordDialog()
             }
         }catch (e : Exception){
-
+            print(e.message)
         }
     }
 
@@ -347,11 +349,11 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
 
 
     private fun showLayoutStartRecord(){
-        binding.ivRecord.visibility = View.GONE
-        binding.ivPause.visibility = View.VISIBLE
-        binding.ivDone.visibility = View.VISIBLE
-        binding.ivDelete.visibility = View.VISIBLE
-        binding.ivDelete.isClickable = true
+        binding?.ivRecord?.visibility = View.GONE
+        binding?.ivPause?.visibility = View.VISIBLE
+        binding?.ivDone?.visibility = View.VISIBLE
+        binding?.ivDelete?.visibility = View.VISIBLE
+        binding?.ivDelete?.isClickable = true
 
         startBlinking()
     }
@@ -359,12 +361,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
 
     @SuppressLint("SetTextI18n")
     private fun showLayoutPauseRecord(){
-        binding.ivRecord.setImageResource(0)
-        binding.ivRecord.setImageResource(R.drawable.play_white)
-        binding.ivRecord.visibility = View.VISIBLE
-        binding.ivPause.visibility = View.GONE
-        binding.ivDone.visibility = View.VISIBLE
-        binding.ivDelete.visibility = View.VISIBLE
+        binding?.ivRecord?.setImageResource(0)
+        binding?.ivRecord?.setImageResource(R.drawable.play_white)
+        binding?.ivRecord?.visibility = View.VISIBLE
+        binding?.ivPause?.visibility = View.GONE
+        binding?.ivDone?.visibility = View.VISIBLE
+        binding?.ivDelete?.visibility = View.VISIBLE
 
         stopBlinking()
 
@@ -374,21 +376,21 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
         try {
             isBlinking = false
             blinkHandler.removeCallbacksAndMessages(null)
-            binding.tvTimerView.visibility = View.GONE
+            binding?.tvTimerView?.visibility = View.GONE
         }catch (e : Exception){
-
+            print(e.message)
         }
     }
 
     @SuppressLint("SetTextI18n")
     private fun showLayoutStopRecord(){
-        binding.ivRecord.visibility = View.VISIBLE
-        binding.ivRecord.setImageResource(0)
-        binding.ivRecord.setImageResource(R.drawable.record)
-        binding.ivPause.visibility = View.GONE
-        binding.ivDone.visibility = View.GONE
-        binding.ivDelete.isClickable = false
-        binding.ivDelete.visibility = View.GONE
+        binding?.ivRecord?.visibility = View.VISIBLE
+        binding?.ivRecord?.setImageResource(0)
+        binding?.ivRecord?.setImageResource(R.drawable.record)
+        binding?.ivPause?.visibility = View.GONE
+        binding?.ivDone?.visibility = View.GONE
+        binding?.ivDelete?.isClickable = false
+        binding?.ivDelete?.visibility = View.GONE
 
         try {
             stopBlinking()
@@ -412,7 +414,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
                 },
             )
         }catch (e : Exception){
-
+            print(e.message)
         }
     }
 
@@ -423,16 +425,16 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
             if (!isAdded) return
             DialogUtils().showVolumeDialog(
                 context = requireContext(),
-                initialVolumeMusic = volumeMusic, // Volume musik awal
-                initialVolumeAudio = volumeAudio, // Volume audio awal
+                initialVolumeMusic = volumeMusic, // Volume music
+                initialVolumeAudio = volumeAudio, // Volume audio
                 onVolumeMusicChanged = { newVolumeMusic ->
                     volumeMusic = newVolumeMusic
                     musicViewModel.setVolume(newVolumeMusic)
-                   // mp?.setVolume(newVolumeMusic, newVolumeMusic) // Update volume pada MediaPlayer
+                   // mp?.setVolume(newVolumeMusic, newVolumeMusic) // Update volumeMediaPlayer
                 },
                 onVolumeAudioChanged = { newVolumeAudio ->
                     volumeAudio = newVolumeAudio
-                    MyMusicListener.postVolumeAudio(newVolumeAudio) // Update volume pada SoundPool
+                    MyMusicListener.postVolumeAudio(newVolumeAudio) // Update volume SoundPool
                 }
             )
         }catch (e : Exception){
@@ -467,8 +469,8 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
         @SuppressLint("UseKtx")
         override fun run() {
             if (isBlinking) {
-                binding.tvTimerView.visibility =
-                    if (binding.tvTimerView.visibility == View.VISIBLE) View.INVISIBLE else View.VISIBLE
+                binding?.tvTimerView?.visibility =
+                    if (binding?.tvTimerView?.visibility == View.VISIBLE) View.INVISIBLE else View.VISIBLE
                 blinkHandler.postDelayed(this, 500)
             }
         }
@@ -486,7 +488,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
             val bottomSheet = BottomSheet(dirPath, fileName, this)
             bottomSheet.show(requireActivity().supportFragmentManager, LOG_TAG)
         }catch (e : Exception){
-            //
+            print(e.message)
         }
     }
 
