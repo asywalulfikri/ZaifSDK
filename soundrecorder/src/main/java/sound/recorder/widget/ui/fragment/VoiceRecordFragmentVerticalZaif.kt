@@ -104,9 +104,12 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(),SharedPreferences.O
                             setLog(e.message)
                         }
                     }
-                    setupView()
                 }
-                setupView()
+                try {
+                    setupView()
+                }catch (e : Exception){
+                    print(e.message)
+                }
             }
         }
     }

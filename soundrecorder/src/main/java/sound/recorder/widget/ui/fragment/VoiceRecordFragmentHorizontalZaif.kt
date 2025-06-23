@@ -64,19 +64,21 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
         }
     }
 
-    /*override fun onCreate(savedInstanceState: Bundle?) {
+   /* override fun onCreate(savedInstanceState: Bundle?) {
         newInstance()
         val b = Bundle()
         super.onCreate(b)
     }*/
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)  // Use savedInstanceState Android
     }
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): LinearLayout? {
-        binding = WidgetRecordHorizontalZaifBinding.inflate(inflater, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+       // _binding = WidgetRecordHorizontalZaifBinding.inflate(inflater, container, false)
+        binding = WidgetRecordHorizontalZaifBinding.inflate(inflater,container,false)
         return binding?.root
     }
 
@@ -98,6 +100,7 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
 
                 }
 
+
                 if(dataSession.showTooltip()){
                     if(dataSession.isDoneTooltip()==false) {
                         try {
@@ -106,9 +109,14 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
                             setLog(e.message)
                         }
                     }
-                    setupView()
                 }
 
+
+                try {
+                    setupView()
+                }catch (e : Exception){
+                    print(e.message)
+                }
             }
         }
     }
@@ -141,8 +149,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
         musicViewModel.pauseRecord.observe(viewLifecycleOwner) { isPause ->
             isPause?.let {
                 if(isPause){
-                    setToastTic(Toastic.SUCCESS,requireContext().getString(R.string.record_paused).toString())
-                    showLayoutPauseRecord()
+                    try {
+                        setToastTic(Toastic.SUCCESS,requireContext().getString(R.string.record_paused).toString())
+                        showLayoutPauseRecord()
+                    }catch (e : Exception){
+                        print(e.message)
+                    }
                 }
             }
         }
@@ -151,8 +163,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
         musicViewModel.resumeRecord.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { isResume ->
                 if(isResume){
-                    setToastTic(Toastic.SUCCESS,(requireContext().getString(R.string.record_resumed).toString()))
-                    showLayoutStartRecord()
+                    try {
+                        setToastTic(Toastic.SUCCESS,(requireContext().getString(R.string.record_resumed).toString()))
+                        showLayoutStartRecord()
+                    }catch (e : Exception){
+                        print(e.message)
+                    }
                 }
             }
         }
@@ -160,8 +176,12 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
         musicViewModel.cancelRecord.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { isCancel ->
                 if(isCancel){
-                    setToastTic(Toastic.SUCCESS,(requireContext().getString(R.string.record_canceled).toString()))
-                    showLayoutStopRecord()
+                    try {
+                        setToastTic(Toastic.SUCCESS,(requireContext().getString(R.string.record_canceled).toString()))
+                        showLayoutStopRecord()
+                    }catch (e : Exception){
+                       print(e.message)
+                    }
                 }
             }
         }
@@ -176,20 +196,32 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
 
         musicViewModel.saveRecord.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { message ->
-                setToastTic(Toastic.INFO,requireContext().getString(R.string.recorded_saved))
-                showLayoutStopRecord()
+                try {
+                    setToastTic(Toastic.INFO,requireContext().getString(R.string.recorded_saved))
+                    showLayoutStopRecord()
+                }catch (e : Exception){
+                    print(e.message)
+                }
             }
         }
 
         musicViewModel.showToast.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { message ->
-                setToastTic(Toastic.INFO,message)
+                try {
+                    setToastTic(Toastic.INFO,message)
+                }catch (e : Exception){
+                    print(e.message)
+                }
             }
         }
 
         binding?.ivRecord?.setOnClickListener {
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-                setToast(activity?.getString(R.string.device_not_support).toString())
+                try {
+                    setToast(activity?.getString(R.string.device_not_support).toString())
+                }catch (e : Exception){
+                    print(e.message)
+                }
             } else {
                 if(musicViewModel.isPause){
                     musicViewModel.resumeRecord()
@@ -268,17 +300,26 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
 
     override fun onDestroy() {
         super.onDestroy()
-        blinkHandler.removeCallbacksAndMessages(null)
-        musicViewModel.releaseMediaPlayerOnDestroy()
-        musicViewModel.stopRecord()
-        sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
+        try {
+            blinkHandler.removeCallbacksAndMessages(null)
+            musicViewModel.releaseMediaPlayerOnDestroy()
+            musicViewModel.stopRecord()
+            sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
+        }catch (e : Exception){
+           print(e.message)
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        stopBlinking()
-        blinkHandler.removeCallbacksAndMessages(null)  // Add this to make sure no callback delay
-        binding = null
+        try {
+            stopBlinking()
+            blinkHandler.removeCallbacksAndMessages(null)  // Add this to make sure no callback delay
+           // _binding = null
+            binding = null
+        }catch (e : Exception){
+           print(e.message)
+        }
     }
 
     private fun showBottomSheetSong(){
@@ -471,18 +512,26 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
     private val blinkRunnable = object : Runnable {
         @SuppressLint("UseKtx")
         override fun run() {
-            if (isBlinking) {
-                binding?.tvTimerView?.visibility =
-                    if (binding?.tvTimerView?.visibility == View.VISIBLE) View.INVISIBLE else View.VISIBLE
-                blinkHandler.postDelayed(this, 500)
+            try {
+                if (isBlinking) {
+                    binding?.tvTimerView?.visibility =
+                        if (binding?.tvTimerView?.visibility == View.VISIBLE) View.INVISIBLE else View.VISIBLE
+                    blinkHandler.postDelayed(this, 500)
+                }
+            }catch (e : Exception){
+                e.message
             }
         }
     }
 
     private fun startBlinking() {
-        if (isBlinking) return
-        isBlinking = true
-        blinkHandler.post(blinkRunnable)
+        try {
+            if (isBlinking) return
+            isBlinking = true
+            blinkHandler.post(blinkRunnable)
+        }catch (e : Exception){
+            print(e.message)
+        }
     }
 
 
@@ -525,10 +574,14 @@ class VoiceRecordFragmentHorizontalZaif : BaseFragmentWidget(),SharedPreferences
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         if(key==Constant.KeyShared.volume){
-            val progress = sharedPreferences?.getInt(Constant.KeyShared.volume,100)
-            val volume = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
-                ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
-            musicViewModel.setVolume(volume)
+            try {
+                val progress = sharedPreferences?.getInt(Constant.KeyShared.volume,100)
+                val volume = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
+                    ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
+                musicViewModel.setVolume(volume)
+            }catch (e : Exception){
+                print(e.message)
+            }
         }
     }
 }
