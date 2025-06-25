@@ -372,6 +372,7 @@ class FragmentListSong(
     private fun updateView() {
         if (activity != null) {
             try {
+                binding?.progressBar?.visibility = View.GONE
                 val listSong = listTitleSong.toTypedArray()
 
                 adapter = ArrayAdapter(requireContext(), R.layout.item_simple_song, listSong)
@@ -435,7 +436,7 @@ class FragmentListSong(
     @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
     fun onMessageEvent(songListResponse: ArrayList<Song>?) {
         lifecycleScope.launch {
-            delay(2000) // delay 2 detik (2000 ms)
+            delay(500) // delay 2 detik (2000 ms)
             if (isAdded && isVisible) {
                 if(!musicViewModel.songIsLoaded){
                     songListResponse?.let { getSong(it) }
