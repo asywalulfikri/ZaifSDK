@@ -9,6 +9,8 @@ import android.content.IntentSender
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -108,7 +110,8 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
 
     private var adView: AdView? = null
-    private var adViewFacebook: com.facebook.ads.AdView? = null
+    private var adView2: AdView? = null
+
     private lateinit var googleMobileAdsConsentManager: GoogleMobileAdsConsentManager
     private lateinit var consentInformation: ConsentInformation
     private var TAG = "GDPR_App"
@@ -126,6 +129,10 @@ open class BaseActivityWidget : AppCompatActivity() {
     var fanSDKBuilder: FanSDKBuilder? = null
     var unitySDKBuilder : UnitySDKBuilder? =null
     var mPanAnim: Animation? = null
+
+    private var unityBannerView: BannerView? = null
+    private var fanAdView: com.facebook.ads.AdView? = null
+
 
     private val displayMetrics by lazy { resources.displayMetrics }
 
@@ -321,23 +328,21 @@ open class BaseActivityWidget : AppCompatActivity() {
                 override fun onLoggingImpression(ad: Ad) {}
             }
 
-            val adView = com.facebook.ads.AdView(
+            fanAdView = com.facebook.ads.AdView(
                 this,
                 fanSDKBuilder?.bannerId.orEmpty(),
                 com.facebook.ads.AdSize.BANNER_HEIGHT_50
             )
 
-            adView.loadAd(
-                adView.buildLoadAdConfig()
-                    .withAdListener(adListener)
-                    .build()
+            fanAdView?.loadAd(
+                fanAdView?.buildLoadAdConfig()
+                    ?.withAdListener(adListener)
+                    ?.build()
             )
-
-            this.adViewFacebook = adView
 
             // Clear old views if any
             adContainer.removeAllViews()
-            adContainer.addView(adView)
+            adContainer.addView(fanAdView)
 
         } catch (e: Exception) {
             setLog("ADS_FAN_EXCEPTION", e.message.orEmpty())
@@ -408,6 +413,27 @@ open class BaseActivityWidget : AppCompatActivity() {
         mInterstitialAd = null
         if (adView != null) {
             adView?.destroy()
+            adView2?.destroy()
+
+            try {
+                if(unityBannerView!=null){
+                    unityBannerView?.let {
+                        (it.parent as? ViewGroup)?.removeView(it) // remove dari layout
+                        it.destroy() // 💥 penting: bersihkan resource Unity Ads
+                        unityBannerView = null
+                    }
+                }
+            }catch (e : Exception){
+                print(e.message)
+            }
+        }
+
+        if(fanAdView!=null){
+            try {
+                fanAdView?.destroy()
+            }catch (e : Exception){
+                print(e.message)
+            }
         }
 
     }
@@ -416,6 +442,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         super.onPause()
         if (adView != null) {
             adView?.pause()
+            adView2?.pause()
         }
     }
 
@@ -423,26 +450,12 @@ open class BaseActivityWidget : AppCompatActivity() {
         super.onResume()
         if (adView != null) {
             adView?.resume()
+            adView2?.resume()
         }
     }
 
-    fun destroyAds() {
-        if (adView != null) {
-            adView?.destroy()
-        }
-    }
 
-    fun pauseAds() {
-        if (adView != null) {
-            adView?.pause()
-        }
-    }
 
-    fun resumeAds() {
-        if (adView != null) {
-            adView?.resume()
-        }
-    }
 
 
     private val installStateUpdatedListener = InstallStateUpdatedListener { state ->
@@ -678,16 +691,16 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private fun executeBanner(adViewContainer: FrameLayout) {
         try {
-            val adView = AdView(this).apply {
+            adView2 = AdView(this).apply {
                 adUnitId = admobSDKBuilder?.bannerId.orEmpty()
                 setAdSize(getSize())
             }
 
             val adRequest = AdRequest.Builder().build()
 
-            adView.adListener = object : AdListener() {
+            adView2?.adListener = object : AdListener() {
                 override fun onAdLoaded() {
-                    Log.d("ADS_AdMob", "Banner loaded successfully: ${adView.adUnitId}")
+                    Log.d("ADS_AdMob", "Banner loaded successfully: ${adView2?.adUnitId}")
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
@@ -712,12 +725,11 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
             }
 
-            adView.loadAd(adRequest)
+            adView2?.loadAd(adRequest)
 
             // Ganti view
             adViewContainer.removeAllViews()
-            adViewContainer.addView(adView)
-            this.adView = adView
+            adViewContainer.addView(adView2)
 
         } catch (e: Exception) {
             Log.e("ADS_AdMob", "Banner load exception: ${e.message}")
@@ -957,6 +969,26 @@ open class BaseActivityWidget : AppCompatActivity() {
     fun releaseInterstitialFAN(){
         interstitialFANAd = null
     }
+
+
+    fun onResumeAds(){
+        try {
+            adView?.resume()
+            adView2?.resume()
+        }catch (e : Exception){
+            print(e.message)
+        }
+    }
+
+    fun onPauseAds(){
+        try {
+            adView?.pause()
+            adView2?.pause()
+        }catch (e : Exception){
+
+        }
+    }
+
 
     fun setupRewardInterstitial(){
         try {
@@ -1204,10 +1236,10 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun setupBannerUnity(adContainer: FrameLayout) {
         try {
-            val bannerView = BannerView(this, "Banner_Android", UnityBannerSize(320, 50))
-            bannerView.load()
-            bannerView.gravity = Gravity.CENTER
-            adContainer.addView(bannerView)
+            unityBannerView = BannerView(this, "Banner_Android", UnityBannerSize(320, 50))
+            unityBannerView?.load()
+            unityBannerView?.gravity = Gravity.CENTER
+            adContainer.addView(unityBannerView)
 
             loadInterstitialUnityAds()
         }catch (e : Exception){
@@ -1268,6 +1300,30 @@ open class BaseActivityWidget : AppCompatActivity() {
                 Log.e("UnityAds", "Ad Show Failed: $message")
             }
         })
+    }
+
+    fun isInternetConnected(): Boolean {
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+            val actNw = connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+
+            return when {
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                // for other device how are able to connect with Ethernet
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                // for check internet over Bluetooth
+                actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+                else -> false
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            val networkInfo = connectivityManager.activeNetworkInfo ?: return false
+            @Suppress("DEPRECATION")
+            return networkInfo.isConnected
+        }
     }
 
 }

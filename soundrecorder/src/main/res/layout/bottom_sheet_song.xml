@@ -24,7 +24,6 @@
 
     <ImageView
         android:id="@+id/btnCLose"
-        android:fitsSystemWindows="true"
         android:layout_width="@dimen/_40sdp"
         android:layout_height="@dimen/_40sdp"
         android:contentDescription="@string/app_name"
