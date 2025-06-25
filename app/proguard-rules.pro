@@ -22,3 +22,7 @@
 
 -keep class com.facebook.ads.** { *; }
 -dontwarn com.facebook.ads.**
+
+# Unity Ads SDK
+-keep class com.unity3d.ads.** { *; }
+-dontwarn com.unity3d.ads.**

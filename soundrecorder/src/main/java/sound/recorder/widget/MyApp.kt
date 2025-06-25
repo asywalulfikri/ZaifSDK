@@ -50,6 +50,13 @@ open class MyApp : Application() {
                 }
             }
         }
+
+        Thread.setDefaultUncaughtExceptionHandler { _, e ->
+            if (e.message?.contains("reasonPhrase can't be empty") == true) {
+                Log.e("UnityCrashBypass", "Unity Ads SDK WebView bug suppressed")
+                // kamu bisa kirim log ke Firebase Crashlytics atau abaikan crash ini
+            }
+        }
     }
 
 

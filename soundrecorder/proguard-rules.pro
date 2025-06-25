@@ -60,3 +60,7 @@ LineNumberTable, *Annotation*, EnclosingMethod
 # skip IAB classes
 -keep class com.iab.** {*;}
 -dontwarn com.iab.**
+
+# Unity Ads SDK
+-keep class com.unity3d.ads.** { *; }
+-dontwarn com.unity3d.ads.**
