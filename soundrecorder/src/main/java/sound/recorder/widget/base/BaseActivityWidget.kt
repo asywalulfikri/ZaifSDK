@@ -142,11 +142,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     fun setupUnityAds(unityId : String){
         var testMode = true
 
-        testMode = if(BuildConfig.DEBUG){
-            true
-        }else{
-            false
-        }
+        testMode = BuildConfig.DEBUG
        // UnityAds.initialize(this, unitySDKBuilder?.unityId, unitySDKBuilder?.testMode == true, this)
         UnityAds.initialize(this, unityId, testMode, object : IUnityAdsInitializationListener {
             override fun onInitializationComplete() {
@@ -172,6 +168,20 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
 
         return deviceLanguage == "id" || deviceLanguage == "en" || deviceLanguage == "in"
+    }
+
+    fun setupBannerAdmob(view : FrameLayout ,unitId : String){
+        try {
+            adView = AdView(this)
+            adView?.setAdSize(AdSize.BANNER)
+            adView?.adUnitId = unitId
+            view.addView(adView)
+
+            val adRequest = AdRequest.Builder().build()
+            adView?.loadAd(adRequest)
+        }catch (e : Exception){
+            print(e.message)
+        }
     }
 
 
