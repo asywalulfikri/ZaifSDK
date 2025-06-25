@@ -310,6 +310,31 @@ open class BaseFragmentWidget : Fragment() {
     }
 
 
+    fun permissionSong(){
+        try {
+            if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU){
+                if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    requestPermissionSong.launch(Manifest.permission.READ_MEDIA_AUDIO)
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissionSong.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }
+
+        }catch (e : Exception){
+            print(e.message)
+        }
+
+    }
+
+    private val requestPermissionSong =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+
+        }
+
     fun createBalloonWithText(
         title: String,
         message: String,

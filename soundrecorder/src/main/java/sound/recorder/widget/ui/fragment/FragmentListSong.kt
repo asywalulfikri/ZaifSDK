@@ -434,9 +434,12 @@ class FragmentListSong(
 
     @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
     fun onMessageEvent(songListResponse: ArrayList<Song>?) {
-        if (isAdded && isVisible) {
-            if(!musicViewModel.songIsLoaded){
-                songListResponse?.let { getSong(it) }
+        lifecycleScope.launch {
+            delay(2000) // delay 2 detik (2000 ms)
+            if (isAdded && isVisible) {
+                if(!musicViewModel.songIsLoaded){
+                    songListResponse?.let { getSong(it) }
+                }
             }
         }
     }
