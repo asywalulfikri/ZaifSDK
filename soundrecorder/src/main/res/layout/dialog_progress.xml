@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/_200sdp"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
@@ -11,7 +11,7 @@
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="@string/loading_audio"
+        android:text="@string/loading_audio"
         style="@style/CustomTextTitleBold"
         android:textSize="16sp"
         android:textColor="@color/white"/>

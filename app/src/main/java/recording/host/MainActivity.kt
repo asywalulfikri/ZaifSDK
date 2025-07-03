@@ -42,6 +42,7 @@ import sound.recorder.widget.ui.fragment.FragmentListRecord
 import sound.recorder.widget.util.AppRatingHelper
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
+import sound.recorder.widget.util.ProgressDialogUtil
 import sound.recorder.widget.util.SnowFlakesLayout
 import sound.recorder.widget.util.Toastic
 import java.io.IOException
@@ -168,6 +169,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
 
 
+        ProgressDialogUtil.show(this)
         hideSystemNavigationBar()
 
        // binding.tvRunningText.startScroll()
