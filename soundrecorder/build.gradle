@@ -91,8 +91,8 @@ dependencies {
 
 
     implementation 'org.greenrobot:eventbus:3.3.1'
-    implementation platform('com.google.firebase:firebase-bom:33.15.0')
-    implementation 'com.google.firebase:firebase-messaging:24.1.1'
+    implementation platform('com.google.firebase:firebase-bom:33.16.0')
+    implementation 'com.google.firebase:firebase-messaging:24.1.2'
     implementation 'com.google.firebase:firebase-firestore:25.1.4'
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.google.android.ump:user-messaging-platform:3.2.0'
