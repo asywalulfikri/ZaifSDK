@@ -14,166 +14,134 @@ import kotlinx.coroutines.*
 @SuppressLint("Registered")
 open class MyApp : Application() {
 
-    // Coroutine scope with SupervisorJob to isolate failures
+    // Coroutine scope untuk semua pekerjaan background di level aplikasi
     private val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     companion object {
+        // Menggunakan lateinit untuk instance agar lebih aman
         private lateinit var instance: MyApp
-        fun getApplicationContext(): MyApp {
-            return instance
-        }
-
+        fun getApplicationContext(): MyApp = instance
     }
 
     override fun onCreate() {
         super.onCreate()
         instance = this
-        // Initialize SDKs in the background
+
+        // Luncurkan coroutine untuk menjalankan SEMUA inisialisasi secara PARALEL
         applicationScope.launch {
-            withTimeoutOrNull(10_000) { // Timeout to prevent hanging
-                initializeFirebase()
-            }
-
-            if (isWebViewAvailable()) {
-                withTimeoutOrNull(10_000) { // Timeout for AdMob initialization
-                    if (isAdMobAvailable()) {
-                        initializeAdMob()
-                    }
-                }
-
-                withTimeoutOrNull(10_000) { // Timeout for Audience Network initialization
-                    initializeAudienceNetworkAds()
-                }
-
-                withTimeoutOrNull(10_000) { // Timeout for Audience Network initialization
-                    initializeAudienceNetworkAds()
-                }
-            }
+            initializeEssentialSDKs()
         }
 
+        // Penangan crash khusus untuk bug WebView Unity Ads (ini sudah bagus)
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
             if (e.message?.contains("reasonPhrase can't be empty") == true) {
                 Log.e("UnityCrashBypass", "Unity Ads SDK WebView bug suppressed")
-                // kamu bisa kirim log ke Firebase Crashlytics atau abaikan crash ini
+            } else {
+                // Untuk crash lain, teruskan ke handler default agar tetap dilaporkan
+                Thread.getDefaultUncaughtExceptionHandler()?.uncaughtException(Thread.currentThread(), e)
             }
         }
     }
 
-
-    private  fun initUnity(){
-
-    }
-
-    override fun onTerminate() {
-        super.onTerminate()
-        // Cancel all running coroutines to avoid memory leaks
-        applicationScope.cancel()
-    }
-
     /**
-     * Check if WebView package is available on the device
+     * Menjalankan semua proses inisialisasi SDK secara paralel untuk mempercepat startup.
+     * Menggunakan async untuk memulai setiap tugas dan awaitAll untuk menunggu semuanya selesai.
      */
-    private suspend fun isWebViewAvailable(): Boolean {
-        return withContext(Dispatchers.IO) {
-            val packageManager = packageManager
-            try {
-                packageManager.getPackageInfo("com.google.android.webview", 0)
-                true
-            } catch (e: PackageManager.NameNotFoundException) {
-                Log.e("MyApp", "WebView package not available: ${e.message}")
-                false
-            }
+    private suspend fun initializeEssentialSDKs() = coroutineScope {
+        val initializers = mutableListOf<Deferred<Unit>>()
+
+        // 1. Inisialisasi Firebase
+        initializers.add(async { initializeFirebase() })
+
+        // 2. Inisialisasi SDK Iklan jika WebView tersedia
+        if (isWebViewAvailable()) {
+            // Inisialisasi AdMob
+            initializers.add(async { initializeAdMob() })
+            // Inisialisasi Facebook Audience Network (FAN)
+            initializers.add(async { initializeAudienceNetworkAds() })
         }
+
+        // Menunggu semua proses inisialisasi yang dimulai di atas selesai
+        initializers.awaitAll()
+        Log.d("MyApp", "All essential SDKs have been initialized.")
     }
 
     /**
-     * Check if AdMob SDK is available
-     */
-    private suspend fun isAdMobAvailable(): Boolean {
-        return withContext(Dispatchers.IO) {
-            try {
-                Class.forName("com.google.android.gms.ads.MobileAds")
-                true
-            } catch (e: ClassNotFoundException) {
-                Log.e("MyApp", "AdMob not available: ${e.message}")
-                false
-            }
-        }
-    }
-
-    /**
-     * Initialize Firebase in a background thread
+     * Inisialisasi Firebase
      */
     private suspend fun initializeFirebase() {
-        withContext(Dispatchers.IO) {
-            try {
-                FirebaseApp.initializeApp(this@MyApp)
-                Log.d("MyApp", "Firebase initialized successfully")
-            } catch (e: Exception) {
-                Log.e("MyApp", "Error initializing Firebase: ${e.message}")
-            }
+        try {
+            FirebaseApp.initializeApp(this@MyApp)
+            Log.d("MyApp", "Firebase initialized successfully.")
+        } catch (e: Exception) {
+            Log.e("MyApp", "Error initializing Firebase: ${e.message}")
         }
     }
 
+    /**
+     * Inisialisasi AdMob
+     */
+    private suspend fun initializeAdMob() {
+        try {
+            // Cek ketersediaan class sebelum memanggilnya
+            Class.forName("com.google.android.gms.ads.MobileAds")
+            MobileAds.initialize(this@MyApp) {}
+            Log.d("MyApp", "AdMob initialized successfully.")
+        } catch (e: Exception) {
+            Log.e("MyApp", "Error initializing AdMob: ${e.message}")
+        }
+    }
 
-    public suspend fun initializeUnity(unityId : String){
+    /**
+     * Inisialisasi Facebook Audience Network
+     */
+    private suspend fun initializeAudienceNetworkAds() {
+        try {
+            AudienceNetworkAds.initialize(this@MyApp)
+            Log.d("MyApp", "Audience Network Ads initialized successfully.")
+        } catch (e: Exception) {
+            Log.e("MyApp", "Error initializing Audience Network Ads: ${e.message}")
+        }
+    }
 
+    /**
+     * Inisialisasi Unity Ads, dipanggil secara eksplisit dari GameApp.
+     * Metode ini tidak perlu dijalankan otomatis di MyApp.
+     */
+    suspend fun initializeUnity(unityId: String) {
         withContext(Dispatchers.IO) {
             try {
-                var testMode = true
-
-                testMode = if(BuildConfig.DEBUG){
-                    true
-                }else{
-                    false
-                }
-                // UnityAds.initialize(this, unitySDKBuilder?.unityId, unitySDKBuilder?.testMode == true, this)
+                val testMode = BuildConfig.DEBUG
                 UnityAds.initialize(this@MyApp, unityId, testMode, object : IUnityAdsInitializationListener {
                     override fun onInitializationComplete() {
-                        Log.d("UnityAds", "Initialization Complete")
+                        Log.d("UnityAds", "Initialization Complete.")
                     }
 
-                    override fun onInitializationFailed(
-                        error: UnityAds.UnityAdsInitializationError?,
-                        message: String?
-                    ) {
+                    override fun onInitializationFailed(error: UnityAds.UnityAdsInitializationError?, message: String?) {
                         Log.e("UnityAds", "Initialization Failed: $message")
                     }
                 })
             } catch (e: Exception) {
-                Log.e("MyApp", "Error initializing AdMob: ${e.message}")
-            }
-        }
-
-    }
-
-
-    /**
-     * Initialize AdMob SDK in a background thread
-     */
-    private suspend fun initializeAdMob() {
-        withContext(Dispatchers.IO) {
-            try {
-                MobileAds.initialize(this@MyApp) {
-                    Log.d("MyApp", "AdMob initialized successfully")
-                }
-            } catch (e: Exception) {
-                Log.e("MyApp", "Error initializing AdMob: ${e.message}")
+                Log.e("MyApp", "Error initializing UnityAds: ${e.message}")
             }
         }
     }
 
     /**
-     * Initialize Facebook Audience Network Ads in a background thread
+     * Mengecek ketersediaan WebView di perangkat.
      */
-    private suspend fun initializeAudienceNetworkAds() {
-        withContext(Dispatchers.IO) {
-            try {
-                AudienceNetworkAds.initialize(this@MyApp)
-                Log.d("MyApp", "Audience Network Ads initialized successfully")
-            } catch (e: Exception) {
-                Log.e("MyApp", "Error initializing Audience Network Ads: ${e.message}")
-            }
+    private fun isWebViewAvailable(): Boolean {
+        return try {
+            packageManager.getPackageInfo("com.google.android.webview", 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            Log.e("MyApp", "WebView package not available.")
+            false
         }
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        applicationScope.cancel()
     }
 }

@@ -86,8 +86,8 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:1.8.8"
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.1")
 
-    implementation("androidx.navigation:navigation-fragment-ktx:2.9.0")
-    implementation("androidx.navigation:navigation-ui-ktx:2.9.0")
+    implementation "androidx.navigation:navigation-fragment-ktx:2.9.1"
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.1")
 
 
     implementation 'org.greenrobot:eventbus:3.3.1'

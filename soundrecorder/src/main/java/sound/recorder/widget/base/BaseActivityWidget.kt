@@ -1106,13 +1106,17 @@ open class BaseActivityWidget : AppCompatActivity() {
                                     fanAd.show()
                                 } catch (e: Exception) {
                                     setLog("Error showing FAN Interstitial: ${e.message}")
-                                    showInterstitialUnity()
+                                    if(unitySDKBuilder?.enable==true){
+                                        showInterstitialUnity()
+                                    }
                                 }
                             }
                         }
                     }
                 }else{
-                    showInterstitialUnity()
+                    if(unitySDKBuilder?.enable==true){
+                        showInterstitialUnity()
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -1273,33 +1277,37 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     // Tampilkan saat dibutuhkan
     fun showInterstitialUnity() {
-        UnityAds.show(this,"Interstitial_Android", object : IUnityAdsShowListener {
-            override fun onUnityAdsShowComplete(
-                placementId: String?,
-                state: UnityAdsShowCompletionState?
-            ) {
-                if (placementId == interstitialAdId && state == UnityAdsShowCompletionState.COMPLETED) {
-                    Log.d("UnityAds", "Ad Completed")
-                    // Reward atau lanjutkan
+        try {
+            UnityAds.show(this,"Interstitial_Android", object : IUnityAdsShowListener {
+                override fun onUnityAdsShowComplete(
+                    placementId: String?,
+                    state: UnityAdsShowCompletionState?
+                ) {
+                    if (placementId == interstitialAdId && state == UnityAdsShowCompletionState.COMPLETED) {
+                        Log.d("UnityAds", "Ad Completed")
+                        // Reward atau lanjutkan
+                    }
                 }
-            }
 
-            override fun onUnityAdsShowStart(placementId: String?) {
-                Log.d("UnityAds", "Ad Started")
-            }
+                override fun onUnityAdsShowStart(placementId: String?) {
+                    Log.d("UnityAds", "Ad Started")
+                }
 
-            override fun onUnityAdsShowClick(placementId: String?) {
-                Log.d("UnityAds", "Ad Clicked")
-            }
+                override fun onUnityAdsShowClick(placementId: String?) {
+                    Log.d("UnityAds", "Ad Clicked")
+                }
 
-            override fun onUnityAdsShowFailure(
-                placementId: String?,
-                error: UnityAdsShowError?,
-                message: String?
-            ) {
-                Log.e("UnityAds", "Ad Show Failed: $message")
-            }
-        })
+                override fun onUnityAdsShowFailure(
+                    placementId: String?,
+                    error: UnityAdsShowError?,
+                    message: String?
+                ) {
+                    Log.e("UnityAds", "Ad Show Failed: $message")
+                }
+            })
+        }catch (e : Exception){
+
+        }
     }
 
     fun isInternetConnected(): Boolean {
