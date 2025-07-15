@@ -36,41 +36,9 @@ class UnitySDKBuilder private constructor(
             val zaifSDKBuilder = UnitySDKBuilder(
                 unityId,enable)
 
-            // Save the object to SharedPreferences as JSON
-            saveToSharedPreferences(zaifSDKBuilder)
-
             return zaifSDKBuilder
         }
 
-        private fun saveToSharedPreferences(zaifSDKBuilder: UnitySDKBuilder) {
-            val sharedPreferences: SharedPreferences = context.getSharedPreferences(
-                Constant.KeyShared.shareKey,
-                Context.MODE_PRIVATE
-            )
-            val editor = sharedPreferences.edit()
-
-            // Convert the object to JSON and save it
-            val gson = Gson()
-            val json = gson.toJson(zaifSDKBuilder)
-            editor.putString(Constant.KeyShared.unitySDKBuilder, json)
-            Log.d("json_value", "$json--")
-            editor.apply()
-        }
-
-        // Load the ZaifSDKBuilder from SharedPreferences
-        fun loadFromSharedPreferences(): UnitySDKBuilder? {
-            val sharedPreferences: SharedPreferences = context.getSharedPreferences(
-                Constant.KeyShared.shareKey,
-                Context.MODE_PRIVATE
-            )
-            val gson = Gson()
-            val json = sharedPreferences.getString(Constant.KeyShared.unitySDKBuilder, null)
-            return if (json != null) {
-                gson.fromJson(json, UnitySDKBuilder::class.java)
-            } else {
-                null
-            }
-        }
     }
 
     companion object {

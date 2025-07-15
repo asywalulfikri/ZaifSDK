@@ -5,7 +5,7 @@ import androidx.navigation.fragment.NavHostFragment
 import recording.host.databinding.ActivityGameBinding
 import sound.recorder.widget.base.BaseActivityWidget
 
-class ActivityGame : BaseActivityWidget(){
+class ActivityGame : BaseActivityWidget(),GameApp.AppInitializationListener{
     private lateinit var binding: ActivityGameBinding
 
 
@@ -15,6 +15,8 @@ class ActivityGame : BaseActivityWidget(){
         setContentView(binding.root)
 
         setupHideStatusBar(binding.root,false)
+
+        GameApp.registerListener(this)
 
         // Menyiapkan NavHostFragment dan Navigation Controller
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
@@ -32,6 +34,13 @@ class ActivityGame : BaseActivityWidget(){
         navGraph.setStartDestination(R.id.FragmentTesting) // Ubah sesuai dengan ID fragment awal Anda
         navController.setGraph(navGraph,bundle)
 
+    }
+
+    override fun onInitializationComplete() {
+        runOnUiThread {
+            setToast(admobSDKBuilder?.admobId.toString())
+            setLog(admobSDKBuilder?.bannerId.toString())
+        }
     }
 
 }

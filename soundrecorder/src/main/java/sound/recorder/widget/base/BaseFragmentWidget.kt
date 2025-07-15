@@ -86,10 +86,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sound.recorder.widget.BuildConfig
+import sound.recorder.widget.ads.AdConfigProvider
 import sound.recorder.widget.animation.ParticleSystem
 import sound.recorder.widget.animation.modifiers.ScaleModifier
 import sound.recorder.widget.builder.AdmobSDKBuilder
 import sound.recorder.widget.builder.FanSDKBuilder
+import sound.recorder.widget.builder.UnitySDKBuilder
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.databinding.WidgetRecordHorizontalZaifBinding
 import sound.recorder.widget.databinding.WidgetRecordVerticalZaifBinding
@@ -128,11 +130,26 @@ open class BaseFragmentWidget : Fragment() {
     var mGuideView: GuideView? = null
     var builder: GuideView.Builder? = null
     var mPanAnim: Animation? = null
-    var admobSDKBuilder : AdmobSDKBuilder? =null
+    //var admobSDKBuilder : AdmobSDKBuilder? =null
     private var adViewFacebook : com.facebook.ads.AdView? = null
-    var fanSDKBuilder : FanSDKBuilder? =null
+   // var fanSDKBuilder : FanSDKBuilder? =null
     var zaifSDKBuilder : ZaifSDKBuilder? =null
     lateinit var dataSession : DataSession
+
+
+    companion object {
+        // Tempat untuk "menitipkan" implementasi kontrak dari aplikasi
+        var adConfigProvider: AdConfigProvider? = null
+    }
+
+    val admobSDKBuilder: AdmobSDKBuilder?
+        get() = adConfigProvider?.getAdmobBuilder()
+
+    val fanSDKBuilder: FanSDKBuilder?
+        get() = adConfigProvider?.getFanBuilder()
+
+    val unitySDKBuilder: UnitySDKBuilder?
+        get() = adConfigProvider?.getUnityBuilder()
 
 
     var recorder: MediaRecorder? = null
@@ -141,7 +158,7 @@ open class BaseFragmentWidget : Fragment() {
         super.onCreate(savedInstanceState)
 
         // Run in background thread
-        CoroutineScope(Dispatchers.IO).launch {
+       /* CoroutineScope(Dispatchers.IO).launch {
             val admob = AdmobSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
             val fan   = FanSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
 
@@ -149,7 +166,7 @@ open class BaseFragmentWidget : Fragment() {
                 admobSDKBuilder = admob
                 fanSDKBuilder = fan
             }
-        }
+        }*/
     }
 
 

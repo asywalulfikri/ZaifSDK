@@ -75,40 +75,7 @@ class AdmobSDKBuilder private constructor(
                 admobId, bannerId, interstitialId, rewardId, rewardInterstitialId,
                 nativeId, appOpenId ,orientationAds)
 
-            // Save the object to SharedPreferences as JSON
-            saveToSharedPreferences(zaifSDKBuilder)
-
             return zaifSDKBuilder
-        }
-
-        private fun saveToSharedPreferences(zaifSDKBuilder: AdmobSDKBuilder) {
-            val sharedPreferences: SharedPreferences = context.getSharedPreferences(
-                Constant.KeyShared.shareKey,
-                Context.MODE_PRIVATE
-            )
-            val editor = sharedPreferences.edit()
-
-            // Convert the object to JSON and save it
-            val gson = Gson()
-            val json = gson.toJson(zaifSDKBuilder)
-            editor.putString(Constant.KeyShared.admobSDKBuilder, json)
-            Log.d("json_value", "$json--")
-            editor.apply()
-        }
-
-        // Load the ZaifSDKBuilder from SharedPreferences
-        fun loadFromSharedPreferences(): AdmobSDKBuilder? {
-            val sharedPreferences: SharedPreferences = context.getSharedPreferences(
-                Constant.KeyShared.shareKey,
-                Context.MODE_PRIVATE
-            )
-            val gson = Gson()
-            val json = sharedPreferences.getString(Constant.KeyShared.admobSDKBuilder, null)
-            return if (json != null) {
-                gson.fromJson(json, AdmobSDKBuilder::class.java)
-            } else {
-                null
-            }
         }
     }
 
