@@ -5,7 +5,7 @@ import sound.recorder.widget.builder.AdmobSDKBuilder
 import sound.recorder.widget.builder.FanSDKBuilder
 import sound.recorder.widget.builder.UnitySDKBuilder
 
-interface AdConfigProvider {
+public interface AdConfigProvider {
     fun getAdmobBuilder(): AdmobSDKBuilder?
     fun getFanBuilder(): FanSDKBuilder?
     fun getUnityBuilder(): UnitySDKBuilder?
