@@ -143,7 +143,6 @@ open class BaseActivityWidget : AppCompatActivity() {
         fanSDKBuilder = FanSDKBuilder.builder(this).loadFromSharedPreferences()
         unitySDKBuilder = UnitySDKBuilder.builder(this).loadFromSharedPreferences()
 
-
     }
 
     fun setupUnityAds(unityId : String){
@@ -353,7 +352,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun setupInterstitialFacebook() {
 
-        if (isWebViewSupported() && isWebViewAvailable()) {
+        if (isWebViewAvailable()) {
             try {
                 interstitialFANAd =
                     com.facebook.ads.InterstitialAd(this, fanSDKBuilder?.interstitialId.toString())
@@ -408,7 +407,54 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
+
     override fun onDestroy() {
+        super.onDestroy()
+        mInterstitialAd = null
+
+        // Menunda proses destroy untuk AdMob Banners
+        adView?.postDelayed({
+            try {
+                adView?.destroy()
+            } catch (e: Exception) {
+                // Abaikan error jika view sudah tidak valid
+            }
+        }, 100)
+
+        adView2?.postDelayed({
+            try {
+                adView?.destroy()
+            } catch (e: Exception) {
+                // Abaikan error jika view sudah tidak valid
+            }
+        }, 100)
+
+
+        // Menunda proses destroy untuk Unity Banner
+        unityBannerView?.let { banner ->
+            (banner.parent as? ViewGroup)?.removeView(banner)
+            banner.postDelayed({
+                try {
+                    banner.destroy()
+                } catch (e: Exception) {
+                    // Abaikan error jika view sudah tidak valid
+                }
+            }, 100) // Tunda eksekusi selama 100 milidetik
+            unityBannerView = null
+        }
+
+
+        // Menunda proses destroy untuk Facebook FAN Banner
+        fanAdView?.postDelayed({
+            try {
+                fanAdView?.destroy()
+            } catch (e: Exception) {
+                // Abaikan error jika view sudah tidak valid
+            }
+        }, 100)
+    }
+
+   /* override fun onDestroy() {
         super.onDestroy()
         mInterstitialAd = null
         if (adView != null) {
@@ -436,7 +482,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
         }
 
-    }
+    }*/
 
     override fun onPause() {
         super.onPause()
@@ -639,33 +685,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    private fun isWebViewSupported(): Boolean {
-        return try {
-            WebView(this)
-            if (BuildConfig.DEBUG) {
-               // setToast("WebView didukung pada perangkat ini.")
-            }
-            true
-        } catch (e: Exception) {
-            if (BuildConfig.DEBUG) {
-               // setToast("WebView tidak didukung pada perangkat ini.")
-            }
-            false
-        }
-    }
-
-
-    private fun isWebViewAvailable(): Boolean {
-        val packageManager = packageManager
-        return try {
-            packageManager.getPackageInfo("com.google.android.webview", 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
-
-
     private fun isAdMobAvailable(): Boolean {
         return try {
             Class.forName("com.google.android.gms.ads.MobileAds")
@@ -677,17 +696,42 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun setupBanner(adViewContainer: FrameLayout) {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-            if (isWebViewSupported() && isWebViewAvailable()) {
+            if (isWebViewAvailable()) {
                 setupBannerFacebook(adViewContainer)
             }
         } else {
-            if (isWebViewSupported() && isWebViewAvailable()) {
+            if (isWebViewAvailable()) {
                 if (isAdMobAvailable()) {
                     executeBanner(adViewContainer)
                 }
             }
         }
     }
+
+    private fun isWebViewAvailable(): Boolean {
+        val packageManager = packageManager
+        return try {
+            packageManager.getPackageInfo("com.google.android.webview", 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
+ /*   private fun isWebViewSupported(): Boolean {
+        return try {
+            WebView(this)
+            if (BuildConfig.DEBUG) {
+                // setToast("WebView didukung pada perangkat ini.")
+            }
+            true
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) {
+                // setToast("WebView tidak didukung pada perangkat ini.")
+            }
+            false
+        }
+    }*/
 
     private fun executeBanner(adViewContainer: FrameLayout) {
         try {
@@ -844,7 +888,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun setupInterstitial() {
 
-        if(isWebViewSupported()&&isWebViewAvailable()){
+        if(isWebViewAvailable()){
 
             CoroutineScope(Dispatchers.Main).launch {
 

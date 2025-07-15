@@ -111,8 +111,7 @@ open class MyApp : Application() {
     suspend fun initializeUnity(unityId: String) {
         withContext(Dispatchers.IO) {
             try {
-                val testMode = BuildConfig.DEBUG
-                UnityAds.initialize(this@MyApp, unityId, testMode, object : IUnityAdsInitializationListener {
+                UnityAds.initialize(this@MyApp, unityId, false, object : IUnityAdsInitializationListener {
                     override fun onInitializationComplete() {
                         Log.d("UnityAds", "Initialization Complete.")
                     }
