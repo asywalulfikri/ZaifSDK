@@ -87,6 +87,7 @@ import org.json.JSONObject
 import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.R
 import sound.recorder.widget.RecordingSDK
+import sound.recorder.widget.ads.AdConfigProvider
 import sound.recorder.widget.ads.GoogleMobileAdsConsentManager
 import sound.recorder.widget.builder.AdmobSDKBuilder
 import sound.recorder.widget.builder.FanSDKBuilder
@@ -125,9 +126,9 @@ open class BaseActivityWidget : AppCompatActivity() {
     var sharedPreferences: SharedPreferences? = null
 
     private var appOpenAd: AppOpenAd? = null
-    var admobSDKBuilder: AdmobSDKBuilder? = null
+  /*  var admobSDKBuilder: AdmobSDKBuilder? = null
     var fanSDKBuilder: FanSDKBuilder? = null
-    var unitySDKBuilder : UnitySDKBuilder? =null
+    var unitySDKBuilder : UnitySDKBuilder? =null*/
     var mPanAnim: Animation? = null
 
     private var unityBannerView: BannerView? = null
@@ -136,14 +137,31 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private val displayMetrics by lazy { resources.displayMetrics }
 
+    companion object {
+        // Tempat untuk "menitipkan" implementasi kontrak dari aplikasi
+        var adConfigProvider: AdConfigProvider? = null
+    }
+
+    val admobSDKBuilder: AdmobSDKBuilder?
+        get() = adConfigProvider?.getAdmobBuilder()
+
+    val fanSDKBuilder: FanSDKBuilder?
+        get() = adConfigProvider?.getFanBuilder()
+
+    val unitySDKBuilder: UnitySDKBuilder?
+        get() = adConfigProvider?.getUnityBuilder()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        admobSDKBuilder = AdmobSDKBuilder.builder(this).loadFromSharedPreferences()
-        fanSDKBuilder = FanSDKBuilder.builder(this).loadFromSharedPreferences()
-        unitySDKBuilder = UnitySDKBuilder.builder(this).loadFromSharedPreferences()
 
     }
+
+  /*  fun executeBuilder(){
+        admobSDKBuilder = AdmobSDKBuilder.builder(this).loadFromSharedPreferences()
+        fanSDKBuilder   = FanSDKBuilder.builder(this).loadFromSharedPreferences()
+        unitySDKBuilder = UnitySDKBuilder.builder(this).loadFromSharedPreferences()
+    }*/
 
     fun setupUnityAds(unityId : String){
         var testMode = true
