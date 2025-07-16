@@ -124,7 +124,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                     .setApplicationId(Constants.AdsProductionId.fanId)
                     .setBannerId(Constants.AdsProductionId.fanBannerId)
                     .setInterstitialId(Constants.AdsProductionId.fanInterstitialId)
-                    .setEnable(true)
+                    .setEnable(false)
                     .build()
             }
 

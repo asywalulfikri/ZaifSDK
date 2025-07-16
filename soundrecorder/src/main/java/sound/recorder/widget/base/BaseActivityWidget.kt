@@ -373,51 +373,6 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
 
-    fun setupInterstitialFacebook() {
-
-        if (isWebViewAvailable()) {
-            try {
-                interstitialFANAd =
-                    com.facebook.ads.InterstitialAd(this, fanSDKBuilder?.interstitialId.toString())
-                val interstitialAdListener = object : InterstitialAdListener {
-                    override fun onInterstitialDisplayed(ad: Ad) {
-                        setLog("ADS_FAN", "show Interstitial success " + ad.placementId)
-                    }
-
-                    override fun onInterstitialDismissed(ad: Ad) {
-                        interstitialFANAd = null
-                        Log.d("ADS_FAN", "Interstitial dismiss")
-                        setupInterstitialFacebook()
-                    }
-
-                    override fun onError(p0: Ad?, adError: com.facebook.ads.AdError?) {
-                        Log.e("ADS_FAN", "Interstitial failed to load: ${adError?.errorMessage}")
-                    }
-
-                    override fun onAdLoaded(ad: Ad) {
-                        Log.d("ADS_FAN", "Interstitial is loaded and ready to be displayed!")
-                        showFANInterstitial = true
-                    }
-
-                    override fun onAdClicked(ad: Ad) {
-                    }
-
-                    override fun onLoggingImpression(ad: Ad) {
-
-                    }
-                }
-
-                interstitialFANAd?.loadAd(
-                    interstitialFANAd?.buildLoadAdConfig()
-                        ?.withAdListener(interstitialAdListener)
-                        ?.build()
-                )
-            } catch (e: Exception) {
-                setLog("asywalul fb :" + e.message)
-            }
-        }
-
-    }
 
 
     fun onDestroyUpdate() {
@@ -731,15 +686,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    private fun isWebViewAvailable(): Boolean {
-        val packageManager = packageManager
-        return try {
-            packageManager.getPackageInfo("com.google.android.webview", 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
+
 
  /*   private fun isWebViewSupported(): Boolean {
         return try {
@@ -874,6 +821,45 @@ open class BaseActivityWidget : AppCompatActivity() {
         }*/
     }
 
+    fun hideSystemNavigationBar() {
+        val window = window
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val controller = window.insetsController
+            if (controller != null) {
+                controller.hide(WindowInsets.Type.navigationBars() or WindowInsets.Type.statusBars())
+                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            or View.SYSTEM_UI_FLAG_FULLSCREEN
+                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    )
+        }
+    }
+
+    private fun ensureInsetsForAd() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.show(WindowInsets.Type.navigationBars())
+        } else {
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        }
+    }
+
+    private fun resetInsetsAfterAd() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.hide(WindowInsets.Type.systemBars())
+        } else {
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        }
+    }
+
+
+
 
     fun showOpenAd(){
         if(appOpenAd!=null){
@@ -992,70 +978,107 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     }
 
-    fun hideSystemNavigationBar() {
-        val window = window
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val controller = window.insetsController
-            if (controller != null) {
-                controller.hide(WindowInsets.Type.navigationBars() or WindowInsets.Type.statusBars())
-                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    fun setupInterstitialFacebook() {
+
+        if (isWebViewAvailable()) {
+            try {
+                interstitialFANAd =
+                    com.facebook.ads.InterstitialAd(this, fanSDKBuilder?.interstitialId.toString())
+                val interstitialAdListener = object : InterstitialAdListener {
+                    override fun onInterstitialDisplayed(ad: Ad) {
+                        setLog("ADS_FAN", "show Interstitial success " + ad.placementId)
+                    }
+
+                    override fun onInterstitialDismissed(ad: Ad) {
+                        interstitialFANAd = null
+                        Log.d("ADS_FAN", "Interstitial dismiss")
+                        setupInterstitialFacebook()
+                    }
+
+                    override fun onError(p0: Ad?, adError: com.facebook.ads.AdError?) {
+                        Log.e("ADS_FAN", "Interstitial failed to load: ${adError?.errorMessage}")
+                    }
+
+                    override fun onAdLoaded(ad: Ad) {
+                        Log.d("ADS_FAN", "Interstitial is loaded and ready to be displayed!")
+                        showFANInterstitial = true
+                    }
+
+                    override fun onAdClicked(ad: Ad) {
+                    }
+
+                    override fun onLoggingImpression(ad: Ad) {
+
+                    }
+                }
+
+                interstitialFANAd?.loadAd(
+                    interstitialFANAd?.buildLoadAdConfig()
+                        ?.withAdListener(interstitialAdListener)
+                        ?.build()
+                )
+            } catch (e: Exception) {
+                setLog("asywalul fb :" + e.message)
             }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_FULLSCREEN
-                            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    )
+        }
+
+    }
+
+
+    private fun isWebViewAvailable(): Boolean {
+        val packageManager = packageManager
+        return try {
+            packageManager.getPackageInfo("com.google.android.webview", 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
         }
     }
 
-    private fun ensureInsetsForAd() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.show(WindowInsets.Type.navigationBars())
-        } else {
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-        }
-    }
-
-    private fun resetInsetsAfterAd() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.hide(WindowInsets.Type.systemBars())
-        } else {
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-        }
-    }
-
-
-    fun releaseInterstitialAdmob(){
-        mInterstitialAd = null
-    }
-
-    fun releaseInterstitialFAN(){
-        interstitialFANAd = null
-    }
-
-
-    fun onResumeAds(){
+    fun showInterstitial() {
         try {
-            adView?.resume()
-            adView2?.resume()
-        }catch (e : Exception){
-            print(e.message)
+            Log.d("showInters", "execute")
+            if (isLoad) {
+                Log.d("showIntersAdmob", "true")
+                mInterstitialAd?.let { ad ->
+                    window.decorView.rootView.post {
+                        try {
+                            ad.show(this@BaseActivityWidget)
+                        } catch (e: Exception) {
+                            setLog("Error showing AdMob Interstitial: ${e.message}")
+                        }
+                    }
+                }
+            } else {
+                if(fanSDKBuilder?.enable==true){
+                    if (showFANInterstitial) {
+                        Log.d("showIntersFA", "true")
+                        interstitialFANAd?.let { fanAd ->
+                            window.decorView.rootView.post {
+                                try {
+                                    fanAd.show()
+                                } catch (e: Exception) {
+                                    setLog("Error showing FAN Interstitial: ${e.message}")
+                                    if(unitySDKBuilder?.enable==true){
+                                        //showInterstitialUnity()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    if(unitySDKBuilder?.enable==true){
+                       // showInterstitialUnity()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.d("showInters", "false")
+            setLog(e.message.toString())
         }
     }
 
-    fun onPauseAds(){
-        try {
-            adView?.pause()
-            adView2?.pause()
-        }catch (e : Exception){
-
-        }
-    }
 
 
     fun setupRewardInterstitial(){
@@ -1148,49 +1171,6 @@ open class BaseActivityWidget : AppCompatActivity() {
 
             }
         return tokens.get()
-    }
-
-    fun showInterstitial() {
-        try {
-            Log.d("showInters", "execute")
-            if (isLoad) {
-                Log.d("showIntersAdmob", "true")
-                mInterstitialAd?.let { ad ->
-                    window.decorView.rootView.post {
-                        try {
-                            ad.show(this@BaseActivityWidget)
-                        } catch (e: Exception) {
-                            setLog("Error showing AdMob Interstitial: ${e.message}")
-                        }
-                    }
-                }
-            } else {
-                if(fanSDKBuilder?.enable==true){
-                    if (showFANInterstitial) {
-                        Log.d("showIntersFA", "true")
-                        interstitialFANAd?.let { fanAd ->
-                            window.decorView.rootView.post {
-                                try {
-                                    fanAd.show()
-                                } catch (e: Exception) {
-                                    setLog("Error showing FAN Interstitial: ${e.message}")
-                                    if(unitySDKBuilder?.enable==true){
-                                        showInterstitialUnity()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }else{
-                    if(unitySDKBuilder?.enable==true){
-                        showInterstitialUnity()
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.d("showInters", "false")
-            setLog(e.message.toString())
-        }
     }
 
 
