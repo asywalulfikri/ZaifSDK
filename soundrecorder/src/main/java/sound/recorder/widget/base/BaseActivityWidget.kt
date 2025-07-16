@@ -153,8 +153,6 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
     }
 
   /*  fun executeBuilder(){
@@ -194,11 +192,13 @@ open class BaseActivityWidget : AppCompatActivity() {
         return deviceLanguage == "id" || deviceLanguage == "en" || deviceLanguage == "in"
     }
 
-    fun setupBannerAdmob(view : FrameLayout ,unitId : String){
+    fun setupBannerAdmob(view : FrameLayout){
         try {
+            val bannerId = admobSDKBuilder?.bannerHomeId.toString()
+            setLog("ADS_Admob", "home banner id = $bannerId")
             adView = AdView(this)
             adView?.setAdSize(AdSize.BANNER)
-            adView?.adUnitId = unitId
+            adView?.adUnitId = bannerId
             view.addView(adView)
 
             val adRequest = AdRequest.Builder().build()
@@ -328,41 +328,46 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
     fun setupBannerFacebook(adContainer: FrameLayout) {
-        try {
-            val adListener = object : com.facebook.ads.AdListener {
-                override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
-                    setLog(
-                        "ADS_FAN",
-                        "Banner error loaded id = ${ad.placementId} ---> ${adError.errorMessage}"
-                    )
+
+        if(fanSDKBuilder?.enable==true){
+            val fanBannerId = fanSDKBuilder?.bannerId.toString()
+            setLog("ADS_FAN_", "BannerId : $fanBannerId")
+            try {
+                val adListener = object : com.facebook.ads.AdListener {
+                    override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
+                        setLog(
+                            "ADS_FAN",
+                            "Banner error loaded id = ${ad.placementId} ---> ${adError.errorMessage}"
+                        )
+                    }
+
+                    override fun onAdLoaded(ad: Ad) {
+                        setLog("ADS_FAN", "Banner Successfully Loaded id = ${ad.placementId}")
+                    }
+
+                    override fun onAdClicked(ad: Ad) {}
+                    override fun onLoggingImpression(ad: Ad) {}
                 }
 
-                override fun onAdLoaded(ad: Ad) {
-                    setLog("ADS_FAN", "Banner Successfully Loaded id = ${ad.placementId}")
-                }
+                fanAdView = com.facebook.ads.AdView(
+                    this,
+                    fanBannerId,
+                    com.facebook.ads.AdSize.BANNER_HEIGHT_50
+                )
 
-                override fun onAdClicked(ad: Ad) {}
-                override fun onLoggingImpression(ad: Ad) {}
+                fanAdView?.loadAd(
+                    fanAdView?.buildLoadAdConfig()
+                        ?.withAdListener(adListener)
+                        ?.build()
+                )
+
+                // Clear old views if any
+                adContainer.removeAllViews()
+                adContainer.addView(fanAdView)
+
+            } catch (e: Exception) {
+                setLog("ADS_FAN_EXCEPTION", e.message.orEmpty())
             }
-
-            fanAdView = com.facebook.ads.AdView(
-                this,
-                fanSDKBuilder?.bannerId.orEmpty(),
-                com.facebook.ads.AdSize.BANNER_HEIGHT_50
-            )
-
-            fanAdView?.loadAd(
-                fanAdView?.buildLoadAdConfig()
-                    ?.withAdListener(adListener)
-                    ?.build()
-            )
-
-            // Clear old views if any
-            adContainer.removeAllViews()
-            adContainer.addView(fanAdView)
-
-        } catch (e: Exception) {
-            setLog("ADS_FAN_EXCEPTION", e.message.orEmpty())
         }
     }
 
@@ -752,6 +757,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }*/
 
     private fun executeBanner(adViewContainer: FrameLayout) {
+
         try {
             adView2 = AdView(this).apply {
                 adUnitId = admobSDKBuilder?.bannerId.orEmpty()
@@ -759,6 +765,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
 
             val adRequest = AdRequest.Builder().build()
+            Log.d("ADS_AdMob", "BannerId: ${adView2?.adUnitId}")
 
             adView2?.adListener = object : AdListener() {
                 override fun onAdLoaded() {
@@ -766,8 +773,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
-                    Log.d("ADS_AdMob", "Banner failed to load: ${error.message}")
-
+                    Log.d("ADS_AdMob", "Banner failed to load: ${error.message}"+adView2?.adUnitId.toString())
                     // Fallback langsung ke main thread, karena kita sudah di main thread
                     if (fanSDKBuilder?.enable == true) {
                         setupBannerFacebook(adViewContainer)
@@ -1301,15 +1307,17 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     fun setupBannerUnity(adContainer: FrameLayout) {
-        try {
-            unityBannerView = BannerView(this, "Banner_Android", UnityBannerSize(320, 50))
-            unityBannerView?.load()
-            unityBannerView?.gravity = Gravity.CENTER
-            adContainer.addView(unityBannerView)
+        if(unitySDKBuilder?.enable==true){
+            try {
+                unityBannerView = BannerView(this, "Banner_Android", UnityBannerSize(320, 50))
+                unityBannerView?.load()
+                unityBannerView?.gravity = Gravity.CENTER
+                adContainer.addView(unityBannerView)
 
-            loadInterstitialUnityAds()
-        }catch (e : Exception){
+                loadInterstitialUnityAds()
+            }catch (e : Exception){
 
+            }
         }
     }
 

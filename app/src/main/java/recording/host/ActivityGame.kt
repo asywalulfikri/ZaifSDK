@@ -1,3 +1,4 @@
+/*
 package recording.host
 
 import android.os.Bundle
@@ -44,3 +45,4 @@ class ActivityGame : BaseActivityWidget(),GameApp.AppInitializationListener{
     }
 
 }
+*/

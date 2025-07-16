@@ -284,8 +284,8 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         }
 
         binding.btnChangePage.setOnClickListener {
-            val intent = Intent(this@MainActivity, ActivityGame::class.java)
-            startActivity(intent)
+           // val intent = Intent(this@MainActivity, ActivityGame::class.java)
+           // startActivity(intent)
         }
 
         binding.btnInterstitialStarApp.setOnClickListener {

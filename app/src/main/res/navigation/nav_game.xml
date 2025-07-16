@@ -3,16 +3,44 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_game"
-    app:startDestination="@id/FragmentTesting">
+    app:startDestination="@id/FragmentSplashScreen">
 
 
     <include app:graph="@navigation/nav_sdk" />
 
     <fragment
-        android:id="@+id/FragmentTesting"
-        android:name="recording.host.FragmentTesting"
+        android:id="@+id/FragmentHome"
+        android:name="recording.host.HomeFragment"
         android:label=""
-        tools:layout="@layout/fragment_example">
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_home_fragment_to_dholak_fragment"
+            app:destination="@id/FragmentDholak" />
+
+
+        <action
+            android:id="@+id/action_home_fragment_to_video_fragment"
+            app:destination="@id/FragmentVideo" />
+
+        <action
+            android:id="@+id/action_home_fragment_to_setting_fragment"
+            app:destination="@id/FragmentSetting" />
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/FragmentSetting"
+        android:name="recording.host.FragmentSettings"
+        android:label=""
+        tools:layout="@layout/fragment_setting"/>
+
+    <fragment
+        android:id="@+id/FragmentDholak"
+        android:name="recording.host.DholakFragment"
+        android:label=""
+        tools:layout="@layout/activity_dholak">
 
         <action
             android:id="@+id/action_widget_to_list_song"
@@ -24,6 +52,23 @@
 
     </fragment>
 
+
+
+
+    <fragment
+        android:id="@+id/FragmentSplashScreen"
+        android:name="recording.host.SplashScreenFragment"
+        android:label=""
+        tools:layout="@layout/fragment_splashscreen">
+
+        <action
+            android:id="@+id/action_splash_to_home"
+            app:destination="@id/FragmentHome"/>
+
+    </fragment>
+
+
+
     <fragment
         android:id="@+id/FragmentListSong"
         android:name="sound.recorder.widget.ui.fragment.FragmentListSong"
@@ -34,10 +79,14 @@
         android:id="@+id/FragmentListRecord"
         android:name="sound.recorder.widget.ui.fragment.FragmentListRecord"
         android:label=""
-        tools:layout="@layout/activity_listing_new/">
+        tools:layout="@layout/activity_listing/">
 
     </fragment>
 
-
+    <fragment
+        android:id="@+id/FragmentVideo"
+        android:name="sound.recorder.widget.ui.fragment.FragmentVideo"
+        android:label=""
+        tools:layout="@layout/activity_list_video"/>
 
 </navigation>

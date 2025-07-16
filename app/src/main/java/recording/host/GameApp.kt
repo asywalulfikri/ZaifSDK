@@ -1,6 +1,7 @@
 package recording.host
 
 import android.annotation.SuppressLint
+import android.util.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -74,7 +75,11 @@ open class GameApp : MyApp(), AdConfigProvider {
      */
     private suspend fun initializeCoreComponents() {
         // Memindahkan inisialisasi AudioEngine dari main thread untuk mencegah UI freeze
-       // SoundPlayUtils.getInstance().init(this);
+        try {
+            AudioEngine.init(this)
+        } catch (e: Exception) {
+            Log.e("GameApp", "Error initializing AudioEngine", e)
+        }
     }
 
     /**
@@ -86,12 +91,14 @@ open class GameApp : MyApp(), AdConfigProvider {
             .apply {
                 if (BuildConfig.DEBUG) {
                     setBannerId(Constant.AdsTesterId.admobBannerId)
+                    setBannerHomeId(Constant.AdsTesterId.admobBannerId)
                     setInterstitialId(Constant.AdsTesterId.admobInterstitialId)
                     setRewardId(Constant.AdsTesterId.admobRewardId)
                     setRewardInterstitialId(Constant.AdsTesterId.admobRewardInterstitialId)
                     setNativeId(Constant.AdsTesterId.admobNativeId)
                 } else {
                     setBannerId(Constants.AdsProductionId.admobBannerId)
+                    setBannerHomeId(Constants.AdsProductionId.admobHomeBannerId)
                     setInterstitialId(Constants.AdsProductionId.admobInterstitialId)
                     setRewardId(Constants.AdsProductionId.admobRewardId)
                     setRewardInterstitialId(Constants.AdsProductionId.admobRewardInterstitialId)
@@ -107,7 +114,7 @@ open class GameApp : MyApp(), AdConfigProvider {
     private suspend fun initializeSecondaryComponents() {
         // JEDA: Beri waktu 4 detik agar aplikasi menjadi responsif sebelum melanjutkan beban kerja.
         // Nilai ini bisa disesuaikan sesuai kebutuhan.
-        delay(2000L)
+        delay(1000L)
 
         // Jalankan sisa inisialisasi secara bersamaan setelah jeda selesai
         coroutineScope {
@@ -125,10 +132,15 @@ open class GameApp : MyApp(), AdConfigProvider {
             launch {
                unitySDKBuilder =  UnitySDKBuilder.builder(this@GameApp)
                     .setUnityId(Constants.AdsProductionId.unityGameId)
-                    .setEnable(true)
+                    .setEnable(false)
                     .build()
 
-                initializeUnity(Constants.AdsProductionId.unityGameId)
+                var testMode = true
+                testMode = BuildConfig.DEBUG
+
+                launch(Dispatchers.Main) {
+                    initializeUnity(Constants.AdsProductionId.unityGameId, testMode)
+                }
             }
 
             // Inisialisasi Zaif Widget

@@ -1,7 +1,6 @@
 package recording.host
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -46,7 +45,7 @@ class SplashScreenFragment : BaseFragmentWidget() {
             if (allLoaded && isAdded) {
                // val intent = Intent(activity, MainActivity::class.java)
                // startActivity(intent)
-               // findNavController().navigate(R.id.action_splash_to_home)
+               findNavController().navigate(R.id.action_splash_to_home)
             }
         }
 

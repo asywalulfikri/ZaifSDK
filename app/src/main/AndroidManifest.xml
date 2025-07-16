@@ -30,7 +30,7 @@
             android:value="true" />  true saat testing, false di production -->
 
         <activity
-            android:name=".ActivityGame"
+            android:name=".GameActivity"
             android:screenOrientation="landscape"
             android:exported="true">
             <intent-filter>
