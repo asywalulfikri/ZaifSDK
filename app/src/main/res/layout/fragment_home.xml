@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/ivBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_margin="5dp"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:id="@+id/btn_next"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="Play Dholak"
+            android:textSize="20sp"
+            android:fontFamily="@font/rimouski"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/colorAccent"
+            android:textColor="@android:color/white"
+            tools:ignore="HardcodedText"
+            tools:targetApi="lollipop" />
+
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_margin="5dp"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:id="@+id/btn_setting"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            android:textSize="20sp"
+            android:text="@string/setting"
+            android:fontFamily="@font/rimouski"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/colorAccent"
+            android:textColor="@android:color/white"
+            tools:ignore="HardcodedText"
+            tools:targetApi="lollipop" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_margin="5dp"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:id="@+id/btn_rating"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            android:textSize="20sp"
+            android:text="Rating"
+            android:fontFamily="@font/rimouski"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/colorAccent"
+            android:textColor="@android:color/white"
+            tools:ignore="HardcodedText"
+            tools:targetApi="lollipop" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>
