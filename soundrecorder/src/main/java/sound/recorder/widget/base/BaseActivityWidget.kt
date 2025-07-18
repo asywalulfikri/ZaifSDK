@@ -15,6 +15,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -134,6 +135,12 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var unityBannerView: BannerView? = null
     private var fanAdView: com.facebook.ads.AdView? = null
 
+    private var bannerRetryCount = 0
+    private val maxBannerRetry = 3
+
+    private val retryHandler = Handler(Looper.getMainLooper())
+    private val retryRunnable = Runnable { loadBannerAds() }
+
 
     private val displayMetrics by lazy { resources.displayMetrics }
 
@@ -155,11 +162,19 @@ open class BaseActivityWidget : AppCompatActivity() {
         super.onCreate(savedInstanceState)
     }
 
+    open fun getAdBannerContainer(): FrameLayout? {
+        return null // Nilai default
+    }
+
   /*  fun executeBuilder(){
         admobSDKBuilder = AdmobSDKBuilder.builder(this).loadFromSharedPreferences()
         fanSDKBuilder   = FanSDKBuilder.builder(this).loadFromSharedPreferences()
         unitySDKBuilder = UnitySDKBuilder.builder(this).loadFromSharedPreferences()
     }*/
+
+
+
+
 
     fun setupUnityAds(unityId : String){
         var testMode = true
@@ -327,49 +342,6 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    fun setupBannerFacebook(adContainer: FrameLayout) {
-
-        if(fanSDKBuilder?.enable==true){
-            val fanBannerId = fanSDKBuilder?.bannerId.toString()
-            setLog("ADS_FAN_", "BannerId : $fanBannerId")
-            try {
-                val adListener = object : com.facebook.ads.AdListener {
-                    override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
-                        setLog(
-                            "ADS_FAN",
-                            "Banner error loaded id = ${ad.placementId} ---> ${adError.errorMessage}"
-                        )
-                    }
-
-                    override fun onAdLoaded(ad: Ad) {
-                        setLog("ADS_FAN", "Banner Successfully Loaded id = ${ad.placementId}")
-                    }
-
-                    override fun onAdClicked(ad: Ad) {}
-                    override fun onLoggingImpression(ad: Ad) {}
-                }
-
-                fanAdView = com.facebook.ads.AdView(
-                    this,
-                    fanBannerId,
-                    com.facebook.ads.AdSize.BANNER_HEIGHT_50
-                )
-
-                fanAdView?.loadAd(
-                    fanAdView?.buildLoadAdConfig()
-                        ?.withAdListener(adListener)
-                        ?.build()
-                )
-
-                // Clear old views if any
-                adContainer.removeAllViews()
-                adContainer.addView(fanAdView)
-
-            } catch (e: Exception) {
-                setLog("ADS_FAN_EXCEPTION", e.message.orEmpty())
-            }
-        }
-    }
 
 
 
@@ -389,7 +361,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mInterstitialAd = null
-
+        retryHandler.removeCallbacks(retryRunnable) // <-- Kuncinya di sini!
         // Menunda proses destroy untuk AdMob Banners
         adView?.postDelayed({
             try {
@@ -431,36 +403,6 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
         }, 100)
     }
-
-   /* override fun onDestroy() {
-        super.onDestroy()
-        mInterstitialAd = null
-        if (adView != null) {
-            adView?.destroy()
-            adView2?.destroy()
-
-            try {
-                if(unityBannerView!=null){
-                    unityBannerView?.let {
-                        (it.parent as? ViewGroup)?.removeView(it) // remove dari layout
-                        it.destroy() // 💥 penting: bersihkan resource Unity Ads
-                        unityBannerView = null
-                    }
-                }
-            }catch (e : Exception){
-                print(e.message)
-            }
-        }
-
-        if(fanAdView!=null){
-            try {
-                fanAdView?.destroy()
-            }catch (e : Exception){
-                print(e.message)
-            }
-        }
-
-    }*/
 
     override fun onPause() {
         super.onPause()
@@ -672,7 +614,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    fun setupBanner(adViewContainer: FrameLayout) {
+   /* fun setupBanner(adViewContainer: FrameLayout) {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
             if (isWebViewAvailable()) {
                 setupBannerFacebook(adViewContainer)
@@ -684,26 +626,137 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
             }
         }
+    }*/
+
+
+    protected fun loadBannerAds() {
+        try {
+            val container = getAdBannerContainer()
+            if (container == null) {
+                // Halaman ini tidak ingin menampilkan banner
+                return
+            }
+
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+                if (isWebViewAvailable()) {
+                    setupBannerFacebook(container)
+                }
+            } else {
+                if (isAdMobAvailable()) {
+                    executeBanner(container)
+                }
+            }
+        }catch (e : Exception){
+
+        }
+    }
+
+    private fun executeBanner(adViewContainer: FrameLayout) {
+
+        if (bannerRetryCount >= maxBannerRetry) {
+            Log.e("ADS_Waterfall", "❌ Max retry reached. Stop trying.")
+            return
+        }
+
+        try {
+            fanAdView?.destroy()
+            fanAdView= null
+
+            // Buat instance AdMob AdView
+            adView2= AdView(this).apply {
+                adUnitId = admobSDKBuilder?.bannerId.orEmpty()
+                setAdSize(getSize()) // Pastikan fungsi ini mengembalikan AdSize yang valid
+            }
+
+            // Siapkan listener untuk menangani hasil pemuatan
+            adView2?.adListener = object : AdListener() {
+                override fun onAdLoaded() {
+                    bannerRetryCount = 0
+                    Log.d("ADS_Waterfall", "✅ AdMob banner SUKSES dimuat.")
+                   // setToast("AdMob Sukses "+adView2?.adUnitId)
+
+                    // Bersihkan container dan tampilkan banner AdMob
+                    adViewContainer.removeAllViews()
+                    adViewContainer.addView(adView2)
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    Log.e("ADS_Waterfall", "❌ AdMob banner GAGAL: ${error.message}. Mencoba fallback ke Facebook...")
+                   // setToast("AdMob Gagal"+ adView2?.adUnitId +"coba FAN")
+                    bannerRetryCount++
+                    // 3. Jika AdMob gagal, panggil fungsi untuk memuat banner Facebook
+                    loadFanBanner(adViewContainer)
+                }
+            }
+
+            // Buat request dan mulai pemuatan
+            Log.d("ADS_Waterfall", "Mencoba memuat AdMob banner...")
+            val adRequest = AdRequest.Builder().build()
+            adView2?.loadAd(adRequest)
+        }catch ( e : Exception){
+
+        }
+        // Hancurkan banner FAN sebelumnya jika ada, untuk menghindari memory leak
     }
 
 
+    private fun loadFanBanner(adViewContainer: FrameLayout) {
 
- /*   private fun isWebViewSupported(): Boolean {
-        return try {
-            WebView(this)
-            if (BuildConfig.DEBUG) {
-                // setToast("WebView didukung pada perangkat ini.")
+        try {
+            // Cek jika FAN diaktifkan
+            if (fanSDKBuilder?.enable != true) {
+                Log.d("ADS_Waterfall", "Facebook FAN tidak diaktifkan. Berhenti.")
+                return
             }
-            true
-        } catch (e: Exception) {
-            if (BuildConfig.DEBUG) {
-                // setToast("WebView tidak didukung pada perangkat ini.")
+
+            // Hancurkan banner AdMob sebelumnya untuk membebaskan memori
+            adView2?.destroy()
+            adView2 = null
+
+
+            val fanBannerId = fanSDKBuilder?.bannerId.orEmpty()
+            fanAdView = com.facebook.ads.AdView(
+                this,
+                fanBannerId,
+                com.facebook.ads.AdSize.BANNER_HEIGHT_50
+            )
+
+            val adListener = object : com.facebook.ads.AdListener {
+                override fun onAdLoaded(ad: Ad) {
+                    Log.d("ADS_Waterfall", "✅ Facebook banner SUKSES dimuat sebagai fallback.")
+                   // setToast("FAN Sukses"+fanAdView?.id.toString())
+                    bannerRetryCount = 0
+                    // Bersihkan container dan tampilkan banner Facebook
+                    adViewContainer.removeAllViews()
+                    adViewContainer.addView(fanAdView)
+                }
+
+                override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
+                    Log.e("ADS_Waterfall", "❌ Facebook banner juga GAGAL: ${adError.errorMessage}")
+                    setToast("FAN Gagal"+adError.errorMessage)
+                    bannerRetryCount++
+                    bannerRetryCount++
+                    // Jadwalkan untuk mencoba lagi dari awal (memanggil loadBannerAds)
+                    retryHandler.postDelayed(retryRunnable, 10000)
+                    // Retry AdMob after delay
+                }
+
+                override fun onAdClicked(ad: Ad) {}
+                override fun onLoggingImpression(ad: Ad) {}
             }
-            false
+
+            Log.d("ADS_Waterfall", "Mencoba memuat Facebook banner...")
+            fanAdView?.loadAd(
+                fanAdView?.buildLoadAdConfig()
+                    ?.withAdListener(adListener)
+                    ?.build()
+            )
+        }catch (e : Exception){
+          //  setToast("veve" +e.message)
+
         }
-    }*/
-
-    private fun executeBanner(adViewContainer: FrameLayout) {
+    }
+    private fun executeBannerAAAA(adViewContainer: FrameLayout) {
 
         try {
             adView2 = AdView(this).apply {
@@ -716,10 +769,13 @@ open class BaseActivityWidget : AppCompatActivity() {
 
             adView2?.adListener = object : AdListener() {
                 override fun onAdLoaded() {
+                    setToast("load sukses"+adView2?.adUnitId)
                     Log.d("ADS_AdMob", "Banner loaded successfully: ${adView2?.adUnitId}")
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
+                    setToast("load gagal"+error.message+adView2?.adUnitId)
+                    // Log.e("ADS_AdMob", "Refresh Gagal. KODE: ${error.code}, PESAN: ${error.message}")
                     Log.d("ADS_AdMob", "Banner failed to load: ${error.message}"+adView2?.adUnitId.toString())
                     // Fallback langsung ke main thread, karena kita sudah di main thread
                     if (fanSDKBuilder?.enable == true) {
@@ -741,16 +797,116 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
 
             adView2?.loadAd(adRequest)
-
-            // Ganti view
-            adViewContainer.removeAllViews()
             adViewContainer.addView(adView2)
+
+
+
+            if(fanSDKBuilder?.enable==true){
+                try {
+                    val adListener = object : com.facebook.ads.AdListener {
+                        override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
+                            setLog(
+                                "ADS_FAN",
+                                "Banner error loaded id = ${ad.placementId} ---> ${adError.errorMessage}"
+                            )
+                        }
+
+                        override fun onAdLoaded(ad: Ad) {
+                            setLog("ADS_FAN", "Banner Successfully Loaded id = ${ad.placementId}")
+                        }
+
+                        override fun onAdClicked(ad: Ad) {}
+                        override fun onLoggingImpression(ad: Ad) {}
+                    }
+                    val fanBannerId = fanSDKBuilder?.bannerId.toString()
+
+                    fanAdView = com.facebook.ads.AdView(
+                        this,
+                        fanBannerId,
+                        com.facebook.ads.AdSize.BANNER_HEIGHT_50
+                    )
+
+                    fanAdView?.loadAd(
+                        fanAdView?.buildLoadAdConfig()
+                            ?.withAdListener(adListener)
+                            ?.build()
+                    )
+
+                    // Clear old views if any
+                    adViewContainer.addView(fanAdView)
+
+                } catch (e: Exception) {
+                    setLog("ADS_FAN_EXCEPTION", e.message.orEmpty())
+                }
+            }
+
 
         } catch (e: Exception) {
             Log.e("ADS_AdMob", "Banner load exception: ${e.message}")
             setLog(e.message.toString())
         }
     }
+
+
+    fun setupBannerFacebook(adContainer: FrameLayout) {
+
+        if(fanSDKBuilder?.enable==true){
+            try {
+                val adListener = object : com.facebook.ads.AdListener {
+                    override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
+                        setLog(
+                            "ADS_FAN",
+                            "Banner error loaded id = ${ad.placementId} ---> ${adError.errorMessage}"
+                        )
+                    }
+
+                    override fun onAdLoaded(ad: Ad) {
+                        setLog("ADS_FAN", "Banner Successfully Loaded id = ${ad.placementId}")
+                    }
+
+                    override fun onAdClicked(ad: Ad) {}
+                    override fun onLoggingImpression(ad: Ad) {}
+                }
+                val fanBannerId = fanSDKBuilder?.bannerId.toString()
+
+                fanAdView = com.facebook.ads.AdView(
+                    this,
+                    fanBannerId,
+                    com.facebook.ads.AdSize.BANNER_HEIGHT_50
+                )
+
+                fanAdView?.loadAd(
+                    fanAdView?.buildLoadAdConfig()
+                        ?.withAdListener(adListener)
+                        ?.build()
+                )
+
+                // Clear old views if any
+                adContainer.addView(fanAdView)
+
+            } catch (e: Exception) {
+                setLog("ADS_FAN_EXCEPTION", e.message.orEmpty())
+            }
+        }
+    }
+
+
+
+    /*   private fun isWebViewSupported(): Boolean {
+           return try {
+               WebView(this)
+               if (BuildConfig.DEBUG) {
+                   // setToast("WebView didukung pada perangkat ini.")
+               }
+               true
+           } catch (e: Exception) {
+               if (BuildConfig.DEBUG) {
+                   // setToast("WebView tidak didukung pada perangkat ini.")
+               }
+               false
+           }
+       }*/
+
 
 
 

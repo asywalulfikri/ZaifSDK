@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -132,6 +133,10 @@ internal class ListRecordActivity : BaseActivityWidget(), AudioRecorderAdapter.O
 
         lockAppBarClosed()
 
+    }
+
+    override fun getAdBannerContainer(): FrameLayout? {
+        return null
     }
 
 

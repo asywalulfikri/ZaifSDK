@@ -124,7 +124,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                     .setApplicationId(Constants.AdsProductionId.fanId)
                     .setBannerId(Constants.AdsProductionId.fanBannerId)
                     .setInterstitialId(Constants.AdsProductionId.fanInterstitialId)
-                    .setEnable(false)
+                    .setEnable(true)
                     .build()
             }
 
@@ -132,7 +132,7 @@ open class GameApp : MyApp(), AdConfigProvider {
             launch {
                unitySDKBuilder =  UnitySDKBuilder.builder(this@GameApp)
                     .setUnityId(Constants.AdsProductionId.unityGameId)
-                    .setEnable(false)
+                    .setEnable(true)
                     .build()
 
                 var testMode = true

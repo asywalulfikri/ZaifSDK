@@ -4,15 +4,16 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.FrameLayout
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import recording.host.cons.Constants
-import recording.host.databinding.ActivityGameBinding
 import sound.recorder.widget.MyApp
 import sound.recorder.widget.RecordingSDK
+import sound.recorder.widget.databinding.ActivityGameBinding
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.model.Song
@@ -55,6 +56,10 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
 
     }
 
+    override fun getAdBannerContainer(): FrameLayout? {
+        return binding.bannerID
+    }
+
 
     fun setupListener(){
         GameApp.registerListener(this)
@@ -68,7 +73,8 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
         lifecycleScope.launch {
             delay(2000)
             setupBannerUnity(binding.bannerUnity)
-            setupBanner(binding.bannerID)
+            //setupBanner(binding.bannerID)
+            loadBannerAds()
             setupBannerFacebook(binding.bannerFAN)
             setupInterstitial()
             setupBannerAdmob(binding.bannerAdmob)
@@ -161,7 +167,6 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
         if (areBuildersReady && areEssentialAdsReady && adsSetupCalled==false) {
             adsSetupCalled = true
             setupAds()
-            setToast("eksekusi")
         }
     }
 }
