@@ -661,6 +661,9 @@ open class BaseActivityWidget : AppCompatActivity() {
     private fun executeBanner(adViewContainer: FrameLayout) {
 
         if (bannerRetryCount >= maxBannerRetry) {
+            if(admobSDKBuilder?.showToast==true){
+                setToast("limit $bannerRetryCount")
+            }
             Log.e("ADS_Waterfall", "❌ Max retry reached. Stop trying.")
             return
         }else{
@@ -679,6 +682,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                             setToast("sukses : "+ adView2?.adUnitId)
                         }
                         // Bersihkan container dan tampilkan banner AdMob
+                        bannerRetryCount = 0
                         adViewContainer.removeAllViews()
                         adViewContainer.addView(adView2)
                     }
@@ -725,8 +729,8 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
 
             // Hancurkan banner AdMob sebelumnya untuk membebaskan memori
-            //adView2?.destroy()
-           // adView2 = null
+            adView2?.destroy()
+            adView2 = null
 
 
             val fanBannerId = fanSDKBuilder?.bannerId.orEmpty()
@@ -740,8 +744,8 @@ open class BaseActivityWidget : AppCompatActivity() {
                 override fun onAdLoaded(ad: Ad) {
                     Log.d("ADS_Waterfall", "✅ Facebook banner SUKSES dimuat sebagai fallback.")
                    // setToast("FAN Sukses"+fanAdView?.id.toString())
-                    bannerRetryCount = 0
                     loadFanSuccess = true
+                    bannerRetryCount = 0
                     if(admobSDKBuilder?.showToast==true){
                         setToast("FAN suk "+ fanAdView?.id.toString())
                     }
@@ -759,7 +763,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     // Jadwalkan untuk mencoba lagi dari awal (memanggil loadBannerAds)
                     if (bannerRetryCount < maxBannerRetry) {
                         Log.d("ADS_Waterfall", "Menjadwalkan percobaan ulang dalam 20 detik...")
-                        retryHandler.postDelayed(retryRunnable, 5000)
+                        retryHandler.postDelayed(retryRunnable, 30000)
                     } else {
                         if(admobSDKBuilder?.showToast==true){
                             setToast("Stop : "+ bannerRetryCount +"--"+adError.errorMessage)
