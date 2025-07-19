@@ -676,7 +676,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 adView2?.adListener = object : AdListener() {
                     override fun onAdLoaded() {
                         if(admobSDKBuilder?.showToast==true){
-                            setToast("admload : "+ adView2?.adUnitId)
+                            setToast("sukses : "+ adView2?.adUnitId)
                         }
                         // Bersihkan container dan tampilkan banner AdMob
                         adViewContainer.removeAllViews()
@@ -685,7 +685,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
                     override fun onAdFailedToLoad(error: LoadAdError) {
                         if(admobSDKBuilder?.showToast==true){
-                            setToast("admfl :  "+ error.message + " "+adView2?.adUnitId)
+                            setToast("gagal :  "+ error.message + " "+adView2?.adUnitId)
                         }
 
                         Log.e("ADS_Waterfall", "❌ AdMob banner GAGAL: ${error.message}. Mencoba fallback ke Facebook...")
@@ -743,7 +743,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     bannerRetryCount = 0
                     loadFanSuccess = true
                     if(admobSDKBuilder?.showToast==true){
-                        setToast("fan loaded "+ fanAdView?.id.toString())
+                        setToast("FAN suk "+ fanAdView?.id.toString())
                     }
                     // Bersihkan container dan tampilkan banner Facebook
                     adViewContainer.removeAllViews()
@@ -753,7 +753,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
                     Log.e("ADS_Waterfall", "❌ Facebook banner juga GAGAL: ${adError.errorMessage}")
                     if(admobSDKBuilder?.showToast==true){
-                        setToast("FAN failed : "+adError.errorMessage)
+                        setToast("FAN gag : "+adError.errorMessage)
                     }
                     bannerRetryCount++
                     // Jadwalkan untuk mencoba lagi dari awal (memanggil loadBannerAds)
@@ -762,7 +762,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         retryHandler.postDelayed(retryRunnable, 5000)
                     } else {
                         if(admobSDKBuilder?.showToast==true){
-                            setToast("Stop All : "+adError.errorMessage)
+                            setToast("Stop : "+ bannerRetryCount +"--"+adError.errorMessage)
                         }
                         Log.e("ADS_Waterfall", "❌ Max retry tercapai setelah Facebook gagal. Berhenti mencoba.")
                     }
