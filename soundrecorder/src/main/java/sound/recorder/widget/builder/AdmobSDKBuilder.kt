@@ -15,7 +15,8 @@ class AdmobSDKBuilder private constructor(
     val rewardInterstitialId: String?,
     val nativeId : String?,
     val appOpenId : String?,
-    val orientationAds : Int?
+    val orientationAds : Int?,
+    val showToast : Boolean?
 ) {
 
     // Builder class
@@ -29,6 +30,7 @@ class AdmobSDKBuilder private constructor(
         private var nativeId : String? = null
         private var appOpenId : String? =null
         private var orientationAds : Int? =null
+        private var showToast : Boolean? = null
 
         fun setAdmobId(admobId: String?): Builder {
             this.admobId = admobId
@@ -75,12 +77,17 @@ class AdmobSDKBuilder private constructor(
             return this
         }
 
+        fun setToast(showToast: Boolean?): Builder {
+            this.showToast = showToast
+            return this
+        }
+
 
         // Build function to create and save the ZaifSDKBuilder instance
         fun build(): AdmobSDKBuilder {
             val zaifSDKBuilder = AdmobSDKBuilder(
                 admobId, bannerId,bannerHomeId, interstitialId, rewardId, rewardInterstitialId,
-                nativeId, appOpenId ,orientationAds)
+                nativeId, appOpenId ,orientationAds,showToast)
 
             return zaifSDKBuilder
         }

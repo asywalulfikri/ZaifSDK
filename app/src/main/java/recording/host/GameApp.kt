@@ -104,6 +104,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                     setRewardInterstitialId(Constants.AdsProductionId.admobRewardInterstitialId)
                 }
             }
+            .setToast(true)
             .build() // .build() mengembalikan objek AdmobSDKBuilder yang sudah jadi
     }
 
