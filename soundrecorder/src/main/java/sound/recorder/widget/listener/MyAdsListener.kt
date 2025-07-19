@@ -10,9 +10,6 @@ object MyAdsListener {
     fun setBannerHome(show : Boolean) {
         myListener?.onViewBannerHome(show)
     }
-    fun setBannerUnity(show : Boolean) {
-        myListener?.onViewBannerUnity(show)
-    }
     fun setHideAllBanner(){
         myListener?.onHideAllBanner()
     }

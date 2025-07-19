@@ -35,7 +35,6 @@ import sound.recorder.widget.tools.showcase.GuideView
 import sound.recorder.widget.tools.showcase.config.DismissType
 import sound.recorder.widget.tools.showcase.config.Gravity
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
-import sound.recorder.widget.ui.fragment.FragmentSettings
 import sound.recorder.widget.ui.fragment.FragmentListSong
 import sound.recorder.widget.ui.fragment.FragmentVideo
 import sound.recorder.widget.ui.fragment.FragmentListRecord
@@ -291,7 +290,7 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
         binding.btnInterstitialStarApp.setOnClickListener {
             try {
                 // some code
-                val fragment = FragmentSettings.newInstance()
+                val fragment = FragmentSettings()
                 MyAdsListener.setBannerHome(false)
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.fragmentFileViewer, fragment)
@@ -528,10 +527,6 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
        }else{
            binding.bannerView.visibility = View.GONE
        }
-    }
-
-    override fun onViewBannerUnity(show: Boolean) {
-
     }
 
     override fun onHideAllBanner() {

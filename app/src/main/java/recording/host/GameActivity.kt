@@ -23,8 +23,6 @@ import kotlin.toString
 class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListener, MyApp.SdkInitializationListener{
     private lateinit var binding: ActivityGameBinding
 
-    private lateinit var pathAudio: ArrayList<Int>
-
     private var areBuildersReady = false
     private var areEssentialAdsReady = false
     private var isUnityReady = false
@@ -128,15 +126,6 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
         }
     }
 
-    override fun onViewBannerUnity(show: Boolean) {
-        if(show){
-            binding.bannerUnity.visibility = View.VISIBLE
-            binding.bannerAdmob.visibility      = View.VISIBLE
-        }else{
-            binding.bannerUnity.visibility = View.GONE
-            binding.bannerAdmob.visibility      = View.GONE
-        }
-    }
 
     override fun onHideAllBanner() {
         binding.bannerID.visibility  = View.GONE

@@ -27,6 +27,7 @@ import org.greenrobot.eventbus.ThreadMode
 import sound.recorder.widget.R
 import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.databinding.BottomSheetSongBinding
+import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyStopSDKMusicListener
 import sound.recorder.widget.listener.StopSDKMusicListener
 import sound.recorder.widget.model.Song
@@ -56,6 +57,7 @@ class BottomSheetListSong(private var showBtnStop: Boolean, private var listener
 
         if(activity!=null){
             try {
+                MyAdsListener.setHideAllBanner()
                 (dialog as? BottomSheetDialog)?.behavior?.state = STATE_EXPANDED
                 (dialog as? BottomSheetDialog)?.behavior?.isDraggable = false
 

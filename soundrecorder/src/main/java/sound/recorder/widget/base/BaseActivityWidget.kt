@@ -133,7 +133,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var fanAdView: com.facebook.ads.AdView? = null
 
     private var bannerRetryCount = 0
-    private val maxBannerRetry = 4
+    private val maxBannerRetry = 3
 
     private val retryHandler = Handler(Looper.getMainLooper())
     private val retryRunnable = Runnable { loadBannerAds() }
@@ -653,49 +653,48 @@ open class BaseActivityWidget : AppCompatActivity() {
         if (bannerRetryCount >= maxBannerRetry) {
             Log.e("ADS_Waterfall", "❌ Max retry reached. Stop trying.")
             return
-        }
+        }else{
+            try {
 
-        try {
-
-            // Buat instance AdMob AdView
-            adView2= AdView(this).apply {
-                adUnitId = admobSDKBuilder?.bannerId.orEmpty()
-                setAdSize(getSize()) // Pastikan fungsi ini mengembalikan AdSize yang valid
-            }
-
-            // Siapkan listener untuk menangani hasil pemuatan
-            adView2?.adListener = object : AdListener() {
-                override fun onAdLoaded() {
-                    bannerRetryCount = 0
-                    if(admobSDKBuilder?.showToast==true){
-                        setToast("admob load : "+ adView2?.adUnitId)
-                    }
-                    // Bersihkan container dan tampilkan banner AdMob
-                    //adViewContainer.removeAllViews()
-                    adViewContainer.addView(adView2)
+                // Buat instance AdMob AdView
+                adView2= AdView(this).apply {
+                    adUnitId = admobSDKBuilder?.bannerId.orEmpty()
+                    setAdSize(getSize()) // Pastikan fungsi ini mengembalikan AdSize yang valid
                 }
 
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    if(admobSDKBuilder?.showToast==true){
-                        setToast("admob fl:  "+ error.message + " "+adView2?.adUnitId)
+                // Siapkan listener untuk menangani hasil pemuatan
+                adView2?.adListener = object : AdListener() {
+                    override fun onAdLoaded() {
+                        bannerRetryCount = 0
+                        if(admobSDKBuilder?.showToast==true){
+                            setToast("admob load : "+ adView2?.adUnitId)
+                        }
+                        // Bersihkan container dan tampilkan banner AdMob
+                        //adViewContainer.removeAllViews()
+                        adViewContainer.addView(adView2)
                     }
 
-                    Log.e("ADS_Waterfall", "❌ AdMob banner GAGAL: ${error.message}. Mencoba fallback ke Facebook...")
-                   // setToast("AdMob Gagal"+ adView2?.adUnitId +"coba FAN")
-                    bannerRetryCount++
-                    // 3. Jika AdMob gagal, panggil fungsi untuk memuat banner Facebook
-                    loadFanBanner(adViewContainer)
+                    override fun onAdFailedToLoad(error: LoadAdError) {
+                        if(admobSDKBuilder?.showToast==true){
+                            setToast("admob fl:  "+ error.message + " "+adView2?.adUnitId)
+                        }
+
+                        Log.e("ADS_Waterfall", "❌ AdMob banner GAGAL: ${error.message}. Mencoba fallback ke Facebook...")
+                        // setToast("AdMob Gagal"+ adView2?.adUnitId +"coba FAN")
+                        bannerRetryCount++
+                        // 3. Jika AdMob gagal, panggil fungsi untuk memuat banner Facebook
+                        loadFanBanner(adViewContainer)
+                    }
                 }
+
+                // Buat request dan mulai pemuatan
+                Log.d("ADS_Waterfall", "Mencoba memuat AdMob banner...")
+                val adRequest = AdRequest.Builder().build()
+                adView2?.loadAd(adRequest)
+            }catch ( e : Exception){
+
             }
-
-            // Buat request dan mulai pemuatan
-            Log.d("ADS_Waterfall", "Mencoba memuat AdMob banner...")
-            val adRequest = AdRequest.Builder().build()
-            adView2?.loadAd(adRequest)
-        }catch ( e : Exception){
-
         }
-        // Hancurkan banner FAN sebelumnya jika ada, untuk menghindari memory leak
     }
 
 
@@ -740,7 +739,15 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
                     bannerRetryCount++
                     // Jadwalkan untuk mencoba lagi dari awal (memanggil loadBannerAds)
-                    retryHandler.postDelayed(retryRunnable, 20000)
+                    if (bannerRetryCount < maxBannerRetry) {
+                        Log.d("ADS_Waterfall", "Menjadwalkan percobaan ulang dalam 20 detik...")
+                        retryHandler.postDelayed(retryRunnable, 20000)
+                    } else {
+                        if(admobSDKBuilder?.showToast==true){
+                            setToast("Stop All : "+adError.errorMessage)
+                        }
+                        Log.e("ADS_Waterfall", "❌ Max retry tercapai setelah Facebook gagal. Berhenti mencoba.")
+                    }
                     // Retry AdMob after delay
                 }
 

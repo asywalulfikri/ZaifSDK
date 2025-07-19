@@ -80,7 +80,6 @@ class FragmentListSong(
                     override fun handleOnBackPressed() {
                         try {
                             MyAdsListener.setBannerHome(true)
-                            MyAdsListener.setBannerUnity(true)
                             findNavController().navigateUp()
                         }catch (e : Exception){
                             setToast(e.message.toString())
@@ -88,7 +87,7 @@ class FragmentListSong(
                     }
                 })
 
-                MyAdsListener.setBannerUnity(false)
+                MyAdsListener.setHideAllBanner()
                 sharedPreferences = DataSession(it).getShared()
                 sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
                 initAnim()
@@ -99,7 +98,6 @@ class FragmentListSong(
 
                 binding?.btnCLose?.setOnClickListener {
                     MyAdsListener.setBannerHome(true)
-                    MyAdsListener.setBannerUnity(true)
                     findNavController().navigateUp()
                 }
 
@@ -486,7 +484,6 @@ class FragmentListSong(
 
     fun onBackPressed(): Boolean {
         MyAdsListener.setBannerHome(true)
-        MyAdsListener.setBannerUnity(true)
         activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         return false
     }

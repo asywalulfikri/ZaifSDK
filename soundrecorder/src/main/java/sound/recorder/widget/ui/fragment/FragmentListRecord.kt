@@ -72,7 +72,6 @@ class FragmentListRecord : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
             override fun handleOnBackPressed() {
                 try {
                     MyAdsListener.setBannerHome(true)
-                    MyAdsListener.setBannerUnity(true)
                     findNavController().navigateUp()
                 }catch (e : Exception){
                     setToast(e.message.toString())
@@ -80,7 +79,6 @@ class FragmentListRecord : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
             }
         })
 
-        MyAdsListener.setBannerUnity(false)
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
@@ -291,7 +289,6 @@ class FragmentListRecord : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
 
     fun onBackPressed(): Boolean {
         MyAdsListener.setBannerHome(true)
-        MyAdsListener.setBannerUnity(true)
         activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         return false
     }
