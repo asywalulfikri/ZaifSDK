@@ -69,14 +69,15 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
         isUnityReady = MyApp.isUnityInitialized
     }
 
-    fun setupAds(){
+    fun setupAds() {
         lifecycleScope.launch {
-            delay(2000)
+            delay(1000)
             setupBannerUnity(binding.bannerUnity)
-            //setupBanner(binding.bannerID)
-            loadBannerAds()
             setupBannerFacebook(binding.bannerFAN)
+            loadBannerAds()
             setupInterstitial()
+
+            delay(10000) // jeda 1 detik sebelum setupBannerAdmob
             setupBannerAdmob(binding.bannerAdmob)
         }
     }

@@ -127,16 +127,13 @@ open class BaseActivityWidget : AppCompatActivity() {
     var sharedPreferences: SharedPreferences? = null
 
     private var appOpenAd: AppOpenAd? = null
-  /*  var admobSDKBuilder: AdmobSDKBuilder? = null
-    var fanSDKBuilder: FanSDKBuilder? = null
-    var unitySDKBuilder : UnitySDKBuilder? =null*/
     var mPanAnim: Animation? = null
 
     private var unityBannerView: BannerView? = null
     private var fanAdView: com.facebook.ads.AdView? = null
 
     private var bannerRetryCount = 0
-    private val maxBannerRetry = 3
+    private val maxBannerRetry = 4
 
     private val retryHandler = Handler(Looper.getMainLooper())
     private val retryRunnable = Runnable { loadBannerAds() }
@@ -659,8 +656,6 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
 
         try {
-            fanAdView?.destroy()
-            fanAdView= null
 
             // Buat instance AdMob AdView
             adView2= AdView(this).apply {
@@ -745,7 +740,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
                     bannerRetryCount++
                     // Jadwalkan untuk mencoba lagi dari awal (memanggil loadBannerAds)
-                    retryHandler.postDelayed(retryRunnable, 10000)
+                    retryHandler.postDelayed(retryRunnable, 20000)
                     // Retry AdMob after delay
                 }
 
