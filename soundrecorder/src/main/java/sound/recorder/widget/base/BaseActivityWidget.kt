@@ -676,7 +676,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                    // setToast("AdMob Sukses "+adView2?.adUnitId)
 
                     // Bersihkan container dan tampilkan banner AdMob
-                    adViewContainer.removeAllViews()
+                    //adViewContainer.removeAllViews()
                     adViewContainer.addView(adView2)
                 }
 
@@ -727,14 +727,13 @@ open class BaseActivityWidget : AppCompatActivity() {
                    // setToast("FAN Sukses"+fanAdView?.id.toString())
                     bannerRetryCount = 0
                     // Bersihkan container dan tampilkan banner Facebook
-                    adViewContainer.removeAllViews()
+                    //adViewContainer.removeAllViews()
                     adViewContainer.addView(fanAdView)
                 }
 
                 override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
                     Log.e("ADS_Waterfall", "❌ Facebook banner juga GAGAL: ${adError.errorMessage}")
                     setToast("FAN Gagal"+adError.errorMessage)
-                    bannerRetryCount++
                     bannerRetryCount++
                     // Jadwalkan untuk mencoba lagi dari awal (memanggil loadBannerAds)
                     retryHandler.postDelayed(retryRunnable, 10000)
