@@ -725,8 +725,8 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
 
             // Hancurkan banner AdMob sebelumnya untuk membebaskan memori
-            adView2?.destroy()
-            adView2 = null
+            //adView2?.destroy()
+           // adView2 = null
 
 
             val fanBannerId = fanSDKBuilder?.bannerId.orEmpty()
