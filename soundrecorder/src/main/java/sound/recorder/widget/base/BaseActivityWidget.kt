@@ -683,6 +683,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         }
                         // Bersihkan container dan tampilkan banner AdMob
                         bannerRetryCount = 0
+                        retryHandler.removeCallbacks(retryRunnable)
                         adViewContainer.removeAllViews()
                         adViewContainer.addView(adView2)
                     }
@@ -747,7 +748,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     loadFanSuccess = true
                     bannerRetryCount = 0
                     if(admobSDKBuilder?.showToast==true){
-                        setToast("FAN suk "+ fanAdView?.id.toString())
+                        setToast("FAN suk "+ fanAdView2?.id.toString())
                     }
                     // Bersihkan container dan tampilkan banner Facebook
                     adViewContainer.removeAllViews()
