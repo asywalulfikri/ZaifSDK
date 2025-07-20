@@ -124,6 +124,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                 fanSDKBuilder = FanSDKBuilder.builder(this@GameApp)
                     .setApplicationId(Constants.AdsProductionId.fanId)
                     .setBannerId(Constants.AdsProductionId.fanBannerId)
+                    .setBannerHomeId(Constants.AdsProductionId.fanBannerHomeId)
                     .setInterstitialId(Constants.AdsProductionId.fanInterstitialId)
                     .setEnable(true)
                     .build()

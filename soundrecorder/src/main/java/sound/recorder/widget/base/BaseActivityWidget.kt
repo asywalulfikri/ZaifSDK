@@ -134,7 +134,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var fanAdView2 :com.facebook.ads.AdView? = null
 
     private var bannerRetryCount = 0
-    private val maxBannerRetry = 3
+    private val maxBannerRetry = 4
     private var loadFanSuccess = false
 
     private val retryHandler = Handler(Looper.getMainLooper())
@@ -658,15 +658,20 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
+    private fun setToastADS(message : String){
+        if(admobSDKBuilder?.showToast==true){
+            Toast.makeText(this,message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+
     private fun executeBanner(adViewContainer: FrameLayout) {
 
         if (bannerRetryCount >= maxBannerRetry) {
-            if(admobSDKBuilder?.showToast==true){
-                setToast("limit $bannerRetryCount")
-            }
-            Log.e("ADS_Waterfall", "❌ Max retry reached. Stop trying.")
+            setToastADS("limit : $bannerRetryCount")
             return
         }else{
+            setToastADS("execute banner")
             try {
 
                 // Buat instance AdMob AdView
@@ -678,9 +683,9 @@ open class BaseActivityWidget : AppCompatActivity() {
                 // Siapkan listener untuk menangani hasil pemuatan
                 adView2?.adListener = object : AdListener() {
                     override fun onAdLoaded() {
-                        if(admobSDKBuilder?.showToast==true){
-                            setToast("sukses : "+ adView2?.adUnitId)
-                        }
+
+                        setToastADS("success adm : "+ adView2?.adUnitId)
+
                         // Bersihkan container dan tampilkan banner AdMob
                         bannerRetryCount = 0
                         retryHandler.removeCallbacks(retryRunnable)
@@ -689,20 +694,22 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
 
                     override fun onAdFailedToLoad(error: LoadAdError) {
-                        if(admobSDKBuilder?.showToast==true){
-                            setToast("gagal :  "+ error.message + " "+adView2?.adUnitId)
-                        }
 
-                        Log.e("ADS_Waterfall", "❌ AdMob banner GAGAL: ${error.message}. Mencoba fallback ke Facebook...")
-                        // setToast("AdMob Gagal"+ adView2?.adUnitId +"coba FAN")
+                        setToastADS("failed adm :  "+ error.message + " "+adView2?.adUnitId)
+
                         bannerRetryCount++
                         // 3. Jika AdMob gagal, panggil fungsi untuk memuat banner Facebook
-                        if(loadFanSuccess!=true){
-                            loadFanBanner(adViewContainer)
-                        }else{
-                            if(admobSDKBuilder?.showToast==true){
-                                setToast("fan udah ada : " +adView2?.adUnitId)
+                        if(loadFanSuccess==false){
+                            if (bannerRetryCount < maxBannerRetry) {
+
+                                loadFanBanner(adViewContainer)
+                            } else {
+                                setToastADS("Stop jangan load FAN lagi udah kena limit ")
                             }
+                        }else{
+
+                            setToastADS("Pakai FAN aja : " +adView2?.adUnitId)
+
                             adViewContainer.removeAllViews()
                             adViewContainer.addView(fanAdView2)
                         }
@@ -724,166 +731,76 @@ open class BaseActivityWidget : AppCompatActivity() {
 
         try {
             // Cek jika FAN diaktifkan
-            if (fanSDKBuilder?.enable != true) {
+            if (fanSDKBuilder?.enable != true || fanSDKBuilder?.bannerId=="") {
                 Log.d("ADS_Waterfall", "Facebook FAN tidak diaktifkan. Berhenti.")
                 return
-            }
+            }else{
+                // Hancurkan banner AdMob sebelumnya untuk membebaskan memori
+                //adView2?.destroy()
+                //adView2 = null
 
-            // Hancurkan banner AdMob sebelumnya untuk membebaskan memori
-            adView2?.destroy()
-            adView2 = null
+                setToastADS("FAN REQUESTED ,BECAUSE  ADMOB FAILED")
 
+                val fanBannerId = fanSDKBuilder?.bannerId.orEmpty()
+                fanAdView2 = com.facebook.ads.AdView(
+                    this,
+                    fanBannerId,
+                    com.facebook.ads.AdSize.BANNER_HEIGHT_50
+                )
 
-            val fanBannerId = fanSDKBuilder?.bannerId.orEmpty()
-            fanAdView2 = com.facebook.ads.AdView(
-                this,
-                fanBannerId,
-                com.facebook.ads.AdSize.BANNER_HEIGHT_50
-            )
+                val adListener = object : com.facebook.ads.AdListener {
+                    override fun onAdLoaded(ad: Ad) {
+                        Log.d("ADS_Waterfall", "✅ Facebook banner SUKSES dimuat sebagai fallback.")
+                        // setToast("FAN Sukses"+fAandView?.id.toString())
+                        loadFanSuccess = true
+                        bannerRetryCount = 0
 
-            val adListener = object : com.facebook.ads.AdListener {
-                override fun onAdLoaded(ad: Ad) {
-                    Log.d("ADS_Waterfall", "✅ Facebook banner SUKSES dimuat sebagai fallback.")
-                   // setToast("FAN Sukses"+fanAdView?.id.toString())
-                    loadFanSuccess = true
-                    bannerRetryCount = 0
-                    if(admobSDKBuilder?.showToast==true){
-                        setToast("FAN suk "+ fanAdView2?.id.toString())
+                        setToastADS("FAN SUCCESS : "+ fanAdView2?.id.toString())
+
+                        // Bersihkan container dan tampilkan banner Facebook
+                        adViewContainer.removeAllViews()
+                        adViewContainer.addView(fanAdView2)
                     }
-                    // Bersihkan container dan tampilkan banner Facebook
-                    adViewContainer.removeAllViews()
-                    adViewContainer.addView(fanAdView2)
-                }
 
-                override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
-                    Log.e("ADS_Waterfall", "❌ Facebook banner juga GAGAL: ${adError.errorMessage}")
-                    if(admobSDKBuilder?.showToast==true){
-                        setToast("FAN gag : "+adError.errorMessage)
-                    }
-                    bannerRetryCount++
-                    // Jadwalkan untuk mencoba lagi dari awal (memanggil loadBannerAds)
-                    if (bannerRetryCount < maxBannerRetry) {
-                        Log.d("ADS_Waterfall", "Menjadwalkan percobaan ulang dalam 20 detik...")
-                        retryHandler.postDelayed(retryRunnable, 30000)
-                    } else {
-                        if(admobSDKBuilder?.showToast==true){
-                            setToast("Stop : "+ bannerRetryCount +"--"+adError.errorMessage)
+                    override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
+
+                        bannerRetryCount++
+
+                        // Jadwalkan untuk mencoba lagi dari awal (memanggil loadBannerAds)
+                        if (bannerRetryCount < maxBannerRetry) {
+
+                            setToastADS("FAN FAILED ,ULANG REQUEST ADMOB DALAM 30 DETIK")
+
+                            retryHandler.postDelayed(retryRunnable, 30000)
+                        } else {
+
+                            setToastADS("Stop REQUEST execute banner : "+ bannerRetryCount +"--"+adError.errorMessage)
+                            Log.e("ADS_Waterfall", "❌ Max retry tercapai setelah Facebook gagal. Berhenti mencoba.")
                         }
-                        Log.e("ADS_Waterfall", "❌ Max retry tercapai setelah Facebook gagal. Berhenti mencoba.")
+                        // Retry AdMob after delay
                     }
-                    // Retry AdMob after delay
+
+                    override fun onAdClicked(ad: Ad) {}
+                    override fun onLoggingImpression(ad: Ad) {}
                 }
 
-                override fun onAdClicked(ad: Ad) {}
-                override fun onLoggingImpression(ad: Ad) {}
+                Log.d("ADS_Waterfall", "Mencoba memuat Facebook banner...")
+                fanAdView2?.loadAd(
+                    fanAdView2?.buildLoadAdConfig()
+                        ?.withAdListener(adListener)
+                        ?.build()
+                )
             }
 
-            Log.d("ADS_Waterfall", "Mencoba memuat Facebook banner...")
-            fanAdView2?.loadAd(
-                fanAdView2?.buildLoadAdConfig()
-                    ?.withAdListener(adListener)
-                    ?.build()
-            )
         }catch (e : Exception){
           //  setToast("veve" +e.message)
 
         }
     }
-    private fun executeBannerAAAA(adViewContainer: FrameLayout) {
-
-        try {
-            adView2 = AdView(this).apply {
-                adUnitId = admobSDKBuilder?.bannerId.orEmpty()
-                setAdSize(getSize())
-            }
-
-            val adRequest = AdRequest.Builder().build()
-            Log.d("ADS_AdMob", "BannerId: ${adView2?.adUnitId}")
-
-            adView2?.adListener = object : AdListener() {
-                override fun onAdLoaded() {
-                    setToast("load sukses"+adView2?.adUnitId)
-                    Log.d("ADS_AdMob", "Banner loaded successfully: ${adView2?.adUnitId}")
-                }
-
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    setToast("load gagal"+error.message+adView2?.adUnitId)
-                    // Log.e("ADS_AdMob", "Refresh Gagal. KODE: ${error.code}, PESAN: ${error.message}")
-                    Log.d("ADS_AdMob", "Banner failed to load: ${error.message}"+adView2?.adUnitId.toString())
-                    // Fallback langsung ke main thread, karena kita sudah di main thread
-                    if (fanSDKBuilder?.enable == true) {
-                        setupBannerFacebook(adViewContainer)
-                    }
-                }
-
-                override fun onAdOpened() {
-                    Log.d("ADS_AdMob", "Banner ad opened")
-                }
-
-                override fun onAdClicked() {
-                    Log.d("ADS_AdMob", "Banner ad clicked")
-                }
-
-                override fun onAdClosed() {
-                    Log.d("ADS_AdMob", "Banner ad closed")
-                }
-            }
-
-            adView2?.loadAd(adRequest)
-            adViewContainer.addView(adView2)
-
-
-
-            if(fanSDKBuilder?.enable==true){
-                try {
-                    val adListener = object : com.facebook.ads.AdListener {
-                        override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
-                            setLog(
-                                "ADS_FAN",
-                                "Banner error loaded id = ${ad.placementId} ---> ${adError.errorMessage}"
-                            )
-                        }
-
-                        override fun onAdLoaded(ad: Ad) {
-                            setLog("ADS_FAN", "Banner Successfully Loaded id = ${ad.placementId}")
-                        }
-
-                        override fun onAdClicked(ad: Ad) {}
-                        override fun onLoggingImpression(ad: Ad) {}
-                    }
-                    val fanBannerId = fanSDKBuilder?.bannerId.toString()
-
-                    fanAdView = com.facebook.ads.AdView(
-                        this,
-                        fanBannerId,
-                        com.facebook.ads.AdSize.BANNER_HEIGHT_50
-                    )
-
-                    fanAdView?.loadAd(
-                        fanAdView?.buildLoadAdConfig()
-                            ?.withAdListener(adListener)
-                            ?.build()
-                    )
-
-                    // Clear old views if any
-                    adViewContainer.addView(fanAdView)
-
-                } catch (e: Exception) {
-                    setLog("ADS_FAN_EXCEPTION", e.message.orEmpty())
-                }
-            }
-
-
-        } catch (e: Exception) {
-            Log.e("ADS_AdMob", "Banner load exception: ${e.message}")
-            setLog(e.message.toString())
-        }
-    }
-
 
     fun setupBannerFacebook(adContainer: FrameLayout) {
 
-        if(fanSDKBuilder?.enable==true){
+        if(fanSDKBuilder?.enable==true && fanSDKBuilder?.bannerHomeId!=null){
             try {
                 val adListener = object : com.facebook.ads.AdListener {
                     override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
@@ -900,7 +817,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     override fun onAdClicked(ad: Ad) {}
                     override fun onLoggingImpression(ad: Ad) {}
                 }
-                val fanBannerId = fanSDKBuilder?.bannerId.toString()
+                val fanBannerId = fanSDKBuilder?.bannerHomeId.toString()
 
                 fanAdView = com.facebook.ads.AdView(
                     this,

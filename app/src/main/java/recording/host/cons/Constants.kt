@@ -34,6 +34,7 @@ class Constants {
 
             const val fanId             = "6371696286185210"
             const val fanBannerId       = "6371696286185210_7264663670221796"
+            const val fanBannerHomeId   = "6371696286185210_24358580093736887"
             const val fanInterstitialId = "6371696286185210_7264664310221732"
 
 
