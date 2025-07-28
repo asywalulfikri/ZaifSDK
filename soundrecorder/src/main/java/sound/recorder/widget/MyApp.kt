@@ -118,51 +118,36 @@ open class MyApp : Application() {
     }
 
     suspend fun initializeUnity(unityId: String, testMode: Boolean) {
-        withContext(Dispatchers.IO) {
-            try {
-                UnityAds.initialize(this@MyApp, unityId, testMode, object : IUnityAdsInitializationListener {
-                    override fun onInitializationComplete() {
-                        Log.d("ADS_Unity", "Initialization Complete.")
-                        isUnityInitialized = true
-                        notifyListeners(Sdk.UNITY)
-                    }
+        if(unityId==""){
+            isUnityInitialized = true
+            notifyListeners(Sdk.UNITY)
+        }else{
+            withContext(Dispatchers.IO) {
+                try {
+                    UnityAds.initialize(this@MyApp, unityId, testMode, object : IUnityAdsInitializationListener {
+                        override fun onInitializationComplete() {
+                            Log.d("ADS_Unity", "Initialization Complete.")
+                            isUnityInitialized = true
+                            notifyListeners(Sdk.UNITY)
+                        }
 
-                    override fun onInitializationFailed(error: UnityAds.UnityAdsInitializationError?, message: String?) {
-                        Log.e("ADS_Unity", "Initialization Failed: $message")
-                    }
-                })
-            } catch (e: Exception) {
-                Log.e("ADS_Unity", "Error initializing UnityAds: ${e.message}")
+                        override fun onInitializationFailed(error: UnityAds.UnityAdsInitializationError?, message: String?) {
+                            Log.e("ADS_Unity", "Initialization Failed: $message")
+                        }
+                    })
+                } catch (e: Exception) {
+                    Log.e("ADS_Unity", "Error initializing UnityAds: ${e.message}")
+                }
             }
         }
     }
-
-
-   /* suspend fun initializeUnity(unityId: String, testMode: Boolean) {
-        withContext(Dispatchers.Main) { // Pindahkan ke Main
-            try {
-                UnityAds.initialize(this@MyApp, unityId, testMode, object : IUnityAdsInitializationListener {
-                    override fun onInitializationComplete() {
-                        Log.d("ADS_Unity", "Initialization Complete.")
-                        isUnityInitialized = true
-                        notifyListeners(Sdk.UNITY)
-                    }
-                    override fun onInitializationFailed(error: UnityAds.UnityAdsInitializationError?, message: String?) {
-                        Log.e("ADS_Unity", "Initialization Failed: $message")
-                    }
-                })
-            } catch (e: Exception) {
-                Log.e("ADS_Unity", "Error initializing UnityAds: ${e.message}")
-            }
-        }
-    }*/
 
     private fun isWebViewAvailable(): Boolean {
         return try {
             packageManager.getPackageInfo("com.google.android.webview", 0)
             true
         } catch (e: PackageManager.NameNotFoundException) {
-            Log.e("MyApp", "WebView package not available.")
+            Log.e("MyApp", "WebView package not available."+e.message)
             false
         }
     }

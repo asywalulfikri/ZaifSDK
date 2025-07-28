@@ -68,6 +68,8 @@ class FragmentListRecord : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
 
         }
 
+        MyAdsListener.setHideAllBanner()
+
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 try {
