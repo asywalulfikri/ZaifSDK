@@ -169,5 +169,23 @@
     <string name="tooltip_saved_record">This is to view the recorded result</string>
     <string name="recorded_saved">Recording saved</string>
 
+    <string name="how_to_add_song_title">How to Add Song</string>
+    <string name="how_to_add_song_content">To add a song or introductory music, you can search for copyright-free audio through your browser. Once downloaded, the sound will be automatically detected and ready to use in this app.</string>
+    <string name="understand">Understand</string>
+    <string name="download">Download</string>
+    <string name="process_download">Process Download…</string>
+    <string name="change_sound">Change Sound</string>
+    <string name="select_sound">Select Sound</string>
+    <string name="select_audio">Select Audio</string>
+    <string name="save_config">Save Config</string>
+    <string name="list_audio">List Audio</string>
+    <string name="list_sound">List Sound</string>
+    <string name="search_sound">Search Sound</string>
+    <string name="search_audio">Search Audio</string>
+    <string name="search_song">Search Song</string>
+    <string name="rating_content">Your rating helps us improve and grow. Would you like to give us some stars?</string>
+    <string name="rate">Rate</string>
+
+    <string name="later">Nanti</string>
 
 </resources>

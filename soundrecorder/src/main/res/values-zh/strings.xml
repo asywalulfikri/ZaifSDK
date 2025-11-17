@@ -167,5 +167,27 @@
     <string name="tooltip_saved_record">用于查看录音结果</string>
     <string name="recorded_saved">录音已保存</string>
 
+    <string name="how_to_add_song_title">如何添加歌曲</string>
+    <string name="how_to_add_song_content">
+    若要添加歌曲或开场音乐，你可以通过浏览器搜索无版权音频。下载完成后，应用会自动识别该音频，并可立即使用。
+</string>
+    <string name="understand">明白了</string>
+    <string name="download">下载</string>
+    <string name="process_download">正在处理下载…</string>
+    <string name="change_sound">更改声音</string>
+    <string name="select_sound">选择声音</string>
+    <string name="select_audio">选择音频</string>
+    <string name="save_config">保存设置</string>
+    <string name="list_audio">音频列表</string>
+    <string name="list_sound">声音列表</string>
+    <string name="search_sound">搜索声音</string>
+    <string name="search_audio">搜索音频</string>
+    <string name="search_song">搜索歌曲</string>
+    <string name="rating_content">
+    您的评分能帮助我们改进和成长。愿意给我们几颗星吗？
+</string>
+    <string name="rate">评分</string>
+    <string name="later">稍后</string>
+
 
 </resources>

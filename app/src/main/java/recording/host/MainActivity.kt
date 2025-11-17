@@ -38,6 +38,7 @@ import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
 import sound.recorder.widget.ui.fragment.FragmentListSong
 import sound.recorder.widget.ui.fragment.FragmentVideo
 import sound.recorder.widget.ui.fragment.FragmentListRecord
+import sound.recorder.widget.ui.fragment.FragmentSettings
 import sound.recorder.widget.util.AppRatingHelper
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession

@@ -171,4 +171,27 @@
     <string name="recorded_saved">Opname opgeslagen</string>
 
 
+    <string name="how_to_add_song_title">Hoe een lied toevoegen</string>
+    <string name="how_to_add_song_content">
+    Om een lied of introductiemuziek toe te voegen, kun je via je browser zoeken naar auteursrechtvrije audio. Zodra het is gedownload, wordt het automatisch gedetecteerd en is het klaar voor gebruik in deze app.
+</string>
+    <string name="understand">Begrepen</string>
+    <string name="download">Downloaden</string>
+    <string name="process_download">Download wordt verwerkt…</string>
+    <string name="change_sound">Geluid wijzigen</string>
+    <string name="select_sound">Geluid selecteren</string>
+    <string name="select_audio">Audio selecteren</string>
+    <string name="save_config">Configuratie opslaan</string>
+    <string name="list_audio">Audiolijst</string>
+    <string name="list_sound">Geluidenlijst</string>
+    <string name="search_sound">Geluid zoeken</string>
+    <string name="search_audio">Audio zoeken</string>
+    <string name="search_song">Lied zoeken</string>
+    <string name="rating_content">
+    Jouw beoordeling helpt ons om te groeien en te verbeteren. Wil je ons een paar sterren geven?
+</string>
+    <string name="rate">Beoordelen</string>
+    <string name="later">Later</string>
+
+
 </resources>

@@ -17,12 +17,16 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.signin.internal.zai
+import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.R
 import sound.recorder.widget.base.BaseFragmentWidget
+import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.databinding.FragmentSettingBinding
 import sound.recorder.widget.listener.MyAdsListener
+import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
+import sound.recorder.widget.util.Toastic
+import sound.recorder.widget.util.dialog.DialogSDK
 import java.util.Locale
 import kotlin.let
 import kotlin.text.isEmpty
@@ -33,15 +37,8 @@ import kotlin.toString
 open class FragmentSettings : BaseFragmentWidget() {
 
     private var binding: FragmentSettingBinding? = null
-    private var type = ""
     var language = ""
 
-
-    companion object {
-        fun newInstance(): FragmentSettings {
-            return FragmentSettings()
-        }
-    }
     @SuppressLint("UseKtx")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,7 +53,7 @@ open class FragmentSettings : BaseFragmentWidget() {
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 try {
-                    MyAdsListener.setBannerHome(true)
+                    MyAdsListener.setBannerHome(false)
                     findNavController().navigateUp()
                 }catch (e : Exception){
                     setToast(e.message.toString())
@@ -66,10 +63,11 @@ open class FragmentSettings : BaseFragmentWidget() {
         binding?.let { binding ->
 
             binding.llRateUs.setOnClickListener {
+                setLog("wkwkw ="+zaifSDKBuilder?.applicationId)
                 val createChooser = Intent.createChooser(
                     Intent(
                         "android.intent.action.VIEW",
-                        Uri.parse("https://play.google.com/store/apps/details?id=" + zaifSDKBuilder?.applicationId.toString())
+                        Uri.parse("https://play.google.com/store/apps/details?id=" + zaifSDKBuilder?.applicationId)
                     ), "Share via"
                 )
                 createChooser.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -77,13 +75,24 @@ open class FragmentSettings : BaseFragmentWidget() {
             }
 
             binding.llHelp.setOnClickListener {
-                showDialogEmail(zaifSDKBuilder?.appName.toString(),getInfo())
+                showDialogEmail(dataSession.getAppName().toString(),getInfo())
 
             }
 
-
             binding.llMoreApps.setOnClickListener {
-                openPlayStoreForMoreApps("Developer+Receh")
+                openPlayStoreForMoreApps(zaifSDKBuilder?.developerName)
+            }
+
+
+            binding.llAddSong.setOnClickListener {
+                try {
+                    val dialog = DialogSDK(requireContext(), Constant.DialogType.ADD_SONG) {
+                        // clickAction (it)
+                    }
+                    dialog.show(parentFragmentManager,  Constant.DialogType.toString())
+                } catch (e: Exception) {
+                    setToastTic(Toastic.ERROR, e.message.toString())
+                }
             }
 
             binding.llWhatsapp.visibility = View.GONE
@@ -100,9 +109,9 @@ open class FragmentSettings : BaseFragmentWidget() {
             binding.llShareWithFriends.setOnClickListener {
                 val shareIntent = Intent(Intent.ACTION_SEND)
                 shareIntent.type = "text/plain"
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, zaifSDKBuilder?.applicationId)
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, dataSession.getAppId())
                 val shareMessage =
-                    "Let me recommend you this application\n\nhttps://play.google.com/store/apps/details?id="+zaifSDKBuilder?.applicationId
+                    "Let me recommend you this application\n\nhttps://play.google.com/store/apps/details?id="+dataSession.getAppId()
                 shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
                 startActivity(Intent.createChooser(shareIntent, requireActivity().getString(R.string.choose_one)))
             }
@@ -113,6 +122,7 @@ open class FragmentSettings : BaseFragmentWidget() {
         return binding?.root
     }
 
+    @SuppressLint("UseKtx")
     private fun openWhatsApp() {
         val phoneNumber = "6285158829034" // Nomor telepon tujuan dengan kode negara
         val message = "Bellyra"+" " + getString(R.string.help_suggest)
@@ -133,12 +143,14 @@ open class FragmentSettings : BaseFragmentWidget() {
 
 
     private fun getInfo(): String {
-        val appInfo = "VC" + zaifSDKBuilder?.versionCode
+        val appInfo = "VC" + dataSession.getVersionCode()
         val androidVersion = "SDK" + Build.VERSION.SDK_INT
         val androidOS = "OS" + Build.VERSION.RELEASE
 
         return Build.MANUFACTURER + " " + Build.MODEL + " , " + androidOS + ", " + appInfo + ", " + androidVersion
     }
+
+
 
     @SuppressLint("SetTextI18n")
     fun showDialogLanguage() {
@@ -165,7 +177,7 @@ open class FragmentSettings : BaseFragmentWidget() {
                 rbEnglish.isChecked = true
             }
         }else{
-            if(dataSession?.getLanguage()=="en"){
+            if(dataSession.getLanguage() =="en"){
                 rbEnglish.isChecked = true
             }else{
                 rbIndonesia.isChecked = true
@@ -186,7 +198,7 @@ open class FragmentSettings : BaseFragmentWidget() {
 
 
             if(type.isNotEmpty()){
-                dataSession?.setLanguage(type)
+                dataSession.setLanguage(type)
                 changeLanguage(type)
             }
 
@@ -196,8 +208,8 @@ open class FragmentSettings : BaseFragmentWidget() {
         dialog.show()
     }
 
-    private fun changeLanguage() {
-        val locale = Locale(type) // Ganti "en" dengan kode bahasa yang diinginkan
+   /* private fun changeLanguage(type : String) {
+        val locale = Locale(type)
         Locale.setDefault(locale)
 
         val configuration = Configuration()
@@ -205,25 +217,28 @@ open class FragmentSettings : BaseFragmentWidget() {
 
         resources.updateConfiguration(configuration, resources.displayMetrics)
         requireActivity().recreate()
-    }
+    }*/
 
 
-    private fun changeLanguage(type : String) {
-        val locale = Locale(type) // Ganti "en" dengan kode bahasa yang diinginkan
+    private fun changeLanguage(type: String) {
+        val locale = Locale.forLanguageTag(type)
         Locale.setDefault(locale)
 
-        val configuration = Configuration()
-        configuration.locale = locale
+        val config = Configuration(resources.configuration)
+        config.setLocale(locale)
+        config.setLayoutDirection(locale)
 
-        resources.updateConfiguration(configuration, resources.displayMetrics)
-        requireActivity().recreate()
+        // update resource ke Activity
+        requireActivity().resources.updateConfiguration(
+            config,
+            requireActivity().resources.displayMetrics
+        )
+
+        requireActivity().recreate()   // refresh UI
     }
 
 
-    fun onBackPressed(): Boolean {
-        activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
-        return false
-    }
+
 
     private fun getCurrentLanguage(): String {
         val locale: Locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

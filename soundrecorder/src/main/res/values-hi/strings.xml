@@ -168,4 +168,27 @@
     <string name="tooltip_saved_record">यह रिकॉर्डिंग देखने के लिए है</string>
     <string name="recorded_saved">रिकॉर्डिंग सहेज ली गई</string>
 
+    <string name="how_to_add_song_title">गीत कैसे जोड़ें</string>
+    <string name="how_to_add_song_content">
+    गीत या परिचय संगीत जोड़ने के लिए, आप अपने ब्राउज़र के माध्यम से कॉपीराइट-फ्री ऑडियो खोज सकते हैं। डाउनलोड होने के बाद, ध्वनि स्वचालित रूप से पहचान ली जाएगी और इस ऐप में उपयोग के लिए तैयार होगी।
+</string>
+    <string name="understand">समझ गया</string>
+    <string name="download">डाउनलोड</string>
+    <string name="process_download">डाउनलोड संसाधित किया जा रहा है…</string>
+    <string name="change_sound">ध्वनि बदलें</string>
+    <string name="select_sound">ध्वनि चुनें</string>
+    <string name="select_audio">ऑडियो चुनें</string>
+    <string name="save_config">कॉन्फ़िग सेव करें</string>
+    <string name="list_audio">ऑडियो सूची</string>
+    <string name="list_sound">ध्वनि सूची</string>
+    <string name="search_sound">ध्वनि खोजें</string>
+    <string name="search_audio">ऑडियो खोजें</string>
+    <string name="search_song">गीत खोजें</string>
+    <string name="rating_content">
+    आपकी रेटिंग हमें बेहतर बनने और आगे बढ़ने में मदद करती है। क्या आप हमें कुछ सितारे देना चाहेंगे?
+</string>
+    <string name="rate">रेट करें</string>
+    <string name="later">बाद में</string>
+
+
 </resources>

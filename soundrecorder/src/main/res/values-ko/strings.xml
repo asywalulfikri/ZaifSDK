@@ -172,4 +172,27 @@
     <string name="recorded_saved">녹음이 저장되었습니다</string>
 
 
+    <string name="how_to_add_song_title">노래 추가 방법</string>
+    <string name="how_to_add_song_content">
+    노래나 인트로 음악을 추가하려면 브라우저에서 저작권 무료 오디오를 검색하세요. 다운로드가 완료되면 소리가 자동으로 감지되어 이 앱에서 사용할 수 있습니다.
+</string>
+    <string name="understand">이해했어요</string>
+    <string name="download">다운로드</string>
+    <string name="process_download">다운로드 처리 중…</string>
+    <string name="change_sound">사운드 변경</string>
+    <string name="select_sound">사운드 선택</string>
+    <string name="select_audio">오디오 선택</string>
+    <string name="save_config">설정 저장</string>
+    <string name="list_audio">오디오 목록</string>
+    <string name="list_sound">사운드 목록</string>
+    <string name="search_sound">사운드 검색</string>
+    <string name="search_audio">오디오 검색</string>
+    <string name="search_song">노래 검색</string>
+    <string name="rating_content">
+    당신의 평가는 우리가 더 발전하고 성장하는 데 큰 도움이 됩니다. 별점을 남겨주시겠어요?
+</string>
+    <string name="rate">평가하기</string>
+    <string name="later">나중에</string>
+
+
 </resources>

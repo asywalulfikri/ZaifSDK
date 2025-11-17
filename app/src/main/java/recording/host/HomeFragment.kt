@@ -11,7 +11,9 @@ import androidx.navigation.fragment.findNavController
 import recording.host.databinding.FragmentHomeBinding
 import sound.recorder.widget.base.BaseFragmentWidget
 import sound.recorder.widget.listener.MyAdsListener
+import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.Toastic
+import sound.recorder.widget.util.dialog.DialogSDK
 import kotlin.system.exitProcess
 import kotlin.toString
 
@@ -63,8 +65,12 @@ class HomeFragment : BaseFragmentWidget() {
 
         binding?.btnRating?.setOnClickListener {
             try {
-                MyAdsListener.setBannerHome(false)
-                rating()
+               // MyAdsListener.setBannerHome(false)
+               // rating()
+                val dialog = DialogSDK(requireContext(), Constant.DialogType.ADD_SONG) {
+                   // clickAction (it)
+                }
+                dialog.show(parentFragmentManager,  Constant.DialogType.toString())
             } catch (e: Exception) {
                 setToastTic(Toastic.ERROR, e.message.toString())
             }

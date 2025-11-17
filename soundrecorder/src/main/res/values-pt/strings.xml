@@ -169,5 +169,28 @@
     <string name="recorded_saved">Gravação salva</string>
 
 
+    <string name="how_to_add_song_title">Como adicionar uma música</string>
+    <string name="how_to_add_song_content">
+    Para adicionar uma música ou trilha de introdução, você pode procurar áudios livres de direitos autorais através do seu navegador. Após o download, o áudio será detectado automaticamente e estará pronto para uso neste aplicativo.
+</string>
+    <string name="understand">Entendi</string>
+    <string name="download">Baixar</string>
+    <string name="process_download">Processando download…</string>
+    <string name="change_sound">Alterar som</string>
+    <string name="select_sound">Selecionar som</string>
+    <string name="select_audio">Selecionar áudio</string>
+    <string name="save_config">Salvar configuração</string>
+    <string name="list_audio">Lista de áudios</string>
+    <string name="list_sound">Lista de sons</string>
+    <string name="search_sound">Buscar som</string>
+    <string name="search_audio">Buscar áudio</string>
+    <string name="search_song">Buscar música</string>
+    <string name="rating_content">
+    Sua avaliação nos ajuda a melhorar e crescer. Gostaria de nos dar algumas estrelas?
+</string>
+    <string name="rate">Avaliar</string>
+    <string name="later">Mais tarde</string>
+
+
 
 </resources>

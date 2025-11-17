@@ -170,5 +170,27 @@
     <string name="recorded_saved">Rekaman tersimpan</string>
 
 
+    <string name="how_to_add_song_title">Cara Menambahkan Lagu</string>
+    <string name="how_to_add_song_content">
+    Untuk menambahkan lagu atau musik pembuka, kamu dapat mencari audio bebas hak cipta melalui browser. Setelah diunduh, suara tersebut akan terdeteksi otomatis dan siap digunakan di aplikasi ini.
+</string>
+    <string name="understand">Mengerti</string>
+    <string name="download">Download</string>
+    <string name="process_download">Memproses Download…</string>
+    <string name="change_sound">Ubah Suara</string>
+    <string name="select_sound">Pilih Suara</string>
+    <string name="select_audio">Pilih Audio</string>
+    <string name="save_config">Simpan Konfigurasi</string>
+    <string name="list_audio">Daftar Audio</string>
+    <string name="list_sound">Daftar Suara</string>
+    <string name="search_sound">Cari Suara</string>
+    <string name="search_audio">Cari Audio</string>
+    <string name="search_song">Cari Lagu</string>
+    <string name="rating_content">
+    Rating kamu membantu kami untuk terus berkembang dan menjadi lebih baik. Mau beri kami beberapa bintang?
+</string>
+    <string name="rate">Beri Rating</string>
+    <string name="later">Nanti</string>
+
 
 </resources>

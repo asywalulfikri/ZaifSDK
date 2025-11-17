@@ -169,5 +169,28 @@
     <string name="tooltip_saved_record">Đây là để xem bản ghi âm</string>
     <string name="recorded_saved">Bản ghi đã được lưu</string>
 
+    <string name="how_to_add_song_title">Cách thêm bài hát</string>
+    <string name="how_to_add_song_content">
+    Để thêm bài hát hoặc nhạc giới thiệu, bạn có thể tìm kiếm âm thanh miễn phí bản quyền bằng trình duyệt của mình. Sau khi tải xuống, âm thanh sẽ được tự động phát hiện và sẵn sàng sử dụng trong ứng dụng này.
+</string>
+    <string name="understand">Hiểu rồi</string>
+    <string name="download">Tải xuống</string>
+    <string name="process_download">Đang xử lý tải xuống…</string>
+    <string name="change_sound">Thay đổi âm thanh</string>
+    <string name="select_sound">Chọn âm thanh</string>
+    <string name="select_audio">Chọn tệp âm thanh</string>
+    <string name="save_config">Lưu cấu hình</string>
+    <string name="list_audio">Danh sách âm thanh</string>
+    <string name="list_sound">Danh sách âm</string>
+    <string name="search_sound">Tìm âm thanh</string>
+    <string name="search_audio">Tìm tệp âm thanh</string>
+    <string name="search_song">Tìm bài hát</string>
+    <string name="rating_content">
+    Đánh giá của bạn giúp chúng tôi cải thiện và phát triển hơn nữa. Bạn có muốn tặng chúng tôi vài ngôi sao không?
+</string>
+    <string name="rate">Đánh giá</string>
+    <string name="later">Để sau</string>
+
+
 
 </resources>

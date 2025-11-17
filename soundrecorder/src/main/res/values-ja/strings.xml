@@ -172,4 +172,27 @@
     <string name="recorded_saved">録音が保存されました</string>
 
 
+    <string name="how_to_add_song_title">曲の追加方法</string>
+    <string name="how_to_add_song_content">
+    曲やイントロ音楽を追加するには、ブラウザで著作権フリーの音源を検索してください。ダウンロードすると、自動的に認識され、このアプリで使用できるようになります。
+</string>
+    <string name="understand">理解しました</string>
+    <string name="download">ダウンロード</string>
+    <string name="process_download">ダウンロード処理中…</string>
+    <string name="change_sound">サウンドを変更</string>
+    <string name="select_sound">サウンドを選択</string>
+    <string name="select_audio">オーディオを選択</string>
+    <string name="save_config">設定を保存</string>
+    <string name="list_audio">オーディオ一覧</string>
+    <string name="list_sound">サウンド一覧</string>
+    <string name="search_sound">サウンドを検索</string>
+    <string name="search_audio">オーディオを検索</string>
+    <string name="search_song">曲を検索</string>
+    <string name="rating_content">
+    あなたの評価は、アプリの改善と成長にとても役立ちます。星をいくつか付けていただけますか？
+</string>
+    <string name="rate">評価する</string>
+    <string name="later">あとで</string>
+
+
 </resources>

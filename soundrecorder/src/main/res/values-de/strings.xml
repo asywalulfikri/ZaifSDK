@@ -169,4 +169,28 @@
     <string name="recorded_saved">Aufnahme gespeichert</string>
 
 
+    <string name="how_to_add_song_title">Wie man ein Lied hinzufügt</string>
+    <string name="how_to_add_song_content">
+    Um ein Lied oder eine Einleitungsmusik hinzuzufügen, kannst du über deinen Browser nach urheberrechtsfreier Audiodateien suchen. Sobald sie heruntergeladen wurden, wird der Sound automatisch erkannt und kann in dieser App verwendet werden.
+</string>
+    <string name="understand">Verstanden</string>
+    <string name="download">Herunterladen</string>
+    <string name="process_download">Download wird verarbeitet…</string>
+    <string name="change_sound">Sound ändern</string>
+    <string name="select_sound">Sound auswählen</string>
+    <string name="select_audio">Audio auswählen</string>
+    <string name="save_config">Konfiguration speichern</string>
+    <string name="list_audio">Audioliste</string>
+    <string name="list_sound">Soundliste</string>
+    <string name="search_sound">Sound suchen</string>
+    <string name="search_audio">Audio suchen</string>
+    <string name="search_song">Lied suchen</string>
+    <string name="rating_content">
+    Deine Bewertung hilft uns, uns zu verbessern und zu wachsen. Möchtest du uns ein paar Sterne geben?
+</string>
+    <string name="rate">Bewerten</string>
+    <string name="later">Später</string>
+
+
+
 </resources>

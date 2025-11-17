@@ -90,4 +90,12 @@ open class Constant {
         }
     }
 
+
+    interface DialogType{
+        companion object{
+            const val RATING         = "rating"
+            const val ADD_SONG       = "add_song"
+        }
+    }
+
 }

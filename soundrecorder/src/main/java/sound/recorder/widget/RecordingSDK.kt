@@ -120,37 +120,4 @@ object RecordingSDK {
 
         }
     }
-
-
-
-    private var mMaterialColorCircle = ""
-
-
-   /* fun changeColor(context: Context){
-        try {
-            MaterialColorPickerDialog
-                .Builder(context)
-                .setColorSwatch(ColorSwatch._500)
-                .setDefaultColor(mMaterialColorCircle)
-                .setColorListener(object : ColorListener {
-                    override fun onColorSelected(color: Int, colorHex: String) {
-                        mMaterialColorCircle = colorHex
-                        DataSession(context).saveColor(
-                            color,
-                            Constant.KeyShared.backgroundColor
-                        )
-                        // setButtonBackground(materialDialogPickerCircleBtn, color)
-                    }
-                })
-                .setDismissListener {
-                    Log.d("MaterialDialogPicker", "Handle dismiss event")
-                }
-                .show()
-        }catch (e : Exception){
-
-        }*/
-
-
-
-
 }

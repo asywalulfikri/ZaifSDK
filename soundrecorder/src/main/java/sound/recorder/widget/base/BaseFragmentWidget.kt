@@ -157,6 +157,8 @@ open class BaseFragmentWidget : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        zaifSDKBuilder = ZaifSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
+
         // Run in background thread
        /* CoroutineScope(Dispatchers.IO).launch {
             val admob = AdmobSDKBuilder.builder(requireContext()).loadFromSharedPreferences()

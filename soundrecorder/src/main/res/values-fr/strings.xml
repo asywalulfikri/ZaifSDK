@@ -170,5 +170,28 @@
     <string name="tooltip_saved_record">Ceci permet de voir l’enregistrement</string>
     <string name="recorded_saved">Enregistrement sauvegardé</string>
 
+    <string name="how_to_add_song_title">Comment ajouter une chanson</string>
+    <string name="how_to_add_song_content">
+    Pour ajouter une chanson ou une musique d’introduction, vous pouvez rechercher de l’audio libre de droits via votre navigateur. Une fois téléchargé, le son sera automatiquement détecté et prêt à être utilisé dans cette application.
+</string>
+    <string name="understand">Compris</string>
+    <string name="download">Télécharger</string>
+    <string name="process_download">Traitement du téléchargement…</string>
+    <string name="change_sound">Changer le son</string>
+    <string name="select_sound">Sélectionner un son</string>
+    <string name="select_audio">Sélectionner un audio</string>
+    <string name="save_config">Enregistrer la configuration</string>
+    <string name="list_audio">Liste des audios</string>
+    <string name="list_sound">Liste des sons</string>
+    <string name="search_sound">Rechercher un son</string>
+    <string name="search_audio">Rechercher un audio</string>
+    <string name="search_song">Rechercher une chanson</string>
+    <string name="rating_content">
+    Votre évaluation nous aide à nous améliorer et à évoluer. Souhaitez-vous nous donner quelques étoiles ?
+</string>
+    <string name="rate">Évaluer</string>
+    <string name="later">Plus tard</string>
+
+
 
 </resources>

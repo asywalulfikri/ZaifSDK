@@ -170,4 +170,27 @@
     <string name="recorded_saved">บันทึกเสียงเสร็จแล้ว</string>
 
 
+    <string name="how_to_add_song_title">วิธีเพิ่มเพลง</string>
+    <string name="how_to_add_song_content">
+    หากต้องการเพิ่มเพลงหรือดนตรีเปิดแอป คุณสามารถค้นหาไฟล์เสียงที่ไม่มีลิขสิทธิ์ผ่านเบราว์เซอร์ของคุณ เมื่อดาวน์โหลดเสร็จแล้ว ระบบจะตรวจจับเสียงอัตโนมัติและพร้อมใช้งานในแอปนี้
+</string>
+    <string name="understand">เข้าใจแล้ว</string>
+    <string name="download">ดาวน์โหลด</string>
+    <string name="process_download">กำลังประมวลผลการดาวน์โหลด…</string>
+    <string name="change_sound">เปลี่ยนเสียง</string>
+    <string name="select_sound">เลือกเสียง</string>
+    <string name="select_audio">เลือกไฟล์เสียง</string>
+    <string name="save_config">บันทึกการตั้งค่า</string>
+    <string name="list_audio">รายการไฟล์เสียง</string>
+    <string name="list_sound">รายการเสียง</string>
+    <string name="search_sound">ค้นหาเสียง</string>
+    <string name="search_audio">ค้นหาไฟล์เสียง</string>
+    <string name="search_song">ค้นหาเพลง</string>
+    <string name="rating_content">
+    การให้คะแนนของคุณช่วยให้เราพัฒนาและเติบโตได้มากขึ้น คุณช่วยให้ดาวเราสักหน่อยได้ไหม?
+</string>
+    <string name="rate">ให้คะแนน</string>
+    <string name="later">ภายหลัง</string>
+
+
 </resources>

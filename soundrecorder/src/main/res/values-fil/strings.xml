@@ -170,5 +170,28 @@
     <string name="tooltip_saved_record">Ito ay para tingnan ang nairecord</string>
     <string name="recorded_saved">Na-save ang recording</string>
 
+    <string name="how_to_add_song_title">Paano Magdagdag ng Kanta</string>
+    <string name="how_to_add_song_content">
+    Para magdagdag ng kanta o panimulang musika, maaari kang maghanap ng audio na walang copyright gamit ang iyong browser. Kapag na-download na, awtomatikong madi-detect ang tunog at handa nang gamitin sa app na ito.
+</string>
+    <string name="understand">Naiintindihan</string>
+    <string name="download">I-download</string>
+    <string name="process_download">Pinoproseso ang download…</string>
+    <string name="change_sound">Palitan ang Tunog</string>
+    <string name="select_sound">Piliin ang Tunog</string>
+    <string name="select_audio">Piliin ang Audio</string>
+    <string name="save_config">I-save ang Config</string>
+    <string name="list_audio">Listahan ng Audio</string>
+    <string name="list_sound">Listahan ng Tunog</string>
+    <string name="search_sound">Maghanap ng Tunog</string>
+    <string name="search_audio">Maghanap ng Audio</string>
+    <string name="search_song">Maghanap ng Kanta</string>
+    <string name="rating_content">
+    Ang iyong rating ay tumutulong sa amin na mag-improve at lumago. Gusto mo ba kaming bigyan ng ilang bituin?
+</string>
+    <string name="rate">I-rate</string>
+    <string name="later">Mamaya</string>
+
+
 
 </resources>

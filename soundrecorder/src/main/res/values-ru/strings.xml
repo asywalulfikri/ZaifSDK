@@ -167,6 +167,29 @@
     <string name="recorded_saved">Запись сохранена</string>
 
 
+    <string name="how_to_add_song_title">Как добавить песню</string>
+    <string name="how_to_add_song_content">
+    Чтобы добавить песню или вступительную музыку, вы можете найти аудио без авторских прав через браузер. После загрузки звук будет автоматически обнаружен и станет доступен для использования в этом приложении.
+</string>
+    <string name="understand">Понятно</string>
+    <string name="download">Скачать</string>
+    <string name="process_download">Обработка загрузки...</string>
+    <string name="change_sound">Изменить звук</string>
+    <string name="select_sound">Выбрать звук</string>
+    <string name="select_audio">Выбрать аудио</string>
+    <string name="save_config">Сохранить настройки</string>
+    <string name="list_audio">Список аудио</string>
+    <string name="list_sound">Список звуков</string>
+    <string name="search_sound">Поиск звука</string>
+    <string name="search_audio">Поиск аудио</string>
+    <string name="search_song">Поиск песни</string>
+    <string name="rating_content">
+    Ваша оценка помогает нам становиться лучше и развиваться. Хотите поставить нам несколько звёзд?
+</string>
+    <string name="rate">Оценить</string>
+    <string name="later">Позже</string>
+
+
 
 
 </resources>

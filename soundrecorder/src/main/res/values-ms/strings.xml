@@ -172,5 +172,29 @@
     <string name="recorded_saved">Rakaman disimpan</string>
 
 
+    <string name="how_to_add_song_title">Cara Menambah Lagu</string>
+    <string name="how_to_add_song_content">
+    Untuk menambah lagu atau muzik pembukaan, anda boleh mencari audio bebas hak cipta melalui pelayar. Selepas dimuat turun, bunyi tersebut akan dikesan secara automatik dan sedia digunakan dalam aplikasi ini.
+</string>
+    <string name="understand">Faham</string>
+    <string name="download">Muat Turun</string>
+    <string name="process_download">Sedang Memproses Muat Turun…</string>
+    <string name="change_sound">Tukar Bunyi</string>
+    <string name="select_sound">Pilih Bunyi</string>
+    <string name="select_audio">Pilih Audio</string>
+    <string name="save_config">Simpan Konfigurasi</string>
+    <string name="list_audio">Senarai Audio</string>
+    <string name="list_sound">Senarai Bunyi</string>
+    <string name="search_sound">Cari Bunyi</string>
+    <string name="search_audio">Cari Audio</string>
+    <string name="search_song">Cari Lagu</string>
+    <string name="rating_content">
+    Penilaian anda membantu kami untuk terus berkembang dan menjadi lebih baik. Mahukah anda memberi kami beberapa bintang?
+</string>
+    <string name="rate">Beri Penilaian</string>
+    <string name="later">Nanti</string>
+
+
+
 
 </resources>

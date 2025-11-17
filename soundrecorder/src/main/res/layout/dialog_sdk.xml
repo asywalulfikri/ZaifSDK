@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:paddingHorizontal="@dimen/_12sdp"
+    android:background="@color/white"
+    android:paddingVertical="@dimen/_12sdp"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Your Account is Hold"
+        android:textSize="@dimen/_16ssp"
+        style="@style/CustomTextTitleBold"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Please wait 24 hours for another login attempt"
+        style="@style/CustomTextTitleThin"
+        android:gravity="center"/>
+
+    <LinearLayout
+        android:gravity="center"
+        android:paddingVertical="@dimen/_1sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_weight="1"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:id="@+id/tvCancel"
+            android:gravity="center"
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_30sdp"
+            android:textColor="@color/white"
+            android:background="@drawable/circle_full_champ"
+            style="@style/CustomTextTitleBold"
+            android:text="@string/cancel" />
+
+        <TextView
+            android:layout_weight="1"
+            android:id="@+id/tvAction"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:background="@drawable/circle_line_champ"
+            android:layout_height="@dimen/_30sdp"
+            style="@style/CustomTextTitleBold"
+            android:textColor="@color/white"
+            android:text="@string/understand" />
+
+    </LinearLayout>
+
+</LinearLayout>

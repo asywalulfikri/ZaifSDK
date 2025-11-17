@@ -152,6 +152,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                     .setApplicationId(BuildConfig.APPLICATION_ID)
                     .setVersionCode(BuildConfig.VERSION_CODE)
                     .setVersionName(BuildConfig.VERSION_NAME)
+                    .setDeveloperName("Developer+Receh")
                     .showNote(true)
                     .showTooltip(true)
                     .showChangeColor(true)
