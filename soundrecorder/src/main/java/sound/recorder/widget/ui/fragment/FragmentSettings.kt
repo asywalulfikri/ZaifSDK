@@ -111,7 +111,7 @@ open class FragmentSettings : BaseFragmentWidget() {
                 shareIntent.type = "text/plain"
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, dataSession.getAppId())
                 val shareMessage =
-                    "Let me recommend you this application\n\nhttps://play.google.com/store/apps/details?id="+dataSession.getAppId()
+                    "Let me recommend you this application\n\nhttps://play.google.com/store/apps/details?id="+zaifSDKBuilder?.applicationId
                 shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
                 startActivity(Intent.createChooser(shareIntent, requireActivity().getString(R.string.choose_one)))
             }
