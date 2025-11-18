@@ -70,6 +70,10 @@ open class DataSession(private val mContext: Context) {
         return sharedPref.getBoolean(Constant.KeyShared.doneTooltip, false)
     }
 
+    fun isDoneRating(): Boolean {
+        return sharedPref.getBoolean(Constant.KeyShared.doneRating, false)
+    }
+
     fun showTooltip(): Boolean {
         return sharedPref.getBoolean(Constant.KeyShared.showTooltip, false)
     }
@@ -133,6 +137,11 @@ open class DataSession(private val mContext: Context) {
 
     fun saveVolumeMusic(volume :  Float){
         editor.putFloat(Constant.KeyShared.volumeMusic,volume)
+        editor.apply()
+    }
+
+    fun saveDoneRating(done :  Boolean){
+        editor.putBoolean(Constant.KeyShared.doneRating,done)
         editor.apply()
     }
 

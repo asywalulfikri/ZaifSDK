@@ -65,12 +65,17 @@ class HomeFragment : BaseFragmentWidget() {
 
         binding?.btnRating?.setOnClickListener {
             try {
+
+                if(dataSession.isDoneRating()==false){
+                    val dialog = DialogSDK(requireContext(), Constant.DialogType.RATING) {
+                        // clickAction (it)
+                    }
+                    dialog.show(parentFragmentManager,  Constant.DialogType.toString())
+                }else{
+
+                }
                // MyAdsListener.setBannerHome(false)
                // rating()
-                val dialog = DialogSDK(requireContext(), Constant.DialogType.ADD_SONG) {
-                   // clickAction (it)
-                }
-                dialog.show(parentFragmentManager,  Constant.DialogType.toString())
             } catch (e: Exception) {
                 setToastTic(Toastic.ERROR, e.message.toString())
             }

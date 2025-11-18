@@ -187,5 +187,7 @@
     <string name="rate">Rate</string>
 
     <string name="later">Nanti</string>
+    <string name="select">Pilih</string>
+    <string name="select_one">Select One</string>
 
 </resources>
