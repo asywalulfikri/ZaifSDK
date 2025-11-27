@@ -191,6 +191,11 @@
     <string name="rate">Avaliar</string>
     <string name="later">Mais tarde</string>
 
+    <string name="recommend_app">Deixe-me recomendar este aplicativo para você</string>
+    <string name="lesson">Lição</string>
+    <string name="tutorial">Tutorial</string>
+    <string name="hi">Olá</string>
+    <string name="welcome">Bem-vindo</string>
 
 
 </resources>

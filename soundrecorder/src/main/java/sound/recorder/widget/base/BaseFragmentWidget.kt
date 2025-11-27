@@ -1448,8 +1448,8 @@ open class BaseFragmentWidget : Fragment() {
 
         // set the custom dialog components - text, image and button
         val etMessage = dialog.findViewById<View>(R.id.etMessage) as EditText
-        val btnSend = dialog.findViewById<View>(R.id.btnSend) as Button
-        val btnCancel = dialog.findViewById<View>(R.id.btnCancel) as Button
+        val btnSend = dialog.findViewById<View>(R.id.btnSend) as TextView
+        val btnCancel = dialog.findViewById<View>(R.id.btnCancel) as TextView
 
 
         // if button is clicked, close the custom dialog
@@ -1459,7 +1459,7 @@ open class BaseFragmentWidget : Fragment() {
                 setToastTic(Toastic.WARNING,activity?.getString(R.string.message_cannot_empty).toString())
                 return@setOnClickListener
             }else{
-                sendEmail("Feed Back $appName", "$message\n\n\n\nfrom $info")
+                sendEmail("Feed Back $appName", "$message\n\n\n\n\n\nfrom $info")
                 dialog.dismiss()
             }
         }

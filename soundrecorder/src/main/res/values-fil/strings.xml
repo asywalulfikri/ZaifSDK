@@ -193,5 +193,13 @@
     <string name="later">Mamaya</string>
 
 
+    <string name="recommend_app">Hayaan mong irekomenda ko sa iyo ang aplikasyong ito</string>
+    <string name="lesson">Aralin</string>
+    <string name="tutorial">Patnubay</string>
+    <string name="hi">Kamusta</string>
+    <string name="welcome">Maligayang pagdating</string>
+
+
+
 
 </resources>

@@ -1,4 +1,5 @@
 <resources>
+    <!--rusia-->
     <string name="default_notification_channel_id">Идентификатор канала уведомлений по умолчанию</string>
 
     <string name="colorpicker_dialog_title">Выберите цвет</string>
@@ -189,6 +190,12 @@
     <string name="rate">Оценить</string>
     <string name="later">Позже</string>
 
+
+    <string name="recommend_app">Позвольте мне порекомендовать вам это приложение</string>
+    <string name="lesson">Урок</string>
+    <string name="tutorial">Туториал</string>
+    <string name="hi">Привет</string>
+    <string name="welcome">Добро пожаловать</string>
 
 
 

@@ -192,5 +192,13 @@
     <string name="later">Später</string>
 
 
+    <string name="recommend_app">Lass mich dir diese Anwendung empfehlen</string>
+    <string name="lesson">Lektion</string>
+    <string name="tutorial">Anleitung</string>
+    <string name="hi">Hallo</string>
+    <string name="welcome">Willkommen</string>
+
+
+
 
 </resources>

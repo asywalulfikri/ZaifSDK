@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="20dp"
+        android:background="@color/gray"
         tools:ignore="MissingPrefix">
 
         <LinearLayout
@@ -36,6 +37,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp"
                 android:textSize="@dimen/_20ssp"
+                android:textColor="@color/red_900"
                 android:textStyle="bold"
                 android:text="@string/help_suggest"/>
 
@@ -59,28 +61,32 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <Button
+                <TextView
                     android:id="@+id/btnCancel"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:fontFamily="@font/ooredoo"
                     android:layout_width="match_parent"
                     android:textSize="@dimen/_12ssp"
+                    android:background="@drawable/circle_full_champ"
                     android:layout_height="@dimen/_30sdp"
                     android:textAllCaps="false"
-                    android:textColor="@color/grayDark"
+                    android:textColor="@color/white"
                     android:text="@string/cancel"
                     />
 
-                <Button
+                <TextView
                     android:id="@+id/btnSend"
                     android:layout_weight="1"
+                    android:gravity="center"
                     android:layout_marginStart="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_30sdp"
                     android:textSize="@dimen/_12ssp"
+                    android:background="@drawable/circle_line_champ"
                     android:textAllCaps="false"
                     android:fontFamily="@font/ooredoo"
-                    android:textColor="@color/grayDark"
+                    android:textColor="@color/white"
                     android:text="@string/send"
                     tools:ignore="ButtonStyle" />
 

@@ -195,6 +195,11 @@
     <string name="later">Nanti</string>
 
 
+    <string name="recommend_app">Izinkan saya mencadangkan aplikasi ini kepada anda</string>
+    <string name="lesson">Pelajaran</string>
+    <string name="tutorial">Tutorial</string>
+    <string name="hi">Hai</string>
+    <string name="welcome">Selamat datang</string>
 
 
 </resources>

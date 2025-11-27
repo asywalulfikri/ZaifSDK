@@ -191,6 +191,12 @@
     <string name="rate">Đánh giá</string>
     <string name="later">Để sau</string>
 
+    <string name="recommend_app">Hãy để tôi giới thiệu ứng dụng này cho bạn</string>
+    <string name="lesson">Bài học</string>
+    <string name="tutorial">Hướng dẫn</string>
+    <string name="hi">Xin chào</string>
+    <string name="welcome">Chào mừng</string>
+
 
 
 </resources>
