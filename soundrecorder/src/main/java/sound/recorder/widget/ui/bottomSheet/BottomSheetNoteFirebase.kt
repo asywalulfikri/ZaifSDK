@@ -8,6 +8,8 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -223,5 +225,34 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment {
             ).show()
         }
 
+    }
+
+    private fun applyImmersiveMode() {
+        val window = dialog?.window ?: return
+        val decorView = window.decorView
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // ANDROID 11+
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+
+            val controller = WindowCompat.getInsetsController(window, decorView)
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+
+        } else {
+            // ANDROID 10 DAN DI BAWAH
+            @Suppress("DEPRECATION")
+            decorView.systemUiVisibility =
+                (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        or View.SYSTEM_UI_FLAG_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        applyImmersiveMode()
     }
 }
