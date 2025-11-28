@@ -189,4 +189,11 @@
     <string name="rate">Rate</string>
     <string name="later">Later</string>
 
+
+    <string name="recommend_app">Let me recommend you this application</string>
+    <string name="lesson">Lesson</string>
+    <string name="tutorial">Tutorial</string>
+    <string name="hi">Hi</string>
+    <string name="welcome">Welcome</string>
+
 </resources>

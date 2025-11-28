@@ -193,5 +193,11 @@
     <string name="rate">Beoordelen</string>
     <string name="later">Later</string>
 
+    <string name="recommend_app">Laat mij je deze applicatie aanbevelen</string>
+    <string name="lesson">Les</string>
+    <string name="tutorial">Handleiding</string>
+    <string name="hi">Hallo</string>
+    <string name="welcome">Welkom</string>
+
 
 </resources>

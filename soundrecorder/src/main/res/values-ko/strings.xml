@@ -195,4 +195,10 @@
     <string name="later">나중에</string>
 
 
+    <string name="recommend_app">이 애플리케이션을 추천하고 싶어요</string>
+    <string name="lesson">레슨</string>
+    <string name="tutorial">튜토리얼</string>
+    <string name="hi">안녕하세요</string>
+    <string name="welcome">환영합니다</string>
+
 </resources>

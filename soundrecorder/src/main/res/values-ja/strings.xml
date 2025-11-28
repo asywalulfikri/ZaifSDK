@@ -194,5 +194,12 @@
     <string name="rate">評価する</string>
     <string name="later">あとで</string>
 
+    <string name="recommend_app">このアプリをおすすめします</string>
+    <string name="lesson">レッスン</string>
+    <string name="tutorial">チュートリアル</string>
+    <string name="hi">こんにちは</string>
+    <string name="welcome">ようこそ</string>
+
+
 
 </resources>

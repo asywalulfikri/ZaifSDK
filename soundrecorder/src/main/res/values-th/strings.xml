@@ -192,5 +192,12 @@
     <string name="rate">ให้คะแนน</string>
     <string name="later">ภายหลัง</string>
 
+    <string name="recommend_app">ขอแนะนำแอปพลิเคชันนี้ให้คุณ</string>
+    <string name="lesson">บทเรียน</string>
+    <string name="tutorial">คู่มือสอน</string>
+    <string name="hi">สวัสดี</string>
+    <string name="welcome">ยินดีต้อนรับ</string>
+
+
 
 </resources>

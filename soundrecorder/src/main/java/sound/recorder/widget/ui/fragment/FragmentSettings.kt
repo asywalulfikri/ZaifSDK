@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -17,14 +18,11 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.navigation.fragment.findNavController
-import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.R
 import sound.recorder.widget.base.BaseFragmentWidget
-import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.databinding.FragmentSettingBinding
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.util.Constant
-import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.Toastic
 import sound.recorder.widget.util.dialog.DialogSDK
 import java.util.Locale
@@ -46,7 +44,6 @@ open class FragmentSettings : BaseFragmentWidget() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentSettingBinding.inflate(inflater, container, false)
-        dataSession = DataSession(requireActivity())
 
         MyAdsListener.setHideAllBanner()
 
@@ -63,7 +60,6 @@ open class FragmentSettings : BaseFragmentWidget() {
         binding?.let { binding ->
 
             binding.llRateUs.setOnClickListener {
-                setLog("wkwkw ="+zaifSDKBuilder?.applicationId)
                 val createChooser = Intent.createChooser(
                     Intent(
                         "android.intent.action.VIEW",
@@ -75,7 +71,7 @@ open class FragmentSettings : BaseFragmentWidget() {
             }
 
             binding.llHelp.setOnClickListener {
-                showDialogEmail(dataSession.getAppName().toString(),getInfo())
+                showDialogEmail(zaifSDKBuilder?.appName.toString(),getInfo())
 
             }
 
@@ -109,7 +105,7 @@ open class FragmentSettings : BaseFragmentWidget() {
             binding.llShareWithFriends.setOnClickListener {
                 val shareIntent = Intent(Intent.ACTION_SEND)
                 shareIntent.type = "text/plain"
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, dataSession.getAppId())
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, zaifSDKBuilder?.applicationId)
                 val shareMessage =
                     "Let me recommend you this application\n\nhttps://play.google.com/store/apps/details?id="+zaifSDKBuilder?.applicationId
                 shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
@@ -143,11 +139,12 @@ open class FragmentSettings : BaseFragmentWidget() {
 
 
     private fun getInfo(): String {
-        val appInfo = "VC" + dataSession.getVersionCode()
+        val appInfo = "VC" + zaifSDKBuilder?.versionCode
         val androidVersion = "SDK" + Build.VERSION.SDK_INT
         val androidOS = "OS" + Build.VERSION.RELEASE
+        val languageCode = "LC"+getLanguageCode()
 
-        return Build.MANUFACTURER + " " + Build.MODEL + " , " + androidOS + ", " + appInfo + ", " + androidVersion
+        return Build.MANUFACTURER + " " + Build.MODEL + " , " + androidOS + ", " + appInfo + ", " + androidVersion +", "+languageCode
     }
 
 
@@ -206,6 +203,17 @@ open class FragmentSettings : BaseFragmentWidget() {
         }
 
         dialog.show()
+    }
+
+    fun getLanguageCode():String{
+        val config = Resources.getSystem().configuration
+        val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            config.locales[0]
+        } else {
+            config.locale
+        }
+
+        return locale.language
     }
 
    /* private fun changeLanguage(type : String) {

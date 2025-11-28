@@ -190,5 +190,11 @@
     <string name="rate">रेट करें</string>
     <string name="later">बाद में</string>
 
+    <string name="recommend_app">मुझे आपको यह ऐप सुझाने दें</string>
+    <string name="lesson">पाठ</string>
+    <string name="tutorial">ट्यूटोरियल</string>
+    <string name="hi">नमस्ते</string>
+    <string name="welcome">स्वागत है</string>
+
 
 </resources>
