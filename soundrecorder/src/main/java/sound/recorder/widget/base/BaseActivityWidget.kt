@@ -34,6 +34,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -58,6 +59,7 @@ import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.android.gms.tasks.Task
 import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
@@ -306,6 +308,8 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     fun checkUpdate() {
+        appUpdateManager = AppUpdateManagerFactory.create(this)
+
         lifecycleScope.launch {
             try {
                 val info = withContext(Dispatchers.IO) {
@@ -340,10 +344,6 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
         }
     }
-
-
-
-
 
 
     fun onDestroyUpdate() {
@@ -514,8 +514,8 @@ open class BaseActivityWidget : AppCompatActivity() {
 
         // set the custom dialog components - text, image and button
         val etMessage = dialog.findViewById<View>(R.id.etMessage) as EditText
-        val btnSend = dialog.findViewById<View>(R.id.btnSend) as Button
-        val btnCancel = dialog.findViewById<View>(R.id.btnCancel) as Button
+        val btnSend = dialog.findViewById<View>(R.id.btnSend) as TextView
+        val btnCancel = dialog.findViewById<View>(R.id.btnCancel) as TextView
 
 
         // if button is clicked, close the custom dialog

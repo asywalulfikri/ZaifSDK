@@ -73,10 +73,10 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.8.3'
     kapt 'androidx.room:room-compiler:2.8.3'
   //  implementation 'com.github.Dhaval2404:ColorPicker:2.3'
-    implementation 'androidx.room:room-ktx:2.8.3'
+    implementation 'androidx.room:room-ktx:2.8.4'
     implementation("com.github.skydoves:balloon:1.6.12")
-    implementation 'com.unity3d.ads:unity-ads:4.16.3'
-    implementation 'com.google.android.gms:play-services-ads:24.7.0'
+    implementation 'com.unity3d.ads:unity-ads:4.16.4'
+    implementation 'com.google.android.gms:play-services-ads:24.8.0'
 
     //use version 18 if min sdk  26
    // implementation 'com.google.android.gms:play-services-ads-identifier:18.2.0'
@@ -84,20 +84,22 @@ dependencies {
     implementation 'com.facebook.android:audience-network-sdk:6.21.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation "androidx.fragment:fragment-ktx:1.8.9"
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.4")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0")
 
     implementation "androidx.navigation:navigation-fragment-ktx:2.9.6"
     implementation("androidx.navigation:navigation-ui-ktx:2.9.6")
 
 
     implementation 'org.greenrobot:eventbus:3.3.1'
-    implementation platform('com.google.firebase:firebase-bom:34.5.0')
+    implementation platform('com.google.firebase:firebase-bom:34.6.0')
     implementation 'com.google.firebase:firebase-messaging:25.0.1'
     implementation 'com.google.firebase:firebase-firestore:26.0.2'
-    implementation 'com.google.code.gson:gson:2.13.1'
+    implementation 'com.google.code.gson:gson:2.13.2'
     implementation 'com.google.android.ump:user-messaging-platform:4.0.0'
     implementation 'com.google.android.play:app-update:2.1.0'
     implementation 'com.google.android.play:app-update-ktx:2.1.0'
+
+
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.core:core-ktx:1.17.0'
     testImplementation 'junit:junit:4.13.2'

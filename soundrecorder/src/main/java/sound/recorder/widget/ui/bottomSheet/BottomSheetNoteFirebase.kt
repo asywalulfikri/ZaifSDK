@@ -24,6 +24,7 @@ import sound.recorder.widget.notes.NotesAdapter
 import sound.recorder.widget.notes.utils.MyDividerItemDecoration
 import sound.recorder.widget.notes.utils.RecyclerTouchListener
 import sound.recorder.widget.util.Toastic
+import java.util.Locale
 
 
 class BottomSheetNoteFirebase : BottomSheetDialogFragment {
@@ -116,9 +117,11 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment {
     }
 
     private fun fetchDocumentsFromCollection() {
+        val languageCode = Locale.getDefault().language
         if(activity!=null){
             try {
                 db.collection(collectionPath)
+                    .whereArrayContainsAny("language", listOf("en",languageCode))
                     .get()
                     .addOnSuccessListener { querySnapshot ->
                         // Process the list of documents here
