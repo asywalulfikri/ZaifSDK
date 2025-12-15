@@ -48,9 +48,6 @@ import androidx.core.text.HtmlCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.facebook.ads.Ad
-import com.facebook.ads.AudienceNetworkAds
-import com.facebook.ads.InterstitialAdListener
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -90,7 +87,6 @@ import sound.recorder.widget.ads.AdConfigProvider
 import sound.recorder.widget.animation.ParticleSystem
 import sound.recorder.widget.animation.modifiers.ScaleModifier
 import sound.recorder.widget.builder.AdmobSDKBuilder
-import sound.recorder.widget.builder.FanSDKBuilder
 import sound.recorder.widget.builder.UnitySDKBuilder
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.databinding.WidgetRecordHorizontalZaifBinding
@@ -106,7 +102,6 @@ open class BaseFragmentWidget : Fragment() {
     private var isLoad = false
     private var rewardedAd: RewardedAd? = null
     private var isLoadReward = false
-    private var interstitialFANAd : com.facebook.ads.InterstitialAd? =null
     private var isLoadInterstitialReward = false
     private var rewardedInterstitialAd : RewardedInterstitialAd? =null
 
@@ -118,7 +113,6 @@ open class BaseFragmentWidget : Fragment() {
     private var TAG = "GDPR_App"
 
     private var isPrivacyOptionsRequired: Boolean = false
-    private var showFANInterstitial = false
 
     private lateinit var appUpdateManager: AppUpdateManager       // in app update
     private val updateType = AppUpdateType.FLEXIBLE
@@ -130,9 +124,7 @@ open class BaseFragmentWidget : Fragment() {
     var mGuideView: GuideView? = null
     var builder: GuideView.Builder? = null
     var mPanAnim: Animation? = null
-    //var admobSDKBuilder : AdmobSDKBuilder? =null
-    private var adViewFacebook : com.facebook.ads.AdView? = null
-   // var fanSDKBuilder : FanSDKBuilder? =null
+
     var zaifSDKBuilder : ZaifSDKBuilder? =null
     lateinit var dataSession : DataSession
 
@@ -144,9 +136,6 @@ open class BaseFragmentWidget : Fragment() {
 
     val admobSDKBuilder: AdmobSDKBuilder?
         get() = adConfigProvider?.getAdmobBuilder()
-
-    val fanSDKBuilder: FanSDKBuilder?
-        get() = adConfigProvider?.getFanBuilder()
 
     val unitySDKBuilder: UnitySDKBuilder?
         get() = adConfigProvider?.getUnityBuilder()
@@ -1022,39 +1011,6 @@ open class BaseFragmentWidget : Fragment() {
 
     }
 
-
-    fun setupBannerFacebook(adContainer : FrameLayout?){
-        try {
-            val adListener = object : com.facebook.ads.AdListener {
-                override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
-                    if(BuildConfig.DEBUG){
-                        setLog("Banner error loaded id = "+ ad.placementId +"---> "+ adError.errorMessage)
-                    }
-                }
-
-                override fun onAdLoaded(ad: Ad) {
-                    if(BuildConfig.DEBUG){
-                        setLog("Banner Successfully Loaded id = "+ ad.placementId)
-                    }
-                }
-
-                override fun onAdClicked(ad: Ad) {
-                }
-                override fun onLoggingImpression(ad: Ad) {
-                }
-            }
-
-            val adView = com.facebook.ads.AdView(requireContext(), fanSDKBuilder?.bannerId.toString(), com.facebook.ads.AdSize.BANNER_HEIGHT_50)
-            adView.loadAd(adView.buildLoadAdConfig().withAdListener(adListener).build())
-            this.adViewFacebook = adView
-            adContainer?.addView(adView)
-
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-
-    }
-
     fun sampleRate() : Int?{
         val audioManager = activity?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val sampleRate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)?.toInt()// ?: 48000
@@ -1620,9 +1576,6 @@ open class BaseFragmentWidget : Fragment() {
 
     fun setupBanner(adViewContainer:FrameLayout?){
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-            if(isWebViewSupported()&&isWebViewAvailable()){
-                setupBannerFacebook(adViewContainer)
-            }
         }else{
             if(isWebViewSupported()&&isWebViewAvailable()){
                 if(isAdMobAvailable()){
@@ -1702,9 +1655,6 @@ open class BaseFragmentWidget : Fragment() {
                 }
                 override fun onAdFailedToLoad(p0: LoadAdError) {
                     Log.d("ADS_AdMob", "banner loaded failed "+p0.message)
-                    if(fanSDKBuilder?.enable==true){
-                        setupBannerFacebook(adViewContainer)
-                    }
                 }
                 override fun onAdOpened() {
 
@@ -1752,13 +1702,7 @@ open class BaseFragmentWidget : Fragment() {
             CoroutineScope(Dispatchers.Main).launch {
 
                 if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-                    try {
-                        if (fanSDKBuilder?.enable==true) {
-                            setupInterstitialFacebook()
-                        }
-                    } catch (e: Exception) {
-                        setLog("asywalul fbb :${e.message}")
-                    }
+
                 }else{
 
                     if(isAdMobAvailable()){
@@ -1804,13 +1748,6 @@ open class BaseFragmentWidget : Fragment() {
                                         isLoad = false
                                         Log.d("Admob","Interstitial Loaded Failed id = ${admobSDKBuilder?.interstitialId.toString()} ---> ${loadAdError.message}")
 
-                                        try {
-                                            if (fanSDKBuilder?.enable==true) {
-                                                setupInterstitialFacebook()
-                                            }
-                                        } catch (e: Exception) {
-                                            setLog("asywalul fbb :${e.message}")
-                                        }
                                     }
                                 })
                         } catch (e: Exception) {
@@ -1824,48 +1761,6 @@ open class BaseFragmentWidget : Fragment() {
     }
 
 
-    fun setupInterstitialFacebook(){
-
-        if(isWebViewSupported()&&isWebViewAvailable()){
-            try {
-                interstitialFANAd = com.facebook.ads.InterstitialAd(requireContext(), fanSDKBuilder?.interstitialId.toString())
-                val interstitialAdListener = object : InterstitialAdListener {
-                    override fun onInterstitialDisplayed(ad: Ad) {
-                        setLog("show Interstitial success "+ad.placementId)
-                    }
-
-                    override fun onInterstitialDismissed(ad: Ad) {
-                        interstitialFANAd =null
-                        Log.d("ADS_FAN", "Interstitial dismiss")
-                        setupInterstitialFacebook()
-                    }
-
-                    override fun onError(p0: Ad?, adError: com.facebook.ads.AdError?) {
-                        Log.e("ADS_FAN", "Interstitial failed to load: ${adError?.errorMessage}")
-                    }
-                    override fun onAdLoaded(ad: Ad) {
-                        Log.d("ADS_FAN", "Interstitial is loaded and ready to be displayed!")
-                        showFANInterstitial = true
-                    }
-                    override fun onAdClicked(ad: Ad) {
-                    }
-                    override fun onLoggingImpression(ad: Ad) {
-
-                    }
-                }
-
-                interstitialFANAd?.loadAd(
-                    interstitialFANAd?.buildLoadAdConfig()
-                        ?.withAdListener(interstitialAdListener)
-                        ?.build()
-                )
-            }catch (e : Exception){
-                setLog("asywalul fb :"+e.message)
-            }
-        }
-
-    }
-
     fun releaseInterstitialAdmob(){
         try {
             mInterstitialAd?.fullScreenContentCallback = null
@@ -1875,60 +1770,7 @@ open class BaseFragmentWidget : Fragment() {
         }
     }
 
-    fun releaseInterstitialFAN(){
-        try {
-            interstitialFANAd = null
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
 
-    fun showInterstitialFAN(){
-        try {
-            Log.d("showInters","execute")
-            if(showFANInterstitial){
-                Log.d("showIntersFA","true")
-                interstitialFANAd?.show()
-            }
-        }catch (e : Exception){
-            Log.d("showInters","false")
-            setLog(e.message.toString())
-        }
-    }
-
-    /*fun setupInterstitial() {
-        if(getDataSession().getFanEnable()){
-            setupInterstitialFacebook()
-        }
-        try {
-            val adRequest = AdRequest.Builder().build()
-            adRequest.let {
-                InterstitialAd.load(requireContext(), getDataSession().getInterstitialId(), it,
-                    object : InterstitialAdLoadCallback() {
-                        override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                            mInterstitialAd = interstitialAd
-                            isLoad = true
-                            setLog("AdMob Inters Loaded Success")
-                        }
-
-                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                            mInterstitialAd = null
-                            setLog("AdMob Inters Loaded Failed id = "+ getDataSession().getInterstitialId() + "--->"+ loadAdError.message)
-                        }
-
-
-                    })
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-
-    }
-*/
-    fun releaseInterstitial(){
-        mInterstitialAd = null
-        interstitialFANAd =null
-    }
 
 
     fun setupRewardInterstitial(){
@@ -2118,10 +1960,7 @@ open class BaseFragmentWidget : Fragment() {
                 Log.d("showIntersAdmob","true")
                 mInterstitialAd?.show(requireActivity())
             }else{
-                if(showFANInterstitial){
-                    Log.d("showIntersFA","true")
-                    interstitialFANAd?.show()
-                }
+
             }
         }catch (e : Exception){
             Log.d("showInters","false")

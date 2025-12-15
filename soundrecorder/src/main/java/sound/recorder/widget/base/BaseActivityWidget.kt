@@ -42,8 +42,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.facebook.ads.Ad
-import com.facebook.ads.InterstitialAdListener
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -93,7 +91,6 @@ import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.ads.AdConfigProvider
 import sound.recorder.widget.ads.GoogleMobileAdsConsentManager
 import sound.recorder.widget.builder.AdmobSDKBuilder
-import sound.recorder.widget.builder.FanSDKBuilder
 import sound.recorder.widget.builder.UnitySDKBuilder
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.notes.Note
@@ -109,7 +106,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var isLoad = false
     private var rewardedAd: RewardedAd? = null
     private var isLoadReward = false
-    private var interstitialFANAd: com.facebook.ads.InterstitialAd? = null
     private var isLoadInterstitialReward = false
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
 
@@ -121,7 +117,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var TAG = "GDPR_App"
 
     private var isPrivacyOptionsRequired: Boolean = false
-    private var showFANInterstitial = false
+
 
     private lateinit var appUpdateManager: AppUpdateManager       // in app update
     private val updateType = AppUpdateType.FLEXIBLE
@@ -132,8 +128,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     var mPanAnim: Animation? = null
 
     private var unityBannerView: BannerView? = null
-    private var fanAdView: com.facebook.ads.AdView? = null
-    private var fanAdView2 :com.facebook.ads.AdView? = null
 
     private var bannerRetryCount = 0
     private val maxBannerRetry = 4
@@ -153,9 +147,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     val admobSDKBuilder: AdmobSDKBuilder?
         get() = adConfigProvider?.getAdmobBuilder()
 
-    val fanSDKBuilder: FanSDKBuilder?
-        get() = adConfigProvider?.getFanBuilder()
-
     val unitySDKBuilder: UnitySDKBuilder?
         get() = adConfigProvider?.getUnityBuilder()
 
@@ -167,11 +158,11 @@ open class BaseActivityWidget : AppCompatActivity() {
         return null // Nilai default
     }
 
-  /*  fun executeBuilder(){
-        admobSDKBuilder = AdmobSDKBuilder.builder(this).loadFromSharedPreferences()
-        fanSDKBuilder   = FanSDKBuilder.builder(this).loadFromSharedPreferences()
-        unitySDKBuilder = UnitySDKBuilder.builder(this).loadFromSharedPreferences()
-    }*/
+    /*  fun executeBuilder(){
+          admobSDKBuilder = AdmobSDKBuilder.builder(this).loadFromSharedPreferences()
+          fanSDKBuilder   = FanSDKBuilder.builder(this).loadFromSharedPreferences()
+          unitySDKBuilder = UnitySDKBuilder.builder(this).loadFromSharedPreferences()
+      }*/
 
 
 
@@ -181,7 +172,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         var testMode = true
 
         testMode = BuildConfig.DEBUG
-       // UnityAds.initialize(this, unitySDKBuilder?.unityId, unitySDKBuilder?.testMode == true, this)
+        // UnityAds.initialize(this, unitySDKBuilder?.unityId, unitySDKBuilder?.testMode == true, this)
         UnityAds.initialize(this, unityId, testMode, object : IUnityAdsInitializationListener {
             override fun onInitializationComplete() {
                 Log.d("UnityAds", "Initialization Complete")
@@ -272,26 +263,26 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-  /*  fun setStatusBarColor(color: Int) {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                window.statusBarColor = ContextCompat.getColor(this, color)
-            }
-        } catch (e: Exception) {
-            setLog("not support")
-        }
-    }
+    /*  fun setStatusBarColor(color: Int) {
+          try {
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                  window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                  window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+                  window.statusBarColor = ContextCompat.getColor(this, color)
+              }
+          } catch (e: Exception) {
+              setLog("not support")
+          }
+      }
 
-    fun setBottomStatusColor(color: Int) {
-        try {
-            window?.navigationBarColor = ContextCompat.getColor(this, color)
-        } catch (e: Exception) {
-            setLog("not support")
-        }
+      fun setBottomStatusColor(color: Int) {
+          try {
+              window?.navigationBarColor = ContextCompat.getColor(this, color)
+          } catch (e: Exception) {
+              setLog("not support")
+          }
 
-    }*/
+      }*/
 
     protected fun setupFragment(id: Int, fragment: Fragment?) {
         try {
@@ -392,23 +383,6 @@ open class BaseActivityWidget : AppCompatActivity() {
             unityBannerView = null
         }
 
-
-        // Menunda proses destroy untuk Facebook FAN Banner
-        fanAdView?.postDelayed({
-            try {
-                fanAdView?.destroy()
-            } catch (e: Exception) {
-                // Abaikan error jika view sudah tidak valid
-            }
-        }, 100)
-
-        fanAdView2?.postDelayed({
-            try {
-                fanAdView2?.destroy()
-            } catch (e: Exception) {
-                // Abaikan error jika view sudah tidak valid
-            }
-        }, 100)
     }
 
     override fun onPause() {
@@ -621,21 +595,6 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-   /* fun setupBanner(adViewContainer: FrameLayout) {
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-            if (isWebViewAvailable()) {
-                setupBannerFacebook(adViewContainer)
-            }
-        } else {
-            if (isWebViewAvailable()) {
-                if (isAdMobAvailable()) {
-                    executeBanner(adViewContainer)
-                }
-            }
-        }
-    }*/
-
-
     protected fun loadBannerAds() {
         try {
             val container = getAdBannerContainer()
@@ -646,7 +605,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
                 if (isWebViewAvailable()) {
-                    setupBannerFacebook(container)
+                    setupBannerUnity(container)
                 }
             } else {
                 if (isAdMobAvailable()) {
@@ -702,7 +661,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         if(loadFanSuccess==false){
                             if (bannerRetryCount < maxBannerRetry) {
 
-                                loadFanBanner(adViewContainer)
+                                setupBannerUnity(adViewContainer)
                             } else {
                                 setToastADS("Stop jangan load FAN lagi udah kena limit ")
                             }
@@ -711,7 +670,6 @@ open class BaseActivityWidget : AppCompatActivity() {
                             setToastADS("Pakai FAN aja : " +adView2?.adUnitId)
 
                             adViewContainer.removeAllViews()
-                            adViewContainer.addView(fanAdView2)
                         }
                     }
                 }
@@ -727,135 +685,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    private fun loadFanBanner(adViewContainer: FrameLayout) {
 
-        try {
-            // Cek jika FAN diaktifkan
-            if (fanSDKBuilder?.enable != true || fanSDKBuilder?.bannerId=="") {
-                Log.d("ADS_Waterfall", "Facebook FAN tidak diaktifkan. Berhenti.")
-                return
-            }else{
-                // Hancurkan banner AdMob sebelumnya untuk membebaskan memori
-                //adView2?.destroy()
-                //adView2 = null
-
-                setToastADS("FAN REQUESTED ,BECAUSE  ADMOB FAILED")
-
-                val fanBannerId = fanSDKBuilder?.bannerId.orEmpty()
-                fanAdView2 = com.facebook.ads.AdView(
-                    this,
-                    fanBannerId,
-                    com.facebook.ads.AdSize.BANNER_HEIGHT_50
-                )
-
-                val adListener = object : com.facebook.ads.AdListener {
-                    override fun onAdLoaded(ad: Ad) {
-                        Log.d("ADS_Waterfall", "✅ Facebook banner SUKSES dimuat sebagai fallback.")
-                        // setToast("FAN Sukses"+fAandView?.id.toString())
-                        loadFanSuccess = true
-                        bannerRetryCount = 0
-
-                        setToastADS("FAN SUCCESS : "+ fanAdView2?.id.toString())
-
-                        // Bersihkan container dan tampilkan banner Facebook
-                        adViewContainer.removeAllViews()
-                        adViewContainer.addView(fanAdView2)
-                    }
-
-                    override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
-
-                        bannerRetryCount++
-
-                        // Jadwalkan untuk mencoba lagi dari awal (memanggil loadBannerAds)
-                        if (bannerRetryCount < maxBannerRetry) {
-
-                            setToastADS("FAN FAILED ,ULANG REQUEST ADMOB DALAM 30 DETIK")
-
-                            retryHandler.postDelayed(retryRunnable, 30000)
-                        } else {
-
-                            setToastADS("Stop REQUEST execute banner : "+ bannerRetryCount +"--"+adError.errorMessage)
-                            Log.e("ADS_Waterfall", "❌ Max retry tercapai setelah Facebook gagal. Berhenti mencoba.")
-                        }
-                        // Retry AdMob after delay
-                    }
-
-                    override fun onAdClicked(ad: Ad) {}
-                    override fun onLoggingImpression(ad: Ad) {}
-                }
-
-                Log.d("ADS_Waterfall", "Mencoba memuat Facebook banner...")
-                fanAdView2?.loadAd(
-                    fanAdView2?.buildLoadAdConfig()
-                        ?.withAdListener(adListener)
-                        ?.build()
-                )
-            }
-
-        }catch (e : Exception){
-          //  setToast("veve" +e.message)
-
-        }
-    }
-
-    fun setupBannerFacebook(adContainer: FrameLayout) {
-
-        if(fanSDKBuilder?.enable==true && fanSDKBuilder?.bannerHomeId!=null){
-            try {
-                val adListener = object : com.facebook.ads.AdListener {
-                    override fun onError(ad: Ad, adError: com.facebook.ads.AdError) {
-                        setLog(
-                            "ADS_FAN",
-                            "Banner error loaded id = ${ad.placementId} ---> ${adError.errorMessage}"
-                        )
-                    }
-
-                    override fun onAdLoaded(ad: Ad) {
-                        setLog("ADS_FAN", "Banner Successfully Loaded id = ${ad.placementId}")
-                    }
-
-                    override fun onAdClicked(ad: Ad) {}
-                    override fun onLoggingImpression(ad: Ad) {}
-                }
-                val fanBannerId = fanSDKBuilder?.bannerHomeId.toString()
-
-                fanAdView = com.facebook.ads.AdView(
-                    this,
-                    fanBannerId,
-                    com.facebook.ads.AdSize.BANNER_HEIGHT_50
-                )
-
-                fanAdView?.loadAd(
-                    fanAdView?.buildLoadAdConfig()
-                        ?.withAdListener(adListener)
-                        ?.build()
-                )
-
-                // Clear old views if any
-                adContainer.addView(fanAdView)
-
-            } catch (e: Exception) {
-                setLog("ADS_FAN_EXCEPTION", e.message.orEmpty())
-            }
-        }
-    }
-
-
-
-    /*   private fun isWebViewSupported(): Boolean {
-           return try {
-               WebView(this)
-               if (BuildConfig.DEBUG) {
-                   // setToast("WebView didukung pada perangkat ini.")
-               }
-               true
-           } catch (e: Exception) {
-               if (BuildConfig.DEBUG) {
-                   // setToast("WebView tidak didukung pada perangkat ini.")
-               }
-               false
-           }
-       }*/
 
 
 
@@ -911,20 +741,20 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun setupAppOpenAd() {
 
-       /* if(isWebViewSupported()&&isWebViewAvailable()&&isAdMobAvailable()){
-            val adRequest = AdRequest.Builder().build()
-            AppOpenAd.load(this, admobSDKBuilder?.appOpenId.toString(), adRequest,getDataSession().getOrientationAds(), object : AppOpenAd.AppOpenAdLoadCallback() {
-                override fun onAdLoaded(ad: AppOpenAd) {
-                    appOpenAd = ad
-                }
+        /* if(isWebViewSupported()&&isWebViewAvailable()&&isAdMobAvailable()){
+             val adRequest = AdRequest.Builder().build()
+             AppOpenAd.load(this, admobSDKBuilder?.appOpenId.toString(), adRequest,getDataSession().getOrientationAds(), object : AppOpenAd.AppOpenAdLoadCallback() {
+                 override fun onAdLoaded(ad: AppOpenAd) {
+                     appOpenAd = ad
+                 }
 
-                override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    if(BuildConfig.DEBUG){
-                        setToast("openAds " +loadAdError.message)
-                    }
-                }
-            })
-        }*/
+                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                     if(BuildConfig.DEBUG){
+                         setToast("openAds " +loadAdError.message)
+                     }
+                 }
+             })
+         }*/
     }
 
     fun hideSystemNavigationBar() {
@@ -1009,13 +839,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             CoroutineScope(Dispatchers.Main).launch {
 
                 if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-                    try {
-                        if (fanSDKBuilder?.enable==true) {
-                            setupInterstitialFacebook()
-                        }
-                    } catch (e: Exception) {
-                        setLog("asywalul fbb :${e.message}")
-                    }
+
                 }else{
 
                     if(isAdMobAvailable()){
@@ -1037,7 +861,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                                                 }
                                                 // Load a new interstitial ad
                                                 mInterstitialAd = null
-                                               // resetInsetsAfterAd()
+                                                // resetInsetsAfterAd()
                                                 setupInterstitial()
                                             }
 
@@ -1064,13 +888,6 @@ open class BaseActivityWidget : AppCompatActivity() {
                                         isLoad = false
                                         Log.d("Admob","Interstitial Loaded Failed id = ${admobSDKBuilder?.interstitialId.toString()} ---> ${loadAdError.message}")
 
-                                        try {
-                                            if (fanSDKBuilder?.enable==true) {
-                                                setupInterstitialFacebook()
-                                            }
-                                        } catch (e: Exception) {
-                                            setLog("asywalul fbb :${e.message}")
-                                        }
                                     }
                                 })
                         } catch (e: Exception) {
@@ -1085,51 +902,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun setupInterstitialFacebook() {
-
-        if (isWebViewAvailable()) {
-            try {
-                interstitialFANAd =
-                    com.facebook.ads.InterstitialAd(this, fanSDKBuilder?.interstitialId.toString())
-                val interstitialAdListener = object : InterstitialAdListener {
-                    override fun onInterstitialDisplayed(ad: Ad) {
-                        setLog("ADS_FAN", "show Interstitial success " + ad.placementId)
-                    }
-
-                    override fun onInterstitialDismissed(ad: Ad) {
-                        interstitialFANAd = null
-                        Log.d("ADS_FAN", "Interstitial dismiss")
-                        setupInterstitialFacebook()
-                    }
-
-                    override fun onError(p0: Ad?, adError: com.facebook.ads.AdError?) {
-                        Log.e("ADS_FAN", "Interstitial failed to load: ${adError?.errorMessage}")
-                    }
-
-                    override fun onAdLoaded(ad: Ad) {
-                        Log.d("ADS_FAN", "Interstitial is loaded and ready to be displayed!")
-                        showFANInterstitial = true
-                    }
-
-                    override fun onAdClicked(ad: Ad) {
-                    }
-
-                    override fun onLoggingImpression(ad: Ad) {
-
-                    }
-                }
-
-                interstitialFANAd?.loadAd(
-                    interstitialFANAd?.buildLoadAdConfig()
-                        ?.withAdListener(interstitialAdListener)
-                        ?.build()
-                )
-            } catch (e: Exception) {
-                setLog("asywalul fb :" + e.message)
-            }
-        }
-
-    }
 
 
     private fun isWebViewAvailable(): Boolean {
@@ -1157,27 +929,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
                 }
             } else {
-                if(fanSDKBuilder?.enable==true){
-                    if (showFANInterstitial) {
-                        Log.d("showIntersFA", "true")
-                        interstitialFANAd?.let { fanAd ->
-                            window.decorView.rootView.post {
-                                try {
-                                    fanAd.show()
-                                } catch (e: Exception) {
-                                    setLog("Error showing FAN Interstitial: ${e.message}")
-                                    if(unitySDKBuilder?.enable==true){
-                                        //showInterstitialUnity()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }else{
-                    if(unitySDKBuilder?.enable==true){
-                       // showInterstitialUnity()
-                    }
-                }
+
             }
         } catch (e: Exception) {
             Log.d("showInters", "false")
@@ -1281,36 +1033,24 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
 
-   /* fun showInterstitial(){
-        try {
-            Log.d("showInters","execute")
-            if(isLoad){
-                Log.d("showIntersAdmob","true")
-                mInterstitialAd?.show(this)
-            }else{
-                if(showFANInterstitial){
-                    Log.d("showIntersFA","true")
-                    interstitialFANAd?.show()
-                }
-            }
-        }catch (e : Exception){
-            Log.d("showInters","false")
-            setLog(e.message.toString())
-        }
-    }
-*/
-    fun showInterstitialFAN(){
-        try {
-            Log.d("showInters","execute")
-            if(showFANInterstitial){
-                Log.d("showIntersFA","true")
-                interstitialFANAd?.show()
-            }
-        }catch (e : Exception){
-            Log.d("showInters","false")
-            setLog(e.message.toString())
-        }
-    }
+    /* fun showInterstitial(){
+         try {
+             Log.d("showInters","execute")
+             if(isLoad){
+                 Log.d("showIntersAdmob","true")
+                 mInterstitialAd?.show(this)
+             }else{
+                 if(showFANInterstitial){
+                     Log.d("showIntersFA","true")
+                     interstitialFANAd?.show()
+                 }
+             }
+         }catch (e : Exception){
+             Log.d("showInters","false")
+             setLog(e.message.toString())
+         }
+     }
+ */
 
 
     protected fun setToastTic(code : Int,message : String){

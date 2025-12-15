@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.facebook.ads.AudienceNetworkAds
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import com.unity3d.ads.IUnityAdsInitializationListener
@@ -79,7 +78,6 @@ open class MyApp : Application() {
 
         if (isWebViewAvailable()) {
             initializers.add(async { initializeAdMob() })
-            initializers.add(async { initializeAudienceNetworkAds() })
         }
 
         initializers.awaitAll()
@@ -105,15 +103,6 @@ open class MyApp : Application() {
             Log.d("ADS_Admob", "AdMob initialized successfully.")
         } catch (e: Exception) {
             Log.e("ADS_Admob", "Error initializing AdMob: ${e.message}")
-        }
-    }
-
-    private fun initializeAudienceNetworkAds() {
-        try {
-            AudienceNetworkAds.initialize(this@MyApp)
-            Log.d("ADS_FAN", "Audience Network Ads initialized successfully.")
-        } catch (e: Exception) {
-            Log.e("ADS_FAN", "Error initializing Audience Network Ads: ${e.message}")
         }
     }
 

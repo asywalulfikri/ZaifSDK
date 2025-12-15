@@ -10,7 +10,6 @@ import sound.recorder.widget.MyApp
 import sound.recorder.widget.ads.AdConfigProvider
 import sound.recorder.widget.base.BaseActivityWidget
 import sound.recorder.widget.builder.AdmobSDKBuilder
-import sound.recorder.widget.builder.FanSDKBuilder
 import sound.recorder.widget.builder.UnitySDKBuilder
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.util.Constant
@@ -32,7 +31,6 @@ open class GameApp : MyApp(), AdConfigProvider {
 
         // Pola Singleton: Menyimpan satu instance untuk seluruh aplikasi.
         var admobSDKBuilder: AdmobSDKBuilder? = null
-        var fanSDKBuilder: FanSDKBuilder? = null
         var unitySDKBuilder: UnitySDKBuilder? = null
 
         private val listeners = mutableListOf<AppInitializationListener>()
@@ -119,16 +117,6 @@ open class GameApp : MyApp(), AdConfigProvider {
 
         // Jalankan sisa inisialisasi secara bersamaan setelah jeda selesai
         coroutineScope {
-            // Inisialisasi FAN
-            launch {
-                fanSDKBuilder = FanSDKBuilder.builder(this@GameApp)
-                    .setApplicationId(Constants.AdsProductionId.fanId)
-                    .setBannerId(Constants.AdsProductionId.fanBannerId)
-                    .setBannerHomeId(Constants.AdsProductionId.fanBannerHomeId)
-                    .setInterstitialId(Constants.AdsProductionId.fanInterstitialId)
-                    .setEnable(true)
-                    .build()
-            }
 
             // Inisialisasi Unity
             launch {
@@ -171,6 +159,5 @@ open class GameApp : MyApp(), AdConfigProvider {
     }
 
     override fun getAdmobBuilder(): AdmobSDKBuilder? = admobSDKBuilder
-    override fun getFanBuilder(): FanSDKBuilder? = fanSDKBuilder
     override fun getUnityBuilder(): UnitySDKBuilder? = unitySDKBuilder
 }

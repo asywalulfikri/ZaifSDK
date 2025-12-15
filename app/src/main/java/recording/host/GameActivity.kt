@@ -71,7 +71,6 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
         lifecycleScope.launch {
             delay(1000)
             setupBannerUnity(binding.bannerUnity)
-            setupBannerFacebook(binding.bannerFAN)
             loadBannerAds()
             setupInterstitial()
 
