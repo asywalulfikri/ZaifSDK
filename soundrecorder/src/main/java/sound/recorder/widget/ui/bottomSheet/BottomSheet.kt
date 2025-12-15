@@ -3,6 +3,7 @@ package sound.recorder.widget.ui.bottomSheet
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,9 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -118,6 +122,35 @@ class BottomSheet(private var dirPath: String? =null, private var filename: Stri
     private fun hideKeyboard(view: View) {
         val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
         imm?.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        applyImmersiveMode()
+    }
+
+    private fun applyImmersiveMode() {
+        val window = dialog?.window ?: return
+        val decorView = window.decorView
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // ANDROID 11+
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+
+            val controller = WindowCompat.getInsetsController(window, decorView)
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+
+        } else {
+            // ANDROID 10 DAN DI BAWAH
+            @Suppress("DEPRECATION")
+            decorView.systemUiVisibility =
+                (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        or View.SYSTEM_UI_FLAG_FULLSCREEN
+                        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        }
     }
 
 }
