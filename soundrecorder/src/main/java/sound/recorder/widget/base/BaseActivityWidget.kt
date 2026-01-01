@@ -69,7 +69,7 @@ import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
-import com.unity3d.ads.IUnityAdsInitializationListener
+/*import com.unity3d.ads.IUnityAdsInitializationListener
 import com.unity3d.ads.IUnityAdsLoadListener
 import com.unity3d.ads.IUnityAdsShowListener
 import com.unity3d.ads.UnityAds
@@ -77,7 +77,7 @@ import com.unity3d.ads.UnityAds.UnityAdsLoadError
 import com.unity3d.ads.UnityAds.UnityAdsShowCompletionState
 import com.unity3d.ads.UnityAds.UnityAdsShowError
 import com.unity3d.services.banners.BannerView
-import com.unity3d.services.banners.UnityBannerSize
+import com.unity3d.services.banners.UnityBannerSize*/
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -127,7 +127,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var appOpenAd: AppOpenAd? = null
     var mPanAnim: Animation? = null
 
-    private var unityBannerView: BannerView? = null
+  //  private var unityBannerView: BannerView? = null
 
     private var bannerRetryCount = 0
     private val maxBannerRetry = 4
@@ -147,8 +147,8 @@ open class BaseActivityWidget : AppCompatActivity() {
     val admobSDKBuilder: AdmobSDKBuilder?
         get() = adConfigProvider?.getAdmobBuilder()
 
-    val unitySDKBuilder: UnitySDKBuilder?
-        get() = adConfigProvider?.getUnityBuilder()
+   /* val unitySDKBuilder: UnitySDKBuilder?
+        get() = adConfigProvider?.getUnityBuilder()*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -168,7 +168,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
 
-    fun setupUnityAds(unityId : String){
+    /*fun setupUnityAds(unityId : String){
         var testMode = true
 
         testMode = BuildConfig.DEBUG
@@ -186,7 +186,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
         })
 
-    }
+    }*/
 
     fun isLanguageIdEn(context: Context): Boolean {
         val deviceLanguage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -371,7 +371,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
         // Menunda proses destroy untuk Unity Banner
-        unityBannerView?.let { banner ->
+       /* unityBannerView?.let { banner ->
             (banner.parent as? ViewGroup)?.removeView(banner)
             banner.postDelayed({
                 try {
@@ -381,7 +381,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
             }, 100) // Tunda eksekusi selama 100 milidetik
             unityBannerView = null
-        }
+        }*/
 
     }
 
@@ -605,7 +605,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
                 if (isWebViewAvailable()) {
-                    setupBannerUnity(container)
+                    //setupBannerUnity(container)
                 }
             } else {
                 if (isAdMobAvailable()) {
@@ -661,7 +661,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         if(loadFanSuccess==false){
                             if (bannerRetryCount < maxBannerRetry) {
 
-                                setupBannerUnity(adViewContainer)
+                                //setupBannerUnity(adViewContainer)
                             } else {
                                 setToastADS("Stop jangan load FAN lagi udah kena limit ")
                             }
@@ -1132,7 +1132,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun setupBannerUnity(adContainer: FrameLayout) {
+    /*fun setupBannerUnity(adContainer: FrameLayout) {
         if(unitySDKBuilder?.enable==true){
             try {
                 unityBannerView = BannerView(this, "Banner_Android", UnityBannerSize(320, 50))
@@ -1145,13 +1145,13 @@ open class BaseActivityWidget : AppCompatActivity() {
 
             }
         }
-    }
+    }*/
 
 
     private val interstitialAdId = "Interstitial_Android"
 
     // Load dulu
-    fun loadInterstitialUnityAds() {
+   /* fun loadInterstitialUnityAds() {
         try {
             UnityAds.load(interstitialAdId, object : IUnityAdsLoadListener {
                 override fun onUnityAdsAdLoaded(placementId: String?) {
@@ -1169,10 +1169,10 @@ open class BaseActivityWidget : AppCompatActivity() {
         }catch (e : Exception){
             //
         }
-    }
+    }*/
 
     // Tampilkan saat dibutuhkan
-    fun showInterstitialUnity() {
+    /*fun showInterstitialUnity() {
         try {
             UnityAds.show(this,"Interstitial_Android", object : IUnityAdsShowListener {
                 override fun onUnityAdsShowComplete(
@@ -1204,7 +1204,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }catch (e : Exception){
 
         }
-    }
+    }*/
 
     fun isInternetConnected(): Boolean {
         val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager

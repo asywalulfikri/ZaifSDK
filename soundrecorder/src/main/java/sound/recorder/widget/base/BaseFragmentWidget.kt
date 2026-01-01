@@ -137,8 +137,8 @@ open class BaseFragmentWidget : Fragment() {
     val admobSDKBuilder: AdmobSDKBuilder?
         get() = adConfigProvider?.getAdmobBuilder()
 
-    val unitySDKBuilder: UnitySDKBuilder?
-        get() = adConfigProvider?.getUnityBuilder()
+   /* val unitySDKBuilder: UnitySDKBuilder?
+        get() = adConfigProvider?.getUnityBuilder()*/
 
 
     var recorder: MediaRecorder? = null

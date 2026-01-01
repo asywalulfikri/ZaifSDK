@@ -70,7 +70,7 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
     fun setupAds() {
         lifecycleScope.launch {
             delay(1000)
-            setupBannerUnity(binding.bannerUnity)
+            //setupBannerUnity(binding.bannerUnity)
             loadBannerAds()
             setupInterstitial()
 

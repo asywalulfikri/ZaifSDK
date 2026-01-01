@@ -118,21 +118,6 @@ open class GameApp : MyApp(), AdConfigProvider {
         // Jalankan sisa inisialisasi secara bersamaan setelah jeda selesai
         coroutineScope {
 
-            // Inisialisasi Unity
-            launch {
-               unitySDKBuilder =  UnitySDKBuilder.builder(this@GameApp)
-                    .setUnityId(Constants.AdsProductionId.unityGameId)
-                    .setEnable(true)
-                    .build()
-
-                var testMode = true
-                testMode = BuildConfig.DEBUG
-
-                launch(Dispatchers.Main) {
-                    initializeUnity(Constants.AdsProductionId.unityGameId, testMode)
-                }
-            }
-
             // Inisialisasi Zaif Widget
             launch {
                 ZaifSDKBuilder.builder(this@GameApp)
@@ -159,5 +144,4 @@ open class GameApp : MyApp(), AdConfigProvider {
     }
 
     override fun getAdmobBuilder(): AdmobSDKBuilder? = admobSDKBuilder
-    override fun getUnityBuilder(): UnitySDKBuilder? = unitySDKBuilder
 }

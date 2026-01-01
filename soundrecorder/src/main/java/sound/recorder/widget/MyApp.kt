@@ -8,8 +8,6 @@ import android.os.Looper
 import android.util.Log
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
-import com.unity3d.ads.IUnityAdsInitializationListener
-import com.unity3d.ads.UnityAds
 import kotlinx.coroutines.*
 
 @SuppressLint("Registered")
@@ -61,14 +59,6 @@ open class MyApp : Application() {
         applicationScope.launch {
             initializeEssentialSDKs()
         }
-
-        Thread.setDefaultUncaughtExceptionHandler { _, e ->
-            if (e.message?.contains("reasonPhrase can't be empty") == true) {
-                Log.e("UnityCrashBypass", "Unity Ads SDK WebView bug suppressed")
-            } else {
-                Thread.getDefaultUncaughtExceptionHandler()?.uncaughtException(Thread.currentThread(), e)
-            }
-        }
     }
 
     private suspend fun initializeEssentialSDKs() = coroutineScope {
@@ -103,31 +93,6 @@ open class MyApp : Application() {
             Log.d("ADS_Admob", "AdMob initialized successfully.")
         } catch (e: Exception) {
             Log.e("ADS_Admob", "Error initializing AdMob: ${e.message}")
-        }
-    }
-
-    suspend fun initializeUnity(unityId: String, testMode: Boolean) {
-        if(unityId==""){
-            isUnityInitialized = true
-            notifyListeners(Sdk.UNITY)
-        }else{
-            withContext(Dispatchers.IO) {
-                try {
-                    UnityAds.initialize(this@MyApp, unityId, testMode, object : IUnityAdsInitializationListener {
-                        override fun onInitializationComplete() {
-                            Log.d("ADS_Unity", "Initialization Complete.")
-                            isUnityInitialized = true
-                            notifyListeners(Sdk.UNITY)
-                        }
-
-                        override fun onInitializationFailed(error: UnityAds.UnityAdsInitializationError?, message: String?) {
-                            Log.e("ADS_Unity", "Initialization Failed: $message")
-                        }
-                    })
-                } catch (e: Exception) {
-                    Log.e("ADS_Unity", "Error initializing UnityAds: ${e.message}")
-                }
-            }
         }
     }
 
