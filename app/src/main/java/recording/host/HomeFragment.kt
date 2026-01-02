@@ -66,16 +66,18 @@ class HomeFragment : BaseFragmentWidget() {
         binding?.btnRating?.setOnClickListener {
             try {
 
-                if(dataSession.isDoneRating()==false){
-                    val dialog = DialogSDK(requireContext(), Constant.DialogType.RATING) {
-                        // clickAction (it)
-                    }
-                    dialog.show(parentFragmentManager,  Constant.DialogType.toString())
-                }else{
-
+                if (!dataSession.isDoneRating()) {
+                    DialogSDK.newInstance(
+                        Constant.DialogType.RATING
+                    ) { result ->
+                        dataSession.saveDoneRating(result)
+                        requireActivity().finishAffinity()
+                    }.show(parentFragmentManager, "rating_dialog")
+                } else {
+                    requireActivity().finishAffinity()
                 }
-               // MyAdsListener.setBannerHome(false)
-               // rating()
+
+
             } catch (e: Exception) {
                 setToastTic(Toastic.ERROR, e.message.toString())
             }

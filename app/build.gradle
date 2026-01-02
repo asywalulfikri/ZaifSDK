@@ -30,7 +30,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+        // 🔥 WAJIB untuk Android 6 & 7
+        coreLibraryDesugaringEnabled true
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
@@ -48,6 +51,8 @@ dependencies {
 
     implementation("androidx.navigation:navigation-fragment-ktx:2.9.6")
     implementation("androidx.navigation:navigation-ui-ktx:2.9.6")
+
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
 
     implementation 'com.google.android.material:material:1.13.0'
     implementation "androidx.constraintlayout:constraintlayout:2.2.1"

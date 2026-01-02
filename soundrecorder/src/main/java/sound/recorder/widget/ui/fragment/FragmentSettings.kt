@@ -82,13 +82,15 @@ open class FragmentSettings : BaseFragmentWidget() {
 
             binding.llAddSong.setOnClickListener {
                 try {
-                    val dialog = DialogSDK(requireContext(), Constant.DialogType.ADD_SONG) {
-                        // clickAction (it)
-                    }
-                    dialog.show(parentFragmentManager,  Constant.DialogType.toString())
+
+                    DialogSDK.newInstance(
+                        Constant.DialogType.ADD_SONG
+                    ) { result ->
+                    }.show(parentFragmentManager, Constant.DialogType.toString())
                 } catch (e: Exception) {
                     setToastTic(Toastic.ERROR, e.message.toString())
                 }
+
             }
 
             binding.llWhatsapp.visibility = View.GONE

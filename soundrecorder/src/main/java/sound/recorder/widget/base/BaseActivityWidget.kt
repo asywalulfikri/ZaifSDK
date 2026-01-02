@@ -1151,25 +1151,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private val interstitialAdId = "Interstitial_Android"
 
     // Load dulu
-   /* fun loadInterstitialUnityAds() {
-        try {
-            UnityAds.load(interstitialAdId, object : IUnityAdsLoadListener {
-                override fun onUnityAdsAdLoaded(placementId: String?) {
-                    Log.d("UnityAds", "Ad Loaded: $placementId")
-                }
 
-                override fun onUnityAdsFailedToLoad(
-                    placementId: String?,
-                    error: UnityAdsLoadError?,
-                    message: String?
-                ) {
-                    Log.e("UnityAds", "Failed to load: $placementId - $message")
-                }
-            })
-        }catch (e : Exception){
-            //
-        }
-    }*/
 
     // Tampilkan saat dibutuhkan
     /*fun showInterstitialUnity() {

@@ -76,7 +76,8 @@ dependencies {
     implementation 'androidx.room:room-ktx:2.8.4'
     implementation("com.github.skydoves:balloon:1.7.1")
   //   implementation 'com.unity3d.ads:unity-ads:4.16.5'
-    implementation 'com.google.android.gms:play-services-ads:24.9.0'
+    implementation 'com.google.android.gms:play-services-ads:24.9.0' //versi stabil
+
 
     //use version 18 if min sdk  26
    // implementation 'com.google.android.gms:play-services-ads-identifier:18.2.0'

@@ -83,6 +83,18 @@ open class MyApp : Application() {
 
         jobs.add(async { initializeFirebase() })
 
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val processName = getProcessName()
+            if (packageName != processName) {
+                try {
+                    WebView.setDataDirectorySuffix(processName)
+                } catch (e: Exception) {
+                    Log.e("MyApp", "WebView suffix error: ${e.message}")
+                }
+            }
+        }
+
         if (isWebViewAvailableSafely()) {
             jobs.add(async { initializeAdMob() })
         }
@@ -102,7 +114,7 @@ open class MyApp : Application() {
     }
 
 
-    private suspend fun initializeAdMob() =
+    private suspend fun initializeAdMobmm() =
         suspendCancellableCoroutine { cont ->
             try {
                 Class.forName("com.google.android.gms.ads.MobileAds")
@@ -123,6 +135,27 @@ open class MyApp : Application() {
                 if (cont.isActive) cont.resume(Unit)
             }
         }
+
+
+    private suspend fun initializeAdMob() = suspendCancellableCoroutine { cont ->
+        Handler(Looper.getMainLooper()).post {
+            try {
+                // Beri sedikit jeda agar Main Thread menyelesaikan startup sistem
+                Handler(Looper.getMainLooper()).postDelayed({
+                    try {
+                        MobileAds.initialize(this@MyApp) {
+                            if (cont.isActive) cont.resume(Unit)
+                        }
+                    } catch (e: Exception) {
+                        if (cont.isActive) cont.resume(Unit)
+                    }
+                }, 500) // Jeda 500ms sangat membantu di Android 11
+
+            } catch (e: Exception) {
+                if (cont.isActive) cont.resume(Unit)
+            }
+        }
+    }
 
 
     private fun isWebViewAvailableSafely(): Boolean {
