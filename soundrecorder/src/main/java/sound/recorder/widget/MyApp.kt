@@ -1,21 +1,23 @@
-package sound.recorder.widget // Ganti dengan package SDK Anda
+package sound.recorder.widget // Pastikan ini sesuai dengan struktur folder Anda
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.webkit.WebView
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.*
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.coroutines.resume
 
-@SuppressLint("Registered")
+
 open class MyApp : Application() {
 
     enum class Sdk {
-        ALL_ESSENTIALS, // Untuk AdMob & FAN
-        UNITY
+        ALL_ESSENTIALS
     }
 
     interface SdkInitializationListener {
@@ -25,19 +27,28 @@ open class MyApp : Application() {
     private val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     companion object {
-        private lateinit var instance: MyApp
-        fun getApplicationContext(): MyApp = instance
 
+        @Volatile
+        private var instance: MyApp? = null
+
+        fun getApplicationContext(): MyApp =
+            instance ?: throw IllegalStateException("MyApp not initialized")
+
+        @Volatile
         var areEssentialsInitialized = false
             private set
-        var isUnityInitialized = false
-            private set
 
-        private val sdkListeners = mutableListOf<SdkInitializationListener>()
+        private val sdkListeners = CopyOnWriteArrayList<SdkInitializationListener>()
 
         fun registerListener(listener: SdkInitializationListener) {
             if (!sdkListeners.contains(listener)) {
                 sdkListeners.add(listener)
+            }
+
+            if (areEssentialsInitialized) {
+                Handler(Looper.getMainLooper()).post {
+                    listener.onSdkInitialized(Sdk.ALL_ESSENTIALS)
+                }
             }
         }
 
@@ -45,9 +56,15 @@ open class MyApp : Application() {
             sdkListeners.remove(listener)
         }
 
-        fun notifyListeners(sdk: Sdk) {
+        private fun notifyListeners(sdk: Sdk) {
             Handler(Looper.getMainLooper()).post {
-                sdkListeners.forEach { it.onSdkInitialized(sdk) }
+                sdkListeners.forEach {
+                    try {
+                        it.onSdkInitialized(sdk)
+                    } catch (e: Exception) {
+                        Log.e("MyApp", "Listener error: ${e.message}")
+                    }
+                }
             }
         }
     }
@@ -62,16 +79,15 @@ open class MyApp : Application() {
     }
 
     private suspend fun initializeEssentialSDKs() = coroutineScope {
-        val initializers = mutableListOf<Deferred<Unit>>()
+        val jobs = mutableListOf<Deferred<Unit>>()
 
-        initializers.add(async { initializeFirebase() })
+        jobs.add(async { initializeFirebase() })
 
-        if (isWebViewAvailable()) {
-            initializers.add(async { initializeAdMob() })
+        if (isWebViewAvailableSafely()) {
+            jobs.add(async { initializeAdMob() })
         }
 
-        initializers.awaitAll()
-        Log.d("MyApp", "All essential SDKs have been initialized.")
+        jobs.awaitAll()
 
         areEssentialsInitialized = true
         notifyListeners(Sdk.ALL_ESSENTIALS)
@@ -79,29 +95,47 @@ open class MyApp : Application() {
 
     private fun initializeFirebase() {
         try {
-            FirebaseApp.initializeApp(this@MyApp)
-            Log.d("MyApp", "Firebase initialized successfully.")
+            FirebaseApp.initializeApp(this)
         } catch (e: Exception) {
-            Log.e("MyApp", "Error initializing Firebase: ${e.message}")
+            Log.e("MyApp", "Firebase error: ${e.message}")
         }
     }
 
-    private fun initializeAdMob() {
-        try {
-            Class.forName("com.google.android.gms.ads.MobileAds")
-            MobileAds.initialize(this@MyApp) {}
-            Log.d("ADS_Admob", "AdMob initialized successfully.")
-        } catch (e: Exception) {
-            Log.e("ADS_Admob", "Error initializing AdMob: ${e.message}")
-        }
-    }
 
-    private fun isWebViewAvailable(): Boolean {
+    private suspend fun initializeAdMob() =
+        suspendCancellableCoroutine { cont ->
+            try {
+                Class.forName("com.google.android.gms.ads.MobileAds")
+
+                Handler(Looper.getMainLooper()).post {
+                    try {
+                        MobileAds.initialize(this@MyApp) {
+                            if (cont.isActive) cont.resume(Unit)
+                        }
+                    } catch (e: Exception) {
+                        // Handle jika MobileAds.initialize sendiri yang crash
+                        if (cont.isActive) cont.resume(Unit)
+                    }
+                }
+
+            } catch (e: Exception) {
+                // Jika class tidak ditemukan, langsung lanjut (resume) agar tidak stuck
+                if (cont.isActive) cont.resume(Unit)
+            }
+        }
+
+
+    private fun isWebViewAvailableSafely(): Boolean {
         return try {
-            packageManager.getPackageInfo("com.google.android.webview", 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            Log.e("MyApp", "WebView package not available."+e.message)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WebView.getCurrentWebViewPackage() != null ||
+                        packageManager.hasSystemFeature(
+                            android.content.pm.PackageManager.FEATURE_WEBVIEW
+                        )
+            } else {
+                true
+            }
+        } catch (e: Exception) {
             false
         }
     }
@@ -109,5 +143,6 @@ open class MyApp : Application() {
     override fun onTerminate() {
         super.onTerminate()
         applicationScope.cancel()
+        instance = null
     }
 }

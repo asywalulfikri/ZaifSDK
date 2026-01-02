@@ -25,7 +25,7 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
 
     private var areBuildersReady = false
     private var areEssentialAdsReady = false
-    private var isUnityReady = false
+
     private var adsSetupCalled = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +64,6 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
         MyApp.registerListener(this)
         areBuildersReady = GameApp.isInitialized
         areEssentialAdsReady = MyApp.areEssentialsInitialized
-        isUnityReady = MyApp.isUnityInitialized
     }
 
     fun setupAds() {
@@ -137,25 +136,31 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
         showInterstitial()
     }
 
-    override fun onInitializationComplete() {
-
-        areBuildersReady = true
-    }
 
     override fun onSdkInitialized(sdk: MyApp.Sdk) {
         when (sdk) {
             MyApp.Sdk.ALL_ESSENTIALS -> areEssentialAdsReady = true
-            MyApp.Sdk.UNITY -> isUnityReady = true
         }
 
+       // setToast("setupAds"+areBuildersReady + "--"+areEssentialAdsReady)
         tryToSetupAds()
     }
 
-    private fun tryToSetupAds() {
-        // Hanya panggil setupAds jika SEMUA flag sudah true
-        if (areBuildersReady && areEssentialAdsReady && adsSetupCalled==false) {
-            adsSetupCalled = true
-            setupAds()
-        }
+
+
+    override fun onInitializationComplete() {
+        areBuildersReady = true
+        tryToSetupAds()
     }
+
+
+    private fun tryToSetupAds() {
+        if (!areBuildersReady || !areEssentialAdsReady) return
+        if (adsSetupCalled) return
+
+        adsSetupCalled = true
+        setupAds()
+        setToast("setupAds22")
+    }
+
 }
