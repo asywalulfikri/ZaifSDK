@@ -53,14 +53,6 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         initialize()
     }
 
-   /* private fun initialize() {
-        setSingleLine()
-        ellipsize = null
-        visibility = VISIBLE
-        onGlobalLayoutListener = OnGlobalLayoutListener { startScroll() }
-        viewTreeObserver.addOnGlobalLayoutListener(onGlobalLayoutListener)
-    }
-*/
     private fun initialize() {
         setSingleLine()
         ellipsize = null
@@ -75,17 +67,6 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         removeGlobalListener()
         super.onDetachedFromWindow()
     }
-
-   /* public fun startScroll() {
-        val needsScrolling = checkIfNeedsScrolling()
-        mXPaused = -1 * (width / 2)
-        isPaused = true
-        if (needsScrolling) {
-            resumeScroll()
-        } else {
-            pauseScroll()
-        }
-    }*/
 
 
     fun startScroll() {
@@ -122,20 +103,6 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         val textWidth = textLength.toFloat()
         return textWidth > textViewWidth
     }
-
-    /*fun resumeScroll() {
-        if (!isPaused) return
-        setHorizontallyScrolling(true)
-        textScroller = Scroller(this.context, LinearInterpolator())
-        setScroller(textScroller)
-        val scrollingLen = calculateScrollingLen()
-        val distance = scrollingLen - (width + mXPaused)
-        val duration = (1000f * distance / mScrollSpeed).toInt()
-        visibility = VISIBLE
-        textScroller!!.startScroll(mXPaused, 0, distance, 0, duration)
-        invalidate()
-        isPaused = false
-    }*/
 
     fun resumeScroll() {
         if (!isPaused) return
@@ -178,12 +145,6 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
             abortAnimation()
         }
     }
-
-
-    /*override fun computeScroll() {
-        super.computeScroll()
-        textScroller?.takeIf { it.isFinished && !isPaused }?.let { startScroll() }
-    }*/
 
     override fun computeScroll() {
         super.computeScroll()

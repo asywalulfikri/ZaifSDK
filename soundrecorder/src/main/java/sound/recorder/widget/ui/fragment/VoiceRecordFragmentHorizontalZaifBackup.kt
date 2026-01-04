@@ -1,3 +1,4 @@
+/*
 package sound.recorder.widget.ui.fragment
 
 
@@ -251,7 +252,8 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
 
     private fun setupView() {
 
-       /* musicViewModel.resumeRequest.observe(viewLifecycleOwner) { isResume ->
+       */
+/* musicViewModel.resumeRequest.observe(viewLifecycleOwner) { isResume ->
             isResume?.let {
                 if(mp!=null){
                     mp?.apply {
@@ -262,7 +264,8 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
                     }
                 }
             }
-        }*/
+        }*//*
+
 
         try {
             zaifSDKBuilder?.backgroundWidgetColor?.let { colorString ->
@@ -371,7 +374,8 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
         super.onDestroyView()
 
         // Release MediaPlayer
-       /* if(mp!=null){
+       */
+/* if(mp!=null){
             mp?.apply {
                 try {
                     release()
@@ -389,7 +393,8 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
                 MyPauseListener.setMyListener(null)
             }
         }
-*/
+*//*
+
 
         // Release Recorder
         if (recorder != null && recordingAudio) {
@@ -954,4 +959,4 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
 
     }
 
-}
+}*/

@@ -66,10 +66,10 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.gson.Gson
-import com.skydoves.balloon.ArrowPositionRules
-import com.skydoves.balloon.Balloon
-import com.skydoves.balloon.BalloonAnimation
-import com.skydoves.balloon.overlay.BalloonOverlayRoundRect
+//import com.skydoves.balloon.ArrowPositionRules
+////import com.skydoves.balloon.Balloon
+//import com.skydoves.balloon.BalloonAnimation
+//import com.skydoves.balloon.overlay.BalloonOverlayRoundRect
 import org.json.JSONObject
 import sound.recorder.widget.R
 import sound.recorder.widget.RecordingSDK
@@ -343,7 +343,7 @@ open class BaseFragmentWidget : Fragment() {
 
         }
 
-    fun createBalloonWithText(
+    /*fun createBalloonWithText(
         title: String,
         message: String,
         isLast: Boolean = false
@@ -392,7 +392,7 @@ open class BaseFragmentWidget : Fragment() {
 
         return balloon
     }
-
+*/
 
 
     fun setStatusBarColor(color : Int){
@@ -583,7 +583,7 @@ open class BaseFragmentWidget : Fragment() {
     @SuppressLint("CutPasteId")
     fun showTooltipSequence(binding : WidgetRecordHorizontalZaifBinding?) {
 
-        try {
+       /* try {
             zaifSDKBuilder?.let { builder ->
 
                 val balloonNote       = createBalloonWithText(requireContext().getString(R.string.note_song), getString(R.string.tooltip_note))
@@ -719,7 +719,7 @@ open class BaseFragmentWidget : Fragment() {
                 setLog("zaifSDKBuilder is null, menu items not updated")
             }
         }catch (e : Exception){
-        }
+        }*/
 
     }
 
@@ -728,7 +728,7 @@ open class BaseFragmentWidget : Fragment() {
     @SuppressLint("CutPasteId")
     fun showTooltipSequenceVetical(binding : WidgetRecordVerticalZaifBinding) {
 
-        try {
+       /* try {
             zaifSDKBuilder?.let { builder ->
 
                 val balloonNote       = createBalloonWithText(requireContext().getString(R.string.note_song), getString(R.string.tooltip_note))
@@ -863,14 +863,14 @@ open class BaseFragmentWidget : Fragment() {
                 setLog("zaifSDKBuilder is null, menu items not updated")
             }
         }catch (e : Exception){
-        }
+        }*/
 
     }
 
     @SuppressLint("CutPasteId")
     fun showTooltipSequenceVeticalNull(binding : WidgetRecordVerticalZaifBinding?) {
 
-        try {
+       /* try {
             zaifSDKBuilder?.let { builder ->
 
                 val balloonNote       = createBalloonWithText(requireContext().getString(R.string.note_song), getString(R.string.tooltip_note))
@@ -1008,7 +1008,7 @@ open class BaseFragmentWidget : Fragment() {
             }
         }catch (e : Exception){
         }
-
+*/
     }
 
     fun sampleRate() : Int?{

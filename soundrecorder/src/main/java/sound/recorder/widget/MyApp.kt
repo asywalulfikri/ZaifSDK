@@ -113,45 +113,29 @@ open class MyApp : Application() {
         }
     }
 
-
-    private suspend fun initializeAdMobmm() =
-        suspendCancellableCoroutine { cont ->
+//cocok untuk processor MALI
+    private suspend fun initializeAdMob() = withContext(Dispatchers.Main) {
+        suspendCancellableCoroutine<Unit> { cont ->
             try {
-                Class.forName("com.google.android.gms.ads.MobileAds")
-
-                Handler(Looper.getMainLooper()).post {
-                    try {
-                        MobileAds.initialize(this@MyApp) {
-                            if (cont.isActive) cont.resume(Unit)
-                        }
-                    } catch (e: Exception) {
-                        // Handle jika MobileAds.initialize sendiri yang crash
-                        if (cont.isActive) cont.resume(Unit)
-                    }
-                }
-
-            } catch (e: Exception) {
-                // Jika class tidak ditemukan, langsung lanjut (resume) agar tidak stuck
-                if (cont.isActive) cont.resume(Unit)
-            }
-        }
-
-
-    private suspend fun initializeAdMob() = suspendCancellableCoroutine { cont ->
-        Handler(Looper.getMainLooper()).post {
-            try {
-                // Beri sedikit jeda agar Main Thread menyelesaikan startup sistem
+                // Delay penting untuk GPU Mali & WebView stability
                 Handler(Looper.getMainLooper()).postDelayed({
+
+                    if (!cont.isActive) return@postDelayed
+
                     try {
-                        MobileAds.initialize(this@MyApp) {
+                        MobileAds.initialize(this@MyApp) { status ->
+                            Log.d("MyApp", "AdMob initialized: $status")
                             if (cont.isActive) cont.resume(Unit)
                         }
                     } catch (e: Exception) {
+                        Log.e("MyApp", "AdMob init crash-safe: ${e.message}")
                         if (cont.isActive) cont.resume(Unit)
                     }
-                }, 500) // Jeda 500ms sangat membantu di Android 11
+
+                }, 1500L) // 1.5 detik → sweet spot Mali
 
             } catch (e: Exception) {
+                Log.e("MyApp", "AdMob outer error: ${e.message}")
                 if (cont.isActive) cont.resume(Unit)
             }
         }

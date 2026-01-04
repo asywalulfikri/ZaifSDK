@@ -642,14 +642,25 @@ open class BaseActivityWidget : AppCompatActivity() {
                 // Siapkan listener untuk menangani hasil pemuatan
                 adView2?.adListener = object : AdListener() {
                     override fun onAdLoaded() {
+                        adViewContainer.post {
+                            try {
+                                bannerRetryCount = 0
+                                retryHandler.removeCallbacks(retryRunnable)
 
-                        setToastADS("success adm : "+ adView2?.adUnitId)
+                                // Cek apakah adView2 masih ada dan tidak null
+                                adView2?.let { ad ->
+                                    // Pastikan adView belum punya parent sebelum addView
+                                    (ad.parent as? ViewGroup)?.removeView(ad)
 
-                        // Bersihkan container dan tampilkan banner AdMob
-                        bannerRetryCount = 0
-                        retryHandler.removeCallbacks(retryRunnable)
-                        adViewContainer.removeAllViews()
-                        adViewContainer.addView(adView2)
+                                    adViewContainer.removeAllViews()
+                                    adViewContainer.addView(ad)
+
+                                    setToastADS("success adm: ${ad.adUnitId}")
+                                }
+                            } catch (e: Exception) {
+                                Log.e("Banner", "Error displaying ad", e)
+                            }
+                        }
                     }
 
                     override fun onAdFailedToLoad(error: LoadAdError) {
@@ -687,10 +698,29 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
 
-
-
-
     private fun getSize(): AdSize {
+        val adWidthPixels = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowMetrics = windowManager.currentWindowMetrics
+            val bounds = windowMetrics.bounds
+
+            // Android 11 ke atas lebih stabil jika kita menggunakan bounds width langsung
+            // untuk adaptive banner, karena AdMob SDK sudah menangani insets secara internal
+            bounds.width()
+        } else {
+            val metrics = resources.displayMetrics
+            metrics.widthPixels
+        }
+
+        val density = resources.displayMetrics.density
+        val adWidth = (adWidthPixels / density).toInt()
+
+        // KEMBALIKAN LANGSUNG hasil dari SDK.
+        // Jangan dibungkus lagi dengan AdSize(w, h) custom.
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+    }
+
+
+    /*private fun getSize(): AdSize {
         val widthPixels = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val windowMetrics = (getSystemService(WINDOW_SERVICE) as WindowManager).currentWindowMetrics
             val insets = windowMetrics.windowInsets
@@ -718,7 +748,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
         // Buat AdSize custom
         return AdSize(adWidth, customHeight)
-    }
+    }*/
 
 
     fun permissionNotification(){
