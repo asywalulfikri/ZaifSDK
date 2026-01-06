@@ -597,11 +597,8 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     protected fun loadBannerAds() {
         try {
-            val container = getAdBannerContainer()
-            if (container == null) {
-                // Halaman ini tidak ingin menampilkan banner
-                return
-            }
+            val container = getAdBannerContainer() ?: // Halaman ini tidak ingin menampilkan banner
+            return
 
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
                 if (isWebViewAvailable()) {
@@ -636,7 +633,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 // Buat instance AdMob AdView
                 adView2= AdView(this).apply {
                     adUnitId = admobSDKBuilder?.bannerId.orEmpty()
-                    setAdSize(getSize()) // Pastikan fungsi ini mengembalikan AdSize yang valid
+                   setAdSize(AdSize.BANNER) // Pastikan fungsi ini mengembalikan AdSize yang valid
                 }
 
                 // Siapkan listener untuk menangani hasil pemuatan
@@ -666,6 +663,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     override fun onAdFailedToLoad(error: LoadAdError) {
 
                         setToastADS("failed adm :  "+ error.message + " "+adView2?.adUnitId)
+                        Log.e("Banner filed", error.message)
 
                         bannerRetryCount++
                         // 3. Jika AdMob gagal, panggil fungsi untuk memuat banner Facebook
@@ -698,7 +696,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
 
-    private fun getSize(): AdSize {
+    private fun getSizlle(): AdSize {
         val adWidthPixels = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val windowMetrics = windowManager.currentWindowMetrics
             val bounds = windowMetrics.bounds
@@ -718,6 +716,29 @@ open class BaseActivityWidget : AppCompatActivity() {
         // Jangan dibungkus lagi dengan AdSize(w, h) custom.
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
     }
+
+
+    private fun getSize(): AdSize {
+        val density = resources.displayMetrics.density
+
+        val adWidthPixels = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowMetrics = windowManager.currentWindowMetrics
+            val insets = windowMetrics.windowInsets
+                .getInsetsIgnoringVisibility(
+                    WindowInsets.Type.systemBars()
+                )
+
+            val bounds = windowMetrics.bounds
+            bounds.width() - insets.left - insets.right
+        } else {
+            resources.displayMetrics.widthPixels
+        }
+
+        val adWidth = (adWidthPixels / density).toInt()
+
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+    }
+
 
 
     /*private fun getSize(): AdSize {
