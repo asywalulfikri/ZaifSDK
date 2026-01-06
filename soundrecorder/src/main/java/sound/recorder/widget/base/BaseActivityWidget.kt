@@ -91,7 +91,6 @@ import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.ads.AdConfigProvider
 import sound.recorder.widget.ads.GoogleMobileAdsConsentManager
 import sound.recorder.widget.builder.AdmobSDKBuilder
-import sound.recorder.widget.builder.UnitySDKBuilder
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.notes.Note
 import sound.recorder.widget.util.DataSession
@@ -135,6 +134,8 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private val retryHandler = Handler(Looper.getMainLooper())
     private val retryRunnable = Runnable { loadBannerAds() }
+
+    private var isBannerLoaded = false
 
 
     private val displayMetrics by lazy { resources.displayMetrics }
@@ -188,6 +189,8 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     }*/
 
+
+
     fun isLanguageIdEn(context: Context): Boolean {
         val deviceLanguage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             context.resources.configuration.locales[0].language
@@ -199,7 +202,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         return deviceLanguage == "id" || deviceLanguage == "en" || deviceLanguage == "in"
     }
 
-    fun setupBannerAdmob(view : FrameLayout){
+    fun setupBannerAdmob1111(view : FrameLayout){
         try {
             val bannerId = admobSDKBuilder?.bannerHomeId.toString()
             setLog("ADS_Admob", "home banner id = $bannerId")
@@ -212,6 +215,35 @@ open class BaseActivityWidget : AppCompatActivity() {
             adView?.loadAd(adRequest)
         }catch (e : Exception){
             print(e.message)
+        }
+    }
+
+
+
+    fun setupBannerAdmob(view: FrameLayout) {
+        try {
+            val bannerId = admobSDKBuilder?.bannerHomeId.toString()
+            setLog("ADS_Admob", "home banner id = $bannerId")
+
+            // Jika AdView belum dibuat, buat baru dan tambahkan ke layout
+            if (adView == null) {
+                adView = AdView(this).apply {
+                    setAdSize(AdSize.BANNER)
+                    adUnitId = bannerId
+                }
+                view.addView(adView)
+            }
+
+            // Load Ad hanya sekali untuk mencegah double request
+            if (!isBannerLoaded) {
+                val adRequest = AdRequest.Builder().build()
+                adView?.loadAd(adRequest)
+                isBannerLoaded = true
+            } else {
+                setLog("ADS_Admob", "Banner already loaded, skip duplicate load")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -348,42 +380,17 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
+
     override fun onDestroy() {
-        super.onDestroy()
+        retryHandler.removeCallbacks(retryRunnable)
+        adView?.destroy()
+        adView2?.destroy()
+        adView = null
+        adView2 = null
         mInterstitialAd = null
-        retryHandler.removeCallbacks(retryRunnable) // <-- Kuncinya di sini!
-        // Menunda proses destroy untuk AdMob Banners
-        adView?.postDelayed({
-            try {
-                adView?.destroy()
-            } catch (e: Exception) {
-                // Abaikan error jika view sudah tidak valid
-            }
-        }, 100)
-
-        adView2?.postDelayed({
-            try {
-                adView?.destroy()
-            } catch (e: Exception) {
-                // Abaikan error jika view sudah tidak valid
-            }
-        }, 100)
-
-
-        // Menunda proses destroy untuk Unity Banner
-       /* unityBannerView?.let { banner ->
-            (banner.parent as? ViewGroup)?.removeView(banner)
-            banner.postDelayed({
-                try {
-                    banner.destroy()
-                } catch (e: Exception) {
-                    // Abaikan error jika view sudah tidak valid
-                }
-            }, 100) // Tunda eksekusi selama 100 milidetik
-            unityBannerView = null
-        }*/
-
+        super.onDestroy()
     }
+
 
     override fun onPause() {
         super.onPause()
@@ -614,7 +621,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    private fun setToastADS(message : String){
+    fun setToastADS(message : String){
         if(admobSDKBuilder?.showToast==true){
             Toast.makeText(this,message, Toast.LENGTH_LONG).show()
         }
@@ -622,155 +629,51 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     private fun executeBanner(adViewContainer: FrameLayout) {
-
         if (bannerRetryCount >= maxBannerRetry) {
-            setToastADS("limit : $bannerRetryCount")
+            runOnUiThread {
+                setToastADS("Limit reached: $bannerRetryCount")
+            }
             return
-        }else{
-            setToastADS("execute banner")
-            try {
+        }
 
-                // Buat instance AdMob AdView
-                adView2= AdView(this).apply {
-                    adUnitId = admobSDKBuilder?.bannerId.orEmpty()
-                   setAdSize(AdSize.BANNER) // Pastikan fungsi ini mengembalikan AdSize yang valid
-                }
-
-                // Siapkan listener untuk menangani hasil pemuatan
-                adView2?.adListener = object : AdListener() {
-                    override fun onAdLoaded() {
-                        adViewContainer.post {
-                            try {
-                                bannerRetryCount = 0
-                                retryHandler.removeCallbacks(retryRunnable)
-
-                                // Cek apakah adView2 masih ada dan tidak null
-                                adView2?.let { ad ->
-                                    // Pastikan adView belum punya parent sebelum addView
-                                    (ad.parent as? ViewGroup)?.removeView(ad)
-
-                                    adViewContainer.removeAllViews()
-                                    adViewContainer.addView(ad)
-
-                                    setToastADS("success adm: ${ad.adUnitId}")
-                                }
-                            } catch (e: Exception) {
-                                Log.e("Banner", "Error displaying ad", e)
-                            }
-                        }
-                    }
-
-                    override fun onAdFailedToLoad(error: LoadAdError) {
-
-                        setToastADS("failed adm :  "+ error.message + " "+adView2?.adUnitId)
-                        Log.e("Banner filed", error.message)
-
-                        bannerRetryCount++
-                        // 3. Jika AdMob gagal, panggil fungsi untuk memuat banner Facebook
-                        if(loadFanSuccess==false){
-                            if (bannerRetryCount < maxBannerRetry) {
-
-                                //setupBannerUnity(adViewContainer)
-                            } else {
-                                setToastADS("Stop jangan load FAN lagi udah kena limit ")
-                            }
-                        }else{
-
-                            setToastADS("Pakai FAN aja : " +adView2?.adUnitId)
-
-                            adViewContainer.removeAllViews()
-                        }
-                    }
-                }
-
-                // Buat request dan mulai pemuatan
-                Log.d("ADS_Waterfall", "Mencoba memuat AdMob banner...")
-                val adRequest = AdRequest.Builder().build()
-                adView2?.loadAd(adRequest)
-            }catch ( e : Exception){
-
+        // Hanya buat AdView baru jika belum ada
+        if (adView2 == null) {
+            adView2 = AdView(this).apply {
+                adUnitId = admobSDKBuilder?.bannerId.orEmpty()
+                setAdSize(AdSize.BANNER)
             }
         }
-    }
 
+        adView2?.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+                runOnUiThread {
+                    try {
+                        bannerRetryCount = 0
+                        // Hapus parent lama jika ada
+                        (adView2?.parent as? ViewGroup)?.removeView(adView2)
+                        adViewContainer.removeAllViews()
+                        adViewContainer.addView(adView2)
+                        setToastADS("Banner loaded: ${adView2?.adUnitId}")
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
 
-
-
-    private fun getSizlle(): AdSize {
-        val adWidthPixels = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics = windowManager.currentWindowMetrics
-            val bounds = windowMetrics.bounds
-
-            // Android 11 ke atas lebih stabil jika kita menggunakan bounds width langsung
-            // untuk adaptive banner, karena AdMob SDK sudah menangani insets secara internal
-            bounds.width()
-        } else {
-            val metrics = resources.displayMetrics
-            metrics.widthPixels
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                runOnUiThread {
+                    setToastADS("Banner failed: ${error.message} ${adView2?.adUnitId}")
+                }
+                bannerRetryCount++
+                // Retry dengan delay, misal 3 detik
+                adViewContainer.postDelayed({ executeBanner(adViewContainer) }, 3000)
+            }
         }
 
-        val density = resources.displayMetrics.density
-        val adWidth = (adWidthPixels / density).toInt()
-
-        // KEMBALIKAN LANGSUNG hasil dari SDK.
-        // Jangan dibungkus lagi dengan AdSize(w, h) custom.
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+        // Load Ad
+        val adRequest = AdRequest.Builder().build()
+        adView2?.loadAd(adRequest)
     }
-
-
-    private fun getSize(): AdSize {
-        val density = resources.displayMetrics.density
-
-        val adWidthPixels = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics = windowManager.currentWindowMetrics
-            val insets = windowMetrics.windowInsets
-                .getInsetsIgnoringVisibility(
-                    WindowInsets.Type.systemBars()
-                )
-
-            val bounds = windowMetrics.bounds
-            bounds.width() - insets.left - insets.right
-        } else {
-            resources.displayMetrics.widthPixels
-        }
-
-        val adWidth = (adWidthPixels / density).toInt()
-
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-    }
-
-
-
-    /*private fun getSize(): AdSize {
-        val widthPixels = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val windowMetrics = (getSystemService(WINDOW_SERVICE) as WindowManager).currentWindowMetrics
-            val insets = windowMetrics.windowInsets
-                .getInsetsIgnoringVisibility(
-                    WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
-                )
-            val insetsWidth = insets.left + insets.right
-            windowMetrics.bounds.width() - insetsWidth
-        } else {
-            @Suppress("DEPRECATION")
-            val metrics = DisplayMetrics()
-            @Suppress("DEPRECATION")
-            windowManager.defaultDisplay.getMetrics(metrics)
-            metrics.widthPixels
-        }
-
-        val density = resources.displayMetrics.density.takeIf { it > 0 } ?: 1f
-        val adWidth = (widthPixels / density).toInt()
-
-        // Get adaptive size dari AdMob
-        val adaptiveSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-
-        // Force height max 60dp
-        val customHeight = adaptiveSize.height.coerceAtMost(60)
-
-        // Buat AdSize custom
-        return AdSize(adWidth, customHeight)
-    }*/
-
 
     fun permissionNotification(){
         try {

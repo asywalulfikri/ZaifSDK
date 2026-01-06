@@ -1,11 +1,12 @@
 package recording.host
 
-import android.app.Activity
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -18,14 +19,21 @@ import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.model.Song
+import sound.recorder.widget.util.NetworkChangeListener
+import sound.recorder.widget.util.NetworkChangeReceiver
 import kotlin.collections.indices
 import kotlin.toString
 
-class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListener, MyApp.SdkInitializationListener{
+class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListener, MyApp.SdkInitializationListener,
+    NetworkChangeListener{
     private lateinit var binding: ActivityGameBinding
     private var areBuildersReady = false
     private var areEssentialAdsReady = false
-    private var adsSetupCalled = false
+
+    private var adsSetupCalled = false      // Untuk pertama kali setup
+    private var adsFirstLoadIsOff = false
+
+    private lateinit var receiver: NetworkChangeReceiver
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +49,8 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
         MyAdsListener.setMyListener(this)
         permissionNotification()
 
+        receiver = NetworkChangeReceiver(this)
+        registerReceiver(receiver, IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"))
 
         try {
             checkUpdate()
@@ -52,6 +62,7 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
         loadSongs()
 
     }
+
 
     override fun getAdBannerContainer(): FrameLayout {
         return binding.bannerID
@@ -65,14 +76,20 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
     }
 
     fun setupAds() {
-        lifecycleScope.launch {
-            delay(1000)
-            loadBannerAds()
+        if (isInternetConnected()) {
+            Toast.makeText(this, "Internet On ,request ads 111", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                delay(1000)
+                loadBannerAds()
 
-            setupInterstitial()
+                setupInterstitial()
 
-            delay(20000)
-            setupBannerAdmob(binding.bannerAdmob)
+                delay(20000)
+                setupBannerAdmob(binding.bannerAdmob)
+            }
+        }else{
+            adsFirstLoadIsOff = true
+            setToastADS("No Request Ads No Internet")
         }
     }
 
@@ -109,6 +126,7 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
         MyAdsListener.setMyListener(null)
         MyApp.unregisterListener(this)
         GameApp.unregisterListener(this)
+        unregisterReceiver(receiver)
         onDestroyUpdate()
 
     }
@@ -153,6 +171,15 @@ class GameActivity : BaseActivity(), AdsListener, GameApp.AppInitializationListe
 
         adsSetupCalled = true
         setupAds()
+    }
+
+    override fun onNetworkChanged(isConnected: Boolean) {
+        if (isConnected) {
+            if(adsFirstLoadIsOff){
+                Toast.makeText(this, "Internet On CHnage ,request ads", Toast.LENGTH_SHORT).show()
+                setupAds()
+            }
+        }
     }
 }
 
