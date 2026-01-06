@@ -77,16 +77,44 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         resumeScroll()
     }
 
-    fun startScrollAfterUpdate(currX: Int) {
-        val needsScrolling = checkIfNeedsScrolling()
-        mXPaused = currX
+
+    fun clear() {
+        try {
+            stopScroll()
+            visibility = VISIBLE
+            text =context.getString(R.string.text_choose_not)
+            removeGlobalListener()
+        }catch (e : Exception){
+
+        }
+
+    }
+
+    fun stopScroll() {
+        textScroller?.apply {
+            abortAnimation()
+        }
+        textScroller = null
         isPaused = true
-        if (needsScrolling) {
-            resumeScroll()
-        } else {
-            pauseScroll()
+        mXPaused = 0
+        scrollTo(0, 0)
+    }
+
+    fun startScrollAfterUpdate(currX: Int) {
+        try {
+            val needsScrolling = checkIfNeedsScrolling()
+            mXPaused = currX
+            isPaused = true
+            if (needsScrolling) {
+                resumeScroll()
+            } else {
+                pauseScroll()
+            }
+        }catch (e : Exception){
+
         }
     }
+
 
     @Synchronized
     private fun removeGlobalListener() {
