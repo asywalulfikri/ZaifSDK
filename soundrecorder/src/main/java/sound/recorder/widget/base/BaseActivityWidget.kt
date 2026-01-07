@@ -69,15 +69,6 @@ import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
-/*import com.unity3d.ads.IUnityAdsInitializationListener
-import com.unity3d.ads.IUnityAdsLoadListener
-import com.unity3d.ads.IUnityAdsShowListener
-import com.unity3d.ads.UnityAds
-import com.unity3d.ads.UnityAds.UnityAdsLoadError
-import com.unity3d.ads.UnityAds.UnityAdsShowCompletionState
-import com.unity3d.ads.UnityAds.UnityAdsShowError
-import com.unity3d.services.banners.BannerView
-import com.unity3d.services.banners.UnityBannerSize*/
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -225,16 +216,25 @@ open class BaseActivityWidget : AppCompatActivity() {
             val bannerId = admobSDKBuilder?.bannerHomeId.toString()
             setLog("ADS_Admob", "home banner id = $bannerId")
 
-            // Jika AdView belum dibuat, buat baru dan tambahkan ke layout
             if (adView == null) {
                 adView = AdView(this).apply {
                     setAdSize(AdSize.BANNER)
                     adUnitId = bannerId
+
+                    // 🔒 PENTING: cegah AdMob mencuri focus UI
+                    descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
                 }
-                view.addView(adView)
+
+
+                if (adView?.parent !== view) {
+                    (adView?.parent as? ViewGroup)?.removeView(adView)
+                    view.removeAllViews()
+                    view.addView(adView)
+                }
+
             }
 
-            // Load Ad hanya sekali untuk mencegah double request
+            // Load Ad hanya sekali
             if (!isBannerLoaded) {
                 val adRequest = AdRequest.Builder().build()
                 adView?.loadAd(adRequest)
@@ -242,10 +242,12 @@ open class BaseActivityWidget : AppCompatActivity() {
             } else {
                 setLog("ADS_Admob", "Banner already loaded, skip duplicate load")
             }
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
+
 
 
     @SuppressLint("WrongConstant")
@@ -641,6 +643,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             adView2 = AdView(this).apply {
                 adUnitId = admobSDKBuilder?.bannerId.orEmpty()
                 setAdSize(AdSize.BANNER)
+                descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
             }
         }
 
