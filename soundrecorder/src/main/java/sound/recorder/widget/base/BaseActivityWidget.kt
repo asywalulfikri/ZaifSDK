@@ -121,15 +121,11 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private var bannerRetryCount = 0
     private val maxBannerRetry = 4
-    private var loadFanSuccess = false
 
     private val retryHandler = Handler(Looper.getMainLooper())
-    private val retryRunnable = Runnable { loadBannerAds() }
 
     private var isBannerLoaded = false
 
-
-    private val displayMetrics by lazy { resources.displayMetrics }
 
     companion object {
         // Tempat untuk "menitipkan" implementasi kontrak dari aplikasi
@@ -193,25 +189,8 @@ open class BaseActivityWidget : AppCompatActivity() {
         return deviceLanguage == "id" || deviceLanguage == "en" || deviceLanguage == "in"
     }
 
-    fun setupBannerAdmob1111(view : FrameLayout){
-        try {
-            val bannerId = admobSDKBuilder?.bannerHomeId.toString()
-            setLog("ADS_Admob", "home banner id = $bannerId")
-            adView = AdView(this)
-            adView?.setAdSize(AdSize.BANNER)
-            adView?.adUnitId = bannerId
-            view.addView(adView)
 
-            val adRequest = AdRequest.Builder().build()
-            adView?.loadAd(adRequest)
-        }catch (e : Exception){
-            print(e.message)
-        }
-    }
-
-
-
-    fun setupBannerAdmob(view: FrameLayout) {
+    fun loadBannerHome(view: FrameLayout?) {
         try {
             val bannerId = admobSDKBuilder?.bannerHomeId.toString()
             setLog("ADS_Admob", "home banner id = $bannerId")
@@ -228,8 +207,8 @@ open class BaseActivityWidget : AppCompatActivity() {
 
                 if (adView?.parent !== view) {
                     (adView?.parent as? ViewGroup)?.removeView(adView)
-                    view.removeAllViews()
-                    view.addView(adView)
+                    view?.removeAllViews()
+                    view?.addView(adView)
                 }
 
             }
@@ -250,8 +229,36 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
 
+    private fun getAdSize2(): AdSize {
+        // 1. Ambil lebar layar dalam pixel dengan cara paling modern (API 30+)
+        val widthPixels = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowMetrics = windowManager.currentWindowMetrics
+            val insets = windowMetrics.windowInsets.getInsetsIgnoringVisibility(
+                WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
+            )
+            val insetsWidth = insets.left + insets.right
+            windowMetrics.bounds.width() - insetsWidth
+        } else {
+            @Suppress("DEPRECATION")
+            val displayMetrics = DisplayMetrics()
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            displayMetrics.widthPixels
+        }
+
+        // 2. Konversi pixel ke DP (Density-independent Pixels)
+        val density = resources.displayMetrics.density
+        val adWidthDp = (widthPixels / density).toInt()
+
+        // 3. Gunakan Inline Adaptive Banner (LEBIH BAGUS dari standar)
+        // Kita batasi tinggi maksimal 60dp agar tidak menutupi tombol gendang
+        val maxHeightDp = 60
+
+        return AdSize.getInlineAdaptiveBannerAdSize(adWidthDp, maxHeightDp)
+    }
+
     @SuppressLint("WrongConstant")
-    fun setupHideStatusBar(rootView: View, hide: Boolean) {
+    fun setupHideStatusBar(rootView: View?, hide: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // API 30+ (Android 11 dan lebih baru)
             try {
@@ -266,12 +273,14 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
 
                 // Ensure the root view gets the correct padding and margins
-                ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, windowInsets ->
-                    val insets = windowInsets.getInsets(WindowInsets.Type.systemBars())
-                    val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
-                    layoutParams.rightMargin = insets.right
-                    view.layoutParams = layoutParams
-                    windowInsets
+                if (rootView != null) {
+                    ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, windowInsets ->
+                        val insets = windowInsets.getInsets(WindowInsets.Type.systemBars())
+                        val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
+                        layoutParams.rightMargin = insets.right
+                        view.layoutParams = layoutParams
+                        windowInsets
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("FullscreenSetup", "Error handling insets: ${e.message}")
@@ -283,7 +292,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                             View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
                             View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                rootView.setOnApplyWindowInsetsListener { view, windowInsets ->
+                rootView?.setOnApplyWindowInsetsListener { view, windowInsets ->
                     val rightInset = windowInsets.systemWindowInsetRight
                     val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
                     layoutParams.rightMargin = rightInset
@@ -384,7 +393,6 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     override fun onDestroy() {
-        retryHandler.removeCallbacks(retryRunnable)
         adView?.destroy()
         adView2?.destroy()
         adView = null
@@ -604,22 +612,13 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    protected fun loadBannerAds() {
+    protected fun loadBannerGame(frameLayout: FrameLayout?) {
         try {
-            val container = getAdBannerContainer() ?: // Halaman ini tidak ingin menampilkan banner
-            return
-
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-                if (isWebViewAvailable()) {
-                    //setupBannerUnity(container)
-                }
-            } else {
-                if (isAdMobAvailable()) {
-                    executeBanner(container)
-                }
+            if (isAdMobAvailable()) {
+                executeBanner(frameLayout)
             }
         }catch (e : Exception){
-
+            //
         }
     }
 
@@ -630,7 +629,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    private fun executeBanner(adViewContainer: FrameLayout) {
+    private fun executeBanner(adViewContainer: FrameLayout?) {
         if (bannerRetryCount >= maxBannerRetry) {
             runOnUiThread {
                 setToastADS("Limit reached: $bannerRetryCount")
@@ -642,20 +641,23 @@ open class BaseActivityWidget : AppCompatActivity() {
         if (adView2 == null) {
             adView2 = AdView(this).apply {
                 adUnitId = admobSDKBuilder?.bannerId.orEmpty()
-                setAdSize(AdSize.BANNER)
+                setAdSize(getAdSize2())
                 descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
             }
         }
 
         adView2?.adListener = object : AdListener() {
             override fun onAdLoaded() {
+
+                if (isFinishing || isDestroyed) return
+
                 runOnUiThread {
                     try {
                         bannerRetryCount = 0
                         // Hapus parent lama jika ada
                         (adView2?.parent as? ViewGroup)?.removeView(adView2)
-                        adViewContainer.removeAllViews()
-                        adViewContainer.addView(adView2)
+                        adViewContainer?.removeAllViews()
+                        adViewContainer?.addView(adView2)
                         setToastADS("Banner loaded: ${adView2?.adUnitId}")
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -669,7 +671,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
                 bannerRetryCount++
                 // Retry dengan delay, misal 3 detik
-                adViewContainer.postDelayed({ executeBanner(adViewContainer) }, 3000)
+                adViewContainer?.postDelayed({ executeBanner(adViewContainer) }, 3000)
             }
         }
 
@@ -1167,6 +1169,16 @@ open class BaseActivityWidget : AppCompatActivity() {
             @Suppress("DEPRECATION")
             return networkInfo.isConnected
         }
+    }
+
+
+    fun isInternetTrulyAvailable(context: Context): Boolean {
+        val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = cm.activeNetwork ?: return false
+        val caps = cm.getNetworkCapabilities(network) ?: return false
+
+        // Mengecek apakah koneksi internet sudah diverifikasi oleh sistem
+        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 
 }

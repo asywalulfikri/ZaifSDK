@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
-        android:id="@+id/bannerAdmob"
+        android:id="@+id/bannerHome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
@@ -26,7 +26,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <FrameLayout
-        android:id="@+id/bannerID"
+        android:id="@+id/bannerGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="1dp"

@@ -19,294 +19,191 @@ import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.ProgressDialogUtil
-import kotlin.toString
 
-class DholakFragment : BaseFragment(), MusicListener,SharedPreferences.OnSharedPreferenceChangeListener{
+class DholakFragment : BaseFragment(),
+    MusicListener,
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private var binding : ActivityDholakBinding? =null
+    private var _binding: ActivityDholakBinding? = null
+    private val binding get() = _binding!!
 
-    private val viewModel: MusicViewModel      by activityViewModels()
-
+    private val viewModel: MusicViewModel by activityViewModels()
     private val soundViewModel: SoundViewModel by activityViewModels()
 
-    private var volumeAudio: Float = 1.0f
+    private var volumeAudio = 1.0f
+    private val type = "dholak"
 
-    private var type = "dholak"
+    private var backCallback: OnBackPressedCallback? = null
 
-
-
-    companion object {
-        fun newInstance(): DholakFragment{
-            return DholakFragment()
-        }
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = ActivityDholakBinding.inflate(inflater,container,false)
-        return binding?.root
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = ActivityDholakBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if(activity !=null&& context !=null){
-            permissionSong()
-            observeViewModel()
-            myAnim = AnimationUtils.loadAnimation(activity, R.anim.button)
+        observeViewModel()
+        setupBackPressed()
+        setupPreferences()
+        setupUI()
+        setupListeners()
+    }
 
-            requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    try {
-                        val consumed = onBackPressed()
-                        if (!consumed) {
-                            isEnabled = false
-                            MyAdsListener.setBannerHome(false)
-                            MyAdsListener.setOnShowInterstitial()
-                            findNavController().navigateUp()
-                        }
-                    }catch (e : Exception){
-                        setToast(e.message.toString())
-                    } }
-            })
-            try {
-                sharedPreferences = DataSession(requireContext()).getShared()
-                sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
+    private fun setupUI() {
+        myAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.button)
 
-                volumeAudio = sharedPreferences?.getFloat(Constant.KeyShared.volumeAudio, 1.0f) ?: 1.0f
-                soundViewModel.setVolume(volumeAudio)
-
-
-            }catch (e : Exception){
-                setLog(e.message.toString())
-            }
-
-            val background = DataSession(requireActivity()).getBackgroundColor()
-            if (background != -1) {
-                binding?.layoutBackground?.setBackgroundColor(getSharedPreferenceUpdate().getInt(
-                    Constant.KeyShared.backgroundColor, -1))
-            }
-
-
-            try {
-                initAnim(binding?.ivStop)
-            } catch (e: Exception) {
-                setLog(e.message.toString())
-            }
-
-            MyMusicListener.setMyListener(this)
-
-            buttonClick()
-
-
-            viewModel.isPlaying.observe(viewLifecycleOwner) { isPlaying->
-                if(isPlaying){
-                    binding?.ivStop?.visibility = View.VISIBLE
-                    startAnimation()
-                }else{
-                    stopAnimation()
-                }
-            }
-
-            binding?.ivStop?.setOnClickListener {
-                try {
-                    viewModel.stopMusic()
-                } catch (e: Exception) {
-                    setToastError(activity, e.message.toString())
-                }
-            }
-
+        val background = DataSession(requireContext()).getBackgroundColor()
+        if (background != -1) {
+            binding.layoutBackground.setBackgroundColor(
+                getSharedPreferenceUpdate().getInt(Constant.KeyShared.backgroundColor, -1)
+            )
         }
+
+        initAnim(binding.ivStop)
+    }
+
+    private fun setupListeners() {
+        MyMusicListener.setMyListener(this)
+
+        binding.ivStop.setOnClickListener {
+            viewModel.stopMusic()
+        }
+
+        buttonClick()
+
+        viewModel.isPlaying.observe(viewLifecycleOwner) { isPlaying ->
+            if (isPlaying) {
+                binding.ivStop.visibility = View.VISIBLE
+                startAnimation()
+            } else {
+                stopAnimation()
+            }
+        }
+    }
+
+    private fun setupBackPressed() {
+        backCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                isEnabled = false
+                MyAdsListener.setBannerHome(false)
+                MyAdsListener.setOnShowInterstitial()
+                findNavController().navigateUp()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            backCallback!!
+        )
+    }
+
+    private fun setupPreferences() {
+        sharedPreferences = DataSession(requireContext()).getShared()
+        sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
+
+        volumeAudio =
+            sharedPreferences?.getFloat(Constant.KeyShared.volumeAudio, 1.0f) ?: 1.0f
+        soundViewModel.setVolume(volumeAudio)
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun buttonClick(){
+    private fun buttonClick() {
+        fun play(view: View, sound: String) {
+            view.startAnimation(myAnim)
+            soundViewModel.playSound(type, sound)
+        }
 
-
-        binding?.rlDholak1?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak1?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak1")
-            }
+        binding.rlDholak1.setOnTouchListener { _, e ->
+            if (e.action == MotionEvent.ACTION_DOWN) play(binding.rlDholak1, "dholak1")
             true
         }
 
-
-        binding?.dohakTengah1?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak1?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak2")
-            }
+        binding.dohakTengah1.setOnTouchListener { _, e ->
+            if (e.action == MotionEvent.ACTION_DOWN) play(binding.rlDholak1, "dholak2")
             true
         }
 
-
-        binding?.dohakAtas1?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak1?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak3")
-            }
+        binding.dohakAtas1.setOnTouchListener { _, e ->
+            if (e.action == MotionEvent.ACTION_DOWN) play(binding.rlDholak1, "dholak3")
             true
         }
 
-        binding?.dohakKiri1?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak1?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak4")
-            }
+        binding.dohakKiri1.setOnTouchListener { _, e ->
+            if (e.action == MotionEvent.ACTION_DOWN) play(binding.rlDholak1, "dholak4")
             true
         }
 
-
-        binding?.dohakKanan1?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak1?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak5")
-            }
+        binding.dohakKanan1.setOnTouchListener { _, e ->
+            if (e.action == MotionEvent.ACTION_DOWN) play(binding.rlDholak1, "dholak5")
             true
         }
 
-        binding?.dohakBawah1?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak1?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak6")
-            }
+        binding.dohakBawah1.setOnTouchListener { _, e ->
+            if (e.action == MotionEvent.ACTION_DOWN) play(binding.rlDholak1, "dholak6")
             true
-        }
-
-
-        binding?.rlDholak2?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak2?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak7")
-            }
-            true
-        }
-
-        binding?.dohakTengah2?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak2?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak8")
-            }
-            true
-        }
-
-
-
-        binding?.dohakAtas2?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak2?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak9")
-            }
-            true
-        }
-
-        binding?.dohakKiri2?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak2?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak10")
-            }
-            true
-        }
-
-
-
-        binding?.dohakKanan2?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak2?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak11")
-            }
-            true
-        }
-
-
-
-        binding?.dohakBawah2?.setOnTouchListener { _, motionEvent ->
-            binding?.rlDholak2?.startAnimation(myAnim)
-            if (motionEvent == null || motionEvent.action == MotionEvent.ACTION_DOWN) {
-                soundViewModel.playSound(type, "dholak12")
-            }
-            true
-        }
-
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        releaseAll()
-        super.onDestroy()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
-    fun onBackPressed(): Boolean {
-        val ret = false
-        return  ret
-    }
-
-    private fun releaseAll(){
-        try {
-            MyMusicListener.setMyListener(null)
-        } catch (e: Exception) {
-            setLog(e.message.toString())
         }
     }
 
     private fun startAnimation() {
-        binding?.ivStop?.startAnimation(mPanAnim)
+        binding.ivStop.startAnimation(mPanAnim)
     }
 
     private fun stopAnimation() {
-        try {
-            binding?.ivStop?.clearAnimation()
-            binding?.ivStop?.visibility = View.GONE
-        } catch (e: Exception) {
-            setLog(e.message.toString())
-        }
+        binding.ivStop.clearAnimation()
+        binding.ivStop.visibility = View.GONE
     }
 
     override fun onVolumeAudio(volume: Float?) {
-        soundViewModel.setVolume(volume)
+        volume?.let { soundViewModel.setVolume(it) }
     }
 
-    override fun onResume() {
-        super.onResume()
-        sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
+
+
+    override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
+        // 1. Validasi key
+        if (key != Constant.KeyShared.backgroundColor) return
+
+        // 2. Pastikan Fragment masih aktif & binding ada
+        if (!isAdded) return
+        val b = binding ?: return
+
+        // 3. Ambil value dengan aman
+        val color = prefs?.getInt(Constant.KeyShared.backgroundColor, -1) ?: return
+
+        // 4. Update UI
+        b.layoutBackground.setBackgroundColor(color)
+
+        // 5. Update status bar (pastikan Activity masih ada)
     }
 
-    override fun onPause() {
-        super.onPause()
-        sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
-    }
+    private fun getSharedPreferenceUpdate(): SharedPreferences { return DataSession(requireContext()).getSharedUpdate() }
 
-    private fun getSharedPreferenceUpdate(): SharedPreferences {
-        return DataSession(requireContext()).getSharedUpdate()
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        if (key == Constant.KeyShared.backgroundColor) {
-            binding?.layoutBackground?.setBackgroundColor(getSharedPreferenceUpdate().getInt(Constant.KeyShared.backgroundColor, -1))
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
     private fun observeViewModel() {
-        try {
-            ProgressDialogUtil.show(requireContext())
+        ProgressDialogUtil.show(requireContext())
 
-            soundViewModel.loadingProgress.observe(viewLifecycleOwner) { progress ->
-                ProgressDialogUtil.update(progress)
-            }
-
-            soundViewModel.isAllSoundsLoaded.observe(viewLifecycleOwner) { allLoaded ->
-                if (allLoaded && isAdded) {
-                    ProgressDialogUtil.dismiss()
-                }
-            }
-        }catch (e : Exception){
-            println(e.message)
+        soundViewModel.loadingProgress.observe(viewLifecycleOwner) {
+            ProgressDialogUtil.update(it)
         }
+
+        soundViewModel.isAllSoundsLoaded.observe(viewLifecycleOwner) {
+            if (it) ProgressDialogUtil.dismiss()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        // 🔥 INI WAJIB
+        MyMusicListener.setMyListener(null)
+        backCallback?.remove()
+        sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
+        ProgressDialogUtil.dismiss()
+
+        _binding = null
     }
 }

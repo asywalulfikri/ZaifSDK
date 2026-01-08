@@ -239,61 +239,6 @@ class FragmentListSong(
     }
 
     @SuppressLint("Recycle")
-    private fun getAllMediaMp3FilesAA(songList: ArrayList<Song>) {
-        activity?.let { activity ->
-            val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            val cursor = activity.contentResolver?.query(uri, null, null, null, null)
-
-            if (cursor == null) {
-                Toast.makeText(activity, "Something Went Wrong.", Toast.LENGTH_LONG).show()
-                return
-            }
-
-            val titleIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val locationIndex = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
-            val song1 = Song()
-            MainScope().launch {
-                withContext(Dispatchers.Default) {
-                    songList.forEach {
-                        listTitleSong.add(it.title ?: "")
-                        listLocationSong.add(it.pathRaw ?: "")
-                        listNoteSong.add(it.note ?: "")
-
-                        //Toast.makeText(requireContext(),"cept", Toast.LENGTH_LONG).show()
-                    }
-
-                }
-
-                try {
-                    if (cursor.moveToFirst()) {
-                        withContext(Dispatchers.Default) {
-                            do {
-                                val songTitle = cursor.getString(titleIndex) ?: ""
-                                val songLocation = cursor.getString(locationIndex) ?: ""
-
-                                listTitleSong.add(songTitle)
-                                listLocationSong.add(songLocation)
-                                listNoteSong.add("")
-
-                                song1.title = songTitle
-                                song1.pathRaw = songLocation
-                                song1.note = ""
-                                lisSong.add(song1)
-                            } while (cursor.moveToNext())
-                        }
-
-                    }
-                    updateView()
-                } catch (e: Exception) {
-                    setLog(e.message.toString())
-                } finally {
-                    cursor.close()
-                }
-            }
-        }
-    }
-
-    @SuppressLint("Recycle")
     private fun getAllMediaMp3Files(songList: ArrayList<Song>) {
         if (activity != null) {
             val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
