@@ -3,7 +3,11 @@ package recording.host
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
@@ -74,19 +78,42 @@ class GameActivity : BaseActivity(),
         loadSongsOnce()
     }
 
+
+
     override fun onStart() {
         super.onStart()
-        safeCall {
-            connectivityManager.registerDefaultNetworkCallback(networkCallback)
-        }
+        registerNetworkCallbackSafe()
     }
 
     override fun onStop() {
         super.onStop()
-        safeCall {
-            connectivityManager.unregisterNetworkCallback(networkCallback)
+        unregisterNetworkCallbackSafe()
+    }
+
+    private fun registerNetworkCallbackSafe() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                connectivityManager.registerDefaultNetworkCallback(networkCallback)
+            } else {
+                val request = NetworkRequest.Builder()
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    .build()
+
+                connectivityManager.registerNetworkCallback(request, networkCallback)
+            }
+        } catch (e: Exception) {
+            Log.e("Network", "register callback error: ${e.message}")
         }
     }
+
+    private fun unregisterNetworkCallbackSafe() {
+        try {
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+        } catch (e: Exception) {
+            // ignore jika belum terdaftar
+        }
+    }
+
 
     override fun onDestroy() {
         MyAdsListener.setMyListener(null)

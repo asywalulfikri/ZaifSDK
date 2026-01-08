@@ -59,6 +59,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 try {
+                    MyAdsListener.setBannerHome(false)
                     findNavController().navigateUp()
                 }catch (e : Exception){
                     setToast(e.message.toString())
