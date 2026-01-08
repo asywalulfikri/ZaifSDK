@@ -612,10 +612,14 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    protected fun loadBannerGame(frameLayout: FrameLayout?) {
+    protected fun loadBannerGame(frameLayout: FrameLayout?, modePortrait : Boolean?) {
         try {
             if (isAdMobAvailable()) {
-                executeBanner(frameLayout)
+                if(modePortrait==true){
+                    executeBannerPortrait(frameLayout)
+                }else{
+                    executeBanner(frameLayout)
+                }
             }
         }catch (e : Exception){
             //
@@ -642,6 +646,58 @@ open class BaseActivityWidget : AppCompatActivity() {
             adView2 = AdView(this).apply {
                 adUnitId = admobSDKBuilder?.bannerId.orEmpty()
                 setAdSize(getAdSize2())
+                descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+            }
+        }
+
+        adView2?.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+
+                if (isFinishing || isDestroyed) return
+
+                runOnUiThread {
+                    try {
+                        bannerRetryCount = 0
+                        // Hapus parent lama jika ada
+                        (adView2?.parent as? ViewGroup)?.removeView(adView2)
+                        adViewContainer?.removeAllViews()
+                        adViewContainer?.addView(adView2)
+                        setToastADS("Banner loaded: ${adView2?.adUnitId}")
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+
+            override fun onAdFailedToLoad(error: LoadAdError) {
+                runOnUiThread {
+                    setToastADS("Banner failed: ${error.message} ${adView2?.adUnitId}")
+                }
+                bannerRetryCount++
+                // Retry dengan delay, misal 3 detik
+                adViewContainer?.postDelayed({ executeBanner(adViewContainer) }, 3000)
+            }
+        }
+
+        // Load Ad
+        val adRequest = AdRequest.Builder().build()
+        adView2?.loadAd(adRequest)
+    }
+
+
+    private fun executeBannerPortrait(adViewContainer: FrameLayout?) {
+        if (bannerRetryCount >= maxBannerRetry) {
+            runOnUiThread {
+                setToastADS("Limit reached: $bannerRetryCount")
+            }
+            return
+        }
+
+        // Hanya buat AdView baru jika belum ada
+        if (adView2 == null) {
+            adView2 = AdView(this).apply {
+                adUnitId = admobSDKBuilder?.bannerId.orEmpty()
+                setAdSize(AdSize.BANNER)
                 descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
             }
         }
@@ -1172,13 +1228,25 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun isInternetTrulyAvailable(context: Context): Boolean {
-        val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = cm.activeNetwork ?: return false
-        val caps = cm.getNetworkCapabilities(network) ?: return false
 
-        // Mengecek apakah koneksi internet sudah diverifikasi oleh sistem
-        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    @Suppress("DEPRECATION")
+    fun isInternetTrulyAvailable(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = cm.activeNetwork ?: return false
+            val caps = cm.getNetworkCapabilities(network) ?: return false
+
+            // Internet benar-benar aktif & tervalidasi
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+
+        } else {
+            // Untuk SDK < 23 (Lollipop, KitKat, dll)
+            val networkInfo = cm.activeNetworkInfo
+            networkInfo != null && networkInfo.isConnected
+        }
     }
+
 
 }
