@@ -172,7 +172,7 @@ class GameActivity : BaseActivity(),
             kotlinx.coroutines.delay(1200)
 
             _binding?.let {
-                loadBannerGame(it.bannerGame)
+                loadBannerGame(it.bannerGame,true)
                 setupInterstitial()
             }
 

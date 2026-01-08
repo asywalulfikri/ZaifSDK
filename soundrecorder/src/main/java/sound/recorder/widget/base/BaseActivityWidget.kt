@@ -612,7 +612,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    protected fun loadBannerGame(frameLayout: FrameLayout?, modePortrait : Boolean?) {
+    protected fun loadBannerGame(frameLayout: FrameLayout?, modePortrait : Boolean? = false) {
         try {
             if (isAdMobAvailable()) {
                 if(modePortrait==true){
