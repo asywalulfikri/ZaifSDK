@@ -17,7 +17,9 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,308 +40,172 @@ import kotlin.getValue
 import kotlin.math.ln
 
 
-class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(),SharedPreferences.OnSharedPreferenceChangeListener, BottomSheet.OnClickListener{
+class VoiceRecordFragmentVerticalZaif :
+    BaseFragmentWidget(),
+    SharedPreferences.OnSharedPreferenceChangeListener,
+    BottomSheet.OnClickListener {
 
-    private lateinit var handler: Handler
     private var _binding: WidgetRecordVerticalZaifBinding? = null
     private val binding get() = _binding!!
-    private val blinkHandler = Handler(Looper.getMainLooper())
+
+    private lateinit var blinkHandler: Handler
     private var isBlinking = false
 
-    private var volumeMusic: Float = 1.0f // Volume default 100% for MediaPlayer
-    private var volumeAudio: Float = 1.0f // Volume default 100% for SoundPool
+    private var volumeMusic = 1.0f
+    private var volumeAudio = 1.0f
+
+    private var lastNavigateTime = 0L
 
     private val musicViewModel: MusicViewModel by activityViewModels()
-    val pattern = "yyyy.MM.dd_hh.mm.ss"
-    @SuppressLint("SimpleDateFormat")
-    val simpleDateFormat = SimpleDateFormat(pattern)
-    val date: String = simpleDateFormat.format(Date())
 
+    private val simpleDateFormat = SimpleDateFormat("yyyy.MM.dd_HH.mm.ss", Locale.US)
+    private val date: String get() = simpleDateFormat.format(Date())
 
-    companion object {
-        fun newInstance(): VoiceRecordFragmentVerticalZaif {
-            return VoiceRecordFragmentVerticalZaif()
-        }
-    }
-
-    /*override fun onCreate(savedInstanceState: Bundle?) {
-        newInstance()
-        val b = Bundle()
-        super.onCreate(b)
-    }*/
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)  // Gunakan savedInstanceState yang dikirim Android
-    }
-
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = WidgetRecordVerticalZaifBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (activity != null && context != null) {
-            viewLifecycleOwner.lifecycleScope.launch {
+        blinkHandler = Handler(Looper.getMainLooper())
 
-                val safeContext = requireContext()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
                 withContext(Dispatchers.IO) {
-                    dataSession = DataSession(safeContext)
+                    val appContext = requireContext().applicationContext
+                    dataSession = DataSession(appContext)
                     sharedPreferences = dataSession.getShared()
                     volumeMusic = dataSession.getVolumeMusic()
                     volumeAudio = dataSession.getVolumeAudio()
-                    zaifSDKBuilder = ZaifSDKBuilder.builder(safeContext).loadFromSharedPreferences()
-                    handler = Handler(Looper.getMainLooper())
-
+                    zaifSDKBuilder =
+                        ZaifSDKBuilder.builder(appContext).loadFromSharedPreferences()
                 }
 
-                if(dataSession.showTooltip()){
-                    if(dataSession.isDoneTooltip()==false) {
-                        try {
-                            showTooltipSequenceVetical(binding)
-                        }catch (e : Exception){
-                            setLog(e.message)
-                        }
+                setupView()
+
+                if (dataSession.showTooltip() && !dataSession.isDoneTooltip()) {
+                    runCatching {
+
                     }
-                }
-                try {
-                    setupView()
-                }catch (e : Exception){
-                    print(e.message)
                 }
             }
         }
     }
 
+    // =========================
+    // SETUP UI & OBSERVERS
+    // =========================
 
     private fun setupView() {
+        setupWidgetVertical(zaifSDKBuilder, _binding)
 
-        //setup Item Widget like visibility and color
-        setupWidgetVetical(zaifSDKBuilder,binding)
-
-
-        musicViewModel.setRecord.observe(viewLifecycleOwner) { isRecord ->
-            isRecord?.let {
-                if(isRecord){
-                    if(musicViewModel.isPause){
-                        showLayoutPauseRecord()
-                    }else{
-                        if(musicViewModel.recorder==null){
-                            showLayoutStopRecord()
-                        }else{
-                            showLayoutStartRecord()
-                        }
-                    }
-                }else{
-                    showLayoutStopRecord()
-                }
+        musicViewModel.setRecord.observe(viewLifecycleOwner) {
+            when (it) {
+                true if musicViewModel.isPause -> showLayoutPauseRecord()
+                true if musicViewModel.recorder != null -> showLayoutStartRecord()
+                else -> showLayoutStopRecord()
             }
         }
 
-        musicViewModel.pauseRecord.observe(viewLifecycleOwner) { isPause ->
-            isPause?.let {
-                if(isPause){
-                    setToastTic(Toastic.SUCCESS,requireContext().getString(R.string.record_paused).toString())
-                    showLayoutPauseRecord()
-                }
+        musicViewModel.pauseRecord.observe(viewLifecycleOwner) {
+            it?.let {
+                setToastTic(Toastic.SUCCESS, getString(R.string.record_paused))
+                showLayoutPauseRecord()
             }
         }
 
-
-        musicViewModel.resumeRecord.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let { isResume ->
-                if(isResume){
-                    setToastTic(Toastic.SUCCESS,(requireContext().getString(R.string.record_resumed).toString()))
-                    showLayoutStartRecord()
-                }
+        musicViewModel.resumeRecord.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let {
+                setToastTic(Toastic.SUCCESS, getString(R.string.record_resumed))
+                showLayoutStartRecord()
             }
         }
 
-        musicViewModel.cancelRecord.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let { isCancel ->
-                if(isCancel){
-                    setToastTic(Toastic.SUCCESS,(requireContext().getString(R.string.record_canceled).toString()))
-                    showLayoutStopRecord()
-                }
-            }
-        }
-
-        musicViewModel.stopRecord.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let { isStop ->
-                if(isStop){
-                    showLayoutStopRecord()
-                }
-            }
-        }
-
-        musicViewModel.saveRecord.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let { message ->
-                setToastTic(Toastic.INFO,requireContext().getString(R.string.recorded_saved))
+        musicViewModel.cancelRecord.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let {
                 showLayoutStopRecord()
             }
         }
 
-        musicViewModel.showToast.observe(viewLifecycleOwner) { event ->
-            event.getContentIfNotHandled()?.let { message ->
-                setToastTic(Toastic.INFO,message)
+        musicViewModel.stopRecord.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let {
+                showLayoutStopRecord()
             }
         }
 
         binding.ivRecord.setOnClickListener {
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-                setToast(activity?.getString(R.string.device_not_support).toString())
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O ||
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1
+            ) {
+                setToast(getString(R.string.device_not_support))
             } else {
-                if(musicViewModel.isPause){
+                if (musicViewModel.isPause) {
                     musicViewModel.resumeRecord()
-                }else{
+                } else {
                     startPermission()
                 }
             }
-
         }
 
         binding.ivPause.setOnClickListener {
             musicViewModel.pauseRecord()
         }
 
-        //action for save record
         binding.ivDone.setOnClickListener {
-            try {
-                musicViewModel.stopRecord()
-                showBottomSheet()
-            } catch (e: Exception) {
-                setToast(e.message.toString())
+            musicViewModel.stopRecord()
+            showBottomSheet()
+        }
+
+        binding.ivDelete.setOnClickListener {
+            showCancelDialog()
+        }
+
+        binding.ivNote.setOnClickListener {
+            if (isAdded && !parentFragmentManager.isStateSaved) {
+                BottomSheetNote().show(parentFragmentManager, LOG_TAG)
             }
         }
 
         binding.ivListRecord.setOnClickListener {
-            activity?.let {
-                try {
-                    findNavController().navigate(R.id.action_widget_to_list_record)
-                    MyAdsListener.setBannerHome(false)
-                } catch (e: Exception) {
-                    setToast(e.message.toString())
-                }
-            } ?: setToast("Activity is not available")
+            safeNavigate(R.id.action_widget_to_list_record)
+            MyAdsListener.setHideAllBanner()
         }
 
-        binding.ivDelete.setOnClickListener {
-            try {
-                showCancelDialog()
-            } catch (e: Exception) {
-                setToast(e.message.toString())
-            }
+        binding.ivVolume.setOnClickListener {
+            showVolumeDialog()
         }
 
         binding.ivSong.setOnClickListener {
             startPermissionSong()
         }
 
-
-
-        binding.ivNote.setOnClickListener {
-            binding.ivNote.isEnabled = false // 🔒 disable klik dulu
-
-            activity?.let {
-                try {
-                    val bottomSheet = BottomSheetNote()
-                    bottomSheet.show(it.supportFragmentManager, LOG_TAG)
-                } catch (e: Exception) {
-                    setToast(e.message.toString())
-                } finally {
-                    binding.ivNote.postDelayed({
-                        binding.ivNote.isEnabled = true // 🔓 enable lagi setelah delay
-                    }, 500)
-                }
-            } ?: run {
-                binding.ivNote.isEnabled = true
-                setToast("Activity is not available")
-            }
-        }
-
-
-        binding.ivVolume.setOnClickListener {
-            showVolumeDialog()
-        }
-
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        blinkHandler.removeCallbacksAndMessages(null)
-        musicViewModel.releaseMediaPlayerOnDestroy()
-        musicViewModel.stopRecord()
-        sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        stopBlinking()
-        blinkHandler.removeCallbacksAndMessages(null)  // Tambahkan ini untuk memastikan tidak ada callback tertunda
-        _binding = null
-    }
-
-    private fun showBottomSheetSong(){
-        try {
-            if(activity!=null){
-                findNavController().navigate(R.id.action_widget_to_list_song)
-                MyAdsListener.setBannerHome(false)
-            }
-        }catch (e : Exception){
-            setLog(e.message)
-        }
-    }
-
-
-    private fun startPermission(){
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                    // Pass any permission you want while launching
-                    requestPermission.launch(Manifest.permission.RECORD_AUDIO)
-                }else{
-                    showRecordDialog()
-                }
-            }else{
-                showRecordDialog()
-            }
-        }catch (e : Exception){
-
-        }
     }
 
 
     private fun startPermissionSong(){
-         if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU){
-             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                 showBottomSheetSong()
-             } else {
-                 requestPermissionSong.launch(Manifest.permission.READ_MEDIA_AUDIO)
-             }
-         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-             if (ContextCompat.checkSelfPermission(activity as Context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                 requestPermissionSong.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-             }else{
-                 showBottomSheetSong()
-             }
-         }else{
-             showBottomSheetSong()
-         }
-     }
-
-    private val requestPermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            // do something
-            if(isGranted){
-                showRecordDialog()
-            }else{
-                showAllowPermission()
+        if(Build.VERSION.SDK_INT >=Build.VERSION_CODES.TIRAMISU){
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                showBottomSheetSong()
+            } else {
+                requestPermissionSong.launch(Manifest.permission.READ_MEDIA_AUDIO)
             }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(activity as Context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionSong.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }else{
+                showBottomSheetSong()
+            }
+        }else{
+            showBottomSheetSong()
         }
-
+    }
 
     private val requestPermissionSong =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -352,57 +218,232 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(),SharedPreferences.O
         }
 
 
-    private fun showLayoutStartRecord(){
+    /* private fun showBottomSheetSong(){
+         try {
+             if(activity!=null){
+                 findNavController().navigate(R.id.action_widget_to_list_song)
+                 MyAdsListener.setBannerHome(false)
+             }
+         }catch (e : Exception){
+             setLog(e.message)
+         }
+     }*/
+
+
+    private fun showBottomSheetSong() {
+        if (!isAdded) return   // Fragment sudah attach?
+
+        val now = System.currentTimeMillis()
+        if (now - lastNavigateTime < 600) return
+        lastNavigateTime = now
+
+        val navController = findNavController()
+        val currentDestination = navController.currentDestination
+
+        if (currentDestination?.getAction(R.id.action_widget_to_list_song) != null) {
+            navController.navigate(R.id.action_widget_to_list_song)
+            MyAdsListener.setHideAllBanner()
+        }
+    }
+
+
+    private fun showVolumeDialog(){
+        try {
+            if (!isAdded) return
+            DialogUtils().showVolumeDialog(
+                context = requireContext(),
+                initialVolumeMusic = volumeMusic, // Volume music
+                initialVolumeAudio = volumeAudio, // Volume audio
+                onVolumeMusicChanged = { newVolumeMusic ->
+                    volumeMusic = newVolumeMusic
+                    musicViewModel.setVolume(newVolumeMusic)
+                    // mp?.setVolume(newVolumeMusic, newVolumeMusic) // Update volumeMediaPlayer
+                },
+                onVolumeAudioChanged = { newVolumeAudio ->
+                    volumeAudio = newVolumeAudio
+                    MyMusicListener.postVolumeAudio(newVolumeAudio) // Update volume SoundPool
+                }
+            )
+        }catch (e : Exception){
+            setToast(e.message.toString())
+        }
+    }
+
+    // =========================
+    // RECORD UI STATE
+    // =========================
+
+    private fun showLayoutStartRecord() {
         binding.ivRecord.visibility = View.GONE
         binding.ivPause.visibility = View.VISIBLE
         binding.ivDone.visibility = View.VISIBLE
         binding.ivDelete.visibility = View.VISIBLE
-        binding.ivDelete.isClickable = true
-
         startBlinking()
     }
 
-
-    @SuppressLint("SetTextI18n")
-    private fun showLayoutPauseRecord(){
-        binding.ivRecord.setImageResource(0)
+    private fun showLayoutPauseRecord() {
         binding.ivRecord.setImageResource(R.drawable.play_white)
         binding.ivRecord.visibility = View.VISIBLE
         binding.ivPause.visibility = View.GONE
-        binding.ivDone.visibility = View.VISIBLE
-        binding.ivDelete.visibility = View.VISIBLE
-
         stopBlinking()
+    }
 
+    private fun showLayoutStopRecord() {
+        binding.ivRecord.setImageResource(R.drawable.record)
+        binding.ivRecord.visibility = View.VISIBLE
+        binding.ivPause.visibility = View.GONE
+        binding.ivDone.visibility = View.GONE
+        binding.ivDelete.visibility = View.GONE
+        stopBlinking()
+    }
+
+    // =========================
+    // BLINK TIMER (SAFE)
+    // =========================
+
+    private val blinkRunnable = object : Runnable {
+        override fun run() {
+            if (!isBlinking || _binding == null) return
+            binding.tvTimerView.visibility =
+                if (binding.tvTimerView.visibility == View.VISIBLE)
+                    View.INVISIBLE else View.VISIBLE
+            blinkHandler.postDelayed(this, 500)
+        }
+    }
+
+    private fun startBlinking() {
+        if (isBlinking) return
+        isBlinking = true
+        blinkHandler.post(blinkRunnable)
     }
 
     private fun stopBlinking() {
-        try {
-            isBlinking = false
-            blinkHandler.removeCallbacksAndMessages(null)
-            binding.tvTimerView.visibility = View.GONE
-        }catch (e : Exception){
+        isBlinking = false
+        blinkHandler.removeCallbacksAndMessages(null)
+        _binding?.tvTimerView?.visibility = View.GONE
+    }
 
+    // =========================
+    // PERMISSION & DIALOG
+    // =========================
+
+    private fun startPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            showRecordDialog()
+        } else {
+            requestPermission.launch(Manifest.permission.RECORD_AUDIO)
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun showLayoutStopRecord(){
-        binding.ivRecord.visibility = View.VISIBLE
-        binding.ivRecord.setImageResource(0)
-        binding.ivRecord.setImageResource(R.drawable.record)
-        binding.ivPause.visibility = View.GONE
-        binding.ivDone.visibility = View.GONE
-        binding.ivDelete.isClickable = false
-        binding.ivDelete.visibility = View.GONE
+    private val requestPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            if (it) showRecordDialog() else showAllowPermission()
+        }
 
-        try {
-            stopBlinking()
-        }catch (e: Exception) {
-            setToastError(activity,e.message.toString())
+    private fun showRecordDialog() {
+        if (!isAdded) return
+        DialogUtils().showRecordDialog(
+            requireContext(),
+            getString(R.string.information),
+            getString(R.string.title_recording_dialog)
+        ) {
+            dirPath = "${requireActivity().externalCacheDir?.absolutePath}/"
+            fileName = "record_$date.mp3"
+            musicViewModel.recordAudioStart(fileName, dirPath)
         }
     }
 
+    private fun showBottomSheet() {
+        if (isAdded && !parentFragmentManager.isStateSaved) {
+            BottomSheet(dirPath, fileName, this)
+                .show(parentFragmentManager, LOG_TAG)
+        }
+    }
+
+    // =========================
+    // SAFE NAVIGATION
+    // =========================
+
+    private fun safeNavigatppe(actionId: Int) {
+        runCatching {
+            if (findNavController().currentDestination?.id == R.id.VoiceRecordFragmentHorizontalZaif) {
+                findNavController().navigate(actionId)
+            }
+        }
+    }
+
+
+    fun safeNavigate(actionId: Int) {
+        val navController = findNavController()
+        val currentDestination = navController.currentDestination
+
+        if (currentDestination?.getAction(actionId) != null) {
+            navController.navigate(actionId)
+        }
+    }
+
+
+    // =========================
+    // LIFECYCLE CLEANUP
+    // =========================
+
+    override fun onStart() {
+        super.onStart()
+        sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onDestroyView() {
+        stopBlinking()
+        blinkHandler.removeCallbacksAndMessages(null)
+        _binding = null
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        musicViewModel.releaseMediaPlayerOnDestroy()
+        musicViewModel.stopRecord()
+        super.onDestroy()
+    }
+
+    // =========================
+    // SHARED PREF CALLBACK
+    // =========================
+
+    override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
+        if (key == Constant.KeyShared.volume) {
+            val progress = prefs?.getInt(key, 100) ?: return
+            val volume = (1 - ln(
+                (ToneGenerator.MAX_VOLUME - progress).toDouble()
+            ) / ln(ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
+            musicViewModel.setVolume(volume)
+        }
+    }
+
+    override fun onCancelClicked() {
+        musicViewModel.cancelRecord()
+    }
+
+    override fun onOkClicked(filePath: String, newName: String, isChange: Boolean) {
+        if (isAdded) {
+            musicViewModel.saveRecord(
+                requireActivity(),
+                dirPath,
+                filePath,
+                fileName,
+                newName,
+                isChange
+            )
+        }
+    }
 
 
     private fun showCancelDialog(){
@@ -418,116 +459,7 @@ class VoiceRecordFragmentVerticalZaif : BaseFragmentWidget(),SharedPreferences.O
                 },
             )
         }catch (e : Exception){
-
-        }
-    }
-
-
-
-    private fun showVolumeDialog(){
-        try {
-            if (!isAdded) return
-            DialogUtils().showVolumeDialog(
-                context = requireContext(),
-                initialVolumeMusic = volumeMusic, // Volume musik awal
-                initialVolumeAudio = volumeAudio, // Volume audio awal
-                onVolumeMusicChanged = { newVolumeMusic ->
-                    volumeMusic = newVolumeMusic
-                    musicViewModel.setVolume(newVolumeMusic)
-                   // mp?.setVolume(newVolumeMusic, newVolumeMusic) // Update volume pada MediaPlayer
-                },
-                onVolumeAudioChanged = { newVolumeAudio ->
-                    volumeAudio = newVolumeAudio
-                    MyMusicListener.postVolumeAudio(newVolumeAudio) // Update volume pada SoundPool
-                }
-            )
-        }catch (e : Exception){
-            setToast(e.message.toString())
-        }
-    }
-
-    private  fun showRecordDialog(){
-        try {
-            if (!isAdded) return
-            DialogUtils().showRecordDialog(
-                context = requireContext(),
-                title = activity?.getString(R.string.information).toString(),
-                message = activity?.getString(R.string.title_recording_dialog).toString(),
-                onYesClick = {
-                    dirPath = "${activity?.externalCacheDir?.absolutePath}/"
-                    fileName = "record_${date}.mp3"
-                    musicViewModel.recordAudioStart(fileName,dirPath)
-                    setToastTic(Toastic.SUCCESS,requireContext().getString(R.string.record_started))
-                }
-            )
-        }catch (e : Exception){
-            setToast(e.message.toString())
-        }
-    }
-
-
-
-    private val blinkRunnable = object : Runnable {
-        @SuppressLint("UseKtx")
-        override fun run() {
-            if (isBlinking) {
-                binding.tvTimerView.visibility =
-                    if (binding.tvTimerView.visibility == View.VISIBLE) View.INVISIBLE else View.VISIBLE
-                blinkHandler.postDelayed(this, 500)
-            }
-        }
-    }
-
-    private fun startBlinking() {
-        if (isBlinking) return
-        isBlinking = true
-        blinkHandler.post(blinkRunnable)
-    }
-
-
-    private fun showBottomSheet(){
-        try {
-            val bottomSheet = BottomSheet(dirPath, fileName, this)
-            bottomSheet.show(requireActivity().supportFragmentManager, LOG_TAG)
-        }catch (e : Exception){
-            //
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    override fun onCancelClicked() {
-        try {
-            musicViewModel.cancelRecord()
-        }catch (e : Exception){
-            setLog(e.message)
-        }
-    }
-
-
-    @SuppressLint("SetTextI18n")
-    override fun onOkClicked(filePath: String, newName: String, isChange: Boolean) {
-        if (activity != null) {
-            musicViewModel.saveRecord(requireActivity(),dirPath,filePath,fileName,newName,isChange)
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-        sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        if(key==Constant.KeyShared.volume){
-            val progress = sharedPreferences?.getInt(Constant.KeyShared.volume,100)
-            val volume = (1 - ln((ToneGenerator.MAX_VOLUME - progress!!).toDouble()) / ln(
-                ToneGenerator.MAX_VOLUME.toDouble())).toFloat()
-            musicViewModel.setVolume(volume)
+            print(e.message)
         }
     }
 }

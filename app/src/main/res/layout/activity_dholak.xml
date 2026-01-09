@@ -10,7 +10,7 @@
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/recordView"
         android:layout_margin="5dp"
-        android:name="sound.recorder.widget.ui.fragment.VoiceRecordFragmentHorizontalZaif"
+        android:name="sound.recorder.widget.ui.fragment.VoiceRecordFragmentVerticalZaif"
         android:layout_alignParentBottom="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

@@ -240,14 +240,17 @@ open class BaseFragmentWidget : Fragment() {
     }
 
 
+
     @SuppressLint("UseKtx")
-    fun setupWidgetVetical(builder : ZaifSDKBuilder?, binding : WidgetRecordVerticalZaifBinding){
+    fun setupWidgetVertical(builder : ZaifSDKBuilder?, binding : WidgetRecordVerticalZaifBinding?){
         try {
             builder?.backgroundWidgetColor?.let { colorString ->
                 if (colorString.isNotEmpty()) {
                     try {
                         val tintList = ColorStateList.valueOf(Color.parseColor(colorString))
-                        ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
+                        binding?.llBackground?.post {
+                            ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
+                        }
                     } catch (e: IllegalArgumentException) {
                         setToast("Invalid color value: $colorString")
                     }
@@ -257,11 +260,10 @@ open class BaseFragmentWidget : Fragment() {
             //
         }
 
-        binding.ivChangeColor.setOnClickListener {
+        binding?.ivChangeColor?.setOnClickListener {
             activity?.let {
                 try {
                     RecordingSDK.showDialogColorPicker(it)
-                    // RecordingSDK.changeColor(it)
                 } catch (e: Exception) {
                     setToast(e.message.toString())
                 }
@@ -269,14 +271,15 @@ open class BaseFragmentWidget : Fragment() {
         }
 
         try {
-            binding.ivNote.visibility = if (builder?.showNote==true) View.VISIBLE else View.GONE
-            binding.ivChangeColor.visibility = if (builder?.showChangeColor==true) View.VISIBLE else View.GONE
-            binding.ivSong.visibility = if (builder?.showListSong==true) View.VISIBLE else View.GONE
-            binding.ivVolume.visibility = if (builder?.showVolume==true) View.VISIBLE else View.GONE
+            binding?.ivNote?.visibility = if (builder?.showNote==true) View.VISIBLE else View.GONE
+            binding?.ivChangeColor?.visibility = if (builder?.showChangeColor==true) View.VISIBLE else View.GONE
+            binding?.ivSong?.visibility = if (builder?.showListSong==true) View.VISIBLE else View.GONE
+            binding?.ivVolume?.visibility = if (builder?.showVolume==true) View.VISIBLE else View.GONE
         }catch (e : Exception){
             //
         }
     }
+
 
     @SuppressLint("UseKtx")
     fun setupWidgetVeticalNull(builder : ZaifSDKBuilder?, binding : WidgetRecordVerticalZaifBinding?){
