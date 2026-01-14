@@ -502,11 +502,6 @@ class MainActivity : BaseActivityWidget(),FragmentListener,AdsListener, SharedPr
             if (consumed) {
                 return
             }
-        } else if (fragment is FragmentListSong) {
-            val consumed = fragment.onBackPressed()
-            if (consumed) {
-                return
-            }
         }
         else if (fragment is FragmentVideo) {
             val consumed = fragment.onBackPressed()

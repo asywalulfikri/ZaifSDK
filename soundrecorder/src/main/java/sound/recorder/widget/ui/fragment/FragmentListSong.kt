@@ -17,7 +17,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -238,77 +237,60 @@ class FragmentListSong(
         }
     }
 
+
     @SuppressLint("Recycle")
     private fun getAllMediaMp3Files(songList: ArrayList<Song>) {
-        if (activity != null) {
-            val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            val cursor = requireContext().contentResolver?.query(
-                uri,
-                null,
-                null,
-                null,
-                null
-            )
-            if (cursor == null) {
-                Toast.makeText(requireContext(), "Something Went Wrong.", Toast.LENGTH_LONG).show()
-            } else {
-                val title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-                val location = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+        lifecycleScope.launch {
+            binding?.progressBar?.visibility = View.VISIBLE
 
-                MainScope().launch {
-                    var songTitle1: String
-                    var songLocation1: String
-                    var songNote1: String
+            val result = withContext(Dispatchers.IO) {
+                val tempTitle = ArrayList<String>()
+                val tempLocation = ArrayList<String>()
+                val tempNote = ArrayList<String>()
 
-                    withContext(Dispatchers.Default) {
-                        for (i in songList.indices) {
-                            songTitle1 = songList[i].title.toString()
-                            songLocation1 = songList[i].pathRaw.toString()
-                            songNote1 = songList[i].note.toString()
+                // dari server / response
+                for (song in songList) {
+                    tempTitle.add(song.title.orEmpty())
+                    tempLocation.add(song.pathRaw.orEmpty())
+                    tempNote.add(song.note.orEmpty())
+                }
 
-                            listLocationSong.add(songLocation1)
-                            listTitleSong.add(songTitle1)
-                            listNoteSong.add(songNote1)
-                        }
-                    }
+                val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                val cursor = requireContext().contentResolver.query(
+                    uri,
+                    arrayOf(
+                        MediaStore.Audio.Media.TITLE,
+                        MediaStore.Audio.Media.DATA
+                    ),
+                    null,
+                    null,
+                    null
+                )
 
-                    try {
-                        MainScope().launch {
+                cursor?.use {
+                    val titleIdx = it.getColumnIndex(MediaStore.Audio.Media.TITLE)
+                    val pathIdx = it.getColumnIndex(MediaStore.Audio.Media.DATA)
 
-                            if (cursor.moveToFirst()) {
-                                withContext(Dispatchers.Default) {
-                                    do {
-                                        var songTitle = ""
-                                        var songLocation = ""
-                                        val songNote = ""
-
-                                        if (cursor.getString(title) != null) {
-                                            songTitle = cursor.getString(title)
-                                        }
-
-                                        if (cursor.getString(location) != null) {
-                                            songLocation = cursor.getString(location)
-                                        }
-
-                                        listLocationSong.add(songLocation)
-                                        listTitleSong.add(songTitle)
-                                        listNoteSong.add(songNote)
-
-                                    } while (cursor.moveToNext())
-                                }
-                                updateView()
-                            } else {
-                                updateView()
-                            }
-
-                            musicViewModel.songIsLoaded = true
-                        }
-
-                    } catch (e: Exception) {
-                        setLog(e.message.toString())
+                    while (it.moveToNext()) {
+                        tempTitle.add(it.getString(titleIdx) ?: "")
+                        tempLocation.add(it.getString(pathIdx) ?: "")
+                        tempNote.add("")
                     }
                 }
+
+                Triple(tempTitle, tempLocation, tempNote)
             }
+
+            listTitleSong.clear()
+            listLocationSong.clear()
+            listNoteSong.clear()
+
+            listTitleSong.addAll(result.first)
+            listLocationSong.addAll(result.second)
+            listNoteSong.addAll(result.third)
+
+            updateView()
+            musicViewModel.songIsLoaded = true
         }
     }
 
@@ -425,11 +407,5 @@ class FragmentListSong(
 
     fun onStartAnimation() {
         startAnimation()
-    }
-
-    fun onBackPressed(): Boolean {
-        MyAdsListener.setBannerHome(true)
-        activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
-        return false
     }
 }

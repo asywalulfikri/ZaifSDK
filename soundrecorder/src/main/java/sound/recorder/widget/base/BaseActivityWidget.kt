@@ -124,6 +124,9 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private val retryHandler = Handler(Looper.getMainLooper())
 
+    private var interstitialRetryCount = 0
+    private val MAX_RETRY_COUNT = 1
+
     private var isBannerLoaded = false
 
 
@@ -847,7 +850,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    fun setupInterstitial() {
+    fun setupInterstitialppp() {
 
         if(isWebViewAvailable()){
 
@@ -917,6 +920,82 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
+
+
+    // Tambahkan variabel counter di level class (luar fungsi)
+
+    fun setupInterstitial() {
+        // 1. Validasi awal
+        if (!isWebViewAvailable() || !isAdMobAvailable()) return
+
+        // Gunakan lifecycleScope jika di Activity/Fragment agar tidak memicu memory leak
+        CoroutineScope(Dispatchers.Main).launch {
+
+            // Skip untuk OS tertentu jika memang diperlukan seperti logika awalmu
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O || Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
+                return@launch
+            }
+
+            try {
+                val adRequest = AdRequest.Builder().build()
+                val adUnitId = admobSDKBuilder?.interstitialId.toString()
+
+                InterstitialAd.load(this@BaseActivityWidget, adUnitId, adRequest,
+                    object : InterstitialAdLoadCallback() {
+                        override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                            // Reset counter saat berhasil load
+                            interstitialRetryCount = 0
+
+                            mInterstitialAd = interstitialAd
+                            isLoad = true
+                            Log.d("AdMob", "Interstitial loaded successfully: ${interstitialAd.adUnitId}")
+
+                            mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                                override fun onAdDismissedFullScreenContent() {
+                                    mInterstitialAd = null
+                                    isLoad = false // Reset status load
+                                    setupInterstitial() // Load lagi untuk persiapan berikutnya
+                                }
+
+                                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                    mInterstitialAd = null
+                                    isLoad = false
+                                }
+
+                                override fun onAdShowedFullScreenContent() {
+                                    mInterstitialAd = null
+                                    isLoad = false
+                                }
+                            }
+                        }
+
+                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                            mInterstitialAd = null
+                            isLoad = false
+                            Log.e("AdMob", "Failed to load: ${loadAdError.message}")
+
+                            // 2. LOGIKA RETRY
+                            if (interstitialRetryCount < MAX_RETRY_COUNT) {
+                                interstitialRetryCount++
+
+                                // Gunakan delay eksponensial (makin lama makin bertambah jedanya)
+                                val retryDelay = interstitialRetryCount * 5000L // 5 detik, 10 detik
+
+                                Log.d("AdMob", "Retrying load ($interstitialRetryCount/$MAX_RETRY_COUNT) in ${retryDelay/1000}s...")
+
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    setupInterstitial()
+                                }, retryDelay)
+                            } else {
+                                Log.d("AdMob", "Max retry reached. Stop loading.")
+                            }
+                        }
+                    })
+            } catch (e: Exception) {
+                Log.e("AdMob", "Error in setupInterstitial: ${e.message}")
+            }
+        }
+    }
 
 
     private fun isWebViewAvailable(): Boolean {
