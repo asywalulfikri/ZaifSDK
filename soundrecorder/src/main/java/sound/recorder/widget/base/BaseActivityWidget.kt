@@ -523,6 +523,8 @@ open class BaseActivityWidget : AppCompatActivity() {
         super.onPause()
         if (adView != null) {
             adView?.pause()
+        }
+        if(adView2!=null){
             adView2?.pause()
         }
     }
@@ -531,6 +533,8 @@ open class BaseActivityWidget : AppCompatActivity() {
         super.onResume()
         if (adView != null) {
             adView?.resume()
+        }
+        if(adView2!=null){
             adView2?.resume()
         }
     }
