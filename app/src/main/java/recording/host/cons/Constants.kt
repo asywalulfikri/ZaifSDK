@@ -116,5 +116,11 @@ class Constants {
         }
     }
 
+    interface Widget{
+        companion object{
+            const val WIDGET_COLOR = "#964B00"
+        }
+    }
+
 
 }

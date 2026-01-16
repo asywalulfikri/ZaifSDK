@@ -15,7 +15,7 @@ import sound.recorder.widget.util.Constant
 import java.util.concurrent.CopyOnWriteArrayList
 
 @SuppressLint("Registered")
-open class GameApp : MyApp(), AdConfigProvider {
+open class GameApp: MyApp(), AdConfigProvider {
 
     /**
      * Main dispatcher TANPA immediate
@@ -109,7 +109,7 @@ open class GameApp : MyApp(), AdConfigProvider {
      */
     private fun initAudio() {
         try {
-            AudioEngine.init(this)
+            AudioEngine.init(applicationContext)
         } catch (e: Exception) {
             Log.e("GameApp", "Audio init failed", e)
         }
@@ -138,7 +138,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                         setRewardInterstitialId(Constants.AdsProductionId.admobRewardInterstitialId)
                     }
                 }
-                .setToast(true)
+                .setToast(false)
                 .build()
 
         } catch (e: Exception) {
@@ -156,13 +156,13 @@ open class GameApp : MyApp(), AdConfigProvider {
                 .setApplicationId(BuildConfig.APPLICATION_ID)
                 .setVersionCode(BuildConfig.VERSION_CODE)
                 .setVersionName(BuildConfig.VERSION_NAME)
-                .setDeveloperName("Developer+Receh")
-                .showNote(true)
-                .showTooltip(true)
-                .showChangeColor(true)
-                .setBackgroundWidgetColor("#2596be")
-                .showVolume(true)
-                .showListSong(true)
+                .setDeveloperName(BuildConfig.developerName)
+                .showNote(BuildConfig.showNote)
+                .showTooltip(BuildConfig.showTooltip)
+                .showChangeColor(BuildConfig.showChangeColor)
+                .setBackgroundWidgetColor(Constants.Widget.WIDGET_COLOR)
+                .showVolume(BuildConfig.showVolume)
+                .showListSong(BuildConfig.showListSong)
                 .build()
         } catch (e: Exception) {
             Log.e("GameApp", "Secondary SDK init failed", e)

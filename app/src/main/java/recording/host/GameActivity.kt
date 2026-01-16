@@ -1,6 +1,5 @@
 package recording.host
 
-import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -10,7 +9,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,7 +48,7 @@ class GameActivity : BaseActivity(),
         override fun onAvailable(network: Network) {
             if (adsFirstLoadIsOff.compareAndSet(true, false)) {
                 runOnUiThreadSafe {
-                    showToast("Internet restored, loading ads…")
+                    setToastADS("Internet restored, loading ads…")
                     tryToSetupAds()
                 }
             }
@@ -65,8 +63,7 @@ class GameActivity : BaseActivity(),
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setupHideStatusBar(binding.root, true)
 
-        connectivityManager =
-            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
 
         MyAdsListener.setMyListener(this)
         GameApp.registerListener(this)
@@ -75,7 +72,10 @@ class GameActivity : BaseActivity(),
         permissionNotification()
         safeCall { checkUpdate() }
 
-        loadSongsOnce()
+        if(BuildConfig.hasSong){
+            loadSongsOnce()
+        }
+
     }
 
 
@@ -234,12 +234,6 @@ class GameActivity : BaseActivity(),
     private fun runOnUiThreadSafe(block: () -> Unit) {
         if (!isFinishing && !isDestroyed) {
             runOnUiThread { block() }
-        }
-    }
-
-    private fun showToast(message: String) {
-        if (!isFinishing && !isDestroyed) {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 

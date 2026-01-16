@@ -85,7 +85,7 @@ class VoiceRecordFragmentHorizontalZaif2 : BaseFragmentWidget(),SharedPreference
                     sharedPreferences = dataSession.getShared()
                     volumeMusic = dataSession.getVolumeMusic()
                     volumeAudio = dataSession.getVolumeAudio()
-                    zaifSDKBuilder = ZaifSDKBuilder.builder(safeContext).loadFromSharedPreferences()
+                    zaifSDKBuilder = ZaifSDKBuilder.builder(safeContext)
                     handler = Handler(Looper.getMainLooper())
 
                 }

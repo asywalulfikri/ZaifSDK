@@ -1,144 +1,63 @@
 package sound.recorder.widget.builder
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.util.Log
-import com.google.gson.Gson
-import sound.recorder.widget.util.Constant
 
 class ZaifSDKBuilder private constructor(
-    val appName: String?,
-    val versionCode: Int?,
-    val versionName: String?,
-    val applicationId: String?,
-    val developerName: String?,
-    val showNote: Boolean,
-    val showChangeColor: Boolean,
-    val backgroundWidgetColor: String,
-    val showListSong: Boolean,
-    val showVolume: Boolean,
-    val showTooltip : Boolean,
+    private val context: Context
 ) {
 
-    // Builder class
-    class Builder(private val context: Context) {
-        private var appName: String? = null
-        private var versionCode: Int? = null
-        private var versionName: String? = null
-        private var applicationId: String? = null
-        private var developerName: String? = null
-        private var showNote = false
-        private var showChangeColor = false
-        private var backgroundWidgetColor: String? = null
-        private var showListSong = false
-        private var showVolume = false
-        private var showTooltip = false
-        private var volumeMusic : Float? =null
-        private var volumeInstrument : Float? =null
+    var appName: String = ""
+    var versionCode: Int = 1
+    var versionName: String = "1.0"
+    var applicationId: String = ""
+    var developerName: String = ""
 
-        fun setAppName(appName: String?): Builder {
-            this.appName = appName
-            return this
-        }
+    var showNote = false
+    var showChangeColor = false
+    var backgroundWidgetColor = "#FFFFFF"
+    var showListSong = false
+    var showVolume = false
+    var showTooltip = false
 
-        fun setVersionCode(versionCode: Int?): Builder {
-            this.versionCode = versionCode
-            return this
-        }
+    fun setAppName(value: String) = apply { appName = value }
+    fun setVersionCode(value: Int) = apply { versionCode = value }
+    fun setVersionName(value: String) = apply { versionName = value }
+    fun setApplicationId(value: String) = apply { applicationId = value }
+    fun setDeveloperName(value: String) = apply { developerName = value }
 
-        fun setVersionName(versionName: String?): Builder {
-            this.versionName = versionName
-            return this
-        }
+    fun showNote(value: Boolean) = apply { showNote = value }
+    fun showChangeColor(value: Boolean) = apply { showChangeColor = value }
+    fun setBackgroundWidgetColor(value: String) = apply { backgroundWidgetColor = value }
+    fun showListSong(value: Boolean) = apply { showListSong = value }
+    fun showVolume(value: Boolean) = apply { showVolume = value }
+    fun showTooltip(value: Boolean) = apply { showTooltip = value }
 
-        fun setApplicationId(applicationId: String?): Builder {
-            this.applicationId = applicationId
-            return this
-        }
+    fun build(): ZaifSDKConfig {
+        val config = ZaifSDKConfig(
+            appName = appName,
+            versionCode = versionCode,
+            versionName = versionName,
+            applicationId = applicationId,
+            developerName = developerName,
+            showNote = showNote,
+            showChangeColor = showChangeColor,
+            backgroundWidgetColor = backgroundWidgetColor,
+            showListSong = showListSong,
+            showVolume = showVolume,
+            showTooltip = showTooltip
+        )
 
-        fun setDeveloperName(developerName: String?): Builder {
-            this.developerName = developerName
-            return this
-        }
-
-        fun showNote(showNote: Boolean): Builder {
-            this.showNote = showNote
-            return this
-        }
-
-        fun showChangeColor(showChangeColor: Boolean): Builder {
-            this.showChangeColor = showChangeColor
-            return this
-        }
-
-        fun setBackgroundWidgetColor(backgroundWidgetColor: String?): Builder {
-            this.backgroundWidgetColor = backgroundWidgetColor
-            return this
-        }
-
-        fun showListSong(showListSong: Boolean): Builder {
-            this.showListSong = showListSong
-            return this
-        }
-
-        fun showVolume(showVolume: Boolean): Builder {
-            this.showVolume = showVolume
-            return this
-        }
-
-        fun showTooltip(showTooltip: Boolean): Builder {
-            this.showTooltip = showTooltip
-            return this
-        }
-
-        // Build function to create and save the ZaifSDKBuilder instance
-        fun build(): ZaifSDKBuilder {
-            val zaifSDKBuilder = ZaifSDKBuilder(
-                appName, versionCode, versionName, applicationId, developerName,
-                showNote, showChangeColor, backgroundWidgetColor ?: "#FFFFFF", showListSong, showVolume,showTooltip
-            )
-
-            // Save the object to SharedPreferences as JSON
-            saveToSharedPreferences(zaifSDKBuilder)
-
-            return zaifSDKBuilder
-        }
-
-        private fun saveToSharedPreferences(zaifSDKBuilder: ZaifSDKBuilder) {
-            val sharedPreferences: SharedPreferences = context.getSharedPreferences(
-                Constant.KeyShared.shareKey,
-                Context.MODE_PRIVATE
-            )
-            val editor = sharedPreferences.edit()
-
-            // Convert the object to JSON and save it
-            val gson = Gson()
-            val json = gson.toJson(zaifSDKBuilder)
-            editor.putString(Constant.KeyShared.zaifSDKBuilder, json)
-            Log.d("json_inserted ",json)
-            editor.apply()
-        }
-
-        // Load the ZaifSDKBuilder from SharedPreferences
-        fun loadFromSharedPreferences(): ZaifSDKBuilder? {
-            val sharedPreferences: SharedPreferences = context.getSharedPreferences(
-                Constant.KeyShared.shareKey,
-                Context.MODE_PRIVATE
-            )
-            val gson = Gson()
-            val json = sharedPreferences.getString(Constant.KeyShared.zaifSDKBuilder, null)
-            return if (json != null) {
-                gson.fromJson(json, ZaifSDKBuilder::class.java)
-            } else {
-                null
-            }
-        }
+        ZaifSDKStorage.save(context, config)
+        return config
     }
 
     companion object {
-        // Get a Builder instance
-        fun builder(context: Context): Builder {
-            return Builder(context)
+        fun builder(context: Context): ZaifSDKBuilder {
+            return ZaifSDKBuilder(context.applicationContext)
+        }
+
+        fun load(context: Context): ZaifSDKConfig? {
+            return ZaifSDKStorage.load(context)
         }
     }
 }

@@ -120,7 +120,7 @@ open class BaseActivityWidget : AppCompatActivity() {
   //  private var unityBannerView: BannerView? = null
 
     private var bannerRetryCount = 0
-    private val maxBannerRetry = 4
+    private val maxBannerRetry = 3
 
     private val retryHandler = Handler(Looper.getMainLooper())
 
@@ -128,6 +128,14 @@ open class BaseActivityWidget : AppCompatActivity() {
     private val MAX_RETRY_COUNT = 1
 
     private var isBannerLoaded = false
+
+    private var isLoading = false
+
+
+    @Volatile
+    private var isBannerLoading = false
+    private val adLoadTimeout = 10_000L // 10 detik timeout
+    private var loadTimeoutRunnable: Runnable? = null
 
 
     companion object {
@@ -193,7 +201,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun loadBannerHome(view: FrameLayout?) {
+    /*fun loadBannerHome(view: FrameLayout?) {
         try {
             val bannerId = admobSDKBuilder?.bannerHomeId.toString()
             setLog("ADS_Admob", "home banner id = $bannerId")
@@ -229,8 +237,89 @@ open class BaseActivityWidget : AppCompatActivity() {
             e.printStackTrace()
         }
     }
+*/
 
 
+
+    protected fun loadBannerHome(
+        container: FrameLayout?
+    ) {
+        val bannerId = admobSDKBuilder?.bannerHomeId.toString()
+        if (container == null || bannerId.isBlank()) return
+        if (isBannerLoaded || isLoading) return
+
+        // Pastikan di main thread & activity masih hidup
+        if (!isAlive()) return
+
+        // Gunakan HANYA 1 post (bukan double post)
+        container.postDelayed({
+            if (!isAlive() || !container.isAttachedToWindow) return@postDelayed
+
+            try {
+                initAdView(container, bannerId)
+                loadAdWithTimeout()
+            } catch (e: Exception) {
+                isLoading = false
+                Log.e("Ads", "Banner exception", e)
+            }
+        }, 300) // Delay untuk anti-ANR
+    }
+
+    private fun isAlive() = !isFinishing && !isDestroyed
+
+
+    private fun loadAdWithTimeout() {
+        isLoading = true
+
+        // Set timeout untuk mencegah hang
+        loadTimeoutRunnable = Runnable {
+            if (isLoading) {
+                isLoading = false
+                Log.e("Ads", "Ad load timeout")
+            }
+        }.also {
+            adView?.postDelayed(it, adLoadTimeout)
+        }
+
+        // Load ad secara asynchronous
+        adView?.loadAd(AdRequest.Builder().build())
+    }
+
+    private fun cancelTimeout() {
+        loadTimeoutRunnable?.let { adView?.removeCallbacks(it) }
+        loadTimeoutRunnable = null
+    }
+
+    private fun createAdListener() = object : AdListener() {
+        override fun onAdLoaded() {
+            cancelTimeout()
+            isBannerLoaded = true
+            isLoading = false
+            Log.d("Ads", "Banner loaded")
+        }
+
+        override fun onAdFailedToLoad(error: LoadAdError) {
+            cancelTimeout()
+            isLoading = false
+            Log.e("Ads", "Failed: ${error.message}")
+        }
+    }
+    private fun initAdView(container: FrameLayout, bannerId: String) {
+        if (adView == null) {
+            adView = AdView(this).apply {
+                setAdSize(AdSize.BANNER)
+                adUnitId = bannerId
+                descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+            }
+        }
+
+        // Prevent double parent
+        (adView?.parent as? ViewGroup)?.removeView(adView)
+        container.removeAllViews()
+        container.addView(adView)
+
+        adView?.adListener = createAdListener()
+    }
 
     private fun getAdSize2(): AdSize {
         // 1. Ambil lebar layar dalam pixel dengan cara paling modern (API 30+)
@@ -308,28 +397,6 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-
-    /*  fun setStatusBarColor(color: Int) {
-          try {
-              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                  window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                  window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                  window.statusBarColor = ContextCompat.getColor(this, color)
-              }
-          } catch (e: Exception) {
-              setLog("not support")
-          }
-      }
-
-      fun setBottomStatusColor(color: Int) {
-          try {
-              window?.navigationBarColor = ContextCompat.getColor(this, color)
-          } catch (e: Exception) {
-              setLog("not support")
-          }
-
-      }*/
-
     protected fun setupFragment(id: Int, fragment: Fragment?) {
         try {
             if (fragment != null) {
@@ -396,10 +463,17 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     override fun onDestroy() {
+        adView?.animate()?.cancel()
         adView?.destroy()
-        adView2?.destroy()
         adView = null
-        adView2 = null
+
+        cleanupBannerAd()
+
+        bannerHandler?.removeCallbacksAndMessages(null)
+        bannerHandler = null
+
+        isBannerLoaded = false
+        isLoading = false
         mInterstitialAd = null
         super.onDestroy()
     }
@@ -636,7 +710,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    private fun executeBanner(adViewContainer: FrameLayout?) {
+    /*private fun executeBanner(adViewContainer: FrameLayout?) {
         if (bannerRetryCount >= maxBannerRetry) {
             runOnUiThread {
                 setToastADS("Limit reached: $bannerRetryCount")
@@ -685,59 +759,198 @@ open class BaseActivityWidget : AppCompatActivity() {
         // Load Ad
         val adRequest = AdRequest.Builder().build()
         adView2?.loadAd(adRequest)
+    }*/
+
+
+    private var bannerHandler: Handler? = null
+    private var bannerRetryRunnable: Runnable? = null
+    private var bannerTimeoutRunnable: Runnable? = null
+
+    private fun executeBanner(adViewContainer: FrameLayout?) {
+        // ✅ Safety checks
+        if (isFinishing || isDestroyed || adViewContainer == null) return
+        if (isBannerLoading || bannerRetryCount >= maxBannerRetry) return
+
+        // ✅ Lazy init handler
+        if (bannerHandler == null) {
+            bannerHandler = Handler(Looper.getMainLooper())
+        }
+
+        // ✅ Lazy init AdView
+        if (adView2 == null) {
+            try {
+                adView2 = AdView(this).apply {
+                    adUnitId = admobSDKBuilder?.bannerId.orEmpty()
+                    setAdSize(getAdSize2())
+                }
+            } catch (e: Exception) {
+                Log.e("BannerAd", "AdView creation error: ${e.message}")
+                return
+            }
+        }
+
+        loadBannerAd(adViewContainer)
     }
 
-
     private fun executeBannerPortrait(adViewContainer: FrameLayout?) {
-        if (bannerRetryCount >= maxBannerRetry) {
-            runOnUiThread {
-                setToastADS("Limit reached: $bannerRetryCount")
-            }
-            return
+        // ✅ Safety checks
+        if (isFinishing || isDestroyed || adViewContainer == null) return
+        if (isBannerLoading || bannerRetryCount >= maxBannerRetry) return
+
+        // ✅ Lazy init handler
+        if (bannerHandler == null) {
+            bannerHandler = Handler(Looper.getMainLooper())
         }
 
-        // Hanya buat AdView baru jika belum ada
+        // ✅ Lazy init AdView
         if (adView2 == null) {
-            adView2 = AdView(this).apply {
-                adUnitId = admobSDKBuilder?.bannerId.orEmpty()
-                setAdSize(AdSize.BANNER)
-                descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+            try {
+                adView2 = AdView(this).apply {
+                    adUnitId = admobSDKBuilder?.bannerId.orEmpty()
+                    setAdSize(getAdSize2())
+                }
+            } catch (e: Exception) {
+                Log.e("BannerAd", "AdView creation error: ${e.message}")
+                return
             }
         }
 
+        loadBannerAd(adViewContainer)
+    }
+
+    private fun loadBannerAd(adViewContainer: FrameLayout) {
+        // ✅ Double check before loading
+        if (isFinishing || isDestroyed) return
+
+        isBannerLoading = true
+
+        // ✅ Clear all pending callbacks
+        bannerRetryRunnable?.let { bannerHandler?.removeCallbacks(it) }
+        bannerTimeoutRunnable?.let { bannerHandler?.removeCallbacks(it) }
+
+        // ✅ Setup timeout dengan safe unwrap
+        bannerTimeoutRunnable = Runnable {
+            if (isBannerLoading && !isFinishing && !isDestroyed) {
+                isBannerLoading = false
+                handleBannerTimeout(adViewContainer)
+            }
+        }
+        bannerTimeoutRunnable?.let {
+            bannerHandler?.postDelayed(it, 10_000L)
+        }
+
+        // ✅ Setup AdListener
         adView2?.adListener = object : AdListener() {
             override fun onAdLoaded() {
+                // Clear timeout
+                bannerTimeoutRunnable?.let { bannerHandler?.removeCallbacks(it) }
 
-                if (isFinishing || isDestroyed) return
+                isBannerLoading = false
+                bannerRetryCount = 0
 
-                runOnUiThread {
-                    try {
-                        bannerRetryCount = 0
-                        // Hapus parent lama jika ada
-                        (adView2?.parent as? ViewGroup)?.removeView(adView2)
-                        adViewContainer?.removeAllViews()
-                        adViewContainer?.addView(adView2)
-                        setToastADS("Banner loaded: ${adView2?.adUnitId}")
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+                if (isFinishing || isDestroyed) {
+                    cleanupBannerAd()
+                    return
+                }
+
+                try {
+                    adView2?.let { ad ->
+                        // Remove from old parent
+                        (ad.parent as? ViewGroup)?.removeView(ad)
+
+                        // Add to new container
+                        adViewContainer.removeAllViews()
+                        adViewContainer.addView(ad)
+
+                        Log.d("BannerAd", "✓ Banner loaded successfully")
                     }
+                } catch (e: Exception) {
+                    Log.e("BannerAd", "Add view error: ${e.message}")
                 }
             }
 
             override fun onAdFailedToLoad(error: LoadAdError) {
-                runOnUiThread {
-                    setToastADS("Banner failed: ${error.message} ${adView2?.adUnitId}")
-                }
+                // Clear timeout
+                bannerTimeoutRunnable?.let { bannerHandler?.removeCallbacks(it) }
+
+                isBannerLoading = false
                 bannerRetryCount++
-                // Retry dengan delay, misal 3 detik
-                adViewContainer?.postDelayed({ executeBanner(adViewContainer) }, 3000)
+
+                Log.e("BannerAd", "Failed: ${error.message}, retry: $bannerRetryCount/$maxBannerRetry")
+
+                // ✅ Check retry limit
+                if (bannerRetryCount >= maxBannerRetry) {
+                    Log.e("BannerAd", "Max retry reached, giving up")
+                    return
+                }
+
+                if (isFinishing || isDestroyed) return
+
+                // ✅ Exponential backoff: 3s, 6s, 12s (max 15s)
+                val delay = (3000L * (1 shl (bannerRetryCount - 1))).coerceAtMost(15_000L)
+
+                bannerRetryRunnable = Runnable {
+                    if (!isBannerLoading && !isFinishing && !isDestroyed) {
+                        executeBanner(adViewContainer)
+                    }
+                }
+                bannerRetryRunnable?.let {
+                    bannerHandler?.postDelayed(it, delay)
+                }
             }
         }
 
-        // Load Ad
-        val adRequest = AdRequest.Builder().build()
-        adView2?.loadAd(adRequest)
+        // ✅ Load ad with try-catch
+        try {
+            adView2?.loadAd(AdRequest.Builder().build())
+        } catch (e: Exception) {
+            Log.e("BannerAd", "Load ad error: ${e.message}")
+            isBannerLoading = false
+        }
     }
+
+    private fun handleBannerTimeout(adViewContainer: FrameLayout) {
+        Log.e("BannerAd", "⏱️ Load timeout after 10s")
+
+        bannerRetryCount++
+
+        if (bannerRetryCount >= maxBannerRetry) {
+            Log.e("BannerAd", "Max retry reached after timeout")
+            return
+        }
+
+        if (isFinishing || isDestroyed) return
+
+        // ✅ Retry after timeout
+        bannerRetryRunnable = Runnable {
+            if (!isBannerLoading && !isFinishing && !isDestroyed) {
+                executeBanner(adViewContainer)
+            }
+        }
+        bannerRetryRunnable?.let {
+            bannerHandler?.postDelayed(it, 5_000L)
+        }
+    }
+
+    // ✅ Cleanup helper
+    private fun cleanupBannerAd() {
+        try {
+            bannerRetryRunnable?.let { bannerHandler?.removeCallbacks(it) }
+            bannerTimeoutRunnable?.let { bannerHandler?.removeCallbacks(it) }
+            adView2?.animate()?.cancel()
+            adView2?.destroy()
+            adView2 = null
+
+            bannerRetryRunnable = null
+            bannerTimeoutRunnable = null
+
+            isBannerLoading = false
+        } catch (e: Exception) {
+            Log.e("BannerAd", "Cleanup error: ${e.message}")
+        }
+    }
+
+
 
     fun permissionNotification(){
         try {
@@ -924,7 +1137,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     // Tambahkan variabel counter di level class (luar fungsi)
 
-    fun setupInterstitial() {
+   /* fun setupInterstitial() {
         // 1. Validasi awal
         if (!isWebViewAvailable() || !isAdMobAvailable()) return
 
@@ -993,6 +1206,73 @@ open class BaseActivityWidget : AppCompatActivity() {
                     })
             } catch (e: Exception) {
                 Log.e("AdMob", "Error in setupInterstitial: ${e.message}")
+            }
+        }
+    }*/
+
+
+    fun setupInterstitial() {
+        // 1. Validasi Dasar
+        if (!isWebViewAvailable() || !isAdMobAvailable()) return
+
+        // Gunakan lifecycleScope agar coroutine otomatis batal saat Activity hancur
+        lifecycleScope.launch {
+            try {
+                val adRequest = AdRequest.Builder().build()
+                val adUnitId = admobSDKBuilder?.interstitialId.toString()
+
+                // Membungkus load di Main Thread secara aman
+                InterstitialAd.load(this@BaseActivityWidget, adUnitId, adRequest,
+                    object : InterstitialAdLoadCallback() {
+                        override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                            interstitialRetryCount = 0
+                            mInterstitialAd = interstitialAd
+                            isLoad = true
+
+                            mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                                override fun onAdDismissedFullScreenContent() {
+                                    mInterstitialAd = null
+                                    isLoad = false
+                                    // Pre-load iklan berikutnya setelah ditutup
+                                    setupInterstitial()
+                                }
+
+                                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                    // Menangkap error saat gagal tampil (sering terjadi di OS lama)
+                                    mInterstitialAd = null
+                                    isLoad = false
+                                    Log.e("AdMob", "Gagal tampil: ${adError.message}")
+                                }
+
+                                override fun onAdShowedFullScreenContent() {
+                                    mInterstitialAd = null
+                                    isLoad = false
+                                }
+                            }
+                        }
+
+                        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                            mInterstitialAd = null
+                            isLoad = false
+
+                            // Logika Retry dengan Exponential Backoff
+                            if (interstitialRetryCount < MAX_RETRY_COUNT) {
+                                interstitialRetryCount++
+                                val retryDelay = interstitialRetryCount * 5000L
+
+                                // Delay non-blocking yang terikat pada lifecycle
+                                lifecycleScope.launch {
+                                    delay(retryDelay)
+                                    if (!isFinishing && !isDestroyed) {
+                                        setupInterstitial()
+                                    }
+                                }
+                            }
+                        }
+                    })
+            } catch (e: Exception) {
+                // Ini adalah "jaring pengaman" terakhir untuk mencegah crash di Android Oreo/Lollipop
+                Log.e("AdMob", "Fatal Error di setupInterstitial: ${e.message}")
             }
         }
     }
@@ -1112,7 +1392,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             .addOnCompleteListener { task: Task<String> ->
                 if (!task.isSuccessful) {
                     Log.w("response", "Fetching FCM registration token failed", task.exception)
-                    getFirebaseToken()
+                    //getFirebaseToken()
                     return@addOnCompleteListener
                 }
 
@@ -1242,45 +1522,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }*/
 
 
-    private val interstitialAdId = "Interstitial_Android"
 
-    // Load dulu
-
-
-    // Tampilkan saat dibutuhkan
-    /*fun showInterstitialUnity() {
-        try {
-            UnityAds.show(this,"Interstitial_Android", object : IUnityAdsShowListener {
-                override fun onUnityAdsShowComplete(
-                    placementId: String?,
-                    state: UnityAdsShowCompletionState?
-                ) {
-                    if (placementId == interstitialAdId && state == UnityAdsShowCompletionState.COMPLETED) {
-                        Log.d("UnityAds", "Ad Completed")
-                        // Reward atau lanjutkan
-                    }
-                }
-
-                override fun onUnityAdsShowStart(placementId: String?) {
-                    Log.d("UnityAds", "Ad Started")
-                }
-
-                override fun onUnityAdsShowClick(placementId: String?) {
-                    Log.d("UnityAds", "Ad Clicked")
-                }
-
-                override fun onUnityAdsShowFailure(
-                    placementId: String?,
-                    error: UnityAdsShowError?,
-                    message: String?
-                ) {
-                    Log.e("UnityAds", "Ad Show Failed: $message")
-                }
-            })
-        }catch (e : Exception){
-
-        }
-    }*/
 
     fun isInternetConnected(): Boolean {
         val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager

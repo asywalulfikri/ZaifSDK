@@ -85,7 +85,7 @@ class VoiceRecordFragmentVerticalZaif :
                     volumeMusic = dataSession.getVolumeMusic()
                     volumeAudio = dataSession.getVolumeAudio()
                     zaifSDKBuilder =
-                        ZaifSDKBuilder.builder(appContext).loadFromSharedPreferences()
+                        ZaifSDKBuilder.builder(appContext)
                 }
 
                 setupView()

@@ -18,6 +18,16 @@ android {
         versionName "0.0.35"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
+
+
+        buildConfigField("Boolean", "showNote", "false")
+        buildConfigField("Boolean", "showChangeColor", "false")
+        buildConfigField("Boolean", "showVolume", "true")
+        buildConfigField("Boolean", "showListSong", "true")
+        buildConfigField("Boolean", "showTooltip", "true")
+        buildConfigField("Boolean", "fanEnable", "true")
+        buildConfigField("Boolean", "hasSong", "true")
+        buildConfigField("String", "developerName", "\"sayunara+dev\"")
     }
 
     buildTypes {

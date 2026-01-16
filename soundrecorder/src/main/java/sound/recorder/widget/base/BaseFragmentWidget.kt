@@ -146,7 +146,8 @@ open class BaseFragmentWidget : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        zaifSDKBuilder = ZaifSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
+        zaifSDKBuilder = ZaifSDKBuilder.builder(requireContext())
+       // val savedConfig = ZaifSDKBuilder.load(context)
 
         // Run in background thread
        /* CoroutineScope(Dispatchers.IO).launch {
