@@ -86,6 +86,7 @@ import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.notes.Note
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.Toastic
+import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration.Companion.seconds
 
@@ -136,6 +137,13 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var isBannerLoading = false
     private val adLoadTimeout = 10_000L // 10 detik timeout
     private var loadTimeoutRunnable: Runnable? = null
+
+
+    //banner home
+    private var loadBannerRunnable: Runnable? = null
+
+    private var bannerContainerRef: WeakReference<FrameLayout>? = null
+
 
 
     companion object {
@@ -241,49 +249,54 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
 
-    protected fun loadBannerHome(
-        container: FrameLayout?
-    ) {
-        val bannerId = admobSDKBuilder?.bannerHomeId.toString()
+    protected fun loadBannerHome(container: FrameLayout?) {
+        val bannerId = admobSDKBuilder?.bannerHomeId.orEmpty()
         if (container == null || bannerId.isBlank()) return
         if (isBannerLoaded || isLoading) return
-
-        // Pastikan di main thread & activity masih hidup
         if (!isAlive()) return
 
-        // Gunakan HANYA 1 post (bukan double post)
-        container.postDelayed({
-            if (!isAlive() || !container.isAttachedToWindow) return@postDelayed
+        bannerContainerRef = WeakReference(container)
+
+        loadBannerRunnable?.let { container.removeCallbacks(it) }
+
+        val runnable = Runnable {
+            val safeContainer = bannerContainerRef?.get()
+            if (!isAlive() || safeContainer == null || !safeContainer.isAttachedToWindow) return@Runnable
 
             try {
-                initAdView(container, bannerId)
+                initAdView(safeContainer, bannerId)
                 loadAdWithTimeout()
             } catch (e: Exception) {
                 isLoading = false
-                Log.e("Ads", "Banner exception", e)
+                Log.e("Ads", "Banner error", e)
             }
-        }, 300) // Delay untuk anti-ANR
+        }
+
+        loadBannerRunnable = runnable
+        container.postDelayed(runnable, 300)
     }
 
     private fun isAlive() = !isFinishing && !isDestroyed
 
-
     private fun loadAdWithTimeout() {
+        if (!isAlive()) return
         isLoading = true
 
-        // Set timeout untuk mencegah hang
-        loadTimeoutRunnable = Runnable {
+        loadTimeoutRunnable?.let { adView?.removeCallbacks(it) }
+
+        val timeout = Runnable {
             if (isLoading) {
                 isLoading = false
-                Log.e("Ads", "Ad load timeout")
+                Log.e("Ads", "Banner load timeout")
             }
-        }.also {
-            adView?.postDelayed(it, adLoadTimeout)
         }
 
-        // Load ad secara asynchronous
+        loadTimeoutRunnable = timeout
+        adView?.postDelayed(timeout, adLoadTimeout)
+
         adView?.loadAd(AdRequest.Builder().build())
     }
+
 
     private fun cancelTimeout() {
         loadTimeoutRunnable?.let { adView?.removeCallbacks(it) }
@@ -291,35 +304,35 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
     private fun createAdListener() = object : AdListener() {
+
         override fun onAdLoaded() {
             cancelTimeout()
-            isBannerLoaded = true
             isLoading = false
+            isBannerLoaded = true
             Log.d("Ads", "Banner loaded")
         }
 
         override fun onAdFailedToLoad(error: LoadAdError) {
             cancelTimeout()
             isLoading = false
-            Log.e("Ads", "Failed: ${error.message}")
+            Log.e("Ads", "Banner failed: ${error.message}")
         }
     }
+
     private fun initAdView(container: FrameLayout, bannerId: String) {
         if (adView == null) {
             adView = AdView(this).apply {
-                setAdSize(AdSize.BANNER)
                 adUnitId = bannerId
-                descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
+                setAdSize(AdSize.BANNER)
+                adListener = createAdListener()
             }
         }
 
-        // Prevent double parent
         (adView?.parent as? ViewGroup)?.removeView(adView)
         container.removeAllViews()
         container.addView(adView)
-
-        adView?.adListener = createAdListener()
     }
+
 
     private fun getAdSize2(): AdSize {
         // 1. Ambil lebar layar dalam pixel dengan cara paling modern (API 30+)
@@ -463,12 +476,12 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     override fun onDestroy() {
-        adView?.animate()?.cancel()
-        adView?.destroy()
-        adView = null
+
+        cleanBannerHome()
+
+        ///////////////////
 
         cleanupBannerAd()
-
         bannerHandler?.removeCallbacksAndMessages(null)
         bannerHandler = null
 
@@ -476,6 +489,33 @@ open class BaseActivityWidget : AppCompatActivity() {
         isLoading = false
         mInterstitialAd = null
         super.onDestroy()
+    }
+
+    private fun cleanBannerHome(){
+        // 1. Hentikan timeout runnable dari adView
+        loadTimeoutRunnable?.let {
+            adView?.removeCallbacks(it)
+        }
+
+        // 2. Hentikan load runnable dari container
+        // Ambil container dari WeakRef secara lokal agar konsisten
+        val container = bannerContainerRef?.get()
+        loadBannerRunnable?.let {
+            container?.removeCallbacks(it)
+        }
+
+        // 3. Bersihkan listener (Mencegah callback masuk ke activity yang sedang destroy)
+        adView?.adListener = object : AdListener() {} // Dummy listener
+
+        // 4. Hentikan animasi dan hancurkan AdView
+        adView?.animate()?.cancel()
+        adView?.destroy()
+
+        // 5. Nullified semua property
+        adView = null
+        bannerContainerRef = null
+        loadBannerRunnable = null
+        loadTimeoutRunnable = null
     }
 
 
@@ -704,9 +744,12 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
     fun setToastADS(message : String){
-        if(admobSDKBuilder?.showToast==true){
-            Toast.makeText(this,message, Toast.LENGTH_LONG).show()
+        if (!isFinishing && !isDestroyed) {
+            if(admobSDKBuilder?.showToast==true){
+                Toast.makeText(this,message, Toast.LENGTH_LONG).show()
+            }
         }
+
     }
 
 
