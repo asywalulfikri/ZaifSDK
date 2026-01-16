@@ -81,8 +81,6 @@ class VoiceRecordFragmentHorizontalZaif :
                     sharedPreferences = dataSession.getShared()
                     volumeMusic = dataSession.getVolumeMusic()
                     volumeAudio = dataSession.getVolumeAudio()
-                    zaifSDKBuilder =
-                        ZaifSDKBuilder.builder(appContext)
                 }
 
                 setupView()
@@ -101,7 +99,7 @@ class VoiceRecordFragmentHorizontalZaif :
     // =========================
 
     private fun setupView() {
-        setupWidget(zaifSDKBuilder, _binding)
+        setupWidget(zaifSDKConfig, _binding)
 
         musicViewModel.setRecord.observe(viewLifecycleOwner) {
             when (it) {

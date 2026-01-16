@@ -63,7 +63,7 @@ open class FragmentSettings : BaseFragmentWidget() {
                 val createChooser = Intent.createChooser(
                     Intent(
                         "android.intent.action.VIEW",
-                        Uri.parse("https://play.google.com/store/apps/details?id=" + zaifSDKBuilder?.applicationId)
+                        Uri.parse("https://play.google.com/store/apps/details?id=" + zaifSDKConfig?.applicationId)
                     ), "Share via"
                 )
                 createChooser.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -71,12 +71,12 @@ open class FragmentSettings : BaseFragmentWidget() {
             }
 
             binding.llHelp.setOnClickListener {
-                showDialogEmail(zaifSDKBuilder?.appName.toString(),getInfo())
+                showDialogEmail(zaifSDKConfig?.appName.toString(),getInfo())
 
             }
 
             binding.llMoreApps.setOnClickListener {
-                openPlayStoreForMoreApps(zaifSDKBuilder?.developerName)
+                openPlayStoreForMoreApps(zaifSDKConfig?.developerName)
             }
 
 
@@ -107,9 +107,9 @@ open class FragmentSettings : BaseFragmentWidget() {
             binding.llShareWithFriends.setOnClickListener {
                 val shareIntent = Intent(Intent.ACTION_SEND)
                 shareIntent.type = "text/plain"
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, zaifSDKBuilder?.applicationId)
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, zaifSDKConfig?.applicationId)
                 val shareMessage =
-                    "Let me recommend you this application\n\nhttps://play.google.com/store/apps/details?id="+zaifSDKBuilder?.applicationId
+                    "Let me recommend you this application\n\nhttps://play.google.com/store/apps/details?id="+zaifSDKConfig?.applicationId
                 shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
                 startActivity(Intent.createChooser(shareIntent, requireActivity().getString(R.string.choose_one)))
             }
@@ -141,7 +141,7 @@ open class FragmentSettings : BaseFragmentWidget() {
 
 
     private fun getInfo(): String {
-        val appInfo = "VC" + zaifSDKBuilder?.versionCode
+        val appInfo = "VC" + zaifSDKConfig?.versionCode
         val androidVersion = "SDK" + Build.VERSION.SDK_INT
         val androidOS = "OS" + Build.VERSION.RELEASE
         val languageCode = "LC"+getLanguageCode()

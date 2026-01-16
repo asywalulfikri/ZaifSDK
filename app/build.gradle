@@ -20,8 +20,8 @@ android {
         multiDexEnabled = true
 
 
-        buildConfigField("Boolean", "showNote", "false")
-        buildConfigField("Boolean", "showChangeColor", "false")
+        buildConfigField("Boolean", "showNote", "true")
+        buildConfigField("Boolean", "showChangeColor", "true")
         buildConfigField("Boolean", "showVolume", "true")
         buildConfigField("Boolean", "showListSong", "true")
         buildConfigField("Boolean", "showTooltip", "true")

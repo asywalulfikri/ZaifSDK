@@ -85,7 +85,6 @@ class VoiceRecordFragmentHorizontalZaif2 : BaseFragmentWidget(),SharedPreference
                     sharedPreferences = dataSession.getShared()
                     volumeMusic = dataSession.getVolumeMusic()
                     volumeAudio = dataSession.getVolumeAudio()
-                    zaifSDKBuilder = ZaifSDKBuilder.builder(safeContext)
                     handler = Handler(Looper.getMainLooper())
 
                 }
@@ -115,7 +114,7 @@ class VoiceRecordFragmentHorizontalZaif2 : BaseFragmentWidget(),SharedPreference
     private fun setupView() {
 
         //setup Item Widget like visibility and color
-        setupWidget(zaifSDKBuilder,binding)
+        setupWidget(zaifSDKConfig,binding)
 
 
         musicViewModel.setRecord.observe(viewLifecycleOwner) { isRecord ->
