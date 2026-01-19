@@ -294,7 +294,7 @@ class FragmentListSong(
         }
     }
 
-    private fun updateView() {
+   /* private fun updateView() {
         if (activity != null) {
             try {
                 binding?.progressBar?.visibility = View.GONE
@@ -318,6 +318,75 @@ class FragmentListSong(
             } catch (e: Exception) {
                 setLog(e.message.toString())
             }
+        }
+    }*/
+
+
+    private fun updateView() {
+        if (activity == null || binding == null) return
+
+        try {
+            binding?.progressBar?.visibility = View.GONE
+            val listSong = listTitleSong // Tidak perlu .toTypedArray() jika hanya untuk List
+
+            // Ambil adapter yang sudah ada, casting secara eksplisit ke String
+            val currentAdapter = binding?.listView?.adapter as? ArrayAdapter<String>
+
+            if (currentAdapter == null) {
+                // Inisialisasi pertama kali
+                val newAdapter = ArrayAdapter(requireContext(), R.layout.item_simple_song, ArrayList(listSong))
+                binding?.listView?.adapter = newAdapter
+            } else {
+                // Update data yang sudah ada
+                currentAdapter.clear()
+                currentAdapter.addAll(listSong) // listSong di sini otomatis terbaca sebagai List<String>
+                currentAdapter.notifyDataSetChanged()
+            }
+
+            // Set listener cukup sekali saja
+            binding?.listView?.setOnItemClickListener { _, _, i, _ ->
+                // logic play music Anda
+            }
+
+        } catch (e: Exception) {
+            setLog(e.message.toString())
+        }
+    }
+
+    private fun updateViewp() {
+        if (activity == null || binding == null) return
+
+        try {
+            binding?.progressBar?.visibility = View.GONE
+            val listSong = listTitleSong.toTypedArray()
+
+            // 1. Cek apakah adapter sudah ada
+            if (binding?.listView?.adapter == null) {
+                adapter = ArrayAdapter(requireContext(), R.layout.item_simple_song, ArrayList(listTitleSong))
+                binding?.listView?.adapter = adapter
+            } else {
+                // 2. Jika sudah ada, cukup update datanya saja
+
+
+                (binding?.listView?.adapter as? ArrayAdapter<String>)?.let { adapter ->
+                    adapter.clear()
+                    adapter.addAll(listSong.toList()) // Tambahkan .toList() di sini
+                    adapter.notifyDataSetChanged()
+                }
+            }
+
+            // 3. Pindahkan listener ke luar atau set hanya sekali
+            binding?.listView?.setOnItemClickListener { _, _, i, _ ->
+                try {
+                    binding?.tvTitle?.text = listTitleSong[i]
+                    musicViewModel.playMusic(requireContext(), listLocationSong[i])
+                    musicViewModel.setNote(listNoteSong[i])
+                } catch (e: Exception) {
+                    setToast(e.message)
+                }
+            }
+        } catch (e: Exception) {
+            setLog(e.message.toString())
         }
     }
 

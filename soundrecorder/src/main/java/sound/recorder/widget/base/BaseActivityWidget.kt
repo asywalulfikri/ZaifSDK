@@ -325,6 +325,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 adUnitId = bannerId
                 setAdSize(AdSize.BANNER)
                 adListener = createAdListener()
+                descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
             }
         }
 
@@ -828,6 +829,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             try {
                 adView2 = AdView(this).apply {
                     adUnitId = admobSDKBuilder?.bannerId.orEmpty()
+                    descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
                     setAdSize(getAdSize2())
                 }
             } catch (e: Exception) {
@@ -854,6 +856,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             try {
                 adView2 = AdView(this).apply {
                     adUnitId = admobSDKBuilder?.bannerId.orEmpty()
+                    descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
                     setAdSize(getAdSize2())
                 }
             } catch (e: Exception) {
