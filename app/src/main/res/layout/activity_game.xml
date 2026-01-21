@@ -17,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <FrameLayout
+    <sound.recorder.widget.util.SafeFrameLayout
         android:id="@+id/bannerHome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -25,11 +25,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <FrameLayout
+    <sound.recorder.widget.util.SafeFrameLayout
         android:id="@+id/bannerGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="1dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

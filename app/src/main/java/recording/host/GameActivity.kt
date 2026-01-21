@@ -11,6 +11,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import recording.host.cons.Constants
@@ -154,6 +155,8 @@ class GameActivity : BaseActivity(),
         }
     }
 
+
+
     /** =====================
      *  ADS SETUP (STRICTLY ONCE)
      *  ===================== */
@@ -168,19 +171,19 @@ class GameActivity : BaseActivity(),
         if (!adsSetupCalled.compareAndSet(false, true)) return
 
         lifecycleScope.launch {
-            // beri waktu UI settle
-            kotlinx.coroutines.delay(1200)
+            delay(1200)
 
             _binding?.let {
-                loadBannerGame(it.bannerGame,true)
-                setupInterstitial()
+                loadBannerGame(it.bannerGame, true)
             }
 
-            // banner kedua dibuat jauh lebih lambat
-            kotlinx.coroutines.delay(15000)
+            delay(2500)
+            setupInterstitial()
 
+            delay(15000)
             setToastADS("load banner ke 2")
-           _binding?.let {
+
+            _binding?.let {
                 loadBannerHome(it.bannerHome)
             }
         }
@@ -204,15 +207,26 @@ class GameActivity : BaseActivity(),
 
     override fun onViewBannerHome(show: Boolean) {
         _binding?.apply {
-            val homeTarget = if (show) View.GONE else View.VISIBLE
-            val gameTarget = if (show) View.VISIBLE else View.GONE
+            // Hentikan animasi sebelumnya jika ada
+            bannerHome.animate().cancel()
+            bannerGame.animate().cancel()
 
-            // Animasi halus agar tidak UI Lag
-            bannerHome.animate().alpha(if (show) 0f else 1f).withEndAction {
-                bannerHome.visibility = homeTarget
-            }
-            bannerGame.animate().alpha(if (show) 1f else 0f).withStartAction {
-                bannerGame.visibility = gameTarget
+            if (show) {
+                // Skenario Tampilkan Game, Sembunyikan Home
+                bannerHome.visibility = View.GONE
+                bannerGame.apply {
+                    alpha = 0f
+                    visibility = View.VISIBLE
+                    animate().alpha(1f).setDuration(300).start()
+                }
+            } else {
+                // Skenario Tampilkan Home, Sembunyikan Game
+                bannerGame.visibility = View.GONE
+                bannerHome.apply {
+                    alpha = 0f
+                    visibility = View.VISIBLE
+                    animate().alpha(1f).setDuration(300).start()
+                }
             }
         }
     }

@@ -1,3 +1,4 @@
+/*
 package sound.recorder.widget.ui.bottomSheet
 
 import android.annotation.SuppressLint
@@ -119,11 +120,13 @@ class BottomSheetListSong(private var showBtnStop: Boolean, private var listener
     }
 
     private fun getSong(list : ArrayList<Song>){
-       /* if(Build.VERSION.SDK_INT>32){
+       */
+/* if(Build.VERSION.SDK_INT>32){
             getTiramisu(list)
         }else{
             getAllMediaMp3Files(list)
-        }*/
+        }*//*
+
         getAllMediaMp3Files(list)
     }
 
@@ -352,4 +355,4 @@ class BottomSheetListSong(private var showBtnStop: Boolean, private var listener
         applyImmersiveMode()
     }
 
-}
+}*/

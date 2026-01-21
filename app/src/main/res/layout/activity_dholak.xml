@@ -16,9 +16,15 @@
         android:layout_height="wrap_content" />
 
 
+    <Button
+        android:id="@+id/btnNoteFire"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
     <LinearLayout
         android:id="@+id/llDholak"
-        android:layout_above="@+id/recordView"
+        android:layout_toEndOf="@+id/recordView"
         android:layout_width="match_parent"
         android:orientation="horizontal"
         android:gravity="center"

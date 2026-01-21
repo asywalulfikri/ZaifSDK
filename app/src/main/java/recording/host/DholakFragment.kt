@@ -15,10 +15,12 @@ import recording.host.databinding.ActivityDholakBinding
 import sound.recorder.widget.listener.MusicListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyMusicListener
+import sound.recorder.widget.ui.bottomSheet.BottomSheetNoteFirebase
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.ProgressDialogUtil
+import sound.recorder.widget.util.Toastic
 
 class DholakFragment : BaseFragment(),
     MusicListener,
@@ -66,6 +68,28 @@ class DholakFragment : BaseFragment(),
         }
 
         initAnim(binding.ivStop)
+
+
+        binding.btnNoteFire.setOnClickListener {
+            val act = activity ?: return@setOnClickListener
+
+            if (!isInternetConnected(act)) {
+                setToastTic(
+                    Toastic.WARNING,
+                    act.getString(sound.recorder.widget.R.string.no_internet_connection)
+                )
+                return@setOnClickListener
+            }
+
+            runCatching {
+                BottomSheetNoteFirebase()
+                    .show(parentFragmentManager, "note_sheet")
+            }.onFailure {
+                activity?.let { ctx ->
+                    setToastError(ctx, it.message.orEmpty())
+                }
+            }
+        }
     }
 
     private fun setupListeners() {
