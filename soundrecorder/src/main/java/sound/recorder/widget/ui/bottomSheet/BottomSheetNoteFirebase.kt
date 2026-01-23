@@ -1,18 +1,11 @@
 package sound.recorder.widget.ui.bottomSheet
 
-import android.app.Activity
-import android.content.Context
-import android.os.Build
+
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -23,7 +16,6 @@ import sound.recorder.widget.notes.Note
 import sound.recorder.widget.notes.NotesAdapter
 import sound.recorder.widget.notes.utils.MyDividerItemDecoration
 import sound.recorder.widget.notes.utils.RecyclerTouchListener
-import sound.recorder.widget.util.Toastic
 import java.util.Locale
 
 
@@ -142,7 +134,7 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment() {
 
     private fun onItemSelected(position: Int) {
         if (position in notesList.indices) {
-            MyNoteListener.postActionCompleted(notesList[position])
+            MyNoteListener.postNote(notesList[position].note)
             dismissAllowingStateLoss()
         }
     }

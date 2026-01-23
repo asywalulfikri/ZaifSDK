@@ -8,7 +8,7 @@ object MyNoteListener {
     fun setMyListener(listener: NoteListener? =null) {
         myListener = listener
     }
-    fun postActionCompleted(note: Note?) {
-        myListener?.onCallback(note)
+    fun postNote(note: String) {
+        myListener?.onNoteCallback(note)
     }
 }

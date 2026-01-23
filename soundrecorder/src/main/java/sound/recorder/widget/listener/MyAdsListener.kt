@@ -13,8 +13,9 @@ object MyAdsListener {
     fun setHideAllBanner(){
         myListener?.onHideAllBanner()
     }
-    fun setOnShowInterstitial() {
-        myListener?.onShowInterstitial()
+
+    fun loadInterstitial() {
+        myListener?.loadInterstitial()
     }
 
 }

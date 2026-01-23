@@ -58,6 +58,7 @@ class GameActivity : BaseActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         _binding = ActivityGameBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -174,18 +175,23 @@ class GameActivity : BaseActivity(),
             delay(1200)
 
             _binding?.let {
-                loadBannerGame(it.bannerGame, true)
+                loadBannerGame(it.bannerGame, false)
             }
 
-            delay(2500)
-            setupInterstitial()
+           /* delay(10000)
 
-            delay(15000)
-            setToastADS("load banner ke 2")
+            try {
+                val app = application as GameApp
 
-            _binding?.let {
-                loadBannerHome(it.bannerHome)
-            }
+                if (app.isUnityAdsReady()) {
+                    _binding?.let {
+                        loadBannerUnity(it.bannerHome)
+                    }
+                }
+            }catch ( e : Exception){
+
+            }*/
+
         }
     }
 
@@ -207,26 +213,15 @@ class GameActivity : BaseActivity(),
 
     override fun onViewBannerHome(show: Boolean) {
         _binding?.apply {
-            // Hentikan animasi sebelumnya jika ada
-            bannerHome.animate().cancel()
-            bannerGame.animate().cancel()
+            val homeTarget = if (show) View.GONE else View.VISIBLE
+            val gameTarget = if (show) View.VISIBLE else View.GONE
 
-            if (show) {
-                // Skenario Tampilkan Game, Sembunyikan Home
-                bannerHome.visibility = View.GONE
-                bannerGame.apply {
-                    alpha = 0f
-                    visibility = View.VISIBLE
-                    animate().alpha(1f).setDuration(300).start()
-                }
-            } else {
-                // Skenario Tampilkan Home, Sembunyikan Game
-                bannerGame.visibility = View.GONE
-                bannerHome.apply {
-                    alpha = 0f
-                    visibility = View.VISIBLE
-                    animate().alpha(1f).setDuration(300).start()
-                }
+            // Animasi halus agar tidak UI Lag
+            bannerHome.animate().alpha(if (show) 0f else 1f).withEndAction {
+                bannerHome.visibility = homeTarget
+            }
+            bannerGame.animate().alpha(if (show) 1f else 0f).withStartAction {
+                bannerGame.visibility = gameTarget
             }
         }
     }
@@ -238,9 +233,11 @@ class GameActivity : BaseActivity(),
         }
     }
 
-    override fun onShowInterstitial() {
-        showInterstitial()
+
+    override fun loadInterstitial() {
+        loadInterstitialIfNeeded()
     }
+
 
     /** =====================
      *  SAFE HELPERS

@@ -16,6 +16,7 @@ class AdmobSDKBuilder private constructor(
     val nativeId : String?,
     val appOpenId : String?,
     val orientationAds : Int?,
+    val unityGameId: String?,
     val showToast : Boolean?
 ) {
 
@@ -30,6 +31,8 @@ class AdmobSDKBuilder private constructor(
         private var nativeId : String? = null
         private var appOpenId : String? =null
         private var orientationAds : Int? =null
+
+        private var unityGameId : String? =null
         private var showToast : Boolean? = null
 
         fun setAdmobId(admobId: String?): Builder {
@@ -77,6 +80,11 @@ class AdmobSDKBuilder private constructor(
             return this
         }
 
+        fun setUnityGameId(unityGameId: String?): Builder {
+            this.unityGameId = unityGameId
+            return this
+        }
+
         fun setToast(showToast: Boolean?): Builder {
             this.showToast = showToast
             return this
@@ -87,7 +95,7 @@ class AdmobSDKBuilder private constructor(
         fun build(): AdmobSDKBuilder {
             val zaifSDKBuilder = AdmobSDKBuilder(
                 admobId, bannerId,bannerHomeId, interstitialId, rewardId, rewardInterstitialId,
-                nativeId, appOpenId ,orientationAds,showToast)
+                nativeId, appOpenId ,orientationAds,unityGameId,showToast)
 
             return zaifSDKBuilder
         }

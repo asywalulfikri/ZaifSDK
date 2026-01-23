@@ -163,7 +163,7 @@ class BottomSheetNote3 : BottomSheetDialogFragment() {
     }
 
     private fun useNote(note: Note) {
-        MyNoteListener.postActionCompleted(note)
+        MyNoteListener.postNote(note.note)
         dismissAllowingStateLoss()
     }
 

@@ -3,6 +3,7 @@ package recording.host
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -10,11 +11,16 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.launch
 import recording.host.databinding.ActivityDholakBinding
 import sound.recorder.widget.listener.MusicListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyMusicListener
+import sound.recorder.widget.listener.MyNoteListener
+import sound.recorder.widget.listener.NoteListener
+import sound.recorder.widget.notes.Note
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNoteFirebase
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.Constant
@@ -23,7 +29,7 @@ import sound.recorder.widget.util.ProgressDialogUtil
 import sound.recorder.widget.util.Toastic
 
 class DholakFragment : BaseFragment(),
-    MusicListener,
+    MusicListener, NoteListener,
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     private var _binding: ActivityDholakBinding? = null
@@ -36,6 +42,7 @@ class DholakFragment : BaseFragment(),
     private val type = "dholak"
 
     private var backCallback: OnBackPressedCallback? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,7 +64,13 @@ class DholakFragment : BaseFragment(),
         setupListeners()
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
     private fun setupUI() {
+        MyAdsListener.loadInterstitial()
+
         myAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.button)
 
         val background = DataSession(requireContext()).getBackgroundColor()
@@ -94,6 +107,7 @@ class DholakFragment : BaseFragment(),
 
     private fun setupListeners() {
         MyMusicListener.setMyListener(this)
+        MyNoteListener.setMyListener(this)
 
         binding.ivStop.setOnClickListener {
             viewModel.stopMusic()
@@ -111,20 +125,28 @@ class DholakFragment : BaseFragment(),
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+    }
+
     private fun setupBackPressed() {
         backCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                isEnabled = false
-                MyAdsListener.setBannerHome(false)
-                MyAdsListener.setOnShowInterstitial()
-                findNavController().navigateUp()
+
+                (activity as? GameActivity)?.showInterstitialIfAllowed {
+
+                    if (!isAdded) return@showInterstitialIfAllowed
+                    findNavController().navigateUp()
+                }
             }
         }
+
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             backCallback!!
         )
     }
+
 
     private fun setupPreferences() {
         sharedPreferences = DataSession(requireContext()).getShared()
@@ -224,10 +246,25 @@ class DholakFragment : BaseFragment(),
 
         // 🔥 INI WAJIB
         MyMusicListener.setMyListener(null)
+        MyNoteListener.setMyListener(null)
         backCallback?.remove()
         sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
         ProgressDialogUtil.dismiss()
 
         _binding = null
+    }
+
+    override fun onNoteCallback(note: String?) {
+        if (!isAdded) return
+        try {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val b = binding
+                b.etNote.text = note.toString()
+            }
+        }catch (e : Exception){
+           setLog(e.message)
+        }
+
+
     }
 }

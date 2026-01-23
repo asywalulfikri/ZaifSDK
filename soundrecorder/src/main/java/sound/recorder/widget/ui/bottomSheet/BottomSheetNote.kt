@@ -156,7 +156,14 @@ class BottomSheetNote : BottomSheetDialogFragment() {
                 builder.setTitle(activity.getString(R.string.choose))
                 builder.setItems(colors) { _, which ->
                     when (which) {
-                        0 -> useNote(notesList[position])
+                        0 -> {
+                            try {
+                                val notes = Gson().fromJson(notesList[position].note, Note::class.java)
+                                useNote(notes.note)
+                            }catch (e : Exception){
+
+                            }
+                        }
                         1 -> showNoteDialog(true, notesList[position], position)
                         2 ->  deleteNote(position)
                     }
@@ -183,8 +190,8 @@ class BottomSheetNote : BottomSheetDialogFragment() {
 
     }
 
-    private fun useNote(note: Note) {
-        MyNoteListener.postActionCompleted(note)
+    private fun useNote(note: String?) {
+        MyNoteListener.postNote(note.toString())
         dismiss()
     }
 

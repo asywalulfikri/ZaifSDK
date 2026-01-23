@@ -64,6 +64,8 @@ open class GameApp: MyApp(), AdConfigProvider {
         super.onCreate()
         BaseActivityWidget.adConfigProvider = this
 
+        initUnityAdsOnce(BuildConfig.unityGameId)
+
         appScope.launch {
             try {
                 // 1️⃣ Tunggu essential dari MyApp (maks 2 detik)
@@ -138,7 +140,8 @@ open class GameApp: MyApp(), AdConfigProvider {
                         setRewardInterstitialId(Constants.AdsProductionId.admobRewardInterstitialId)
                     }
                 }
-                .setToast(false)
+                .setUnityGameId(BuildConfig.unityGameId)
+                .setToast(true)
                 .build()
 
         } catch (e: Exception) {

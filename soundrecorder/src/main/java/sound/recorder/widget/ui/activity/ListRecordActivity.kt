@@ -44,7 +44,7 @@ internal class ListRecordActivity : BaseActivityWidget(), AudioRecorderAdapter.O
 
         setSupportActionBar(binding.toolbar)
 
-        setupInterstitial()
+
         setupRewardInterstitial()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -169,7 +169,7 @@ internal class ListRecordActivity : BaseActivityWidget(), AudioRecorderAdapter.O
         val intent = Intent()
         setResult(RESULT_OK,intent)
         finish()
-        showInterstitial()
+
     }
 
     private fun fetchAll(){

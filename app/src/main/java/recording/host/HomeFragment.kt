@@ -47,8 +47,14 @@ class HomeFragment : BaseFragmentWidget() {
 
         binding?.btnNext?.setOnClickListener {
             try {
-                MyAdsListener.setBannerHome(true)
-                findNavController().navigate(R.id.action_home_fragment_to_dholak_fragment)
+
+                (activity as? GameActivity)?.showInterstitialIfAllowed {
+
+                    if (!isAdded) return@showInterstitialIfAllowed
+                    MyAdsListener.setBannerHome(true)
+                    findNavController().navigate(R.id.action_home_fragment_to_dholak_fragment)
+                }
+
             } catch (e: Exception) {
                 setToast(e.message.toString())
             }

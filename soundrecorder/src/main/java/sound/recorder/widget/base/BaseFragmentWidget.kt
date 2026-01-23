@@ -1711,7 +1711,7 @@ open class BaseFragmentWidget : Fragment() {
 
 
 
-    fun setupInterstitial() {
+    private fun setupInterstitial() {
 
         if(isWebViewSupported()&&isWebViewAvailable()){
 

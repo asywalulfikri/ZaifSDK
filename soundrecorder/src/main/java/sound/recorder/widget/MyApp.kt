@@ -9,6 +9,8 @@ import android.util.Log
 import android.webkit.WebView
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
+import com.unity3d.ads.IUnityAdsInitializationListener
+import com.unity3d.ads.UnityAds
 import kotlinx.coroutines.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.resume
@@ -256,5 +258,46 @@ open class MyApp : Application() {
                 // Cleanup resources jika perlu
             }
         }
+    }
+
+    fun initUnityAdsOnce(unityId : String? = null) {
+
+        if(unityId!=null){
+            if (UnityAds.isInitialized) {
+                Log.d("UNITY_ADS", "Already initialized")
+                return
+            }
+
+            try {
+                UnityAds.initialize(
+                    applicationContext, // Application context = aman
+                    unityId,
+                    true, // true hanya untuk testing
+                    object : IUnityAdsInitializationListener {
+
+                        override fun onInitializationComplete() {
+                            Log.d("UNITY_ADS", "Initialization success")
+                        }
+
+                        override fun onInitializationFailed(
+                            error: UnityAds.UnityAdsInitializationError,
+                            message: String
+                        ) {
+                            // NOTE:
+                            // Jangan retry initialize
+                            // Tangani fallback ads di layer lain
+                            Log.e("UNITY_ADS", "Initialization failed: $error - $message")
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                Log.e("UNITY_ADS", "Initialization exception", e)
+            }
+        }
+
+    }
+
+    fun isUnityAdsReady(): Boolean {
+        return UnityAds.isInitialized
     }
 }

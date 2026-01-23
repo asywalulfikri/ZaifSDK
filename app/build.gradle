@@ -27,6 +27,7 @@ android {
         buildConfigField("Boolean", "showTooltip", "true")
         buildConfigField("Boolean", "fanEnable", "true")
         buildConfigField("Boolean", "hasSong", "true")
+        buildConfigField("String", "unityGameId", "\"5278177\"")
         buildConfigField("String", "developerName", "\"sayunara+dev\"")
     }
 

@@ -4,5 +4,5 @@ interface AdsListener {
 
     fun onViewBannerHome(show: Boolean)
     fun onHideAllBanner()
-    fun onShowInterstitial()
+    fun loadInterstitial()
 }
