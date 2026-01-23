@@ -271,8 +271,7 @@ open class MyApp : Application() {
             try {
                 UnityAds.initialize(
                     applicationContext, // Application context = aman
-                    unityId,
-                    true, // true hanya untuk testing
+                    unityId,// true hanya untuk testing
                     object : IUnityAdsInitializationListener {
 
                         override fun onInitializationComplete() {

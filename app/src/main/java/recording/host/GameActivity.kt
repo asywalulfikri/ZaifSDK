@@ -177,8 +177,7 @@ class GameActivity : BaseActivity(),
             _binding?.let {
                 loadBannerGame(it.bannerGame, false)
             }
-
-           /* delay(10000)
+            delay(10000)
 
             try {
                 val app = application as GameApp
@@ -190,7 +189,7 @@ class GameActivity : BaseActivity(),
                 }
             }catch ( e : Exception){
 
-            }*/
+            }
 
         }
     }
