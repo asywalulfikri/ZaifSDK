@@ -22,7 +22,7 @@ import java.util.Locale
 class BottomSheetNoteFirebase : BottomSheetDialogFragment() {
 
     private var _binding: BottomSheetNotesBinding? = null
-    private val binding get() = _binding!!
+    private val bindingOrNull get() = _binding
 
     private val notesList = ArrayList<Note>()
     private lateinit var adapter: NotesAdapter
@@ -36,16 +36,14 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = BottomSheetNotesBinding.inflate(inflater, container, false)
-        return binding.root
+        return _binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupBottomSheet()
         setupRecyclerView()
         setupActions()
-
         fetchDocumentsFromCollection()
     }
 
@@ -63,7 +61,7 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment() {
     private fun setupRecyclerView() {
         adapter = NotesAdapter(notesList)
 
-        binding.recyclerView.apply {
+        bindingOrNull?.recyclerView?.apply {
             layoutManager = LinearLayoutManager(requireContext())
             itemAnimator = DefaultItemAnimator()
             addItemDecoration(
@@ -76,10 +74,10 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment() {
             adapter = this@BottomSheetNoteFirebase.adapter
         }
 
-        binding.recyclerView.addOnItemTouchListener(
+        bindingOrNull?.recyclerView?.addOnItemTouchListener(
             RecyclerTouchListener(
                 requireContext(),
-                binding.recyclerView,
+                bindingOrNull!!.recyclerView,
                 object : RecyclerTouchListener.ClickListener {
                     override fun onClick(view: View?, position: Int) {
                         onItemSelected(position)
@@ -94,9 +92,8 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment() {
     }
 
     private fun setupActions() {
-        binding.fab.visibility = View.GONE
-
-        binding.ivClose.setOnClickListener {
+        bindingOrNull?.fab?.visibility = View.GONE
+        bindingOrNull?.ivClose?.setOnClickListener {
             dismissAllowingStateLoss()
         }
     }
@@ -108,13 +105,14 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment() {
             .whereArrayContainsAny("language", listOf("en", languageCode))
             .get()
             .addOnSuccessListener { snapshot ->
-                notesList.clear()
+                if (!isAdded || _binding == null) return@addOnSuccessListener
 
+                notesList.clear()
                 for (document in snapshot) {
                     val data = document.data
                     val note = Note().apply {
-                        title = data["title"].toString()
-                        note = data["note"].toString()
+                        title = data["title"]?.toString().orEmpty()
+                        note = data["note"]?.toString().orEmpty()
                     }
                     notesList.add(note)
                 }
@@ -123,12 +121,15 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment() {
                 toggleEmptyView()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+                context?.let { ctx ->
+                    Toast.makeText(ctx, it.message, Toast.LENGTH_SHORT).show()
+                }
             }
     }
 
     private fun toggleEmptyView() {
-        binding.emptyNotesView.visibility =
+        val b = _binding ?: return
+        b.emptyNotesView.visibility =
             if (notesList.isEmpty()) View.VISIBLE else View.GONE
     }
 
@@ -140,7 +141,7 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment() {
     }
 
     override fun onDestroyView() {
-        binding.recyclerView.clearOnScrollListeners()
+        bindingOrNull?.recyclerView?.clearOnScrollListeners()
         _binding = null
         super.onDestroyView()
     }
