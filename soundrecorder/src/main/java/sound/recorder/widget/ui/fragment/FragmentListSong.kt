@@ -346,6 +346,13 @@ class FragmentListSong(
             // Set listener cukup sekali saja
             binding?.listView?.setOnItemClickListener { _, _, i, _ ->
                 // logic play music Anda
+                try {
+                    binding?.tvTitle?.text = listTitleSong[i].toString()
+                    musicViewModel.playMusic(requireContext(),listLocationSong[i].toString())
+                    musicViewModel.setNote(listNoteSong[i].toString())
+                }catch (e : Exception){
+                    setToast(e.message)
+                }
             }
 
         } catch (e: Exception) {
