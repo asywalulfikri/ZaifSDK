@@ -54,18 +54,10 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
-import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.android.gms.tasks.Task
-import com.google.android.play.core.appupdate.AppUpdateManager
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory
-import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
-import com.google.android.play.core.install.model.InstallStatus
-import com.google.android.play.core.install.model.UpdateAvailability
-import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
-import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
@@ -78,16 +70,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.R
 import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.ads.AdConfigProvider
-import sound.recorder.widget.ads.GoogleMobileAdsConsentManager
 import sound.recorder.widget.builder.AdmobSDKBuilder
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.notes.Note
@@ -95,7 +83,6 @@ import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.Toastic
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.time.Duration.Companion.seconds
 
 
 open class BaseActivityWidget : AppCompatActivity() {
@@ -113,9 +100,6 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private var isPrivacyOptionsRequired: Boolean = false
 
-
-    private lateinit var appUpdateManager: AppUpdateManager       // in app update
-    private val updateType = AppUpdateType.FLEXIBLE
 
     var sharedPreferences: SharedPreferences? = null
 
@@ -171,6 +155,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
 
+
     companion object {
         // Tempat untuk "menitipkan" implementasi kontrak dari aplikasi
         var adConfigProvider: AdConfigProvider? = null
@@ -179,48 +164,26 @@ open class BaseActivityWidget : AppCompatActivity() {
     val admobSDKBuilder: AdmobSDKBuilder?
         get() = adConfigProvider?.getAdmobBuilder()
 
-   /* val unitySDKBuilder: UnitySDKBuilder?
-        get() = adConfigProvider?.getUnityBuilder()*/
+    protected lateinit var updateHelper: InAppUpdateHelper
+
+
+    private var hasCheckedUpdateThisSession = false
+
+    open fun getUpdateType(): Int = AppUpdateType.FLEXIBLE
+    open fun enableInAppUpdate(): Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        updateHelper = InAppUpdateHelper(
+            this,
+            getUpdateType()
+        )
     }
 
     open fun getAdBannerContainer(): FrameLayout? {
         return null // Nilai default
     }
-
-    /*  fun executeBuilder(){
-          admobSDKBuilder = AdmobSDKBuilder.builder(this).loadFromSharedPreferences()
-          fanSDKBuilder   = FanSDKBuilder.builder(this).loadFromSharedPreferences()
-          unitySDKBuilder = UnitySDKBuilder.builder(this).loadFromSharedPreferences()
-      }*/
-
-
-
-
-
-    /*fun setupUnityAds(unityId : String){
-        var testMode = true
-
-        testMode = BuildConfig.DEBUG
-        // UnityAds.initialize(this, unitySDKBuilder?.unityId, unitySDKBuilder?.testMode == true, this)
-        UnityAds.initialize(this, unityId, testMode, object : IUnityAdsInitializationListener {
-            override fun onInitializationComplete() {
-                Log.d("UnityAds", "Initialization Complete")
-            }
-
-            override fun onInitializationFailed(
-                error: UnityAds.UnityAdsInitializationError?,
-                message: String?
-            ) {
-                Log.e("UnityAds", "Initialization Failed: $message")
-            }
-        })
-
-    }*/
-
-
 
     fun isLanguageIdEn(context: Context): Boolean {
         val deviceLanguage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -450,59 +413,19 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun checkUpdate() {
-        appUpdateManager = AppUpdateManagerFactory.create(this)
 
-        lifecycleScope.launch {
-            try {
-                val info = withContext(Dispatchers.IO) {
-                    appUpdateManager.appUpdateInfo.await()
-                }
-
-                val isUpdateAvailable =
-                    info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-
-                val isUpdateAllowed = when (updateType) {
-                    AppUpdateType.FLEXIBLE -> info.isFlexibleUpdateAllowed
-                    AppUpdateType.IMMEDIATE -> info.isImmediateUpdateAllowed
-                    else -> false
-                }
-
-                if (isUpdateAvailable && isUpdateAllowed) {
-                    try {
-                        appUpdateManager.startUpdateFlowForResult(
-                            info,
-                            updateType,
-                            this@BaseActivityWidget,
-                            123
-                        )
-                    } catch (e: IntentSender.SendIntentException) {
-                        Log.e("YourActivity", "Error starting update flow: ${e.message}")
-                        // Handle the exception, log, or display an error message
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("YourActivity", "Error checking update: ${e.message}")
-                // Handle the exception, log, or display an error message
-            }
+    override fun onStart() {
+        super.onStart()
+        if (enableInAppUpdate() && !hasCheckedUpdateThisSession) {
+            updateHelper.checkUpdate()
+            hasCheckedUpdateThisSession = true
         }
     }
-
-
-    fun onDestroyUpdate() {
-        try {
-            if (updateType == AppUpdateType.FLEXIBLE) {
-                appUpdateManager.unregisterListener(installStateUpdatedListener)
-            }
-        } catch (e: Exception) {
-            Log.d("not", "support")
-        }
-    }
-
-
-
     override fun onDestroy() {
 
+        if (enableInAppUpdate()) {
+            updateHelper.onDestroy()
+        }
         cleanBannerHome()
 
         ///////////////////
@@ -522,33 +445,6 @@ open class BaseActivityWidget : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun cleanBannerHome(){
-        // 1. Hentikan timeout runnable dari adView
-        loadTimeoutRunnable?.let {
-            adView?.removeCallbacks(it)
-        }
-
-        // 2. Hentikan load runnable dari container
-        // Ambil container dari WeakRef secara lokal agar konsisten
-        val container = bannerContainerRef?.get()
-        loadBannerRunnable?.let {
-            container?.removeCallbacks(it)
-        }
-
-        // 3. Bersihkan listener (Mencegah callback masuk ke activity yang sedang destroy)
-        adView?.adListener = object : AdListener() {} // Dummy listener
-
-        // 4. Hentikan animasi dan hancurkan AdView
-        adView?.animate()?.cancel()
-        adView?.destroy()
-
-        // 5. Nullified semua property
-        adView = null
-        bannerContainerRef = null
-        loadBannerRunnable = null
-        loadTimeoutRunnable = null
-    }
-
 
     override fun onPause() {
         super.onPause()
@@ -560,35 +456,19 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
+
     override fun onResume() {
         super.onResume()
+        if (enableInAppUpdate()) {
+            updateHelper.onResume()
+        }
         if (adView != null) {
             adView?.resume()
         }
         if(adView2!=null){
             adView2?.resume()
         }
-
     }
-
-
-
-
-
-    private val installStateUpdatedListener = InstallStateUpdatedListener { state ->
-        if (state.installStatus() == InstallStatus.DOWNLOADED) {
-            try {
-                setToastTic(Toastic.INFO, getString(R.string.download_success))
-                lifecycleScope.launch {
-                    delay(5.seconds)
-                    appUpdateManager.completeUpdate()
-                }
-            } catch (e: Exception) {
-                Log.d("not", "support")
-            }
-        }
-    }
-
 
     fun setupGDPR() {
         if (isAdMobAvailable()) {
@@ -1031,6 +911,33 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
+
+    private fun cleanBannerHome(){
+        // 1. Hentikan timeout runnable dari adView
+        loadTimeoutRunnable?.let {
+            adView?.removeCallbacks(it)
+        }
+
+        // 2. Hentikan load runnable dari container
+        // Ambil container dari WeakRef secara lokal agar konsisten
+        val container = bannerContainerRef?.get()
+        loadBannerRunnable?.let {
+            container?.removeCallbacks(it)
+        }
+
+        // 3. Bersihkan listener (Mencegah callback masuk ke activity yang sedang destroy)
+        adView?.adListener = object : AdListener() {} // Dummy listener
+
+        // 4. Hentikan animasi dan hancurkan AdView
+        adView?.animate()?.cancel()
+        adView?.destroy()
+
+        // 5. Nullified semua property
+        adView = null
+        bannerContainerRef = null
+        loadBannerRunnable = null
+        loadTimeoutRunnable = null
+    }
 
 
     fun permissionNotification(){

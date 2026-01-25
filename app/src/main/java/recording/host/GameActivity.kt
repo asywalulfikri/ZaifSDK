@@ -45,6 +45,7 @@ class GameActivity : BaseActivity(),
      *  NETWORK CALLBACK (NON-DEPRECATED)
      *  ===================== */
     private lateinit var connectivityManager: ConnectivityManager
+
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             if (adsFirstLoadIsOff.compareAndSet(true, false)) {
@@ -72,7 +73,6 @@ class GameActivity : BaseActivity(),
         MyApp.registerListener(this)
 
         permissionNotification()
-        safeCall { checkUpdate() }
 
         if(BuildConfig.hasSong){
             loadSongsOnce()
@@ -121,8 +121,6 @@ class GameActivity : BaseActivity(),
         MyAdsListener.setMyListener(null)
         GameApp.unregisterListener(this)
         MyApp.unregisterListener(this)
-        onDestroyUpdate()
-
         _binding = null
         super.onDestroy()
     }
