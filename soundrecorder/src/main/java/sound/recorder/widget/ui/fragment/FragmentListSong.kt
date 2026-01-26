@@ -3,6 +3,8 @@ package sound.recorder.widget.ui.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -12,6 +14,8 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -33,6 +37,9 @@ import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.DialogUtils
 import java.lang.ref.WeakReference
+
+
+import android.Manifest
 
 class FragmentListSong(
 ) : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -229,17 +236,48 @@ class FragmentListSong(
         return String.format("%02d:%02d", minutes, seconds)
     }
 
+
     private fun getSong(list: ArrayList<Song>) {
+        // 1. Snapshot context secara aman
+        val ctx = context ?: return
+
         try {
-            getAllMediaMp3Files(list)
+            if (isStoragePermissionGranted(ctx)) {
+                // 2. Jika sudah diizinkan, ambil filenya
+                getAllMediaMp3Files(list)
+            } else {
+                // 3. Jika belum, beri tahu user (atau langsung panggil request permission)
+                setToast("Please allow storage permission to read audio files")
+                // requestAudioPermission() // Panggil fungsi request di sini jika perlu
+            }
         } catch (e: Exception) {
-            setLog(e.message.toString())
+            setLog("getSong Error: ${e.message}")
         }
     }
+
+    /**
+     * Fungsi untuk mengecek izin akses audio.
+     * Bisa ditaruh di level file (Top-level) agar bisa dipakai di mana saja.
+     */
+    fun isStoragePermissionGranted(context: Context): Boolean {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_AUDIO
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
+
+    /**
+     * Fungsi untuk mengecek apakah izin akses file/audio sudah diberikan.
+     */
 
 
     @SuppressLint("Recycle")
     private fun getAllMediaMp3Files(songList: ArrayList<Song>) {
+
         lifecycleScope.launch {
             binding?.progressBar?.visibility = View.VISIBLE
 

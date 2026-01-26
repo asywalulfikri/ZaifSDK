@@ -26,3 +26,16 @@
 # Unity Ads SDK
 -keep class com.unity3d.ads.** { *; }
 -dontwarn com.unity3d.ads.**
+
+# AdMob
+-keep class com.google.android.gms.ads.** { *; }
+-dontwarn com.google.android.gms.ads.**
+
+# WebView
+-keepclassmembers class * extends android.webkit.WebViewClient {
+    public void *(android.webkit.WebView, java.lang.String, android.graphics.Bitmap);
+    public boolean *(android.webkit.WebView, java.lang.String);
+}
+-keepclassmembers class * extends android.webkit.WebViewClient {
+    public android.webkit.WebResourceResponse *(android.webkit.WebView, android.webkit.WebResourceRequest);
+}

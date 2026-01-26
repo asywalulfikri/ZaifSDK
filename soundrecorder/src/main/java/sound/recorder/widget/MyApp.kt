@@ -119,7 +119,6 @@ open class MyApp : Application() {
 
         // AdMob dengan timeout
         if (isWebViewAvailableSafely()) {
-            warmUpWebView()
             jobs.add(async {
                 val result = withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
                     initializeAdMob()
@@ -153,14 +152,7 @@ open class MyApp : Application() {
         }
     }
 
-    private fun warmUpWebView() {
-        try {
-            WebView(applicationContext)
-        } catch (e : Exception) {
-            ///
-        }
 
-    }
     // Optimized untuk device low-end
     private suspend fun initializeAdMob() = withContext(Dispatchers.Main) {
 

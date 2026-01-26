@@ -70,6 +70,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import sound.recorder.widget.BuildConfig
@@ -83,6 +84,7 @@ import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.Toastic
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.cancellation.CancellationException
 
 
 open class BaseActivityWidget : AppCompatActivity() {
@@ -171,6 +173,10 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     open fun getUpdateType(): Int = AppUpdateType.FLEXIBLE
     open fun enableInAppUpdate(): Boolean = true
+
+    private var bannerHandler: Handler? = null
+    private var bannerRetryRunnable: Runnable? = null
+    private var bannerTimeoutRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -645,8 +651,13 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    protected fun loadBannerGame(frameLayout: FrameLayout?, modePortrait : Boolean? = false) {
+   /* protected fun loadBannerGame(frameLayout: FrameLayout?, modePortrait : Boolean? = false) {
         try {
+            val baseDelay =
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1) 3000L else 1200L
+
+            delay(baseDelay)
+
             if (isAdMobAvailable()) {
                 if(modePortrait==true){
                     executeBannerPortrait(frameLayout)
@@ -656,6 +667,39 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
         }catch (e : Exception){
             setLog(e.message.toString()+"")
+        }
+    }*/
+
+    protected fun loadBannerGame(
+        frameLayout: FrameLayout?,
+        modePortrait: Boolean = false
+    ) {
+        if (frameLayout == null) return
+
+        lifecycleScope.launch {
+            try {
+                val baseDelay = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1) {
+                    3000L
+                } else {
+                    1200L
+                }
+
+                delay(baseDelay)
+
+                // Tambahkan check tambahan
+                if (isFinishing || isDestroyed || !isActive) return@launch
+                if (!frameLayout.isAttachedToWindow) return@launch // ⭐ Tambahan
+                if (!isAdMobAvailable()) return@launch
+
+                if (modePortrait) {
+                    executeBannerPortrait(frameLayout)
+                } else {
+                    executeBanner(frameLayout)
+                }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e // ⭐ Penting
+                setLog("BannerLoad Error: ${e.message}")
+            }
         }
     }
 
@@ -669,61 +713,8 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    /*private fun executeBanner(adViewContainer: FrameLayout?) {
-        if (bannerRetryCount >= maxBannerRetry) {
-            runOnUiThread {
-                setToastADS("Limit reached: $bannerRetryCount")
-            }
-            return
-        }
-
-        // Hanya buat AdView baru jika belum ada
-        if (adView2 == null) {
-            adView2 = AdView(this).apply {
-                adUnitId = admobSDKBuilder?.bannerId.orEmpty()
-                setAdSize(getAdSize2())
-                descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-            }
-        }
-
-        adView2?.adListener = object : AdListener() {
-            override fun onAdLoaded() {
-
-                if (isFinishing || isDestroyed) return
-
-                runOnUiThread {
-                    try {
-                        bannerRetryCount = 0
-                        // Hapus parent lama jika ada
-                        (adView2?.parent as? ViewGroup)?.removeView(adView2)
-                        adViewContainer?.removeAllViews()
-                        adViewContainer?.addView(adView2)
-                        setToastADS("Banner loaded: ${adView2?.adUnitId}")
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-
-            override fun onAdFailedToLoad(error: LoadAdError) {
-                runOnUiThread {
-                    setToastADS("Banner failed: ${error.message} ${adView2?.adUnitId}")
-                }
-                bannerRetryCount++
-                // Retry dengan delay, misal 3 detik
-                adViewContainer?.postDelayed({ executeBanner(adViewContainer) }, 3000)
-            }
-        }
-
-        // Load Ad
-        val adRequest = AdRequest.Builder().build()
-        adView2?.loadAd(adRequest)
-    }*/
 
 
-    private var bannerHandler: Handler? = null
-    private var bannerRetryRunnable: Runnable? = null
-    private var bannerTimeoutRunnable: Runnable? = null
 
     private fun executeBanner(adViewContainer: FrameLayout?) {
         // ✅ Safety checks
