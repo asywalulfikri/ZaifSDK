@@ -6,7 +6,6 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import android.content.IntentSender
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -63,9 +62,6 @@ import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
-import com.unity3d.services.banners.BannerErrorInfo
-import com.unity3d.services.banners.BannerView
-import com.unity3d.services.banners.UnityBannerSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -112,11 +108,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var bannerRetryCount = 0
     private val maxBannerRetry = 2
 
-    private val retryHandler = Handler(Looper.getMainLooper())
-
-    private var interstitialRetryCount = 0
-    private val MAX_RETRY_COUNT = 1
-
     private var isBannerLoaded = false
 
     private var isLoading = false
@@ -125,7 +116,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     @Volatile
     private var isBannerLoading = false
 
-    private var isBannerUnityLoading = false
     private val adLoadTimeout = 10_000L // 10 detik timeout
     private var loadTimeoutRunnable: Runnable? = null
 
@@ -134,10 +124,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var loadBannerRunnable: Runnable? = null
 
     private var bannerContainerRef: WeakReference<FrameLayout>? = null
-
-
-
-    private val bannerUnityLoadTimeout = 15_000L // 15 detik
 
 
     //interstitial admob handle
@@ -447,7 +433,6 @@ open class BaseActivityWidget : AppCompatActivity() {
         reloadJob?.cancel()
         retryJob?.cancel()
 
-        destroyBannerUnity()
         super.onDestroy()
     }
 
@@ -1676,179 +1661,6 @@ open class BaseActivityWidget : AppCompatActivity() {
             setLog(e.message.toString())
         }
     }
-
-
-    /*fun setupBannerUnity(adContainer: FrameLayout) {
-        if(unitySDKBuilder?.enable==true){
-            try {
-                unityBannerView = BannerView(this, "Banner_Android", UnityBannerSize(320, 50))
-                unityBannerView?.load()
-                unityBannerView?.gravity = Gravity.CENTER
-                adContainer.addView(unityBannerView)
-
-            }catch (e : Exception){
-
-            }
-        }
-    }*/
-
-
-
-    private var unityBannerView: BannerView? = null
-    private var bannerLoaded = false
-
-    private var bannerUnityLoaded = false
-
-    /**
-     * Setup Unity Banner dengan handling lifecycle yang AMAN.
-     *
-     * NOTE (PENTING):
-     * - Unity Banner menggunakan WebView + JavaScript.
-     * - Load / reload yang tidak terkontrol akan memicu ANR (UI thread freeze).
-     * - Fungsi ini DIKUNCI agar banner hanya dibuat & di-load SATU KALI.
-     */
-    /**
-     * Load Unity Banner secara AMAN (ANTI-ANR).
-     *
-     * NOTE PENTING:
-     * - Fungsi ini hanya boleh dipanggil SATU KALI per Activity.
-     * - Jangan dipanggil dari onResume(), observer, atau loop.
-     * - Unity Banner sangat sensitif terhadap reload & detach View.
-     */
-    fun loadBannerUnity(adContainer: FrameLayout) {
-
-        // NOTE:
-        // Mencegah:
-        // 1) Load ganda
-        // 2) Banner sudah ada
-        // 3) Feature flag dimatikan
-
-        if(!admobSDKBuilder?.unityGameId.isNullOrEmpty()){
-
-            if (isBannerUnityLoading || unityBannerView != null
-            ) return
-
-            setToastADS("Banner Unity execute")
-            isBannerUnityLoading= true
-
-            // NOTE:
-            // post{} memastikan banner dibuat saat UI thread idle
-            // dan View hierarchy sudah siap.
-            adContainer.post {
-                try {
-                    // NOTE:
-                    // Jangan load banner jika Activity sudah tidak aktif.
-                    // Mencegah banner hidup di Activity yang akan dihancurkan.
-                    if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                        isBannerUnityLoading= false
-                        return@post
-                    }
-
-                    unityBannerView = BannerView(
-                        this, // Explicit Activity context (hindari leak)
-                        "Banner_Android",
-                        UnityBannerSize.standard
-                    )
-
-                    // ==========================
-                    // TIMEOUT PROTECTION
-                    // ==========================
-                    val timeoutRunnable = Runnable {
-                        // NOTE:
-                        // Jika banner tidak pernah callback (bug Unity),
-                        // hancurkan WebView agar tidak freeze UI.
-                        if (isBannerUnityLoading && unityBannerView != null) {
-                            Log.e("UNITY_BANNER", "Load timeout - destroying banner")
-                            destroyBannerUnity()
-                        }
-                    }
-                    adContainer.postDelayed(timeoutRunnable, bannerUnityLoadTimeout)
-
-                    unityBannerView?.listener = object : BannerView.Listener() {
-
-                        override fun onBannerLoaded(view: BannerView?) {
-                            // NOTE:
-                            // Banner sukses → hentikan timeout.
-                            adContainer.removeCallbacks(timeoutRunnable)
-                            isBannerUnityLoading = false
-                            Log.d("UNITY_BANNER", "Banner loaded")
-                            setToastADS("Banner Unity loaded")
-                        }
-
-                        override fun onBannerFailedToLoad(
-                            view: BannerView?,
-                            errorInfo: BannerErrorInfo?
-                        ) {
-                            // NOTE:
-                            // Jangan retry otomatis.
-                            // Retry cepat = rebuild JSON → ANR.
-                            adContainer.removeCallbacks(timeoutRunnable)
-                            isBannerUnityLoading = false
-                            Log.e(
-                                "UNITY_BANNER",
-                                "Banner failed: ${errorInfo?.errorMessage}"
-                            )
-                            setToastADS("Banner Unity failed loaded")
-                            destroyBannerUnity()
-                        }
-
-                        override fun onBannerClick(view: BannerView?) {}
-                        override fun onBannerShown(view: BannerView?) {}
-                        override fun onBannerLeftApplication(view: BannerView?) {}
-                    }
-
-                    // NOTE:
-                    // JANGAN gunakan removeAllViews().
-                    // Detach WebView saat JS aktif → ANR.
-                    if (unityBannerView?.parent == null) {
-                        adContainer.addView(unityBannerView)
-                    }
-
-                    // NOTE:
-                    // load() WAJIB dipanggil SETELAH view di-attach.
-                    unityBannerView?.load()
-
-                } catch (e: Exception) {
-                    // NOTE:
-                    // Jangan retry otomatis saat exception.
-                    // Lebih aman cleanup total.
-                    Log.e("UNITY_BANNER", "Error initializing banner", e)
-                    destroyBannerUnity()
-                }
-        }
-
-        }
-    }
-
-
-
-    /**
-     * Destroy Unity Banner dengan benar.
-     *
-     * NOTE:
-     * - WebView Unity Ads HARUS di-destroy.
-     * - Tanpa ini, JS bisa tetap berjalan di background → ANR / memory leak.
-     */
-    private fun destroyBannerUnity() {
-        unityBannerView?.let { banner ->
-            try {
-                // Lepas dari parent sebelum destroy
-                (banner.parent as? ViewGroup)?.removeView(banner)
-
-                // Lepas listener untuk mencegah memory leak
-                banner.listener = null
-
-                // Destroy WebView internal
-                banner.destroy()
-            } catch (e: Exception) {
-                Log.e("UNITY_BANNER", "Error destroying banner", e)
-            }
-        }
-        unityBannerView = null
-        isBannerUnityLoading = false
-    }
-
-
 
 
     fun isInternetConnected(): Boolean {

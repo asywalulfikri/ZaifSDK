@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -18,6 +19,7 @@ import recording.host.cons.Constants
 import recording.host.databinding.ActivityGameBinding
 import sound.recorder.widget.MyApp
 import sound.recorder.widget.RecordingSDK
+import sound.recorder.widget.base.UnityBannerController
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.model.Song
@@ -40,6 +42,8 @@ class GameActivity : BaseActivity(),
 
     private var areBuildersReady = false
     private var areEssentialAdsReady = false
+
+    private lateinit var bannerController: UnityBannerController
 
     /** =====================
      *  NETWORK CALLBACK (NON-DEPRECATED)
@@ -116,14 +120,19 @@ class GameActivity : BaseActivity(),
         }
     }
 
-
     override fun onDestroy() {
+
+        if (::bannerController.isInitialized) {
+            bannerController.destroy()
+        }
+
         MyAdsListener.setMyListener(null)
         GameApp.unregisterListener(this)
         MyApp.unregisterListener(this)
         _binding = null
         super.onDestroy()
     }
+
 
     /** =====================
      *  SONG LOADING (ONE TIME, ANTI-ANR)
@@ -159,7 +168,9 @@ class GameActivity : BaseActivity(),
     /** =====================
      *  ADS SETUP (STRICTLY ONCE)
      *  ===================== */
+
     private fun tryToSetupAds() {
+
         if (!areBuildersReady || !areEssentialAdsReady) return
 
         if (!isInternetTrulyAvailable(this)) {
@@ -170,25 +181,45 @@ class GameActivity : BaseActivity(),
         if (!adsSetupCalled.compareAndSet(false, true)) return
 
         lifecycleScope.launch {
+
             delay(1200)
 
             _binding?.let {
                 loadBannerGame(it.bannerGame, false)
             }
-            delay(10000)
+
+            delay(10_000)
+
+            // ❗ Pastikan Activity masih hidup
+            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                return@launch
+            }
 
             try {
+
                 val app = application as GameApp
 
                 if (app.isUnityAdsReady()) {
+
+                    // ❗ Jangan buat ulang kalau sudah ada
+                    if (!::bannerController.isInitialized) {
+
+                        bannerController = UnityBannerController(
+                            activity = this@GameActivity,
+                            lifecycleOwner = this@GameActivity,
+                            placementId = "Banner_Android",
+                            loadTimeoutMs = 10_000L
+                        )
+                    }
+
                     _binding?.let {
-                        loadBannerUnity(it.bannerHome)
+                        bannerController.load(it.bannerHome)
                     }
                 }
-            }catch ( e : Exception){
 
+            } catch (e: Exception) {
+                setLog(e.message.toString())
             }
-
         }
     }
 
@@ -242,14 +273,6 @@ class GameActivity : BaseActivity(),
     private fun runOnUiThreadSafe(block: () -> Unit) {
         if (!isFinishing && !isDestroyed) {
             runOnUiThread { block() }
-        }
-    }
-
-    private inline fun safeCall(block: () -> Unit) {
-        try {
-            block()
-        } catch (e: Exception) {
-            setLog("SafeCall Error: ${e.message}")
         }
     }
 }

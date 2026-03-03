@@ -245,8 +245,8 @@ open class BaseFragmentWidget : Fragment() {
         try {
             binding?.ivNote?.visibility = if (builder?.showNote==true) View.VISIBLE else View.GONE
             binding?.ivChangeColor?.visibility = if (builder?.showChangeColor==true) View.VISIBLE else View.GONE
-            binding?.ivSong?.visibility = if (builder?.showListSong==true) View.VISIBLE else View.GONE
-            binding?.ivVolume?.visibility = if (builder?.showVolume==true) View.VISIBLE else View.GONE
+            binding?.ivSong?.visibility = if (builder?.showListSong==false) View.GONE else View.VISIBLE
+            binding?.ivVolume?.visibility = if (builder?.showVolume==false) View.GONE else View.VISIBLE
         }catch (e : Exception){
             //
         }
