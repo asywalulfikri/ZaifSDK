@@ -203,7 +203,6 @@ class GameActivity : BaseActivity(),
 
                     // ❗ Jangan buat ulang kalau sudah ada
                     if (!::bannerController.isInitialized) {
-
                         bannerController = UnityBannerController(
                             activity = this@GameActivity,
                             lifecycleOwner = this@GameActivity,

@@ -1,6 +1,5 @@
 package sound.recorder.widget.builder
 
-
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
@@ -11,6 +10,10 @@ internal object ZaifSDKStorage {
 
     private val gson = Gson()
 
+    // In-memory cache untuk avoid async SharedPreferences delay
+    @Volatile
+    private var cachedConfig: ZaifSDKConfig? = null
+
     private fun prefs(context: Context): SharedPreferences =
         context.applicationContext.getSharedPreferences(
             Constant.KeyShared.shareKey,
@@ -19,6 +22,10 @@ internal object ZaifSDKStorage {
 
     @SuppressLint("UseKtx")
     fun save(context: Context, config: ZaifSDKConfig) {
+        // Simpan ke memory dulu (instant)
+        cachedConfig = config
+
+        // Simpan ke SharedPreferences (async, untuk persistensi)
         prefs(context)
             .edit()
             .putString(
@@ -29,6 +36,10 @@ internal object ZaifSDKStorage {
     }
 
     fun load(context: Context): ZaifSDKConfig? {
+        // Return dari memory kalau ada (no I/O, instant)
+        cachedConfig?.let { return it }
+
+        // Fallback ke SharedPreferences (saat cold start / app restart)
         val json = prefs(context)
             .getString(Constant.KeyShared.zaifSDKBuilder, null)
 
@@ -36,11 +47,12 @@ internal object ZaifSDKStorage {
             runCatching {
                 gson.fromJson(it, ZaifSDKConfig::class.java)
             }.getOrNull()
-        }
+        }?.also { cachedConfig = it } // cache hasil load dari disk
     }
 
     @SuppressLint("UseKtx")
     fun clear(context: Context) {
+        cachedConfig = null // clear memory juga
         prefs(context)
             .edit()
             .remove(Constant.KeyShared.zaifSDKBuilder)

@@ -5,13 +5,11 @@ import android.content.Context
 class ZaifSDKBuilder private constructor(
     private val context: Context
 ) {
-
     var appName: String = ""
     var versionCode: Int = 1
     var versionName: String = "1.0"
     var applicationId: String = ""
     var developerName: String = ""
-
     var showNote = false
     var showChangeColor = false
     var backgroundWidgetColor = "#FFFFFF"
@@ -24,7 +22,6 @@ class ZaifSDKBuilder private constructor(
     fun setVersionName(value: String) = apply { versionName = value }
     fun setApplicationId(value: String) = apply { applicationId = value }
     fun setDeveloperName(value: String) = apply { developerName = value }
-
     fun showNote(value: Boolean) = apply { showNote = value }
     fun showChangeColor(value: Boolean) = apply { showChangeColor = value }
     fun setBackgroundWidgetColor(value: String) = apply { backgroundWidgetColor = value }
@@ -46,18 +43,13 @@ class ZaifSDKBuilder private constructor(
             showVolume = showVolume,
             showTooltip = showTooltip
         )
-
         ZaifSDKStorage.save(context, config)
         return config
     }
 
     companion object {
-        fun builder(context: Context): ZaifSDKBuilder {
-            return ZaifSDKBuilder(context.applicationContext)
-        }
+        fun builder(context: Context) = ZaifSDKBuilder(context.applicationContext)
 
-        fun load(context: Context): ZaifSDKConfig? {
-            return ZaifSDKStorage.load(context)
-        }
+        fun load(context: Context): ZaifSDKConfig? = ZaifSDKStorage.load(context)
     }
 }

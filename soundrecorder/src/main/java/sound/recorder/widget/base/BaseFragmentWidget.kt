@@ -107,14 +107,7 @@ open class BaseFragmentWidget : Fragment() {
     private var isLoadInterstitialReward = false
     private var rewardedInterstitialAd : RewardedInterstitialAd? =null
 
-   // private val isMobileAdsInitializeCalled = AtomicBoolean(false)
-  //  private val initialLayoutComplete = AtomicBoolean(false)
     private var adView: AdView? =null
-  //  private lateinit var googleMobileAdsConsentManager: GoogleMobileAdsConsentManager
-  //  private lateinit var consentInformation: ConsentInformation
-    private var TAG = "GDPR_App"
-
-    private var isPrivacyOptionsRequired: Boolean = false
 
     private lateinit var appUpdateManager: AppUpdateManager       // in app update
     private val updateType = AppUpdateType.FLEXIBLE
@@ -127,7 +120,7 @@ open class BaseFragmentWidget : Fragment() {
     var builder: GuideView.Builder? = null
     var mPanAnim: Animation? = null
 
-    var zaifSDKConfig : ZaifSDKConfig? =null
+
     lateinit var dataSession : DataSession
 
 
@@ -139,11 +132,9 @@ open class BaseFragmentWidget : Fragment() {
     val admobSDKBuilder: AdmobSDKBuilder?
         get() = adConfigProvider?.getAdmobBuilder()
 
-   /* val unitySDKBuilder: UnitySDKBuilder?
-        get() = adConfigProvider?.getUnityBuilder()*/
-
-
     var recorder: MediaRecorder? = null
+
+    var zaifSDKConfig : ZaifSDKConfig? =null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -151,51 +142,6 @@ open class BaseFragmentWidget : Fragment() {
         zaifSDKConfig = ZaifSDKBuilder.load(requireContext())
 
     }
-
-    fun loadFromSharedPreferences(context: Context): ZaifSDKConfig? {
-        return ZaifSDKStorage.load(context)
-    }
-
-
-
-    /* @SuppressLint("UseKtx")
-     fun setupWidget(builder : ZaifSDKBuilder?, binding : WidgetRecordHorizontalZaifBinding){
-         try {
-             builder?.backgroundWidgetColor?.let { colorString ->
-                 if (colorString.isNotEmpty()) {
-                     try {
-                         val tintList = ColorStateList.valueOf(Color.parseColor(colorString))
-                         ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
-                     } catch (e: IllegalArgumentException) {
-                         setToast("Invalid color value: $colorString")
-                     }
-                 }
-             }
-         }catch (e : Exception){
-             //
-         }
-
-         binding.ivChangeColor.setOnClickListener {
-             activity?.let {
-                 try {
-                     RecordingSDK.showDialogColorPicker(it)
-                    // RecordingSDK.changeColor(it)
-                 } catch (e: Exception) {
-                     setToast(e.message.toString())
-                 }
-             } ?: setToast("Activity is not available")
-         }
-
-         try {
-             binding.ivNote.visibility = if (builder?.showNote==true) View.VISIBLE else View.GONE
-             binding.ivChangeColor.visibility = if (builder?.showChangeColor==true) View.VISIBLE else View.GONE
-             binding.ivSong.visibility = if (builder?.showListSong==true) View.VISIBLE else View.GONE
-             binding.ivVolume.visibility = if (builder?.showVolume==true) View.VISIBLE else View.GONE
-         }catch (e : Exception){
-             //
-         }
-     }*/
-
 
     @SuppressLint("UseKtx")
     fun setupWidget(builder : ZaifSDKConfig?, binding : WidgetRecordHorizontalZaifBinding?){
