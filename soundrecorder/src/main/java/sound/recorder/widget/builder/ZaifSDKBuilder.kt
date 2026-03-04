@@ -13,8 +13,8 @@ class ZaifSDKBuilder private constructor(
     var showNote = false
     var showChangeColor = false
     var backgroundWidgetColor = "#FFFFFF"
-    var showListSong = false
-    var showVolume = false
+    var showListSong = true
+    var showVolume = true
     var showTooltip = false
 
     fun setAppName(value: String) = apply { appName = value }
@@ -43,13 +43,20 @@ class ZaifSDKBuilder private constructor(
             showVolume = showVolume,
             showTooltip = showTooltip
         )
+        instance = config // ✅ langsung simpan di memory
         ZaifSDKStorage.save(context, config)
         return config
     }
 
     companion object {
+
+        @Volatile
+        private var instance: ZaifSDKConfig? = null
+
         fun builder(context: Context) = ZaifSDKBuilder(context.applicationContext)
 
-        fun load(context: Context): ZaifSDKConfig? = ZaifSDKStorage.load(context)
+        fun load(context: Context): ZaifSDKConfig? {
+            return instance ?: ZaifSDKStorage.load(context)?.also { instance = it }
+        }
     }
 }

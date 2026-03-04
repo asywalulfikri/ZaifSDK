@@ -117,7 +117,6 @@ class VoiceRecordFragmentVerticalZaifNew : BaseFragmentWidget(),SharedPreference
     private fun setupView() {
 
         //setup Item Widget like visibility and color
-        zaifSDKConfig = ZaifSDKBuilder.load(requireContext())
         setupWidgetVeticalNull(zaifSDKConfig,binding)
 
 
