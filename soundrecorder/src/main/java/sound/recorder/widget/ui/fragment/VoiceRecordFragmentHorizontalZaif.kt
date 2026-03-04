@@ -99,6 +99,7 @@ class VoiceRecordFragmentHorizontalZaif :
     // =========================
 
     private fun setupView() {
+        zaifSDKConfig = ZaifSDKBuilder.load(requireContext())
         setupWidget(zaifSDKConfig, _binding)
 
         musicViewModel.setRecord.observe(viewLifecycleOwner) {

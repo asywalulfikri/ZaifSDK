@@ -148,24 +148,8 @@ open class BaseFragmentWidget : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-       // zaifSDKBuilder = ZaifSDKBuilder.builder(requireContext())
-      //  zaifSDKBuilder = loadFromSharedPreferences(requireContext())
-
         zaifSDKConfig = ZaifSDKBuilder.load(requireContext())
 
-
-        // val savedConfig = ZaifSDKBuilder.load(context)
-
-        // Run in background thread
-       /* CoroutineScope(Dispatchers.IO).launch {
-            val admob = AdmobSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
-            val fan   = FanSDKBuilder.builder(requireContext()).loadFromSharedPreferences()
-
-            withContext(Dispatchers.Main) {
-                admobSDKBuilder = admob
-                fanSDKBuilder = fan
-            }
-        }*/
     }
 
     fun loadFromSharedPreferences(context: Context): ZaifSDKConfig? {

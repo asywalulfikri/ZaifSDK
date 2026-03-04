@@ -102,6 +102,7 @@ class VoiceRecordFragmentVerticalZaif :
     // =========================
 
     private fun setupView() {
+        zaifSDKConfig = ZaifSDKBuilder.load(requireContext())
         setupWidgetVertical(zaifSDKConfig, _binding)
 
         musicViewModel.setRecord.observe(viewLifecycleOwner) {
