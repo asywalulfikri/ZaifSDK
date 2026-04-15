@@ -197,6 +197,29 @@
     <string name="hi">Xin chào</string>
     <string name="welcome">Chào mừng</string>
 
+    <string name="ads_not_ready">Quảng cáo chưa sẵn sàng, vui lòng thử lại sau.</string>
+    <string name="watch_ads">Xem quảng cáo để mở khóa tính năng</string>
+    <string name="reward_get">Nhận phần thưởng thành công!</string>
+    <string name="delete_ads">Xóa quảng cáo</string>
+    <string name="are_you_buy_no_ads">Bạn có muốn xóa quảng cáo vĩnh viễn không?</string>
+
+    <string name="music_lock">Âm nhạc 🔒</string>
+    <string name="music_unlock">Âm nhạc</string>
+    <string name="list_music">Thư viện nhạc</string>
+    <string name="audio_mixer">Bộ trộn âm thanh</string>
+    <string name="search_song_accompaniment">Tìm kiếm nhạc đệm...</string>
+
+    <string name="list_record_result">Danh sách kết quả ghi âm</string>
+    <string name="no_data_record">Chưa có bản ghi nào được lưu</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">Thay đổi giọng nói</string>
+    <string name="search_audio">Tìm kiếm loại giọng nói...</string>
+    <string name="active">Hoạt động</string>
+    <string name="choose">Chọn</string>
+    <string name="ads_prepared_please_wait">Quảng cáo đang được chuẩn bị, vui lòng chờ một chút...</string>
+
 
 
 </resources>

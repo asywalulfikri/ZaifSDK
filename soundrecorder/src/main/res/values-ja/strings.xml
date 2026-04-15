@@ -200,6 +200,29 @@
     <string name="hi">こんにちは</string>
     <string name="welcome">ようこそ</string>
 
+    <string name="ads_not_ready">広告はまだ準備できていません。しばらくしてからもう一度お試しください。</string>
+    <string name="watch_ads">機能を解除するには広告をご覧ください</string>
+    <string name="reward_get">報酬を正常に獲得しました！</string>
+    <string name="delete_ads">広告を削除</string>
+    <string name="are_you_buy_no_ads">広告を永久に削除しますか？</string>
+
+    <string name="music_lock">音楽 🔒</string>
+    <string name="music_unlock">音楽</string>
+    <string name="list_music">音楽ライブラリ</string>
+    <string name="audio_mixer">オーディオミキサー</string>
+    <string name="search_song_accompaniment">伴奏音楽を検索...</string>
+
+    <string name="list_record_result">録音結果一覧</string>
+    <string name="no_data_record">保存された録音はまだありません</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">音声を変更</string>
+    <string name="search_audio">音声タイプを検索...</string>
+    <string name="active">有効</string>
+    <string name="choose">選択</string>
+    <string name="ads_prepared_please_wait">広告を準備中です。しばらくお待ちください...</string>
+
 
 
 </resources>

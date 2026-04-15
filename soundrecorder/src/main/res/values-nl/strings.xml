@@ -199,5 +199,28 @@
     <string name="hi">Hallo</string>
     <string name="welcome">Welkom</string>
 
+    <string name="ads_not_ready">Advertenties zijn nog niet klaar, probeer het zo meteen opnieuw.</string>
+    <string name="watch_ads">Bekijk een advertentie om functies te ontgrendelen</string>
+    <string name="reward_get">Beloning succesvol ontvangen!</string>
+    <string name="delete_ads">Advertenties verwijderen</string>
+    <string name="are_you_buy_no_ads">Wil je advertenties permanent verwijderen?</string>
+
+    <string name="music_lock">Muziek 🔒</string>
+    <string name="music_unlock">Muziek</string>
+    <string name="list_music">Muziekbibliotheek</string>
+    <string name="audio_mixer">Audiomixer</string>
+    <string name="search_song_accompaniment">Zoek begeleidingsmuziek...</string>
+
+    <string name="list_record_result">Lijst met opname-resultaten</string>
+    <string name="no_data_record">Nog geen opnames opgeslagen</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">Stem wijzigen</string>
+    <string name="search_audio">Zoek naar stemtype...</string>
+    <string name="active">Actief</string>
+    <string name="choose">Selecteren</string>
+    <string name="ads_prepared_please_wait">Advertenties worden voorbereid, even geduld alstublieft...</string>
+
 
 </resources>

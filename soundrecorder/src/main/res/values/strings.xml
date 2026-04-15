@@ -196,4 +196,26 @@
     <string name="hi">Hi</string>
     <string name="welcome">Welcome</string>
 
+    <string name="ads_not_ready">Ads are not ready yet, please try again shortly.</string>
+    <string name="watch_ads">Watch an ad to unlock features</string>
+    <string name="reward_get">Reward successfully received!</string>
+    <string name="delete_ads">Remove Ads</string>
+    <string name="are_you_buy_no_ads">Do you want to permanently remove ads?</string>
+
+    <string name="music">Music</string>
+    <string name="list_music">Music Library</string>
+    <string name="audio_mixer">Audio Mixer</string>
+    <string name="search_song_accompaniment">Search for accompaniment music...</string>
+
+    <string name="list_record_result">Recording Results List</string>
+    <string name="no_data_record">No recordings saved yet</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">Change Voice</string>
+    <string name="search_audio">Search for voice type...</string>
+    <string name="active">Active</string>
+    <string name="choose">Select</string>
+    <string name="ads_prepared_please_wait">Ads are being prepared, please wait a moment...</string>
+
 </resources>

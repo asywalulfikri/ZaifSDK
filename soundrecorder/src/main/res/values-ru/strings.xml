@@ -197,6 +197,29 @@
     <string name="hi">Привет</string>
     <string name="welcome">Добро пожаловать</string>
 
+    <string name="ads_not_ready">Реклама ещё не готова, попробуйте снова чуть позже.</string>
+    <string name="watch_ads">Посмотрите рекламу, чтобы разблокировать функции</string>
+    <string name="reward_get">Награда успешно получена!</string>
+    <string name="delete_ads">Удалить рекламу</string>
+    <string name="are_you_buy_no_ads">Вы хотите навсегда удалить рекламу?</string>
+
+    <string name="music_lock">Музыка 🔒</string>
+    <string name="music_unlock">Музыка</string>
+    <string name="list_music">Музыкальная библиотека</string>
+    <string name="audio_mixer">Аудиомикшер</string>
+    <string name="search_song_accompaniment">Поиск фоновой музыки...</string>
+
+    <string name="list_record_result">Список результатов записи</string>
+    <string name="no_data_record">Сохранённых записей пока нет</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">Изменить голос</string>
+    <string name="search_audio">Поиск типа голоса...</string>
+    <string name="active">Активно</string>
+    <string name="choose">Выбрать</string>
+    <string name="ads_prepared_please_wait">Реклама подготавливается, пожалуйста, подождите немного...</string>
+
 
 
 </resources>

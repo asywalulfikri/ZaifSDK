@@ -199,5 +199,28 @@
     <string name="welcome">ยินดีต้อนรับ</string>
 
 
+    <string name="ads_not_ready">โฆษณายังไม่พร้อม โปรดลองอีกครั้งในภายหลัง</string>
+    <string name="watch_ads">ดูโฆษณาเพื่อปลดล็อกฟีเจอร์</string>
+    <string name="reward_get">รับรางวัลสำเร็จแล้ว!</string>
+    <string name="delete_ads">ลบโฆษณา</string>
+    <string name="are_you_buy_no_ads">คุณต้องการลบโฆษณาอย่างถาวรหรือไม่?</string>
+
+    <string name="music_lock">เพลง 🔒</string>
+    <string name="music_unlock">เพลง</string>
+    <string name="list_music">คลังเพลง</string>
+    <string name="audio_mixer">มิกเซอร์เสียง</string>
+    <string name="search_song_accompaniment">ค้นหาเพลงประกอบ...</string>
+
+    <string name="list_record_result">รายการผลการบันทึก</string>
+    <string name="no_data_record">ยังไม่มีการบันทึกที่บันทึกไว้</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">เปลี่ยนเสียง</string>
+    <string name="search_audio">ค้นหาประเภทเสียง...</string>
+    <string name="active">ใช้งาน</string>
+    <string name="choose">เลือก</string>
+    <string name="ads_prepared_please_wait">กำลังเตรียมโฆษณา กรุณารอสักครู่...</string>
+
 
 </resources>

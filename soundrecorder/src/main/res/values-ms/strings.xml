@@ -201,5 +201,28 @@
     <string name="hi">Hai</string>
     <string name="welcome">Selamat datang</string>
 
+    <string name="ads_not_ready">Iklan belum sedia, sila cuba lagi sebentar.</string>
+    <string name="watch_ads">Tonton iklan untuk membuka ciri</string>
+    <string name="reward_get">Ganjaran berjaya diperoleh!</string>
+    <string name="delete_ads">Buang iklan</string>
+    <string name="are_you_buy_no_ads">Adakah anda mahu membuang iklan secara kekal?</string>
+
+    <string name="music_lock">Muzik 🔒</string>
+    <string name="music_unlock">Muzik</string>
+    <string name="list_music">Perpustakaan Muzik</string>
+    <string name="audio_mixer">Pengadun Audio</string>
+    <string name="search_song_accompaniment">Cari muzik iringan...</string>
+
+    <string name="list_record_result">Senarai Hasil Rakaman</string>
+    <string name="no_data_record">Belum ada rakaman yang disimpan</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">Tukar Suara</string>
+    <string name="search_audio">Cari jenis suara...</string>
+    <string name="active">Aktif</string>
+    <string name="choose">Pilih</string>
+    <string name="ads_prepared_please_wait">Iklan sedang disediakan, sila tunggu sebentar...</string>
+
 
 </resources>

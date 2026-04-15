@@ -196,5 +196,28 @@
     <string name="hi">你好</string>
     <string name="welcome">欢迎</string>
 
+    <string name="ads_not_ready">广告尚未准备好，请稍后再试。</string>
+    <string name="watch_ads">观看广告以解锁功能</string>
+    <string name="reward_get">奖励领取成功！</string>
+    <string name="delete_ads">移除广告</string>
+    <string name="are_you_buy_no_ads">您想永久移除广告吗？</string>
+
+    <string name="music_lock">音乐 🔒</string>
+    <string name="music_unlock">音乐</string>
+    <string name="list_music">音乐库</string>
+    <string name="audio_mixer">音频混音器</string>
+    <string name="search_song_accompaniment">搜索伴奏音乐...</string>
+
+    <string name="list_record_result">录音结果列表</string>
+    <string name="no_data_record">尚未保存任何录音</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">更改声音</string>
+    <string name="search_audio">搜索声音类型...</string>
+    <string name="active">启用</string>
+    <string name="choose">选择</string>
+    <string name="ads_prepared_please_wait">广告正在准备中，请稍候...</string>
+
 
 </resources>

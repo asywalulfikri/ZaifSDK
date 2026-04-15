@@ -265,6 +265,10 @@ class GameActivity : BaseActivity(),
         loadInterstitialIfNeeded()
     }
 
+    override fun loadReward() {
+        loadRewardedAd()
+    }
+
 
     /** =====================
      *  SAFE HELPERS

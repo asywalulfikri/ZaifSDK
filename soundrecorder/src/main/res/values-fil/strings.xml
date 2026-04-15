@@ -199,6 +199,29 @@
     <string name="hi">Kamusta</string>
     <string name="welcome">Maligayang pagdating</string>
 
+    <string name="ads_not_ready">Hindi pa handa ang mga ad, pakisubukang muli sa ilang sandali.</string>
+    <string name="watch_ads">Manood ng ad para ma-unlock ang mga feature</string>
+    <string name="reward_get">Matagumpay na nakuha ang gantimpala!</string>
+    <string name="delete_ads">Alisin ang mga ad</string>
+    <string name="are_you_buy_no_ads">Gusto mo bang permanenteng alisin ang mga ad?</string>
+
+    <string name="music_lock">Musika 🔒</string>
+    <string name="music_unlock">Musika</string>
+    <string name="list_music">Aklatan ng Musika</string>
+    <string name="audio_mixer">Panghalo ng Audio</string>
+    <string name="search_song_accompaniment">Maghanap ng musikang pangsalik...</string>
+
+    <string name="list_record_result">Listahan ng mga Resulta ng Rekord</string>
+    <string name="no_data_record">Wala pang naka-save na mga rekord</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">Palitan ang Boses</string>
+    <string name="search_audio">Maghanap ng uri ng boses...</string>
+    <string name="active">Aktibo</string>
+    <string name="choose">Pumili</string>
+    <string name="ads_prepared_please_wait">Inihahanda pa ang mga ad, pakihintay sandali...</string>
+
 
 
 

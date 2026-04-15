@@ -70,6 +70,7 @@ class DholakFragment : BaseFragment(),
 
     private fun setupUI() {
         MyAdsListener.loadInterstitial()
+        MyAdsListener.loadReward()
 
         myAnim = AnimationUtils.loadAnimation(requireContext(), R.anim.button)
 

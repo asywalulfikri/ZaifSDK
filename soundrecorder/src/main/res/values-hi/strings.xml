@@ -196,5 +196,28 @@
     <string name="hi">नमस्ते</string>
     <string name="welcome">स्वागत है</string>
 
+    <string name="ads_not_ready">विज्ञापन अभी तैयार नहीं हैं, कृपया थोड़ी देर में फिर से प्रयास करें।</string>
+    <string name="watch_ads">फ़ीचर अनलॉक करने के लिए विज्ञापन देखें</string>
+    <string name="reward_get">इनाम सफलतापूर्वक प्राप्त हुआ!</string>
+    <string name="delete_ads">विज्ञापन हटाएँ</string>
+    <string name="are_you_buy_no_ads">क्या आप स्थायी रूप से विज्ञापन हटाना चाहते हैं?</string>
+
+    <string name="music_lock">संगीत 🔒</string>
+    <string name="music_unlock">संगीत</string>
+    <string name="list_music">संगीत लाइब्रेरी</string>
+    <string name="audio_mixer">ऑडियो मिक्सर</string>
+    <string name="search_song_accompaniment">संगत संगीत खोजें...</string>
+
+    <string name="list_record_result">रिकॉर्डिंग परिणामों की सूची</string>
+    <string name="no_data_record">अभी तक कोई रिकॉर्डिंग सहेजी नहीं गई है</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">आवाज़ बदलें</string>
+    <string name="search_audio">आवाज़ का प्रकार खोजें...</string>
+    <string name="active">सक्रिय</string>
+    <string name="choose">चुनें</string>
+    <string name="ads_prepared_please_wait">विज्ञापन तैयार किए जा रहे हैं, कृपया एक क्षण प्रतीक्षा करें...</string>
+
 
 </resources>

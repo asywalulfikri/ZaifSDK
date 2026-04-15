@@ -198,6 +198,29 @@
     <string name="hi">Hallo</string>
     <string name="welcome">Willkommen</string>
 
+    <string name="ads_not_ready">Die Anzeige ist noch nicht bereit, bitte versuchen Sie es in Kürze erneut.</string>
+    <string name="watch_ads">Sehen Sie sich eine Anzeige an, um Funktionen freizuschalten</string>
+    <string name="reward_get">Belohnung erfolgreich erhalten!</string>
+    <string name="delete_ads">Werbung entfernen</string>
+    <string name="are_you_buy_no_ads">Möchten Sie die Werbung dauerhaft entfernen?</string>
+
+    <string name="music_lock">Musik 🔒</string>
+    <string name="music_unlock">Musik</string>
+    <string name="list_music">Musikbibliothek</string>
+    <string name="audio_mixer">Audiomixer</string>
+    <string name="search_song_accompaniment">Begleitmusik suchen...</string>
+
+    <string name="list_record_result">Liste der Aufnahmergebnisse</string>
+    <string name="no_data_record">Noch keine Aufnahmen gespeichert</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">Stimme ändern</string>
+    <string name="search_audio">Nach Stimmtyp suchen...</string>
+    <string name="active">Aktiv</string>
+    <string name="choose">Auswählen</string>
+    <string name="ads_prepared_please_wait">Die Anzeige wird vorbereitet, bitte warten Sie einen Moment...</string>
+
 
 
 

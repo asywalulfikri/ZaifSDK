@@ -201,4 +201,27 @@
     <string name="hi">안녕하세요</string>
     <string name="welcome">환영합니다</string>
 
+    <string name="ads_not_ready">광고가 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요.</string>
+    <string name="watch_ads">기능을 잠금 해제하려면 광고를 시청하세요</string>
+    <string name="reward_get">보상을 성공적으로 받았습니다!</string>
+    <string name="delete_ads">광고 제거</string>
+    <string name="are_you_buy_no_ads">광고를 영구적으로 제거하시겠습니까?</string>
+
+    <string name="music_lock">음악 🔒</string>
+    <string name="music_unlock">음악</string>
+    <string name="list_music">음악 라이브러리</string>
+    <string name="audio_mixer">오디오 믹서</string>
+    <string name="search_song_accompaniment">반주 음악 검색...</string>
+
+    <string name="list_record_result">녹음 결과 목록</string>
+    <string name="no_data_record">저장된 녹음이 아직 없습니다</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">음성 변경</string>
+    <string name="search_audio">음성 유형 검색...</string>
+    <string name="active">활성</string>
+    <string name="choose">선택</string>
+    <string name="ads_prepared_please_wait">광고를 준비 중입니다. 잠시만 기다려 주세요...</string>
+
 </resources>

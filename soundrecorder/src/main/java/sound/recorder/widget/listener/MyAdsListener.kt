@@ -18,4 +18,8 @@ object MyAdsListener {
         myListener?.loadInterstitial()
     }
 
+    fun loadReward(){
+        myListener?.loadReward()
+    }
+
 }

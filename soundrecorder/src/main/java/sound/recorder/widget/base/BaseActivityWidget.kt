@@ -53,6 +53,8 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import com.google.android.gms.tasks.Task
@@ -118,6 +120,8 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private val adLoadTimeout = 10_000L // 10 detik timeout
     private var loadTimeoutRunnable: Runnable? = null
+
+    private var rewardedAd: RewardedAd? = null
 
 
     //banner home
@@ -1099,20 +1103,62 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
 
-   /* private fun scheduleRetry() {
-        if (retryCount >= MAX_RETRY) return
 
-        retryJob?.cancel()
-        retryCount++
+    private var retryCountReward = 0
 
-        retryJob = lifecycleScope.launch {
-            delay(RETRY_DELAY)
-            if (mInterstitialAd == null) {
-                Log.d("ADS", "Retry load ($retryCount)")
-                loadInterstitialIfNeeded()
+    fun loadRewardedAd() {
+        val adRequest = AdRequest.Builder().build()
+
+        RewardedAd.load(this, admobSDKBuilder?.rewardId.orEmpty(),
+            adRequest, object : RewardedAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    rewardedAd = null
+
+                    // Coba load ulang otomatis maksimal 3 kali jika gagal
+                    if (retryCountReward < 3) {
+                        retryCountReward++
+                        // Kasih delay 5 detik sebelum coba lagi
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            loadRewardedAd()
+                        }, 5000)
+                    }
+                }
+
+                override fun onAdLoaded(ad: RewardedAd) {
+                    rewardedAd = ad
+                    retryCountReward = 0 // Reset hitungan jika berhasil
+                }
+            })
+    }
+
+    private fun showAd(onComplete: () -> Unit) {
+        if (rewardedAd != null) {
+            rewardedAd?.show(this) { _ ->
+                onComplete.invoke()
+                loadRewardedAd()
             }
+        } else {
+            // Kasih Toast atau Dialog loading
+            setToast(getString(R.string.ads_prepared_please_wait))
+            loadRewardedAd()
         }
-    }*/
+    }
+
+
+    /* private fun scheduleRetry() {
+         if (retryCount >= MAX_RETRY) return
+
+         retryJob?.cancel()
+         retryCount++
+
+         retryJob = lifecycleScope.launch {
+             delay(RETRY_DELAY)
+             if (mInterstitialAd == null) {
+                 Log.d("ADS", "Retry load ($retryCount)")
+                 loadInterstitialIfNeeded()
+             }
+         }
+     }*/
 
     private fun scheduleRetry() {
         if (retryCount >= MAX_RETRY) return

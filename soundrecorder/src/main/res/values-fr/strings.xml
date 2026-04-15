@@ -199,5 +199,28 @@
     <string name="hi">Salut</string>
     <string name="welcome">Bienvenue</string>
 
+    <string name="ads_not_ready">Les annonces ne sont pas encore prêtes, veuillez réessayer dans un instant.</string>
+    <string name="watch_ads">Regardez une annonce pour débloquer les fonctionnalités</string>
+    <string name="reward_get">Récompense obtenue avec succès !</string>
+    <string name="delete_ads">Supprimer les publicités</string>
+    <string name="are_you_buy_no_ads">Voulez-vous supprimer définitivement les publicités ?</string>
+
+    <string name="music_lock">Musique 🔒</string>
+    <string name="music_unlock">Musique</string>
+    <string name="list_music">Bibliothèque musicale</string>
+    <string name="audio_mixer">Mixeur audio</string>
+    <string name="search_song_accompaniment">Rechercher une musique d'accompagnement...</string>
+
+    <string name="list_record_result">Liste des résultats d'enregistrement</string>
+    <string name="no_data_record">Aucun enregistrement sauvegardé pour le moment</string>
+    <string name="list_record_lock">LIST\nREC 🔒</string>
+    <string name="list_record_unlock">LIST\nREC</string>
+
+    <string name="change_audio">Changer la voix</string>
+    <string name="search_audio">Rechercher un type de voix...</string>
+    <string name="active">Actif</string>
+    <string name="choose">Choisir</string>
+    <string name="ads_prepared_please_wait">Les annonces sont en cours de préparation, veuillez patienter un instant...</string>
+
 
 </resources>
