@@ -1131,7 +1131,8 @@ open class BaseActivityWidget : AppCompatActivity() {
             })
     }
 
-    private fun showAd(onComplete: () -> Unit) {
+
+    fun showRewardedAd(onComplete: () -> Unit) {
         if (rewardedAd != null) {
             rewardedAd?.show(this) { _ ->
                 onComplete.invoke()
