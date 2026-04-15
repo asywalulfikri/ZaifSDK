@@ -219,6 +219,9 @@
     <string name="active">Активно</string>
     <string name="ads_prepared_please_wait">Реклама подготавливается, пожалуйста, подождите немного...</string>
 
+    <string name="watch">Смотреть</string>
+    <string name="open_record_list">Открыть список записей</string>
+    <string name="open_list_music">Открыть список музыки</string>
 
 
 </resources>

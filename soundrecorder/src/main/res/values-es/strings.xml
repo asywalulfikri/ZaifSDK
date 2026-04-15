@@ -220,6 +220,9 @@
     <string name="ads_prepared_please_wait">Los anuncios se están preparando, por favor espera un momento...</string>
 
 
+    <string name="watch">Ver</string>
+    <string name="open_record_list">Abrir lista de grabaciones</string>
+    <string name="open_list_music">Abrir lista de música</string>
 
 
 </resources>

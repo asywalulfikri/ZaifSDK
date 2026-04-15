@@ -222,6 +222,9 @@
     <string name="active">有効</string>
     <string name="ads_prepared_please_wait">広告を準備中です。しばらくお待ちください...</string>
 
+    <string name="watch">視聴</string>
+    <string name="open_record_list">録音リストを開く</string>
+    <string name="open_list_music">音楽リストを開く</string>
 
 
 </resources>

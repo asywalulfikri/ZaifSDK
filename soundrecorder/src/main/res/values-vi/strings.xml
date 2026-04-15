@@ -220,5 +220,8 @@
     <string name="ads_prepared_please_wait">Quảng cáo đang được chuẩn bị, vui lòng chờ một chút...</string>
 
 
+    <string name="watch">Xem</string>
+    <string name="open_record_list">Mở danh sách ghi âm</string>
+    <string name="open_list_music">Mở danh sách nhạc</string>
 
 </resources>

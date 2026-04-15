@@ -218,5 +218,8 @@
     <string name="active">सक्रिय</string>
     <string name="ads_prepared_please_wait">विज्ञापन तैयार किए जा रहे हैं, कृपया एक क्षण प्रतीक्षा करें...</string>
 
+    <string name="watch">देखें</string>
+    <string name="open_record_list">रिकॉर्डिंग सूची खोलें</string>
+    <string name="open_list_music">संगीत सूची खोलें</string>
 
 </resources>

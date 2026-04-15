@@ -223,5 +223,8 @@
     <string name="active">Aktif</string>
     <string name="ads_prepared_please_wait">Iklan sedang disediakan, sila tunggu sebentar...</string>
 
+    <string name="watch">Tonton</string>
+    <string name="open_record_list">Buka Senarai Rakaman</string>
+    <string name="open_list_music">Buka Senarai Muzik</string>
 
 </resources>

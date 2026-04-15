@@ -221,5 +221,8 @@
     <string name="active">Actif</string>
     <string name="ads_prepared_please_wait">Les annonces sont en cours de préparation, veuillez patienter un instant...</string>
 
+    <string name="watch">Regarder</string>
+    <string name="open_record_list">Ouvrir la liste des enregistrements</string>
+    <string name="open_list_music">Ouvrir la liste de musique</string>
 
 </resources>
