@@ -219,9 +219,8 @@
     <string name="list_record_unlock">LIST\nREC</string>
 
     <string name="change_audio">Tukar Suara</string>
-    <string name="search_audio">Cari jenis suara...</string>
+    <string name="search_audio_type">Cari jenis suara...</string>
     <string name="active">Aktif</string>
-    <string name="choose">Pilih</string>
     <string name="ads_prepared_please_wait">Iklan sedang disediakan, sila tunggu sebentar...</string>
 
 

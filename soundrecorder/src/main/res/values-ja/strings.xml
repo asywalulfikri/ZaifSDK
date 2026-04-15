@@ -218,9 +218,8 @@
     <string name="list_record_unlock">LIST\nREC</string>
 
     <string name="change_audio">音声を変更</string>
-    <string name="search_audio">音声タイプを検索...</string>
+    <string name="search_audio_type">音声タイプを検索...</string>
     <string name="active">有効</string>
-    <string name="choose">選択</string>
     <string name="ads_prepared_please_wait">広告を準備中です。しばらくお待ちください...</string>
 
 

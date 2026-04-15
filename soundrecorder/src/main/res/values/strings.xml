@@ -213,9 +213,8 @@
     <string name="list_record_unlock">LIST\nREC</string>
 
     <string name="change_audio">Change Voice</string>
-    <string name="search_audio">Search for voice type...</string>
+    <string name="search_audio_type">Search for voice type...</string>
     <string name="active">Active</string>
-    <string name="choose">Select</string>
     <string name="ads_prepared_please_wait">Ads are being prepared, please wait a moment...</string>
 
 </resources>

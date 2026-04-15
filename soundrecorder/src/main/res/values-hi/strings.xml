@@ -214,9 +214,8 @@
     <string name="list_record_unlock">LIST\nREC</string>
 
     <string name="change_audio">आवाज़ बदलें</string>
-    <string name="search_audio">आवाज़ का प्रकार खोजें...</string>
+    <string name="search_audio_type">आवाज़ का प्रकार खोजें...</string>
     <string name="active">सक्रिय</string>
-    <string name="choose">चुनें</string>
     <string name="ads_prepared_please_wait">विज्ञापन तैयार किए जा रहे हैं, कृपया एक क्षण प्रतीक्षा करें...</string>
 
 

@@ -215,9 +215,8 @@
     <string name="list_record_unlock">LIST\nREC</string>
 
     <string name="change_audio">Изменить голос</string>
-    <string name="search_audio">Поиск типа голоса...</string>
+    <string name="search_audio_type">Поиск типа голоса...</string>
     <string name="active">Активно</string>
-    <string name="choose">Выбрать</string>
     <string name="ads_prepared_please_wait">Реклама подготавливается, пожалуйста, подождите немного...</string>
 
 

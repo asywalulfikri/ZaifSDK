@@ -217,9 +217,8 @@
     <string name="list_record_unlock">LIST\nREC</string>
 
     <string name="change_audio">Stem wijzigen</string>
-    <string name="search_audio">Zoek naar stemtype...</string>
+    <string name="search_audio_type">Zoek naar stemtype...</string>
     <string name="active">Actief</string>
-    <string name="choose">Selecteren</string>
     <string name="ads_prepared_please_wait">Advertenties worden voorbereid, even geduld alstublieft...</string>
 
 

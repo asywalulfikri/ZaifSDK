@@ -217,9 +217,8 @@
     <string name="list_record_unlock">LIST\nREC</string>
 
     <string name="change_audio">Palitan ang Boses</string>
-    <string name="search_audio">Maghanap ng uri ng boses...</string>
+    <string name="search_audio_type">Maghanap ng uri ng boses...</string>
     <string name="active">Aktibo</string>
-    <string name="choose">Pumili</string>
     <string name="ads_prepared_please_wait">Inihahanda pa ang mga ad, pakihintay sandali...</string>
 
 
