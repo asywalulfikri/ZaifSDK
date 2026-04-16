@@ -1060,45 +1060,47 @@ open class BaseActivityWidget : AppCompatActivity() {
     }*/
 
 
-    fun loadInterstitialIfNeeded() {
-        val now = System.currentTimeMillis()
+    fun loadInterstitialIfNeeded(isPremium: Boolean) {
+        if(!isPremium){
+            val now = System.currentTimeMillis()
 
-        // 1️⃣ Jangan load kalau interstitial masih ada
-        if (mInterstitialAd != null) return
+            // 1️⃣ Jangan load kalau interstitial masih ada
+            if (mInterstitialAd != null) return
 
-        // 2️⃣ Kalau SUDAH pernah show → cek interval
-        if (lastShowTime > 0 && now - lastShowTime < LOAD_INTERVAL) {
-            Log.d("ADS", "Skip load: waiting interval")
-            setToastADS("already init wait bro")
-            return
-        }
-
-        // 3️⃣ Jangan load kalau activity tidak aktif
-        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-            return
-        }
-
-        InterstitialAd.load(
-            this,
-            admobSDKBuilder?.interstitialId ?: return,
-            AdRequest.Builder().build(),
-            object : InterstitialAdLoadCallback() {
-
-                override fun onAdLoaded(ad: InterstitialAd) {
-                    retryJob?.cancel()
-                    retryCount = 0
-                    mInterstitialAd = ad
-                    Log.d("ADS", "Interstitial loaded")
-                    setToastADS("load interstitial success")
-                }
-
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    Log.e("ADS", "Load failed: ${error.message}")
-                    setToastADS("load interstitial failed")
-                    scheduleRetry()
-                }
+            // 2️⃣ Kalau SUDAH pernah show → cek interval
+            if (lastShowTime > 0 && now - lastShowTime < LOAD_INTERVAL) {
+                Log.d("ADS", "Skip load: waiting interval")
+                setToastADS("already init wait bro")
+                return
             }
-        )
+
+            // 3️⃣ Jangan load kalau activity tidak aktif
+            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                return
+            }
+
+            InterstitialAd.load(
+                this,
+                admobSDKBuilder?.interstitialId ?: return,
+                AdRequest.Builder().build(),
+                object : InterstitialAdLoadCallback() {
+
+                    override fun onAdLoaded(ad: InterstitialAd) {
+                        retryJob?.cancel()
+                        retryCount = 0
+                        mInterstitialAd = ad
+                        Log.d("ADS", "Interstitial loaded")
+                        setToastADS("load interstitial success")
+                    }
+
+                    override fun onAdFailedToLoad(error: LoadAdError) {
+                        Log.e("ADS", "Load failed: ${error.message}")
+                        setToastADS("load interstitial failed")
+                        scheduleRetry(isPremium)
+                    }
+                }
+            )
+        }
     }
 
 
@@ -1106,161 +1108,117 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private var retryCountReward = 0
 
-    fun loadRewardedAd() {
-        val adRequest = AdRequest.Builder().build()
+    fun loadRewardedAd(isPremium : Boolean){
+        if(!isPremium){
+            val adRequest = AdRequest.Builder().build()
 
-        RewardedAd.load(this, admobSDKBuilder?.rewardId.orEmpty(),
-            adRequest, object : RewardedAdLoadCallback() {
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    rewardedAd = null
+            RewardedAd.load(this, admobSDKBuilder?.rewardId.orEmpty(),
+                adRequest, object : RewardedAdLoadCallback() {
+                    override fun onAdFailedToLoad(adError: LoadAdError) {
+                        rewardedAd = null
 
-                    // Coba load ulang otomatis maksimal 3 kali jika gagal
-                    if (retryCountReward < 3) {
-                        retryCountReward++
-                        // Kasih delay 5 detik sebelum coba lagi
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            loadRewardedAd()
-                        }, 5000)
+                        // Coba load ulang otomatis maksimal 3 kali jika gagal
+                        if (retryCountReward < 3) {
+                            retryCountReward++
+                            // Kasih delay 5 detik sebelum coba lagi
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                loadRewardedAd(isPremium)
+                            }, 5000)
+                        }
+                    }
+
+                    override fun onAdLoaded(ad: RewardedAd) {
+                        rewardedAd = ad
+                        retryCountReward = 0 // Reset hitungan jika berhasil
+                    }
+                })
+
+        }
+    }
+
+
+    fun showRewardedAd(isPremium : Boolean,onComplete: () -> Unit) {
+        if(!isPremium){
+            if (rewardedAd != null) {
+                rewardedAd?.show(this) { _ ->
+                    onComplete.invoke()
+                    loadRewardedAd(isPremium)
+                }
+            } else {
+                // Kasih Toast atau Dialog loading
+                setToast(getString(R.string.ads_prepared_please_wait))
+                loadRewardedAd(isPremium)
+            }
+        }else{
+            onComplete()
+            return
+        }
+    }
+
+    private fun scheduleRetry(isPremium: Boolean) {
+        if(!isPremium){
+            if (retryCount >= MAX_RETRY) return
+
+            retryJob?.cancel()
+            retryCount++
+
+            retryJob = lifecycleScope.launch {
+                delay(60_000L)
+
+                if (mInterstitialAd == null &&
+                    lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                ) {
+                    loadInterstitialIfNeeded(isPremium)
+                }
+            }
+        }
+    }
+
+    fun showInterstitialIfAllowed(isPremium : Boolean,onFinished: () -> Unit) {
+
+        if(!isPremium){
+            val ad = mInterstitialAd
+            val now = System.currentTimeMillis()
+
+            // 1️⃣ Guard awal
+            if (
+                ad == null ||
+                now - lastShowTime < SHOW_INTERVAL ||
+                lifecycle.currentState != Lifecycle.State.RESUMED
+            ) {
+                onFinished()
+                return
+            }
+
+            // 2️⃣ Anti double show
+            mInterstitialAd = null
+            lastShowTime = now
+
+            // 3️⃣ Gunakan WeakReference (ANTI LEAK)
+            val activityRef = WeakReference(this)
+
+            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+
+                override fun onAdDismissedFullScreenContent() {
+                    releaseAd(ad)
+                    activityRef.get()?.safePost {
+                        onFinished()
                     }
                 }
 
-                override fun onAdLoaded(ad: RewardedAd) {
-                    rewardedAd = ad
-                    retryCountReward = 0 // Reset hitungan jika berhasil
-                }
-            })
-    }
-
-
-    fun showRewardedAd(onComplete: () -> Unit) {
-        if (rewardedAd != null) {
-            rewardedAd?.show(this) { _ ->
-                onComplete.invoke()
-                loadRewardedAd()
-            }
-        } else {
-            // Kasih Toast atau Dialog loading
-            setToast(getString(R.string.ads_prepared_please_wait))
-            loadRewardedAd()
-        }
-    }
-
-
-    /* private fun scheduleRetry() {
-         if (retryCount >= MAX_RETRY) return
-
-         retryJob?.cancel()
-         retryCount++
-
-         retryJob = lifecycleScope.launch {
-             delay(RETRY_DELAY)
-             if (mInterstitialAd == null) {
-                 Log.d("ADS", "Retry load ($retryCount)")
-                 loadInterstitialIfNeeded()
-             }
-         }
-     }*/
-
-    private fun scheduleRetry() {
-        if (retryCount >= MAX_RETRY) return
-
-        retryJob?.cancel()
-        retryCount++
-
-        retryJob = lifecycleScope.launch {
-            delay(60_000L)
-
-            if (mInterstitialAd == null &&
-                lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
-            ) {
-                loadInterstitialIfNeeded()
-            }
-        }
-    }
-
-
-
-
-
-    fun showInterstitialIfAllowed222(onFinished: () -> Unit) {
-
-        val now = System.currentTimeMillis()
-
-        // 1️⃣ Guard interval & availability
-        val ad = mInterstitialAd
-        if (ad == null || now - lastShowTime < SHOW_INTERVAL) {
-            onFinished()
-            return
-        }
-
-        // 2️⃣ Activity HARUS resumed
-        if (lifecycle.currentState != Lifecycle.State.RESUMED) {
-            onFinished()
-            return
-        }
-
-        // 3️⃣ Null-kan SEBELUM show (anti double show)
-        mInterstitialAd = null
-        lastShowTime = now
-
-        ad.fullScreenContentCallback = object : FullScreenContentCallback() {
-
-            override fun onAdDismissedFullScreenContent() {
-                cleanupAfterShow()
-                scheduleNextLoad()
-                onFinished()
-            }
-
-            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                cleanupAfterShow()
-                scheduleNextLoad()
-                onFinished()
-            }
-        }
-
-        ad.show(this)
-    }
-
-    fun showInterstitialIfAllowed(onFinished: () -> Unit) {
-
-        val ad = mInterstitialAd
-        val now = System.currentTimeMillis()
-
-        // 1️⃣ Guard awal
-        if (
-            ad == null ||
-            now - lastShowTime < SHOW_INTERVAL ||
-            lifecycle.currentState != Lifecycle.State.RESUMED
-        ) {
-            onFinished()
-            return
-        }
-
-        // 2️⃣ Anti double show
-        mInterstitialAd = null
-        lastShowTime = now
-
-        // 3️⃣ Gunakan WeakReference (ANTI LEAK)
-        val activityRef = WeakReference(this)
-
-        ad.fullScreenContentCallback = object : FullScreenContentCallback() {
-
-            override fun onAdDismissedFullScreenContent() {
-                releaseAd(ad)
-                activityRef.get()?.safePost {
-                    onFinished()
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    releaseAd(ad)
+                    activityRef.get()?.safePost {
+                        onFinished()
+                    }
                 }
             }
 
-            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                releaseAd(ad)
-                activityRef.get()?.safePost {
-                    onFinished()
-                }
-            }
+            ad.show(this)
+        }else{
+            onFinished()
+            return
         }
-
-        ad.show(this)
     }
 
     private fun Activity.safePost(block: () -> Unit) {
@@ -1295,7 +1253,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
 
             setToastADS("reload interstitial after 90 second")
-            loadInterstitialIfNeeded()
+            loadInterstitialIfNeeded(false)
         }
     }
 
@@ -1568,26 +1526,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    fun showRewardInterstitial(){
-       /* try {
-            if(isLoadInterstitialReward){
-                Log.d("yametere", "show")
-                rewardedInterstitialAd?.let { ad ->
-                    ad.show(this) { rewardItem ->
-                        // Handle the reward.
-                        val rewardAmount = rewardItem.amount
-                        val rewardType = rewardItem.type
-                        Log.d("yametere", "User earned the reward.$rewardAmount--$rewardType")
-                    }
-                } ?: run {
-                    Log.d("yametere", "The rewarded ad wasn't ready yet.")
-                    showInterstitial()
-                }
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }*/
-    }
+
 
 
     protected open fun getFirebaseToken(): String? {

@@ -134,7 +134,7 @@ class DholakFragment : BaseFragment(),
         backCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
 
-                (activity as? GameActivity)?.showInterstitialIfAllowed {
+                (activity as? GameActivity)?.showInterstitialIfAllowed(true) {
 
                     if (!isAdded) return@showInterstitialIfAllowed
                     findNavController().navigateUp()

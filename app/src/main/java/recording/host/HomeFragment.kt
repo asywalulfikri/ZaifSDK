@@ -48,7 +48,7 @@ class HomeFragment : BaseFragmentWidget() {
         binding?.btnNext?.setOnClickListener {
             try {
 
-                (activity as? GameActivity)?.showInterstitialIfAllowed {
+                (activity as? GameActivity)?.showInterstitialIfAllowed(true) {
 
                     if (!isAdded) return@showInterstitialIfAllowed
                     MyAdsListener.setBannerHome(true)

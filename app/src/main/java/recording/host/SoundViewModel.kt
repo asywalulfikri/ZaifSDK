@@ -11,6 +11,8 @@ class SoundViewModel(application: Application) : AndroidViewModel(application) {
     val loadingProgress: LiveData<Int> = AudioEngine.loadingProgress
     val isAllSoundsLoaded: LiveData<Boolean> = AudioEngine.isLoaded
 
+    var isPremium: Boolean = true
+
     /**
      * Meneruskan perintah untuk memainkan suara ketukan ke AudioEngine.
      */

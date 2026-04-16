@@ -165,6 +165,7 @@ class GameActivity : BaseActivity(),
 
 
 
+
     /** =====================
      *  ADS SETUP (STRICTLY ONCE)
      *  ===================== */
@@ -185,7 +186,7 @@ class GameActivity : BaseActivity(),
             delay(1200)
 
             _binding?.let {
-                loadBannerGame(it.bannerGame, false)
+                loadBannerGame(it.bannerGame, true)
             }
 
             delay(10_000)
@@ -203,6 +204,7 @@ class GameActivity : BaseActivity(),
 
                     // ❗ Jangan buat ulang kalau sudah ada
                     if (!::bannerController.isInitialized) {
+
                         bannerController = UnityBannerController(
                             activity = this@GameActivity,
                             lifecycleOwner = this@GameActivity,
@@ -262,13 +264,12 @@ class GameActivity : BaseActivity(),
 
 
     override fun loadInterstitial() {
-        loadInterstitialIfNeeded()
+        loadInterstitialIfNeeded(true)
     }
 
     override fun loadReward() {
-        loadRewardedAd()
+        loadRewardedAd(true)
     }
-
 
     /** =====================
      *  SAFE HELPERS
