@@ -223,5 +223,6 @@
     <string name="watch">Tonton</string>
     <string name="open_record_list">Buka Daftar Rekaman</string>
     <string name="open_list_music">Buka Daftar Musik</string>
+    <string name="success_saved">Berhasil Menyimpan</string>
 
 </resources>

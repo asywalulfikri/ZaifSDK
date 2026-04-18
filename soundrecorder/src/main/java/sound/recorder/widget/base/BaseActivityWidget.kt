@@ -433,6 +433,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         isBannerLoaded = false
         isLoading = false
         mInterstitialAd = null
+        rewardedAd = null
 
         reloadJob?.cancel()
         retryJob?.cancel()
