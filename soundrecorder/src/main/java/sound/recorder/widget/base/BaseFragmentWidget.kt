@@ -1981,7 +1981,6 @@ open class BaseFragmentWidget : Fragment() {
         }catch (e : Exception){
             setLog(e.message)
         }
-
     }
 
 
