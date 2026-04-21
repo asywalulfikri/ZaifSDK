@@ -21,6 +21,7 @@ import sound.recorder.widget.listener.MyMusicListener
 import sound.recorder.widget.listener.MyNoteListener
 import sound.recorder.widget.listener.NoteListener
 import sound.recorder.widget.notes.Note
+import sound.recorder.widget.recording.InstrumentRecorderManager
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNoteFirebase
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.Constant
@@ -34,6 +35,7 @@ class DholakFragment : BaseFragment(),
 
     private var _binding: ActivityDholakBinding? = null
     private val binding get() = _binding!!
+
 
     private val viewModel: MusicViewModel by activityViewModels()
     private val soundViewModel: SoundViewModel by activityViewModels()
