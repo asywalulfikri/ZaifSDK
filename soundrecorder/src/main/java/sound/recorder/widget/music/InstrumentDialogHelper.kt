@@ -7,9 +7,12 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.Window
-import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import sound.recorder.widget.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 object InstrumentDialogHelper {
 
@@ -22,11 +25,9 @@ object InstrumentDialogHelper {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
-        // Inflate custom layout
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
         dialog.setContentView(view)
 
-        // Atur agar background dialog transparan (supaya radius layout kita kelihatan)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
@@ -34,7 +35,6 @@ object InstrumentDialogHelper {
         val btnWatch = view.findViewById<TextView>(R.id.btnWatch)
         val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
 
-        // Set teks sesuai resource & instrumen
         tvTitle.text = "${context.getString(R.string.open)} $title".uppercase()
         tvMessage.text = "${context.getString(R.string.watch_ads)} $title?"
         btnWatch.text = context.getString(R.string.watch).uppercase()
@@ -52,7 +52,6 @@ object InstrumentDialogHelper {
         dialog.show()
     }
 
-
     @SuppressLint("UseKtx", "SetTextI18n")
     fun showBuyAdsDialog(
         context: Context,
@@ -61,11 +60,9 @@ object InstrumentDialogHelper {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
-        // Inflate custom layout
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
         dialog.setContentView(view)
 
-        // Atur agar background dialog transparan (supaya radius layout kita kelihatan)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
@@ -73,14 +70,54 @@ object InstrumentDialogHelper {
         val btnWatch = view.findViewById<TextView>(R.id.btnWatch)
         val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
 
-        // Set teks sesuai resource & instrumen
         tvTitle.text = context.getString(R.string.remove_ads)
         tvMessage.text = context.getString(R.string.are_you_buy_no_ads)
-        btnWatch.text = context.getString(R.string.watch).uppercase()
+        btnWatch.text = context.getString(R.string.watch).uppercase() // Diganti jadi BUY biasanya
         btnCancel.text = context.getString(R.string.cancel).uppercase()
 
         btnWatch.setOnClickListener {
             onAccept()
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    /**
+     * Dialog untuk memasukkan nama rekaman sebelum disimpan.
+     * Menggunakan callback onSave untuk mengirimkan nama yang diinput user.
+     */
+    @SuppressLint("UseKtx", "SetTextI18n")
+    fun showSaveRecordDialog(
+        context: Context,
+        onSave: (name: String) -> Unit
+    ) {
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_save_record, null)
+        dialog.setContentView(view)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
+        val etName = view.findViewById<EditText>(R.id.tvMessage) // Nanti kita sembunyikan atau ganti jadi EditText
+        val btnSave = view.findViewById<TextView>(R.id.btnWatch)
+        val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
+
+        tvTitle.text = context.getString(R.string.saved_recording_ask).uppercase()
+        btnSave.text = context.getString(R.string.save).uppercase()
+        val defaultName = "Recording ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
+        etName.setText(defaultName)
+
+        btnSave.text = context.getString(R.string.save).uppercase()
+        btnCancel.text = context.getString(R.string.cancel).uppercase()
+
+        btnSave.setOnClickListener {
+            val name = etName.text.toString().ifEmpty { "New Recording" }
+            onSave(name)
             dialog.dismiss()
         }
 
