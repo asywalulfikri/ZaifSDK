@@ -225,5 +225,10 @@
     <string name="open_list_music">Musikliste öffnen</string>
 
 
+    <string name="select">Auswählen</string>
+    <string name="select_one">Eines auswählen</string>
+    <string name="success_saved">Erfolgreich gespeichert</string>
+    <string name="buy">Kaufen</string>
+    <string name="unlock">Entsperren</string>
 
 </resources>

@@ -222,5 +222,11 @@
     <string name="open_record_list">打开录音列表</string>
     <string name="open_list_music">打开音乐列表</string>
 
+    <string name="select">选择</string>
+    <string name="select_one">选择一个</string>
+    <string name="success_saved">保存成功</string>
+    <string name="buy">购买</string>
+    <string name="unlock">解锁</string>
+
 
 </resources>

@@ -83,7 +83,7 @@ class GameActivity : BaseActivity(),
             loadSongsOnce()
         }
 
-        InstrumentDialogHelper.showSaveRecordDialog(this, ) {
+        InstrumentDialogHelper.showBuyAdsDialog(this, ) {
             // Kode di dalam brace ini hanya jalan kalau user klik "WATCH"
            setToast("open")
         }

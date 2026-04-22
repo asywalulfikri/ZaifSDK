@@ -223,5 +223,11 @@
     <string name="open_record_list">Открыть список записей</string>
     <string name="open_list_music">Открыть список музыки</string>
 
+    <string name="select">Выбрать</string>
+    <string name="select_one">Выберите один</string>
+    <string name="success_saved">Успешно сохранено</string>
+    <string name="buy">Купить</string>
+    <string name="unlock">Разблокировать</string>
+
 
 </resources>

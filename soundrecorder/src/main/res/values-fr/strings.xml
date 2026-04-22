@@ -225,4 +225,9 @@
     <string name="open_record_list">Ouvrir la liste des enregistrements</string>
     <string name="open_list_music">Ouvrir la liste de musique</string>
 
+    <string name="select">Choisir</string>
+    <string name="select_one">Sélectionnez-en un</string>
+    <string name="success_saved">Enregistré avec succès</string>
+    <string name="buy">Acheter</string>
+    <string name="unlock">Déverrouiller</string>
 </resources>

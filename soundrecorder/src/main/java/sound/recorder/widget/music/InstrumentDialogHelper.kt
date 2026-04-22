@@ -72,7 +72,7 @@ object InstrumentDialogHelper {
 
         tvTitle.text = context.getString(R.string.remove_ads)
         tvMessage.text = context.getString(R.string.are_you_buy_no_ads)
-        btnWatch.text = context.getString(R.string.watch).uppercase() // Diganti jadi BUY biasanya
+        btnWatch.text = context.getString(R.string.buy).uppercase() // Diganti jadi BUY biasanya
         btnCancel.text = context.getString(R.string.cancel).uppercase()
 
         btnWatch.setOnClickListener {

@@ -222,4 +222,10 @@
     <string name="open_record_list">रिकॉर्डिंग सूची खोलें</string>
     <string name="open_list_music">संगीत सूची खोलें</string>
 
+    <string name="select">चुनें</string>
+    <string name="select_one">एक चुनें</string>
+    <string name="success_saved">सफलतापूर्वक सहेजा गया</string>
+    <string name="buy">खरीदें</string>
+    <string name="unlock">अनलॉक करें</string>
+
 </resources>

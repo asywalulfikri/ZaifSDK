@@ -227,4 +227,10 @@
     <string name="open_record_list">Buka Senarai Rakaman</string>
     <string name="open_list_music">Buka Senarai Muzik</string>
 
+    <string name="select">Pilih</string>
+    <string name="select_one">Pilih satu</string>
+    <string name="success_saved">Berjaya disimpan</string>
+    <string name="buy">Beli</string>
+    <string name="unlock">Buka kunci</string>
+
 </resources>

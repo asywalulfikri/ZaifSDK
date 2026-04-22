@@ -226,5 +226,10 @@
     <string name="open_record_list">録音リストを開く</string>
     <string name="open_list_music">音楽リストを開く</string>
 
+    <string name="select">選択</string>
+    <string name="select_one">1つ選択</string>
+    <string name="success_saved">保存に成功しました</string>
+    <string name="buy">購入</string>
+    <string name="unlock">ロック解除</string>
 
 </resources>

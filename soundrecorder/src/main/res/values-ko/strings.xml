@@ -227,4 +227,10 @@
     <string name="open_record_list">녹음 목록 열기</string>
     <string name="open_list_music">음악 목록 열기</string>
 
+    <string name="select">선택</string>
+    <string name="select_one">하나 선택</string>
+    <string name="success_saved">저장 성공</string>
+    <string name="buy">구매</string>
+    <string name="unlock">잠금 해제</string>
+
 </resources>

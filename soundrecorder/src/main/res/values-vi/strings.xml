@@ -224,4 +224,10 @@
     <string name="open_record_list">Mở danh sách ghi âm</string>
     <string name="open_list_music">Mở danh sách nhạc</string>
 
+    <string name="select">Chọn</string>
+    <string name="select_one">Chọn một</string>
+    <string name="success_saved">Lưu thành công</string>
+    <string name="buy">Mua</string>
+    <string name="unlock">Mở khóa</string>
+
 </resources>

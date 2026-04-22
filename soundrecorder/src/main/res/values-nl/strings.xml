@@ -226,5 +226,10 @@
     <string name="open_record_list">Opnamelijst openen</string>
     <string name="open_list_music">Muzieklijst openen</string>
 
+    <string name="select">Selecteren</string>
+    <string name="select_one">Selecteer één</string>
+    <string name="success_saved">Succesvol opgeslagen</string>
+    <string name="buy">Kopen</string>
+    <string name="unlock">Ontgrendelen</string>
 
 </resources>

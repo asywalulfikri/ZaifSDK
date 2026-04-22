@@ -225,5 +225,11 @@
     <string name="open_record_list">Buksan ang listahan ng mga rekord</string>
     <string name="open_list_music">Buksan ang listahan ng musika</string>
 
+    <string name="select">Pumili</string>
+    <string name="select_one">Pumili ng isa</string>
+    <string name="success_saved">Matagumpay na na-save</string>
+    <string name="buy">Bilhin</string>
+    <string name="unlock">I-unlock</string>
+
 
 </resources>
