@@ -13,6 +13,7 @@
         android:gravity="center"
         android:text="UNLOCK INSTRUMENT"
         android:textColor="#F5D76E"
+        android:fontFamily="@font/campton_bold"
         android:textSize="18sp"
         android:textStyle="bold" />
 
@@ -22,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:gravity="center"
+        android:fontFamily="@font/campton_medium"
         android:text="Watch an ad to unlock this feature?"
         android:textColor="#FFFFFF"
         android:textSize="14sp" />
@@ -41,6 +43,7 @@
             android:gravity="center"
             android:background="@drawable/bg_btn_dark"
             android:text="CANCEL"
+            android:fontFamily="@font/campton_bold"
             android:textColor="#AAAAAA" />
 
         <TextView
@@ -50,6 +53,7 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:gravity="center"
+            android:fontFamily="@font/campton_bold"
             android:background="@drawable/bg_btn_wood"
             android:text="WATCH AD"
             android:textColor="#1F1612"

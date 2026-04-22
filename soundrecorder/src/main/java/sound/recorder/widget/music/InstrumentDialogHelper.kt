@@ -70,8 +70,8 @@ object InstrumentDialogHelper {
 
         val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
         val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
-        val btnWatch = view.findViewById<Button>(R.id.btnWatch)
-        val btnCancel = view.findViewById<Button>(R.id.btnCancel)
+        val btnWatch = view.findViewById<TextView>(R.id.btnWatch)
+        val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
 
         // Set teks sesuai resource & instrumen
         tvTitle.text = context.getString(R.string.remove_ads)
