@@ -1,6 +1,7 @@
 package sound.recorder.widget.music
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -17,13 +18,13 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import java.util.concurrent.TimeUnit
 import sound.recorder.widget.R
-import kotlin.collections.plus
 
 object MusicListDialogHelper {
 
@@ -48,39 +49,15 @@ object MusicListDialogHelper {
 
     private val rawTracks = mutableListOf<MusicPlayerManager.MusicTrack>()
 
-    // ── Palette Tema Gradient Modern & Elegan ─────────────────────────────────
-    // Background Utama: Gradasi Deep Purple ke Midnight Blue
-    private val BG_GRADIENT_COLORS = intArrayOf(
-        Color.parseColor("#0f0c29"),
-        Color.parseColor("#302b63"),
-        Color.parseColor("#24243e")
-    )
+    // Universal color scheme untuk semua alat musik
+    private const val COLOR_BG_DARK     = "#0A0E1A"  // Navy gelap
+    private const val COLOR_BG_MEDIUM   = "#1A1F3A"  // Navy medium
+    private const val COLOR_BG_LIGHT    = "#252B47"  // Navy light
+    private const val COLOR_ACCENT      = "#6C63FF"  // Purple-blue vibrant
+    private const val COLOR_TEXT_BRIGHT = "#FFFFFF"  // Pure white
+    private const val COLOR_TEXT_DIM    = "#8B93B8"  // Purple-gray muted
 
-    // Background Card Player: Hitam transparan (Glassmorphism effect)
-    private val CARD_GRADIENT_COLORS = intArrayOf(
-        Color.parseColor("#D9000000"), // 85% Black
-        Color.parseColor("#991a1a2e")  // 60% Dark Blue
-    )
-
-    // Background Icon Play: Gradasi Api / Emas menyala
-    private val ICON_PLAYING_GRADIENT = intArrayOf(
-        Color.parseColor("#f12711"),
-        Color.parseColor("#f5af19")
-    )
-
-    // Background Icon Default: Putih pudar transparan
-    private val ICON_IDLE_GRADIENT = intArrayOf(
-        Color.parseColor("#26FFFFFF"),
-        Color.parseColor("#0DFFFFFF")
-    )
-
-    private const val COLOR_TEXT_PRIMARY   = "#FFFFFF"   // Putih Bersih
-    private const val COLOR_TEXT_SECONDARY = "#A0A0B0"   // Abu-abu kebiruan terang
-    private const val COLOR_ACCENT         = "#f5af19"   // Emas terang untuk highlight
-    private const val COLOR_DIVIDER        = "#26FFFFFF" // Garis batas tipis
-
-    // ── SharedPreferences helpers ─────────────────────────────────────────────
-
+    @SuppressLint("UseKtx")
     private fun saveMusicVolume(context: Context, volume: Float) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -98,48 +75,44 @@ object MusicListDialogHelper {
         rawTracks.addAll(tracks)
     }
 
+    @SuppressLint("UseKtx")
     fun show(context: Context) {
         val savedVolume = loadMusicVolume(context)
         MusicPlayerManager.setVolume(savedVolume, savedVolume)
 
-        // Container paling luar dengan Gradient Dinamis
         val rootContainer = FrameLayout(context).apply {
             layoutParams = FrameLayout.LayoutParams(-1, -1)
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                BG_GRADIENT_COLORS
-            )
+            setBackgroundColor(Color.parseColor(COLOR_BG_DARK))
         }
 
-        // Layout Utama (Header + Search + ScrollView)
         val mainLayout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = FrameLayout.LayoutParams(-1, -1)
         }
 
-        // ── Header ────────────────────────────────────────────────────────────
+        // Header
         val headerContainer = RelativeLayout(context).apply {
-            setPadding(45, 50, 45, 20)
+            setPadding(45, 60, 45, 20)
         }
 
         val titleView = TextView(context).apply {
             text = context.getString(R.string.list_music).uppercase()
-            setTextColor(Color.parseColor(COLOR_TEXT_PRIMARY))
-            textSize = 17f
+            setTextColor(Color.parseColor(COLOR_ACCENT))
+            textSize = 18f
             letterSpacing = 0.1f
             typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
         }
 
         val closeBtn = FrameLayout(context).apply {
-            val size = 80
+            val size = 90
             layoutParams = RelativeLayout.LayoutParams(size, size).apply {
                 addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
             }
-            background = RippleDrawable(ColorStateList.valueOf(Color.parseColor("#33FFFFFF")), null, null)
+            background = RippleDrawable(ColorStateList.valueOf(Color.parseColor("#20FFFFFF")), null, null)
             addView(TextView(context).apply {
                 text = "✕"
-                setTextColor(Color.parseColor(COLOR_TEXT_SECONDARY))
-                textSize = 18f
+                setTextColor(Color.parseColor(COLOR_TEXT_DIM))
+                textSize = 22f
                 gravity = Gravity.CENTER
             })
         }
@@ -148,93 +121,86 @@ object MusicListDialogHelper {
         headerContainer.addView(closeBtn)
         mainLayout.addView(headerContainer)
 
-        // ── Search Bar ────────────────────────────────────────────────────────
+        // Search Bar
         val searchContainer = FrameLayout(context).apply {
-            setPadding(45, 10, 45, 30)
+            setPadding(45, 20, 45, 40)
         }
         val searchField = EditText(context).apply {
             hint = context.getString(R.string.search_song_accompaniment)
-            setHintTextColor(Color.parseColor(COLOR_TEXT_SECONDARY))
-            setTextColor(Color.parseColor(COLOR_TEXT_PRIMARY))
+            setHintTextColor(Color.parseColor(COLOR_TEXT_DIM))
+            setTextColor(Color.WHITE)
             textSize = 14f
-            setPadding(45, 30, 45, 30)
-
-            // Search Bar dengan efek semi-transparan
-            background = GradientDrawable(
-                GradientDrawable.Orientation.LEFT_RIGHT,
-                intArrayOf(Color.parseColor("#33000000"), Color.parseColor("#1A000000"))
-            ).apply {
-                setStroke(2, Color.parseColor(COLOR_DIVIDER))
-                cornerRadius = 25f
+            setPadding(40, 30, 40, 30)
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor(COLOR_BG_MEDIUM))
+                setStroke(2, Color.parseColor(COLOR_BG_LIGHT))
+                cornerRadius = 20f
             }
         }
         searchContainer.addView(searchField)
         mainLayout.addView(searchContainer)
 
-        // ── List Area ─────────────────────────────────────────────────────────
+        // List Area
         val scrollView = ScrollView(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
+            layoutParams = LinearLayout.LayoutParams(-1, 0, 1f)
             isVerticalScrollBarEnabled = false
             overScrollMode = View.OVER_SCROLL_IF_CONTENT_SCROLLS
         }
 
         val listLayout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(0, 0, 0, 300)
+            setPadding(0, 0, 0, 350)
         }
         scrollView.addView(listLayout)
         mainLayout.addView(scrollView)
         rootContainer.addView(mainLayout)
 
-        // ── Floating Player ───────────────────────────────────────────────────
+        // Floating Player Card
         val playerCard = buildElegantPlayerCard(context, savedVolume)
         val playerParams = FrameLayout.LayoutParams(-1, -2).apply {
             gravity = Gravity.BOTTOM
-            setMargins(35, 0, 35, 45)
+            setMargins(30, 0, 30, 50)
         }
         rootContainer.addView(playerCard, playerParams)
 
-        val dialog = AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen)
+        val dialog = AlertDialog.Builder(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
             .setView(rootContainer)
             .create()
 
         closeBtn.setOnClickListener { dialog.dismiss() }
 
-        if (isMusicActive) {
-            playerCard.visibility = View.VISIBLE
-            updatePlayerUI(playerCard, context)
-        } else {
-            playerCard.visibility = View.GONE
+        // Handle system insets untuk edge-to-edge display
+        ViewCompat.setOnApplyWindowInsetsListener(rootContainer) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            view.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                systemBars.bottom
+            )
+
+            insets
         }
 
-        // ── Listener Setup ─────────────────────────────────────
+        // Logic Player & List
         MusicPlayerManager.setListener(object : MusicPlayerManager.PlayerListener {
             override fun onPlay(track: MusicPlayerManager.MusicTrack) {
                 val vol = loadMusicVolume(context)
                 MusicPlayerManager.setVolume(vol, vol)
-
                 playerCard.visibility = View.VISIBLE
                 playerCard.findViewById<TextView>(101)?.text = track.title
                 playerCard.findViewById<ImageButton>(102)?.setImageResource(android.R.drawable.ic_media_pause)
                 statusListener?.onMusicPlay(track)
             }
-
             override fun onPause() {
                 playerCard.findViewById<ImageButton>(102)?.setImageResource(android.R.drawable.ic_media_play)
                 statusListener?.onMusicPause(currentTrack)
             }
-
             override fun onStop() {
-                if (MusicPlayerManager.getCurrentTrack() == null) {
-                    playerCard.visibility = View.GONE
-                }
+                if (MusicPlayerManager.getCurrentTrack() == null) playerCard.visibility = View.GONE
                 statusListener?.onMusicStop()
             }
-
             override fun onProgress(current: Int, max: Int) {
                 playerCard.findViewById<SeekBar>(103)?.apply {
                     this.max = max
@@ -242,7 +208,6 @@ object MusicListDialogHelper {
                 }
                 statusListener?.onMusicProgress(current, max)
             }
-
             override fun onComplete() {
                 playerCard.visibility = View.GONE
                 statusListener?.onMusicComplete()
@@ -257,53 +222,46 @@ object MusicListDialogHelper {
 
             filtered.forEach { track ->
                 val isPlaying = MusicPlayerManager.getCurrentTrack()?.title == track.title
-
                 val itemRow = LinearLayout(context).apply {
                     orientation = LinearLayout.HORIZONTAL
                     setPadding(45, 30, 45, 30)
                     gravity = Gravity.CENTER_VERTICAL
-                    background = RippleDrawable(
-                        ColorStateList.valueOf(Color.parseColor("#26FFFFFF")), null, null
-                    )
+                    background = RippleDrawable(ColorStateList.valueOf(Color.parseColor("#15FFFFFF")), null, null)
                 }
 
-                // Kotak Icon dengan Gradient
                 val iconBox = FrameLayout(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(95, 95)
-                    background = GradientDrawable(
-                        GradientDrawable.Orientation.BL_TR,
-                        if (isPlaying) ICON_PLAYING_GRADIENT else ICON_IDLE_GRADIENT
-                    ).apply {
-                        cornerRadius = 25f
+                    layoutParams = LinearLayout.LayoutParams(100, 100)
+                    background = GradientDrawable().apply {
+                        setColor(if (isPlaying) Color.parseColor(COLOR_ACCENT) else Color.parseColor(COLOR_BG_MEDIUM))
+                        cornerRadius = 20f
                     }
                     addView(TextView(context).apply {
                         text = "♪"
-                        setTextColor(if (isPlaying) Color.WHITE else Color.parseColor(COLOR_TEXT_SECONDARY))
-                        gravity = Gravity.CENTER
+                        setTextColor(if (isPlaying) Color.WHITE else Color.parseColor(COLOR_ACCENT))
                         textSize = 16f
+                        gravity = Gravity.CENTER
                     })
                 }
 
                 val textStack = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
-                    setPadding(40, 0, 0, 0)
+                    setPadding(35, 0, 0, 0)
                     layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
                 }
 
                 textStack.addView(TextView(context).apply {
                     text = track.title.uppercase()
-                    textSize = 13.5f
-                    setTextColor(if (isPlaying) Color.parseColor(COLOR_ACCENT) else Color.parseColor(COLOR_TEXT_PRIMARY))
-                    typeface = Typeface.create("sans-serif", if (isPlaying) Typeface.BOLD else Typeface.NORMAL)
+                    textSize = 14f
+                    setTextColor(if (isPlaying) Color.parseColor(COLOR_ACCENT) else Color.parseColor(COLOR_TEXT_BRIGHT))
+                    typeface = Typeface.create("sans-serif-medium", if (isPlaying) Typeface.BOLD else Typeface.NORMAL)
                     maxLines = 1
                     ellipsize = TextUtils.TruncateAt.END
                 })
 
                 textStack.addView(TextView(context).apply {
                     text = if (track.isRaw) "ASSET • ${formatMs(track.duration)}" else "STORAGE • ${formatMs(track.duration)}"
-                    textSize = 10f
-                    setTextColor(Color.parseColor(COLOR_TEXT_SECONDARY))
-                    setPadding(0, 5, 0, 0)
+                    textSize = 11f
+                    setTextColor(Color.parseColor(COLOR_TEXT_DIM))
                 })
 
                 itemRow.addView(iconBox)
@@ -316,7 +274,7 @@ object MusicListDialogHelper {
                 listLayout.addView(itemRow)
                 listLayout.addView(View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(-1, 1).apply { setMargins(45, 0, 45, 0) }
-                    setBackgroundColor(Color.parseColor(COLOR_DIVIDER))
+                    setBackgroundColor(Color.parseColor("#156C63FF"))
                 })
             }
         }
@@ -327,34 +285,28 @@ object MusicListDialogHelper {
             override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
         })
 
-        // Tampilkan dialog Full Screen
-        dialog.show()
-        dialog.window?.apply {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            decorView.setPadding(0, 0, 0, 0)
-            setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+        if (isMusicActive) {
+            playerCard.visibility = View.VISIBLE
+            updatePlayerUI(playerCard, context)
+        } else {
+            playerCard.visibility = View.GONE
         }
 
+        dialog.show()
         renderList("")
     }
 
+    @SuppressLint("UseKtx")
     private fun buildElegantPlayerCard(context: Context, initialVolume: Float): LinearLayout {
         return LinearLayout(context).apply {
             id = 100
             orientation = LinearLayout.VERTICAL
-
-            // Efek Glassmorphism untuk Player Card
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                CARD_GRADIENT_COLORS
-            ).apply {
-                cornerRadius = 45f
-                setStroke(2, Color.parseColor("#4DFFFFFF")) // Stroke putih tipis
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor(COLOR_BG_MEDIUM))
+                cornerRadius = 40f
+                setStroke(2, Color.parseColor(COLOR_ACCENT))
             }
-            elevation = 25f
+            elevation = 20f
 
             val topRow = LinearLayout(context).apply {
                 setPadding(45, 30, 45, 0)
@@ -364,7 +316,7 @@ object MusicListDialogHelper {
             val titleTv = TextView(context).apply {
                 id = 101
                 textSize = 14f
-                setTextColor(Color.parseColor(COLOR_TEXT_PRIMARY))
+                setTextColor(Color.parseColor(COLOR_TEXT_BRIGHT))
                 typeface = Typeface.DEFAULT_BOLD
                 layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
                 maxLines = 1
@@ -373,10 +325,10 @@ object MusicListDialogHelper {
 
             val playBtn = ImageButton(context).apply {
                 id = 102
-                background = RippleDrawable(ColorStateList.valueOf(Color.parseColor("#33FFFFFF")), null, null)
+                background = null
                 setColorFilter(Color.parseColor(COLOR_ACCENT))
                 scaleType = ImageView.ScaleType.FIT_CENTER
-                val btnSize = (45 * context.resources.displayMetrics.density).toInt()
+                val btnSize = (50 * context.resources.displayMetrics.density).toInt()
                 layoutParams = LinearLayout.LayoutParams(btnSize, btnSize)
                 setPadding(10, 10, 10, 10)
                 setOnClickListener {
@@ -397,17 +349,16 @@ object MusicListDialogHelper {
             val controlsRow = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                setPadding(25, 5, 40, 30)
+                setPadding(25, 10, 45, 30)
             }
 
-            // ── SeekBar progress lagu ─────────────────────────────────────────
             val musicSeekBar = SeekBar(context).apply {
                 id = 103
                 progressTintList = ColorStateList.valueOf(Color.parseColor(COLOR_ACCENT))
                 thumbTintList = ColorStateList.valueOf(Color.parseColor(COLOR_ACCENT))
                 thumb = ColorDrawable(Color.TRANSPARENT)
-                layoutParams = LinearLayout.LayoutParams(0, 70, 2.5f)
-                setPadding(25, 0, 25, 0)
+                layoutParams = LinearLayout.LayoutParams(0, 80, 2.5f)
+                setPadding(30, 0, 30, 0)
                 setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(s: SeekBar?, p: Int, fromUser: Boolean) {
                         if (fromUser) MusicPlayerManager.seekTo(p)
@@ -417,21 +368,19 @@ object MusicListDialogHelper {
                 })
             }
 
-            // ── Icon volume musik ─────────────────────────────────────────────
             val volIcon = ImageView(context).apply {
                 setImageResource(android.R.drawable.ic_lock_silent_mode_off)
-                setColorFilter(Color.parseColor(COLOR_TEXT_SECONDARY))
-                layoutParams = LinearLayout.LayoutParams(30, 30).apply { setMargins(10, 0, 5, 0) }
+                setColorFilter(Color.parseColor(COLOR_TEXT_DIM))
+                layoutParams = LinearLayout.LayoutParams(35, 35).apply { setMargins(15, 0, 10, 0) }
             }
 
-            // ── SeekBar volume MUSIK ──────────────────────────────────────────
             val volBar = SeekBar(context).apply {
                 id = 104
                 max = 100
                 progress = (initialVolume * 100).toInt()
-                progressTintList = ColorStateList.valueOf(Color.parseColor(COLOR_TEXT_PRIMARY))
-                thumbTintList = ColorStateList.valueOf(Color.parseColor(COLOR_TEXT_PRIMARY))
-                layoutParams = LinearLayout.LayoutParams(0, 70, 1.2f)
+                progressTintList = ColorStateList.valueOf(Color.parseColor(COLOR_ACCENT))
+                thumbTintList = ColorStateList.valueOf(Color.parseColor(COLOR_ACCENT))
+                layoutParams = LinearLayout.LayoutParams(0, 80, 1.2f)
                 setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(s: SeekBar?, p: Int, fromUser: Boolean) {
                         if (fromUser) {

@@ -23,6 +23,7 @@ import sound.recorder.widget.base.UnityBannerController
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.model.Song
+import sound.recorder.widget.music.InstrumentDialogHelper
 import java.util.concurrent.atomic.AtomicBoolean
 
 class GameActivity : BaseActivity(),
@@ -80,6 +81,11 @@ class GameActivity : BaseActivity(),
 
         if(BuildConfig.hasSong){
             loadSongsOnce()
+        }
+
+        InstrumentDialogHelper.showUnlockDialog(this, "MUSIC") {
+            // Kode di dalam brace ini hanya jalan kalau user klik "WATCH"
+           setToast("open")
         }
 
     }
