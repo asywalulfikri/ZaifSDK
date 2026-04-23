@@ -130,6 +130,10 @@ class InstrumentControlPanel @JvmOverloads constructor(
         }
     }
 
+    fun setInstrumentType(instrumentType : String) {
+        this.instrumentType = instrumentType
+    }
+
     fun setVolumeButtonVisible(isVisible: Boolean) {
         if (::btnVolume.isInitialized) {
             btnVolume.visibility = if (isVisible) VISIBLE else GONE
