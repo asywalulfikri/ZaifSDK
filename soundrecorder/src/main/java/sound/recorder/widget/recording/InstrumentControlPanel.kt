@@ -291,6 +291,21 @@ class InstrumentControlPanel @JvmOverloads constructor(
         btnStop.visibility = GONE
     }
 
+    // Di dalam InstrumentControlPanel.kt
+    fun releaseAndStop() {
+        // Hentikan animasi kedip rekaman jika sedang merekam
+        isRecording = false
+        blinkHandler.removeCallbacks(blinkRunnable)
+
+        // Hentikan pemutaran ulang (playback)
+        recorderManager.stopPlayback()
+
+        // Sembunyikan tombol stop jika sedang tampil
+        if (::btnStop.isInitialized) {
+            btnStop.visibility = GONE
+        }
+    }
+
     private fun stopRecording() {
         isRecording = false
         blinkHandler.removeCallbacks(blinkRunnable)

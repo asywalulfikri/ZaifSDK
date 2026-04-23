@@ -15,6 +15,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.media.AudioManager
 import android.media.MediaMetadataRetriever
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -149,6 +150,18 @@ open class BaseFragmentWidget : Fragment() {
 
         zaifSDKConfig = ZaifSDKBuilder.load(requireContext())
 
+    }
+
+    private fun getRawDurationSafe(resId: Int): Long {
+        return try {
+            val context = context ?: return 0L // Hindari requireActivity() di background
+            val mp = MediaPlayer.create(context, resId)
+            val duration = mp?.duration?.toLong() ?: 0L
+            mp?.release()
+            duration
+        } catch (e: Exception) {
+            0L
+        }
     }
 
     @SuppressLint("UseKtx")
