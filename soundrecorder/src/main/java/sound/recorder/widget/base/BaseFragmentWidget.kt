@@ -25,6 +25,7 @@ import android.os.Handler
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -39,6 +40,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RadioButton
+import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,6 +49,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdListener
@@ -93,9 +96,14 @@ import sound.recorder.widget.builder.ZaifSDKConfig
 import sound.recorder.widget.builder.ZaifSDKStorage
 import sound.recorder.widget.databinding.WidgetRecordHorizontalZaifBinding
 import sound.recorder.widget.databinding.WidgetRecordVerticalZaifBinding
+import sound.recorder.widget.music.MusicPlayerManager
 import sound.recorder.widget.tools.showcase.GuideView
+import sound.recorder.widget.util.Constant
 import java.util.concurrent.TimeUnit
+import kotlin.apply
+import kotlin.text.toInt
 import kotlin.time.Duration.Companion.seconds
+import kotlin.times
 
 open class BaseFragmentWidget : Fragment() {
 
@@ -289,57 +297,6 @@ open class BaseFragmentWidget : Fragment() {
 
         }
 
-    /*fun createBalloonWithText(
-        title: String,
-        message: String,
-        isLast: Boolean = false
-    ): Balloon {
-        val balloon = Balloon.Builder(requireContext())
-            .setLayout(R.layout.tooltip_layout)
-            .setArrowSize(10)
-            .setCornerRadius(8f)
-            .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-            .setPadding(8)
-            .setOverlayShape(BalloonOverlayRoundRect(com.intuit.sdp.R.dimen._5sdp, com.intuit.sdp.R.dimen._5sdp))
-
-
-            // ❌ Ini mengatur background tooltip-nya saja
-            .setBackgroundColorResource(R.color.yellow_50) // Ganti dengan putih atau warna solid untuk tooltip
-
-            // ✅ Tambahkan overlay luar
-            .setIsVisibleOverlay(true)
-            .setOverlayColorResource(R.color.tooltip_overlay_dark) // <== ini yang bikin luar gelap
-
-            // ✅ Supaya tidak bisa klik luar
-            .setDismissWhenTouchOutside(false)
-            .setDismissWhenOverlayClicked(false)
-            .setDismissWhenTouchMargin(false)
-            .setFocusable(false)
-
-            .setBalloonAnimation(BalloonAnimation.FADE)
-            .build()
-
-        val layout = balloon.getContentView()
-        layout.findViewById<TextView>(R.id.tvTitle).text = title
-        layout.findViewById<TextView>(R.id.tvMessage).text = message
-        val btn = layout.findViewById<Button>(R.id.btnNext)
-        val btnSkip = layout.findViewById<TextView>(R.id.btnSkip)
-        btn.text = if (isLast){
-            requireContext().getString(R.string.text_done)
-        } else{
-            requireContext().getString(R.string.next)
-        }
-
-        btnSkip.visibility =  if (isLast){
-            View.GONE
-        } else{
-            View.VISIBLE
-        }
-
-        return balloon
-    }
-*/
-
 
     fun setStatusBarColor(color : Int){
         try {
@@ -362,13 +319,6 @@ open class BaseFragmentWidget : Fragment() {
 
     }
 
-    /*fun initFANSDK(){
-        if(getDataSession().getFanEnable()){
-            AudienceNetworkAds.initialize(requireContext());
-        }
-
-    }
-*/
 
     fun setupFragment(id : Int, fragment : Fragment?){
         try {
@@ -383,579 +333,9 @@ open class BaseFragmentWidget : Fragment() {
         }
     }
 
-/*
-    @SuppressLint("CutPasteId")
-    fun showTooltipSequence(binding : WidgetRecordHorizontalZaifBinding) {
 
-        try {
-            zaifSDKBuilder?.let { builder ->
 
-                val balloonNote       = createBalloonWithText(requireContext().getString(R.string.note_song), getString(R.string.tooltip_note))
-                val balloonSong       = createBalloonWithText(requireContext().getString(R.string.choose_song), getString(R.string.tooltip_music))
 
-                // Gunakan 'var' karena nilainya mungkin akan diubah berdasarkan kondisi
-                var balloonRecording  = createBalloonWithText(
-                    requireContext().getString(R.string.recordings),
-                    getString(R.string.tooltip_record)
-                )
-                var balloonListRecord = createBalloonWithText(
-                    requireContext().getString(R.string.recorded_saved),
-                    getString(R.string.tooltip_saved_record)
-                )
-                var balloonVolume     = createBalloonWithText(
-                    requireContext().getString(R.string.volume),
-                    getString(R.string.tooltip_volume)
-                )
-                var balloonColor      = createBalloonWithText(
-                    requireContext().getString(R.string.choose_color),
-                    getString(R.string.tooltip_color),
-                    true
-                )
-
-// Tampilkan balloon tertentu langsung berdasarkan kondisi
-                if (!builder.showVolume && !builder.showChangeColor) {
-                    balloonListRecord = createBalloonWithText(
-                        requireContext().getString(R.string.recorded_saved),
-                        getString(R.string.tooltip_saved_record),
-                        true
-                    )
-                } else if (builder.showVolume && !builder.showChangeColor) {
-                    balloonVolume = createBalloonWithText(
-                        requireContext().getString(R.string.volume),
-                        getString(R.string.tooltip_volume),
-                        true
-                    )
-                }
-
-
-                balloonNote.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonNote.dismiss()
-                    binding.ivNote.post {
-                        balloonSong.showAlignBottom(binding.ivSong)
-                    }
-                }
-
-                balloonNote.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonNote.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonSong.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonSong.dismiss()
-                    binding.ivSong.post {
-                        balloonRecording.showAlignBottom(binding.ivRecord)
-                    }
-                }
-
-                balloonSong.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonSong.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonRecording.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonRecording.dismiss()
-                    binding.ivRecord.post {
-                        balloonListRecord.showAlignBottom(binding.ivListRecord)
-                    }
-                }
-
-                balloonRecording.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonRecording.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonListRecord.dismiss()
-
-                    if(builder.showVolume){
-                        binding.ivListRecord.post {
-                            balloonVolume.showAlignBottom(binding.ivVolume)
-                        }
-                    }else{
-                        if(builder.showChangeColor){
-                            balloonColor.showAlignBottom(binding.ivChangeColor)
-                        }else{
-                            dataSession.saveTooltip(true)
-                        }
-                    }
-                }
-
-                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonListRecord.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonVolume.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonVolume.dismiss()
-                    if(builder.showChangeColor){
-                        binding.ivVolume.post {
-                            balloonColor.showAlignBottom(binding.ivChangeColor)
-                        }
-                    }else{
-                        dataSession.saveTooltip(true)
-                    }
-                }
-
-                balloonVolume.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonVolume.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonColor.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonColor.dismiss()
-                    dataSession.saveTooltip(true)
-                    //save session
-                }
-
-
-                if (builder.showNote){
-                    binding.ivNote.post {
-                        balloonNote.showAlignBottom(binding.ivNote)
-                    }
-                }else{
-                    binding.ivSong.post {
-                        balloonSong.showAlignBottom(binding.ivSong)
-                    }
-                }
-            } ?: run {
-                // Optional: Log or handle the case where zaifSDKBuilder is null
-                setLog("zaifSDKBuilder is null, menu items not updated")
-            }
-        }catch (e : Exception){
-        }
-
-    }*/
-
-    @SuppressLint("CutPasteId")
-    fun showTooltipSequence(binding : WidgetRecordHorizontalZaifBinding?) {
-
-       /* try {
-            zaifSDKBuilder?.let { builder ->
-
-                val balloonNote       = createBalloonWithText(requireContext().getString(R.string.note_song), getString(R.string.tooltip_note))
-                val balloonSong       = createBalloonWithText(requireContext().getString(R.string.choose_song), getString(R.string.tooltip_music))
-
-                // Gunakan 'var' karena nilainya mungkin akan diubah berdasarkan kondisi
-                var balloonRecording  = createBalloonWithText(
-                    requireContext().getString(R.string.recordings),
-                    getString(R.string.tooltip_record)
-                )
-                var balloonListRecord = createBalloonWithText(
-                    requireContext().getString(R.string.recorded_saved),
-                    getString(R.string.tooltip_saved_record)
-                )
-                var balloonVolume     = createBalloonWithText(
-                    requireContext().getString(R.string.volume),
-                    getString(R.string.tooltip_volume)
-                )
-                var balloonColor      = createBalloonWithText(
-                    requireContext().getString(R.string.choose_color),
-                    getString(R.string.tooltip_color),
-                    true
-                )
-
-                if (!builder.showVolume && !builder.showChangeColor) {
-                    balloonListRecord = createBalloonWithText(
-                        requireContext().getString(R.string.recorded_saved),
-                        getString(R.string.tooltip_saved_record),
-                        true
-                    )
-                } else if (builder.showVolume && !builder.showChangeColor) {
-                    balloonVolume = createBalloonWithText(
-                        requireContext().getString(R.string.volume),
-                        getString(R.string.tooltip_volume),
-                        true
-                    )
-                }
-
-
-                balloonNote.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonNote.dismiss()
-                    binding?.ivNote?.post {
-                        balloonSong.showAlignBottom(binding.ivSong)
-                    }
-                }
-
-                balloonNote.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonNote.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonSong.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonSong.dismiss()
-                    binding?.ivSong?.post {
-                        balloonRecording.showAlignBottom(binding.ivRecord)
-                    }
-                }
-
-                balloonSong.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonSong.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonRecording.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonRecording.dismiss()
-                    binding?.ivRecord?.post {
-                        balloonListRecord.showAlignBottom(binding.ivListRecord)
-                    }
-                }
-
-                balloonRecording.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonRecording.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonListRecord.dismiss()
-
-                    if(builder.showVolume){
-                        binding?.ivListRecord?.post {
-                            balloonVolume.showAlignBottom(binding.ivVolume)
-                        }
-                    }else{
-                        if(builder.showChangeColor){
-                            binding?.ivChangeColor?.post {
-                                balloonColor.showAlignBottom(binding.ivChangeColor)
-                            }
-                        }else{
-                            dataSession.saveTooltip(true)
-                        }
-                    }
-                }
-
-                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonListRecord.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonVolume.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonVolume.dismiss()
-                    if(builder.showChangeColor){
-                        binding?.ivVolume?.post {
-                            balloonColor.showAlignBottom(binding.ivChangeColor)
-                        }
-                    }else{
-                        dataSession.saveTooltip(true)
-                    }
-                }
-
-                balloonVolume.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonVolume.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonColor.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonColor.dismiss()
-                    dataSession.saveTooltip(true)
-                    //save session
-                }
-
-
-                if (builder.showNote){
-                    binding?.ivNote?.post {
-                        balloonNote.showAlignBottom(binding.ivNote)
-                    }
-                }else{
-                    binding?.ivSong?.post {
-                        balloonSong.showAlignBottom(binding.ivSong)
-                    }
-                }
-            } ?: run {
-                // Optional: Log or handle the case where zaifSDKBuilder is null
-                setLog("zaifSDKBuilder is null, menu items not updated")
-            }
-        }catch (e : Exception){
-        }*/
-
-    }
-
-
-
-    @SuppressLint("CutPasteId")
-    fun showTooltipSequenceVetical(binding : WidgetRecordVerticalZaifBinding) {
-
-       /* try {
-            zaifSDKBuilder?.let { builder ->
-
-                val balloonNote       = createBalloonWithText(requireContext().getString(R.string.note_song), getString(R.string.tooltip_note))
-                val balloonSong       = createBalloonWithText(requireContext().getString(R.string.choose_song), getString(R.string.tooltip_music))
-
-                // Gunakan 'var' karena nilainya mungkin akan diubah berdasarkan kondisi
-                var balloonRecording  = createBalloonWithText(
-                    requireContext().getString(R.string.recordings),
-                    getString(R.string.tooltip_record)
-                )
-                var balloonListRecord = createBalloonWithText(
-                    requireContext().getString(R.string.recorded_saved),
-                    getString(R.string.tooltip_saved_record)
-                )
-                var balloonVolume     = createBalloonWithText(
-                    requireContext().getString(R.string.volume),
-                    getString(R.string.tooltip_volume)
-                )
-                var balloonColor      = createBalloonWithText(
-                    requireContext().getString(R.string.choose_color),
-                    getString(R.string.tooltip_color),
-                    true
-                )
-
-// Tampilkan balloon tertentu langsung berdasarkan kondisi
-                if (!builder.showVolume && !builder.showChangeColor) {
-                    balloonListRecord = createBalloonWithText(
-                        requireContext().getString(R.string.recorded_saved),
-                        getString(R.string.tooltip_saved_record),
-                        true
-                    )
-                } else if (builder.showVolume && !builder.showChangeColor) {
-                    balloonVolume = createBalloonWithText(
-                        requireContext().getString(R.string.volume),
-                        getString(R.string.tooltip_volume),
-                        true
-                    )
-                }
-
-
-                balloonNote.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonNote.dismiss()
-                    binding.ivNote.post {
-                        balloonSong.showAlignBottom(binding.ivSong)
-                    }
-                }
-
-                balloonNote.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonNote.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonSong.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonSong.dismiss()
-                    binding.ivSong.post {
-                        balloonRecording.showAlignBottom(binding.ivRecord)
-                    }
-                }
-
-                balloonSong.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonSong.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonRecording.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonRecording.dismiss()
-                    binding.ivRecord.post {
-                        balloonListRecord.showAlignBottom(binding.ivListRecord)
-                    }
-                }
-
-                balloonRecording.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonRecording.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonListRecord.dismiss()
-
-                    if(builder.showVolume){
-                        binding.ivListRecord.post {
-                            balloonVolume.showAlignBottom(binding.ivVolume)
-                        }
-                    }else{
-                        if(builder.showChangeColor){
-                            balloonColor.showAlignBottom(binding.ivChangeColor)
-                        }else{
-                            dataSession.saveTooltip(true)
-                        }
-                    }
-                }
-
-                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonListRecord.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonVolume.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonVolume.dismiss()
-                    if(builder.showChangeColor){
-                        binding.ivVolume.post {
-                            balloonColor.showAlignBottom(binding.ivChangeColor)
-                        }
-                    }else{
-                        dataSession.saveTooltip(true)
-                    }
-                }
-
-                balloonVolume.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonVolume.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonColor.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonColor.dismiss()
-                    dataSession.saveTooltip(true)
-                    //save session
-                }
-
-
-                if (builder.showNote){
-                    binding.ivNote.post {
-                        balloonNote.showAlignBottom(binding.ivNote)
-                    }
-                }else{
-                    binding.ivSong.post {
-                        balloonSong.showAlignBottom(binding.ivSong)
-                    }
-                }
-            } ?: run {
-                // Optional: Log or handle the case where zaifSDKBuilder is null
-                setLog("zaifSDKBuilder is null, menu items not updated")
-            }
-        }catch (e : Exception){
-        }*/
-
-    }
-
-    @SuppressLint("CutPasteId")
-    fun showTooltipSequenceVeticalNull(binding : WidgetRecordVerticalZaifBinding?) {
-
-       /* try {
-            zaifSDKBuilder?.let { builder ->
-
-                val balloonNote       = createBalloonWithText(requireContext().getString(R.string.note_song), getString(R.string.tooltip_note))
-                val balloonSong       = createBalloonWithText(requireContext().getString(R.string.choose_song), getString(R.string.tooltip_music))
-
-                // Gunakan 'var' karena nilainya mungkin akan diubah berdasarkan kondisi
-                var balloonRecording  = createBalloonWithText(
-                    requireContext().getString(R.string.recordings),
-                    getString(R.string.tooltip_record)
-                )
-                var balloonListRecord = createBalloonWithText(
-                    requireContext().getString(R.string.recorded_saved),
-                    getString(R.string.tooltip_saved_record)
-                )
-                var balloonVolume     = createBalloonWithText(
-                    requireContext().getString(R.string.volume),
-                    getString(R.string.tooltip_volume)
-                )
-                var balloonColor      = createBalloonWithText(
-                    requireContext().getString(R.string.choose_color),
-                    getString(R.string.tooltip_color),
-                    true
-                )
-
-// Tampilkan balloon tertentu langsung berdasarkan kondisi
-                if (!builder.showVolume && !builder.showChangeColor) {
-                    balloonListRecord = createBalloonWithText(
-                        requireContext().getString(R.string.recorded_saved),
-                        getString(R.string.tooltip_saved_record),
-                        true
-                    )
-                } else if (builder.showVolume && !builder.showChangeColor) {
-                    balloonVolume = createBalloonWithText(
-                        requireContext().getString(R.string.volume),
-                        getString(R.string.tooltip_volume),
-                        true
-                    )
-                }
-
-
-                balloonNote.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonNote.dismiss()
-                    binding?.ivNote?.post {
-                        balloonSong.showAlignBottom(binding.ivSong)
-                    }
-                }
-
-                balloonNote.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonNote.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonSong.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonSong.dismiss()
-                    binding?.ivSong?.post {
-                        balloonRecording.showAlignBottom(binding.ivRecord)
-                    }
-                }
-
-                balloonSong.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonSong.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonRecording.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonRecording.dismiss()
-                    binding?.ivRecord?.post {
-                        balloonListRecord.showAlignBottom(binding.ivListRecord)
-                    }
-                }
-
-                balloonRecording.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonRecording.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonListRecord.dismiss()
-
-                    if(builder.showVolume){
-                        binding?.ivListRecord?.post {
-                            balloonVolume.showAlignBottom(binding.ivVolume)
-                        }
-                    }else{
-                        if(builder.showChangeColor){
-                            binding?.ivChangeColor?.post {
-                                balloonColor.showAlignBottom(binding.ivChangeColor)
-                            }
-                        }else{
-                            dataSession.saveTooltip(true)
-                        }
-                    }
-                }
-
-                balloonListRecord.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonListRecord.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonVolume.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonVolume.dismiss()
-                    if(builder.showChangeColor){
-                        binding?.ivVolume?.post {
-                            balloonColor.showAlignBottom(binding.ivChangeColor)
-                        }
-                    }else{
-                        dataSession.saveTooltip(true)
-                    }
-                }
-
-                balloonVolume.getContentView().findViewById<TextView>(R.id.btnSkip).setOnClickListener {
-                    balloonVolume.dismiss()
-                    dataSession.saveTooltip(true)
-                }
-
-                balloonColor.getContentView().findViewById<TextView>(R.id.btnNext).setOnClickListener {
-                    balloonColor.dismiss()
-                    dataSession.saveTooltip(true)
-                    //save session
-                }
-
-
-                if (builder.showNote){
-                    binding?.ivNote?.post {
-                        balloonNote.showAlignBottom(binding.ivNote)
-                    }
-                }else{
-                    binding?.ivSong?.post {
-                        balloonSong.showAlignBottom(binding.ivSong)
-                    }
-                }
-            } ?: run {
-                // Optional: Log or handle the case where zaifSDKBuilder is null
-                setLog("zaifSDKBuilder is null, menu items not updated")
-            }
-        }catch (e : Exception){
-        }
-*/
-    }
 
     fun sampleRate() : Int?{
         val audioManager = activity?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -996,61 +376,7 @@ open class BaseFragmentWidget : Fragment() {
     }
 
 
-    /*fun setupInterstitialFacebook(){
-        val id = getDataSession().getInterstitialFANId()
-        try {
-            interstitialFANAd = com.facebook.ads.InterstitialAd(requireContext(), id)
-            val interstitialAdListener = object : InterstitialAdListener {
-                override fun onInterstitialDisplayed(ad: Ad) {
-                    // Interstitial ad displayed callback
-                    //Log.e(, "Interstitial ad displayed.")
-                    setLog("FAN show Interstitial success "+ad.placementId)
-                }
 
-                override fun onInterstitialDismissed(ad: Ad) {
-                    // Interstitial dismissed callback
-                    if(BuildConfig.DEBUG){
-                        setToast("close FAN ads")
-                    }
-                    interstitialFANAd =null
-                    setupInterstitialFacebook()
-                }
-
-                override fun onError(p0: Ad?, adError: com.facebook.ads.AdError?) {
-                    Log.e(TAG, "Interstitial ad failed to load: ${adError?.errorMessage}")
-                }
-
-                override fun onAdLoaded(ad: Ad) {
-                    // Interstitial ad is loaded and ready to be displayed
-                    Log.d(TAG, "Interstitial ad is loaded and ready to be displayed!")
-                    showFANInterstitial = true
-
-                }
-
-                override fun onAdClicked(ad: Ad) {
-                    // Ad clicked callback
-                    Log.d(TAG, "Interstitial ad clicked!")
-                }
-
-                override fun onLoggingImpression(ad: Ad) {
-                    // Ad impression logged callback
-                    Log.d(TAG, "Interstitial ad impression logged!")
-                }
-            }
-
-// For auto-play video ads, it's recommended to load the ad
-// at least 30 seconds before it is shown
-            interstitialFANAd?.loadAd(
-                interstitialFANAd?.buildLoadAdConfig()
-                    ?.withAdListener(interstitialAdListener)
-                    ?.build()
-            )
-        }catch (e : Exception){
-            setLog("asywalul fb fr :"+e.message)
-        }
-
-    }
-*/
     fun onDestroyUpdate() {
         try {
             if (updateType == AppUpdateType.FLEXIBLE) {
@@ -1183,66 +509,6 @@ open class BaseFragmentWidget : Fragment() {
 
     }
 
-    /*private fun initializeMobileAdsSdk(adViewContainer: FrameLayout,bannerId: String? =null) {
-        if (isMobileAdsInitializeCalled.getAndSet(true)) {
-            return
-        }
-
-        // Initialize the Mobile Ads SDK.
-        MobileAds.initialize(requireContext()) {}
-
-        // Load an ad.
-        if (initialLayoutComplete.get()) {
-           // loadBanner(adViewContainer,bannerId)
-        }
-    }*/
-
-   /* fun setupBannerNew(adViewContainer: FrameLayout,bannerId : String? =null){
-        val adView = AdManagerAdView(requireContext())
-        adViewContainer.addView(adView)
-
-        googleMobileAdsConsentManager = GoogleMobileAdsConsentManager.getInstance(requireContext())
-        googleMobileAdsConsentManager.gatherConsent(requireActivity()) { error ->
-            if (error != null) {
-                // Consent not obtained in current session.
-                Log.d("AdMob New Error", "${error.errorCode}: ${error.message}")
-            }
-
-            // This sample attempts to load ads using consent obtained in the previous session.
-            if (googleMobileAdsConsentManager.canRequestAds) {
-                Log.d("AdMob New Request", "success")
-                initializeMobileAdsSdk(adViewContainer,bannerId)
-            }
-
-            if (googleMobileAdsConsentManager.isPrivacyOptionsRequired) {
-                // Regenerate the options menu to include a privacy setting.
-                activity?.invalidateOptionsMenu()
-            }
-        }
-
-        // This sample attempts to load ads using consent obtained in the previous session.
-        if (googleMobileAdsConsentManager.canRequestAds) {
-            Log.d("AdMob New Request", "success1")
-            initializeMobileAdsSdk(adViewContainer,bannerId)
-        }
-
-
-        // Since we're loading the banner based on the adContainerView size, we need to wait until this
-        // view is laid out before we can get the width.
-        adViewContainer.viewTreeObserver.addOnGlobalLayoutListener {
-            if (!initialLayoutComplete.getAndSet(true) && googleMobileAdsConsentManager.canRequestAds) {
-                setupBanner(adViewContainer)
-            }
-        }
-
-        // Set your test devices. Check your logcat output for the hashed device ID to
-        // get test ads on a physical device. e.g.
-        // "Use RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("ABCDEF012345"))
-        // to get test ads on this device."
-        MobileAds.setRequestConfiguration(
-            RequestConfiguration.Builder().setTestDeviceIds(listOf("D48A46E523E6A96C8215178502423686")).build()
-        )
-    }*/
 
     fun showArrayLanguage(){
         val languageArray = resources.getStringArray(R.array.language_array)
@@ -2118,8 +1384,5 @@ open class BaseFragmentWidget : Fragment() {
             setLog(e.message.toString())
         }
     }
-
-
-
 
 }

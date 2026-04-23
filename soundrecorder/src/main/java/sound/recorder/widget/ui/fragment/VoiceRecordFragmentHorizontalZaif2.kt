@@ -93,7 +93,7 @@ class VoiceRecordFragmentHorizontalZaif2 : BaseFragmentWidget(),SharedPreference
                 if(dataSession.showTooltip()){
                     if(dataSession.isDoneTooltip()==false) {
                         try {
-                            showTooltipSequence(binding)
+                            //showTooltipSequence(binding)
                         }catch (e : Exception){
                             setLog(e.message)
                         }

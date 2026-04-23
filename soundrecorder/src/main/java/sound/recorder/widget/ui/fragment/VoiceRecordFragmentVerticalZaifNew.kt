@@ -101,7 +101,7 @@ class VoiceRecordFragmentVerticalZaifNew : BaseFragmentWidget(),SharedPreference
                 if(dataSession.showTooltip()){
                     if(dataSession.isDoneTooltip()==false) {
                         try {
-                            showTooltipSequenceVeticalNull(binding)
+                            //showTooltipSequenceVeticalNull(binding)
                         }catch (e : Exception){
                             setLog(e.message)
                         }

@@ -1138,24 +1138,6 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun showRewardedAd(isPremium : Boolean,onComplete: () -> Unit) {
-        if(!isPremium){
-            if (rewardedAd != null) {
-                rewardedAd?.show(this) { _ ->
-                    onComplete.invoke()
-                    loadRewardedAd(isPremium)
-                }
-            } else {
-                // Kasih Toast atau Dialog loading
-                setToast(getString(R.string.ads_prepared_please_wait))
-                loadRewardedAd(isPremium)
-            }
-        }else{
-            onComplete()
-            return
-        }
-    }
-
     private fun scheduleRetry(isPremium: Boolean) {
         if(!isPremium){
             if (retryCount >= MAX_RETRY) return

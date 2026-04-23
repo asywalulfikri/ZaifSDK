@@ -1,19 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <size android:height="4dp" /> <!-- Sesuaikan ketebalan garis track -->
-            <solid android:color="#D3D3D3" /> <!-- Warna track yang belum diisi -->
-            <corners android:radius="@dimen/_90sdp" /> <!-- Tambahkan sudut rounded -->
-        </shape>
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="@dimen/_20sdp" />
+            <solid android:color="#33000000" /> <size android:height="@dimen/_10sdp" /> </shape>
     </item>
 
     <item android:id="@android:id/progress">
         <clip>
-            <shape android:shape="rectangle">
-                <size android:height="4dp" /> <!-- Sesuaikan ketebalan garis progress -->
-                <solid android:color="@color/red_900" /> <!-- Warna progress yang sudah diisi -->
-                <corners android:radius="@dimen/_90sdp" /> <!-- Tambahkan sudut rounded untuk progress -->
-            </shape>
+            <shape>
+                <corners android:radius="@dimen/_20sdp" />
+                <gradient
+                    android:startColor="#F5D76E"
+                    android:endColor="#D2B48C"
+                    android:angle="0"/> </shape>
         </clip>
     </item>
 </layer-list>

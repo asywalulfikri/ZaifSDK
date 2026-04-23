@@ -87,7 +87,7 @@ class VoiceRecordFragmentHorizontalZaif :
 
                 if (dataSession.showTooltip() && !dataSession.isDoneTooltip()) {
                     runCatching {
-                        showTooltipSequence(_binding)
+                       // showTooltipSequence(_binding)
                     }
                 }
             }

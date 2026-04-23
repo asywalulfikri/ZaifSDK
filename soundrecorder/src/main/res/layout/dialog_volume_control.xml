@@ -1,85 +1,119 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:layout_margin="@dimen/_12sdp"
-    android:background="@color/amber_50"
-    android:padding="@dimen/_16sdp">
-
-    <TextView
-        android:fontFamily="@font/ooredoo"
-        android:textColor="@color/black_de"
-        android:textSize="@dimen/_14ssp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/song_volume" />
+    app:cardElevation="@dimen/_8sdp"
+    app:cardBackgroundColor="@color/amber_50"
+    android:layout_margin="@dimen/_12sdp">
 
     <LinearLayout
-        android:layout_marginTop="@dimen/_5sdp"
-        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_marginEnd="10dp"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
-            app:srcCompat="@drawable/volume_loud_svgrepo_com"/>
-
-        <SeekBar
-            android:progressDrawable="@drawable/custom_seekbar_track"
-            android:id="@+id/seekBarMusic"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="100"
-            android:thumb="@drawable/thumb_baru" /> <!-- Ganti dengan nama gambar thumb yang sesuai -->
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="@dimen/_16sdp">
 
         <TextView
-            android:fontFamily="@font/ooredoo"
-            android:textSize="@dimen/_14ssp"
-            android:textColor="@color/black_de"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/volume" />
+            android:fontFamily="@font/ooredoo"
+            android:text="@string/volume"
+            android:textAlignment="center"
+            android:textColor="@color/black_de"
+            android:textSize="@dimen/_16ssp"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/_12sdp" />
 
         <TextView
-            android:layout_marginStart="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:fontFamily="@font/ooredoo"
-            android:textSize="@dimen/_14ssp"
+            android:text="@string/song_volume"
             android:textColor="@color/black_de"
+            android:textSize="@dimen/_13ssp"
+            android:alpha="0.7" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"/>
-    </LinearLayout>
+            android:layout_marginTop="@dimen/_4sdp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_marginTop="@dimen/_5sdp"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <ImageView
+                android:layout_width="@dimen/_22sdp"
+                android:layout_height="@dimen/_22sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
+                app:srcCompat="@drawable/volume_loud_svgrepo_com"
+                app:tint="@color/black_de" />
 
-        <ImageView
-            android:layout_marginEnd="10dp"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
-            app:srcCompat="@drawable/volume_loud_svgrepo_com"/>
+            <SeekBar
+                android:id="@+id/seekBarMusic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progressDrawable="@drawable/custom_seekbar_track"
+                android:thumb="@drawable/thumb_baru"
+                android:splitTrack="false" />
+        </LinearLayout>
 
-        <SeekBar
-            android:progressDrawable="@drawable/custom_seekbar_track"
-            android:id="@+id/seekBarAudio"
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#1A000000"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:layout_marginBottom="@dimen/_16sdp" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="100"
-            android:thumb="@drawable/thumb_baru" /> <!-- Ganti dengan nama gambar thumb yang sesuai -->
+            android:orientation="horizontal"
+            android:gravity="bottom">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/ooredoo"
+                android:text="@string/volume"
+                android:textColor="@color/black_de"
+                android:textSize="@dimen/_13ssp"
+                android:alpha="0.7" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:fontFamily="@font/ooredoo"
+                android:text="@string/app_name"
+                android:textColor="@color/black_de"
+                android:textSize="@dimen/_11ssp"
+                android:textStyle="italic"
+                android:alpha="0.5" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/_22sdp"
+                android:layout_height="@dimen/_22sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
+                app:srcCompat="@drawable/volume_loud_svgrepo_com"
+                app:tint="@color/black_de" />
+
+            <SeekBar
+                android:id="@+id/seekBarAudio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progressDrawable="@drawable/custom_seekbar_track"
+                android:thumb="@drawable/thumb_baru"
+                android:splitTrack="false" />
+        </LinearLayout>
+
     </LinearLayout>
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>
