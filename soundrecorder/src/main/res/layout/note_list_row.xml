@@ -1,81 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clickable="true"
-    android:paddingBottom="10dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="10dp"
-    android:focusable="true">
-
-    <TextView
-        android:id="@+id/dot"
-        android:text="1."
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/ooredoo"
-        android:layout_marginEnd="10dp"
-        android:includeFontPadding="false"
-        android:textColor="@color/colorPrimary"
-        android:lineSpacingExtra="0dp"
-        android:textSize="@dimen/_16ssp"
-        tools:ignore="HardcodedText" />
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardMaxElevation="4dp"
+    android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
-        android:layout_toEndOf="@id/dot"
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/bg_circle_light"> <TextView
+            android:id="@+id/dot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/ooredoo"
+            android:text="1"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+        </FrameLayout>
 
         <LinearLayout
-            android:layout_marginTop="@dimen/_2sdp"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_toStartOf="@+id/timestamp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/ooredoo"
+                    android:maxLines="1"
+                    android:text="Indonesia Raya"
+                    android:textColor="#1A1A1A"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/timestamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:alpha="0.7"
+                    android:text="14 Mei"
+                    android:textColor="#888888"
+                    android:textSize="11sp" />
+            </RelativeLayout>
 
             <TextView
-                android:text="@string/title"
-                android:layout_marginEnd="10dp"
-                android:layout_width="wrap_content"
+                android:id="@+id/note"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/ooredoo"
-                android:textStyle="bold"
-                android:textColor="@color/colorPrimary"
-                android:textSize="@dimen/_12ssp" />
-
-            <TextView
-                android:id="@+id/title"
-                tools:text="Indonesia Raya "
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/ooredoo"
-                android:textStyle="bold"
-                android:textSize="@dimen/_12ssp" />
+                android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/campton_medium"
+                android:lineSpacingExtra="2dp"
+                android:maxLines="2"
+                android:text="Mari Lah Kemari hei hei kemari bermain bersama"
+                android:textColor="#555555"
+                android:textSize="13sp" />
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/note"
-            tools:text="Mari Lah Kemari hei hei k"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:fontFamily="@font/campton_medium"
-            android:maxLines="3"
-            android:ellipsize="end"
-            android:textSize="@dimen/_11ssp" />
-
-        <TextView
-            android:layout_marginTop="5dp"
-            android:id="@+id/timestamp"
-            tools:text="14 Mei"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/green_900"
-            android:textSize="@dimen/_12ssp" />
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="8dp"
+            android:alpha="0.3"
+            android:src="@drawable/ic_chevron_right" />
 
     </LinearLayout>
 
-</RelativeLayout>
+</androidx.cardview.widget.CardView>

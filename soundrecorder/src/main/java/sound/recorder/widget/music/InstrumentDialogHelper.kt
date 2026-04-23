@@ -127,4 +127,75 @@ object InstrumentDialogHelper {
 
         dialog.show()
     }
+
+    @SuppressLint("UseKtx", "SetTextI18n")
+    fun showRecordDialog(
+        context: Context,
+        onAccept: () -> Unit
+    ) {
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
+        dialog.setContentView(view)
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
+        val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
+        val btnWatch = view.findViewById<TextView>(R.id.btnWatch)
+        val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
+
+        tvTitle.text = context.getString(R.string.record)
+        tvMessage.text = context.getString(R.string.title_recording_dialog)
+        btnWatch.text = context.getString(R.string.yes).uppercase()
+        btnCancel.text = context.getString(R.string.cancel).uppercase()
+
+        btnWatch.setOnClickListener {
+            onAccept()
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+
+    @SuppressLint("UseKtx", "SetTextI18n")
+    fun showCancelRecordDialog(
+        context: Context,
+        onAccept: () -> Unit
+    ) {
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
+        dialog.setContentView(view)
+
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
+        val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
+        val btnWatch = view.findViewById<TextView>(R.id.btnWatch)
+        val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
+
+        tvTitle.text = context.getString(R.string.record)
+        tvMessage.text = context.getString(R.string.title_recording_canceled)
+        btnWatch.text = context.getString(R.string.yes).uppercase()
+        btnCancel.text = context.getString(R.string.no).uppercase()
+
+        btnWatch.setOnClickListener {
+            onAccept()
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
 }

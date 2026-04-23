@@ -12,13 +12,12 @@ import android.widget.TextView
 import sound.recorder.widget.listener.MyCompleteMarqueeListener
 import kotlin.apply
 import kotlin.let
-import kotlin.takeIf
 
 @SuppressLint("AppCompatCustomView")
 class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
     TextView(context, attrs, defStyle) {
 
-     var textScroller: Scroller? = null
+    var textScroller: Scroller? = null
     private var mXPaused = 0
     var isPaused = true
         private set
@@ -30,7 +29,6 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
     }
 
     private var onScrollCompleteListener: OnScrollCompleteListener? = null
-
 
     fun setOnScrollCompleteListener(listener: OnScrollCompleteListener?) {
         onScrollCompleteListener = listener
@@ -47,7 +45,7 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         android.R.attr.textViewStyle
     ) {
         context.obtainStyledAttributes(attrs, R.styleable.SpeedMarquee).apply {
-            mScrollSpeed = getFloat(sound.recorder.widget.R.styleable.SpeedMarquee_marquee_speed, 222f)
+            mScrollSpeed = getFloat(R.styleable.SpeedMarquee_marquee_speed, 222f)
             recycle()
         }
         initialize()
@@ -57,10 +55,18 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         setSingleLine()
         ellipsize = null
         visibility = VISIBLE
-        onGlobalLayoutListener = OnGlobalLayoutListener {
-            if (isPaused) startScroll() // Hanya panggil jika marquee sedang pause
+        attachGlobalListener()
+    }
+
+    private fun attachGlobalListener() {
+        if (onGlobalLayoutListener == null) {
+            onGlobalLayoutListener = OnGlobalLayoutListener {
+                if (isPaused) {
+                    startScroll()
+                }
+            }
+            viewTreeObserver.addOnGlobalLayoutListener(onGlobalLayoutListener)
         }
-        viewTreeObserver.addOnGlobalLayoutListener(onGlobalLayoutListener)
     }
 
     override fun onDetachedFromWindow() {
@@ -68,32 +74,37 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         super.onDetachedFromWindow()
     }
 
-
     fun startScroll() {
+        // Jika listener pernah dihapus (oleh clear), pasang lagi
+        attachGlobalListener()
+
         val needsScrolling = checkIfNeedsScrolling()
-        if (!needsScrolling || !isPaused) return // Jangan restart jika sudah berjalan
+        if (!needsScrolling) {
+            stopScroll()
+            return
+        }
+
+        // Jangan restart jika sudah berjalan
+        if (!isPaused && textScroller != null && !textScroller!!.isFinished) return
+
         mXPaused = -1 * (width / 2)
-        isPaused = true
+        isPaused = true // Set true agar resumeScroll mau jalan
         resumeScroll()
     }
-
 
     fun clear() {
         try {
             stopScroll()
-            visibility = VISIBLE
-            text =context.getString(R.string.text_choose_not)
             removeGlobalListener()
-        }catch (e : Exception){
-
+            text = context.getString(R.string.text_choose_not)
+            visibility = VISIBLE
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-
     }
 
     fun stopScroll() {
-        textScroller?.apply {
-            abortAnimation()
-        }
+        textScroller?.abortAnimation()
         textScroller = null
         isPaused = true
         mXPaused = 0
@@ -110,11 +121,10 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
             } else {
                 pauseScroll()
             }
-        }catch (e : Exception){
-
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
-
 
     @Synchronized
     private fun removeGlobalListener() {
@@ -125,15 +135,14 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
     }
 
     private fun checkIfNeedsScrolling(): Boolean {
-        measure(0, 0)
-        val textViewWidth = width
-        if (textViewWidth == 0) return false
-        val textWidth = textLength.toFloat()
-        return textWidth > textViewWidth
+        if (width <= 0) return false
+        val textWidth = paint.measureText(text.toString())
+        return textWidth > width
     }
 
     fun resumeScroll() {
         if (!isPaused) return
+
         setHorizontallyScrolling(true)
         textScroller = Scroller(this.context, LinearInterpolator())
         setScroller(textScroller)
@@ -141,60 +150,59 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         val scrollingLen = calculateScrollingLen()
         val distance = scrollingLen - (width + mXPaused)
 
-        // Hitung durasi berdasarkan jarak dan kecepatan
+        if (distance <= 0) return
+
         val duration = (1000f * distance / mScrollSpeed).toInt()
 
         visibility = VISIBLE
-
-        // Mulai scroll
+        isPaused = false
         textScroller!!.startScroll(mXPaused, 0, distance, 0, duration)
         invalidate()
-        isPaused = false
     }
 
     private fun calculateScrollingLen(): Int {
-        val length = textLength
-        return length + width
+        return textLength + width
     }
 
     private val textLength: Int
         get() {
-            val tp = paint
             val rect = Rect()
             val strTxt = text.toString()
-            tp.getTextBounds(strTxt, 0, strTxt.length, rect)
+            paint.getTextBounds(strTxt, 0, strTxt.length, rect)
             return rect.width()
         }
 
     fun pauseScroll() {
-        textScroller?.takeIf { !isPaused }?.apply {
+        if (textScroller != null && !isPaused) {
             isPaused = true
-            mXPaused = currX
-            abortAnimation()
+            mXPaused = textScroller!!.currX
+            textScroller!!.abortAnimation()
         }
     }
 
     override fun computeScroll() {
         super.computeScroll()
+        val scroller = textScroller ?: return
 
-        // Cek apakah scroller sudah selesai dan posisi akhir telah tercapai
-        textScroller?.takeIf { it.isFinished && !isPaused }?.let {
-            val isAtEnd = textScroller!!.currX >= calculateScrollingLen() - width
+        if (scroller.isFinished && !isPaused) {
+            val isAtEnd = scroller.currX >= calculateScrollingLen() - width
             if (isAtEnd) {
-                // Hentikan scrolling karena sudah mencapai akhir
                 pauseScroll()
                 onScrollCompleteListener?.onScrollComplete()
                 MyCompleteMarqueeListener.postOnCompleteMarquee()
             } else {
-                // Lanjutkan scrolling jika belum selesai
-                startScroll()
+                // Looping jika belum benar-benar sampai ujung (jarang terjadi dengan LinearInterpolator)
+                isPaused = true
+                resumeScroll()
             }
         }
     }
 
     fun setSpeed(value: Float) {
         mScrollSpeed = value
-        startScrollAfterUpdate(textScroller?.currX ?: 0)
+        val currentX = textScroller?.currX ?: 0
+        stopScroll()
+        startScrollAfterUpdate(currentX)
     }
 
     fun getSpeed(): Float = mScrollSpeed

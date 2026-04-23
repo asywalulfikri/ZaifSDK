@@ -64,13 +64,13 @@ class BottomSheetNoteFirebase : BottomSheetDialogFragment() {
         bindingOrNull?.recyclerView?.apply {
             layoutManager = LinearLayoutManager(requireContext())
             itemAnimator = DefaultItemAnimator()
-            addItemDecoration(
+            /*addItemDecoration(
                 MyDividerItemDecoration(
                     requireContext(),
                     LinearLayoutManager.VERTICAL,
                     16
                 )
-            )
+            )*/
             adapter = this@BottomSheetNoteFirebase.adapter
         }
 

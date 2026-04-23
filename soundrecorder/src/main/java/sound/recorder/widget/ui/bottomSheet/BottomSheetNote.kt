@@ -113,13 +113,13 @@ class BottomSheetNote : BottomSheetDialogFragment() {
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             itemAnimator = DefaultItemAnimator()
-            addItemDecoration(
+           /* addItemDecoration(
                 MyDividerItemDecoration(
                     requireContext(),
                     LinearLayoutManager.VERTICAL,
                     16
                 )
-            )
+            )*/
             adapter = mAdapter
 
             addOnItemTouchListener(
@@ -276,17 +276,6 @@ class BottomSheetNote : BottomSheetDialogFragment() {
         }
     }
 
-    fun setToastSuccess(activity: Activity?, message : String){
-        if(activity!=null){
-            Toastic.toastic(
-                activity,
-                message = message,
-                duration = Toastic.LENGTH_SHORT,
-                type = Toastic.SUCCESS,
-                isIconAnimated = true
-            ).show()
-        }
-    }
 
     private fun setToastWarning(activity: Activity?, message : String){
         if(activity!=null){
