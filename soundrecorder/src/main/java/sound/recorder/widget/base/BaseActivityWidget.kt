@@ -1251,170 +1251,24 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-
-
-
-    /* @deprected fun setupInterstitialDeprected() {
-         if (mInterstitialAd!= null && isInterstitialFresh()) return
-         // 1. Validasi Dasar
-         if (!isWebViewAvailable() || !isAdMobAvailable()) return
-
-         // Gunakan lifecycleScope agar coroutine otomatis batal saat Activity hancur
-         lifecycleScope.launch {
-             try {
-                 val adRequest = AdRequest.Builder().build()
-                 val adUnitId = admobSDKBuilder?.interstitialId.toString()
-
-                 // Membungkus load di Main Thread secara aman
-                 InterstitialAd.load(this@BaseActivityWidget, adUnitId, adRequest,
-                     object : InterstitialAdLoadCallback() {
-                         override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                             interstitialRetryCount = 0
-                             mInterstitialAd = interstitialAd
-                             interstitialLoadedAt = System.currentTimeMillis()
-                             isLoad = true
-
-                             mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                                 override fun onAdDismissedFullScreenContent() {
-                                     mInterstitialAd = null
-                                     isLoad = false
-                                     // Pre-load iklan berikutnya setelah ditutup
-                                     setupInterstitial()
-                                 }
-
-                                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                                     // Menangkap error saat gagal tampil (sering terjadi di OS lama)
-                                     mInterstitialAd = null
-                                     isLoad = false
-                                     Log.e("AdMob", "Gagal tampil: ${adError.message}")
-                                 }
-
-                                 override fun onAdShowedFullScreenContent() {
-                                     mInterstitialAd = null
-                                     isLoad = false
-                                 }
-                             }
-                         }
-
-                         override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                             mInterstitialAd = null
-                             isLoad = false
-
-                             // Logika Retry dengan Exponential Backoff
-                             if (interstitialRetryCount < MAX_RETRY_COUNT) {
-                                 interstitialRetryCount++
-                                 val retryDelay = interstitialRetryCount * 5000L
-
-                                 // Delay non-blocking yang terikat pada lifecycle
-                                 lifecycleScope.launch {
-                                     delay(retryDelay)
-                                     if (!isFinishing && !isDestroyed) {
-                                         setupInterstitial()
-                                     }
-                                 }
-                             }
-                         }
-                     })
-             } catch (e: Exception) {
-                 // Ini adalah "jaring pengaman" terakhir untuk mencegah crash di Android Oreo/Lollipop
-                 Log.e("AdMob", "Fatal Error di setupInterstitial: ${e.message}")
-             }
-         }
-     }
- */
-
-
-   /* fun loadInterstitialIfNeeded() {
-       if (mInterstitialAd != null && isInterstitialFresh()) return
-       if (!isWebViewAvailable() || !isAdMobAvailable()) return
-
-       setToastADS("Init Interstitial")
-       val adRequest = AdRequest.Builder().build()
-       val adUnitId = admobSDKBuilder?.interstitialId ?: return
-
-       InterstitialAd.load(
-           this,
-           adUnitId,
-           adRequest,
-           object : InterstitialAdLoadCallback() {
-
-               override fun onAdLoaded(ad: InterstitialAd) {
-                   interstitialRetryCount = 0
-                   mInterstitialAd = ad
-                   interstitialLoadedAt = System.currentTimeMillis()
-
-                   setToastADS("interstitial success load")
-               }
-
-               override fun onAdFailedToLoad(error: LoadAdError) {
-                   mInterstitialAd = null
-                   retryLoadIfNeeded()
-                   setToastADS("interstitial failed load")
-               }
-           }
-       )
-    }
-*/
-    /*private fun retryLoadIfNeeded() {
-        if (interstitialRetryCount >= MAX_RETRY_COUNT) return
-        interstitialRetryCount++
-
-        lifecycleScope.launch {
-            delay(interstitialRetryCount * 5000L)
-            if (!isFinishing && !isDestroyed) {
-                setToastADS("try reinit")
-                loadInterstitialIfNeeded()
+    fun showRewardedAd(isPremium : Boolean,onComplete: () -> Unit) {
+        if(!isPremium){
+            if (rewardedAd != null) {
+                rewardedAd?.show(this) { _ ->
+                    onComplete.invoke()
+                    loadRewardedAd(isPremium)
+                }
+            } else {
+                // Kasih Toast atau Dialog loading
+                setToast(getString(R.string.ads_prepared_please_wait))
+                loadRewardedAd(isPremium)
             }
-        }
-    }*/
-
-    /*private fun isInterstitialFresh(): Boolean {
-        return mInterstitialAd != null &&
-                System.currentTimeMillis() - interstitialLoadedAt < AD_EXPIRE_TIME
-    }
-
-
-    private fun canShowByTime(): Boolean {
-        return System.currentTimeMillis() - lastShowTime > MIN_SHOW_INTERVAL
-    }
-*/
-   /* fun showInterstitialIfAllowed(onFinish: () -> Unit) {
-        if (!isInterstitialFresh() || !canShowByTime()) {
-            onFinish()
+        }else{
+            onComplete()
             return
         }
-
-        mInterstitialAd?.fullScreenContentCallback =
-            object : FullScreenContentCallback() {
-
-                override fun onAdDismissedFullScreenContent() {
-                    mInterstitialAd = null
-                    lastShowTime = System.currentTimeMillis()
-                    loadInterstitialIfNeeded()
-                    onFinish()
-                }
-
-                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                    mInterstitialAd = null
-                    loadInterstitialIfNeeded()
-                    onFinish()
-                }
-            }
-
-        mInterstitialAd?.show(this)
-    }*/
-
-
-
-
-
-    /*fun setOnUserFinishPlaying(duration: Long) {
-        // Kalau user main lama, pastikan iklan fresh
-        if (duration > 30_000) {
-            loadInterstitialIfNeeded()
-        }
     }
-*/
+
     private fun isWebViewAvailable(): Boolean {
         val packageManager = packageManager
         return try {
@@ -1424,32 +1278,6 @@ open class BaseActivityWidget : AppCompatActivity() {
             false
         }
     }
-
-
-   /* fun showInterstitial() {
-        try {
-            Log.d("showInters", "execute")
-            if (isLoad) {
-                Log.d("showIntersAdmob", "true")
-                mInterstitialAd?.let { ad ->
-                    window.decorView.rootView.post {
-                        try {
-                            ad.show(this@BaseActivityWidget)
-                        } catch (e: Exception) {
-                            setLog("Error showing AdMob Interstitial: ${e.message}")
-                        }
-                    }
-                }
-            } else {
-
-            }
-        } catch (e: Exception) {
-            Log.d("showInters", "false")
-            setLog(e.message.toString())
-        }
-    }*/
-
-
 
     fun onUserFinishPlaying0(duration: Long) {
         // Kalau user main lama, pastikan iklan fresh
