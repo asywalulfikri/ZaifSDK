@@ -16,21 +16,6 @@
         android:layout_height="wrap_content" />
 
 
-    <RelativeLayout
-        android:layout_below="@+id/rr"
-        android:layout_toEndOf="@+id/controlPanel"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <sound.recorder.widget.recording.InstrumentControlPanel
-            android:id="@+id/controlPanel"
-            android:layout_gravity="bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </RelativeLayout>
-
-
     <LinearLayout
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
