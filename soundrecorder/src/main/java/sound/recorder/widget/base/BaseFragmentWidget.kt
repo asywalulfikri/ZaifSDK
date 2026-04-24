@@ -152,7 +152,7 @@ open class BaseFragmentWidget : Fragment() {
 
     }
 
-    private fun getRawDurationSafe(resId: Int): Long {
+    fun getRawDurationSafe(resId: Int): Long {
         return try {
             val context = context ?: return 0L // Hindari requireActivity() di background
             val mp = MediaPlayer.create(context, resId)
