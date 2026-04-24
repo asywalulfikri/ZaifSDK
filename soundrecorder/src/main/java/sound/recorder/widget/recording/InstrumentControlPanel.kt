@@ -22,6 +22,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import sound.recorder.widget.R
 import sound.recorder.widget.music.InstrumentDialogHelper
@@ -42,7 +43,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
         fun onRecordStatusChanged(isRecording: Boolean)
         fun onPlaybackEvent(event: RecordedTap)
         fun onStopAll()
-
         fun onVolume()
     }
 
@@ -56,7 +56,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
         val fontSize: Float = 10f,
         val fontResId: Int? = null
     )
-
 
     interface AdRequestListener {
         fun onShowRewardedAd(type: String, onComplete: () -> Unit)
@@ -79,17 +78,19 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private val blinkHandler = Handler(Looper.getMainLooper())
+    private val scope = CoroutineScope(Dispatchers.Main) // Scope terkontrol untuk panel
+
     private lateinit var btnRecord: Button
     private lateinit var btnMusic: Button
     private lateinit var btnList: Button
     private lateinit var btnStop: Button
     private lateinit var btnNote: Button
-
     private lateinit var btnVolume: Button
 
     private val blinkRunnable = object : Runnable {
         private var isOn = false
         override fun run() {
+            if (!isRecording) return
             isOn = !isOn
             if (::btnRecord.isInitialized) {
                 val stopStr = try { context.getString(R.string.stop) } catch (e: Exception) { "STOP" }
@@ -108,6 +109,42 @@ class InstrumentControlPanel @JvmOverloads constructor(
         renderUI()
     }
 
+
+    // Di dalam InstrumentControlPanel.kt
+
+    override fun onDetachedFromWindow() {
+        // Putus kabel ke Fragment
+        this.adRequestListener = null
+        this.listener = null
+        this.onRequestAudioPermission = null
+
+        // Hentikan semua proses internal
+        releaseAndStop()
+        super.onDetachedFromWindow()
+    }
+
+    // Tambahkan ini untuk memastikan tombol tidak menahan listener lama
+    fun clearAllCallbacks() {
+        this.adRequestListener = null
+        this.listener = null
+
+        // Set click listener ke null pada semua tombol utama
+        if (::btnMusic.isInitialized) btnMusic.setOnClickListener(null)
+        if (::btnRecord.isInitialized) btnRecord.setOnClickListener(null)
+        if (::btnList.isInitialized) btnList.setOnClickListener(null)
+    }
+
+    fun releaseAndStop() {
+        isRecording = false
+        blinkHandler.removeCallbacks(blinkRunnable)
+        recorderManager.stopPlayback()
+        if (::btnStop.isInitialized) btnStop.visibility = GONE
+        if (::btnRecord.isInitialized) {
+            btnRecord.text = "REC ●"
+            btnRecord.setTextColor(config.textColor)
+        }
+    }
+
     private fun loadCustomFont() {
         config.fontResId?.let {
             globalTypeface = ResourcesCompat.getFont(context, it)
@@ -121,13 +158,10 @@ class InstrumentControlPanel @JvmOverloads constructor(
         this.orientation = orientation
         loadCustomFont()
         renderUI()
-
     }
 
     fun setNoteButtonVisible(isVisible: Boolean) {
-        if (::btnNote.isInitialized) {
-            btnNote.visibility = if (isVisible) VISIBLE else GONE
-        }
+        if (::btnNote.isInitialized) btnNote.visibility = if (isVisible) VISIBLE else GONE
     }
 
     fun setInstrumentType(instrumentType : String) {
@@ -135,14 +169,11 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     fun setVolumeButtonVisible(isVisible: Boolean) {
-        if (::btnVolume.isInitialized) {
-            btnVolume.visibility = if (isVisible) VISIBLE else GONE
-        }
+        if (::btnVolume.isInitialized) btnVolume.visibility = if (isVisible) VISIBLE else GONE
     }
 
     private fun renderUI() {
         this.removeAllViews()
-        this.setBackgroundColor(Color.TRANSPARENT)
         this.gravity = Gravity.CENTER
         val p = (4 * resources.displayMetrics.density).toInt()
         setPadding(p, p, p, p)
@@ -155,7 +186,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
         btnVolume = createBtn(context.getString(R.string.volume).uppercase())
         btnStop.visibility = GONE
 
-        // FIX PANJANG PENDEK: Kunci lebar minimal tombol record
         val recordMinWidth = dpToPx(65)
         btnRecord.minimumWidth = recordMinWidth
         btnRecord.minWidth = recordMinWidth
@@ -170,7 +200,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
             }
         }
 
-        arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop,btnVolume).forEach { btn ->
+        arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop, btnVolume).forEach { btn ->
             if (btn != btnRecord) {
                 btn.minWidth = 0
                 btn.minimumWidth = 0
@@ -193,13 +223,14 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private fun refreshStatusLabels() {
-        btnMusic.text = if (isMusicUnlocked) context.getString(R.string.music_unlock).uppercase() else context.getString(
-            R.string.music_lock).uppercase()
-        btnList.text = if (isListRecordUnlocked) context.getString(R.string.list_record_unlock).uppercase() else context.getString(
-            R.string.list_record_lock).uppercase()
+        if (::btnMusic.isInitialized) {
+            btnMusic.text = if (isMusicUnlocked) context.getString(R.string.music_unlock).uppercase() else context.getString(R.string.music_lock).uppercase()
+        }
+        if (::btnList.isInitialized) {
+            btnList.text = if (isListRecordUnlocked) context.getString(R.string.list_record_unlock).uppercase() else context.getString(R.string.list_record_lock).uppercase()
+        }
         invalidate()
     }
-
 
     fun recordEvent(index: Int, metadata: String) {
         if (isRecording) {
@@ -213,10 +244,10 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 InstrumentDialogHelper.showUnlockDialog(context, context.getString(R.string.list_music).uppercase()) {
                     if (!isNetworkAvailable()) {
                         Toast.makeText(context, context.getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
-                    }else{
+                    } else {
                         adRequestListener?.onShowRewardedAd("music") {
-                            isMusicUnlocked = true;
-                            refreshLockLabels()
+                            isMusicUnlocked = true
+                            refreshStatusLabels()
                             handleMusicOpen()
                         }
                     }
@@ -225,24 +256,18 @@ class InstrumentControlPanel @JvmOverloads constructor(
         }
 
         btnRecord.setOnClickListener {
-            if (isRecording) {
-                stopRecording()
-            } else {
-                showStartRecordConfirmation()
-            }
+            if (isRecording) stopRecording() else showStartRecordConfirmation()
         }
 
         btnList.setOnClickListener {
             if (!isListRecordUnlocked) {
-
                 InstrumentDialogHelper.showUnlockDialog(context, context.getString(R.string.list_record_result).uppercase()) {
-
                     if (!isNetworkAvailable()) {
                         Toast.makeText(context, context.getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
-                    }else{
+                    } else {
                         adRequestListener?.onShowRewardedAd("list_record") {
-                            isListRecordUnlocked = true;
-                            refreshLockLabels();
+                            isListRecordUnlocked = true
+                            refreshStatusLabels()
                             openRecordList()
                         }
                     }
@@ -250,13 +275,9 @@ class InstrumentControlPanel @JvmOverloads constructor(
             } else openRecordList()
         }
 
-
         btnNote.setOnClickListener {
             val activity = context as? FragmentActivity
-            activity?.let {
-                val bottomSheet = BottomSheetNote()
-                bottomSheet.show(it.supportFragmentManager, "xx")
-            }
+            activity?.let { BottomSheetNote().show(it.supportFragmentManager, "note_sheet") }
         }
 
         btnStop.setOnClickListener {
@@ -265,22 +286,18 @@ class InstrumentControlPanel @JvmOverloads constructor(
             listener?.onStopAll()
         }
 
-        btnVolume.setOnClickListener {
-            listener?.onVolume()
-        }
+        btnVolume.setOnClickListener { listener?.onVolume() }
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val nw = cm.activeNetwork ?: return false
+        val actNw = cm.getNetworkCapabilities(nw) ?: return false
+        return actNw.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     private fun showStartRecordConfirmation() {
-        InstrumentDialogHelper.showRecordDialog(context) {
-            startRecording()
-        }
+        InstrumentDialogHelper.showRecordDialog(context) { startRecording() }
     }
 
     private fun startRecording() {
@@ -289,21 +306,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
         listener?.onRecordStatusChanged(true)
         blinkHandler.post(blinkRunnable)
         btnStop.visibility = GONE
-    }
-
-    // Di dalam InstrumentControlPanel.kt
-    fun releaseAndStop() {
-        // Hentikan animasi kedip rekaman jika sedang merekam
-        isRecording = false
-        blinkHandler.removeCallbacks(blinkRunnable)
-
-        // Hentikan pemutaran ulang (playback)
-        recorderManager.stopPlayback()
-
-        // Sembunyikan tombol stop jika sedang tampil
-        if (::btnStop.isInitialized) {
-            btnStop.visibility = GONE
-        }
     }
 
     private fun stopRecording() {
@@ -317,11 +319,12 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
         val events = recorderManager.stopRecording()
         if (events.isNotEmpty()) {
+            val appContext = context.applicationContext // Keamanan DB
             InstrumentDialogHelper.showSaveRecordDialog(context) { name ->
-                Toast.makeText(context,context.getString(R.string.success_saved), Toast.LENGTH_SHORT).show()
+                Toast.makeText(appContext, appContext.getString(R.string.success_saved), Toast.LENGTH_SHORT).show()
                 val json = recorderManager.getEventsAsString(events)
                 CoroutineScope(Dispatchers.IO).launch {
-                    AppDatabase.getInstance(context).recordingDao().insert(
+                    AppDatabase.getInstance(appContext).recordingDao().insert(
                         RecordingEntity(name = name, setName = instrumentType, eventsJson = json, durationMs = events.last().timestamp)
                     )
                 }
@@ -350,12 +353,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private fun refreshLockLabels() {
-        if (::btnMusic.isInitialized && ::btnList.isInitialized) {
-            btnMusic.text = if (isMusicUnlocked) context.getString(R.string.music_unlock).uppercase() else context.getString(
-                R.string.music_lock).uppercase()
-            btnList.text = if (isListRecordUnlocked) context.getString(R.string.list_record_unlock).uppercase() else context.getString(
-                R.string.list_record_lock).uppercase()
-        }
+        refreshStatusLabels()
     }
 
     private fun createBtn(label: String) = Button(context).apply {
@@ -373,6 +371,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
         cornerRadius = dpToPx(config.cornerRadius).toFloat()
         setStroke(dpToPx(1), config.strokeColor)
     }
+
+
 
     private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
 }
