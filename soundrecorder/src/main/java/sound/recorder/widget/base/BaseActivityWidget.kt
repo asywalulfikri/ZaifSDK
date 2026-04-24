@@ -1109,32 +1109,31 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private var retryCountReward = 0
 
-    fun loadRewardedAd(isPremium : Boolean){
-        if(!isPremium){
-            val adRequest = AdRequest.Builder().build()
+    fun loadRewardedAd(isPremium: Boolean) {
+        if (isPremium) return
 
-            RewardedAd.load(this, admobSDKBuilder?.rewardId.orEmpty(),
-                adRequest, object : RewardedAdLoadCallback() {
-                    override fun onAdFailedToLoad(adError: LoadAdError) {
-                        rewardedAd = null
+        val adId = admobSDKBuilder?.rewardId.orEmpty()
+        if (adId.isEmpty()) return
 
-                        // Coba load ulang otomatis maksimal 3 kali jika gagal
-                        if (retryCountReward < 3) {
-                            retryCountReward++
-                            // Kasih delay 5 detik sebelum coba lagi
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                loadRewardedAd(isPremium)
-                            }, 5000)
-                        }
-                    }
+        val adRequest = AdRequest.Builder().build()
 
-                    override fun onAdLoaded(ad: RewardedAd) {
-                        rewardedAd = ad
-                        retryCountReward = 0 // Reset hitungan jika berhasil
-                    }
-                })
+        // Gunakan applicationContext untuk loading iklan
+        RewardedAd.load(applicationContext, adId, adRequest, object : RewardedAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                rewardedAd = null
+                if (retryCountReward < 3) {
+                    retryCountReward++
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        loadRewardedAd(isPremium)
+                    }, 5000)
+                }
+            }
 
-        }
+            override fun onAdLoaded(ad: RewardedAd) {
+                rewardedAd = ad
+                retryCountReward = 0
+            }
+        })
     }
 
 
@@ -1251,7 +1250,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun showRewardedAd(isPremium : Boolean,onComplete: () -> Unit) {
+   /* fun showRewardedAd(isPremium : Boolean,onComplete: () -> Unit) {
         if(!isPremium){
             if (rewardedAd != null) {
                 rewardedAd?.show(this) { _ ->
@@ -1266,6 +1265,48 @@ open class BaseActivityWidget : AppCompatActivity() {
         }else{
             onComplete()
             return
+        }
+    }*/
+
+
+    fun showRewardedAd(isPremium: Boolean, onComplete: () -> Unit) {
+        if (isPremium) {
+            onComplete()
+            return
+        }
+
+        val ad = rewardedAd
+        if (ad != null) {
+            // 1. Pasang Callback untuk deteksi iklan ditutup
+            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    // PENTING: Null-kan callback agar tidak menahan referensi Fragment
+                    ad.fullScreenContentCallback = null
+                    rewardedAd = null
+
+                    // Jalankan aksi (Unlock music/list)
+                    onComplete()
+
+                    // Load ulang untuk selanjutnya
+                    loadRewardedAd(isPremium)
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    ad.fullScreenContentCallback = null
+                    rewardedAd = null
+                    onComplete() // Tetap jalankan atau kasih fail handler
+                }
+            }
+
+            // 2. Tampilkan Iklan
+            ad.show(this) { rewardItem ->
+                // User sudah menonton sampai habis (reward diberikan via onAdDismissed)
+                Log.d("ADS", "User earned reward: ${rewardItem.amount}")
+            }
+
+        } else {
+            setToast(getString(R.string.ads_prepared_please_wait))
+            loadRewardedAd(isPremium)
         }
     }
 
