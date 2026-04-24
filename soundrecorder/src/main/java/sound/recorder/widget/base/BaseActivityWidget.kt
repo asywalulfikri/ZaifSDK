@@ -1033,77 +1033,90 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
+    fun loadInterstitialIfNeeded(isPremium: Boolean) {
+        if (isPremium) return
 
-    /*fun loadInterstitialIfNeeded() {
+        val now = System.currentTimeMillis()
         if (mInterstitialAd != null) return
 
+        if (lastShowTime > 0 && now - lastShowTime < LOAD_INTERVAL) return
+
+        // Guard: Jangan load jika activity dalam proses hancur
+        if (isFinishing || isDestroyed) return
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return
+
+        val adId = admobSDKBuilder?.interstitialId ?: return
+
+        // PERBAIKAN 1: Gunakan applicationContext untuk loading iklan
         InterstitialAd.load(
-            this,
-            admobSDKBuilder?.interstitialId.toString(),
+            applicationContext,
+            adId,
             AdRequest.Builder().build(),
             object : InterstitialAdLoadCallback() {
-
                 override fun onAdLoaded(ad: InterstitialAd) {
+                    // Tambahan: Cek lagi jika activity sudah mati saat iklan baru saja selesai load
+                    if (isDestroyed || isFinishing) {
+                        mInterstitialAd = null
+                        return
+                    }
                     retryJob?.cancel()
                     retryCount = 0
                     mInterstitialAd = ad
-                    setToastADS("load interstitial success")
                     Log.d("ADS", "Interstitial loaded")
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
-                    Log.e("ADS", "Load failed: ${error.message}")
-                    setToastADS("load interstitial failed")
-                    scheduleRetry()
+                    mInterstitialAd = null
+                    scheduleRetry(isPremium)
                 }
             }
         )
-    }*/
-
-
-    fun loadInterstitialIfNeeded(isPremium: Boolean) {
-        if(!isPremium){
-            val now = System.currentTimeMillis()
-
-            // 1️⃣ Jangan load kalau interstitial masih ada
-            if (mInterstitialAd != null) return
-
-            // 2️⃣ Kalau SUDAH pernah show → cek interval
-            if (lastShowTime > 0 && now - lastShowTime < LOAD_INTERVAL) {
-                Log.d("ADS", "Skip load: waiting interval")
-                setToastADS("already init wait bro")
-                return
-            }
-
-            // 3️⃣ Jangan load kalau activity tidak aktif
-            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                return
-            }
-
-            InterstitialAd.load(
-                this,
-                admobSDKBuilder?.interstitialId ?: return,
-                AdRequest.Builder().build(),
-                object : InterstitialAdLoadCallback() {
-
-                    override fun onAdLoaded(ad: InterstitialAd) {
-                        retryJob?.cancel()
-                        retryCount = 0
-                        mInterstitialAd = ad
-                        Log.d("ADS", "Interstitial loaded")
-                        setToastADS("load interstitial success")
-                    }
-
-                    override fun onAdFailedToLoad(error: LoadAdError) {
-                        Log.e("ADS", "Load failed: ${error.message}")
-                        setToastADS("load interstitial failed")
-                        scheduleRetry(isPremium)
-                    }
-                }
-            )
-        }
     }
 
+    fun showInterstitialIfAllowed(isPremium: Boolean, onFinished: () -> Unit) {
+        if (isPremium) {
+            onFinished()
+            return
+        }
+
+        val ad = mInterstitialAd
+        val now = System.currentTimeMillis()
+
+        if (ad == null || now - lastShowTime < SHOW_INTERVAL || lifecycle.currentState != Lifecycle.State.RESUMED) {
+            onFinished()
+            return
+        }
+
+        // Anti double show
+        mInterstitialAd = null
+        lastShowTime = now
+
+        // PERBAIKAN 2: Gunakan callback yang disiplin membersihkan diri
+        ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+            private fun handleFinish() {
+                // Putus hubungan kabel antara iklan dan Activity
+                ad.fullScreenContentCallback = null
+
+                // Jalankan onFinished hanya jika Activity masih ada
+                if (!isFinishing && !isDestroyed) {
+                    runOnUiThread { onFinished() }
+                } else {
+                    // Jika activity sudah mati, onFinished mungkin tidak perlu dijalankan
+                    // atau jalankan tanpa menyentuh UI
+                }
+            }
+
+            override fun onAdDismissedFullScreenContent() {
+                handleFinish()
+            }
+
+            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                handleFinish()
+            }
+        }
+
+        ad.show(this)
+    }
 
 
 
@@ -1156,52 +1169,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    fun showInterstitialIfAllowed(isPremium : Boolean,onFinished: () -> Unit) {
 
-        if(!isPremium){
-            val ad = mInterstitialAd
-            val now = System.currentTimeMillis()
-
-            // 1️⃣ Guard awal
-            if (
-                ad == null ||
-                now - lastShowTime < SHOW_INTERVAL ||
-                lifecycle.currentState != Lifecycle.State.RESUMED
-            ) {
-                onFinished()
-                return
-            }
-
-            // 2️⃣ Anti double show
-            mInterstitialAd = null
-            lastShowTime = now
-
-            // 3️⃣ Gunakan WeakReference (ANTI LEAK)
-            val activityRef = WeakReference(this)
-
-            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
-
-                override fun onAdDismissedFullScreenContent() {
-                    releaseAd(ad)
-                    activityRef.get()?.safePost {
-                        onFinished()
-                    }
-                }
-
-                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                    releaseAd(ad)
-                    activityRef.get()?.safePost {
-                        onFinished()
-                    }
-                }
-            }
-
-            ad.show(this)
-        }else{
-            onFinished()
-            return
-        }
-    }
 
     private fun Activity.safePost(block: () -> Unit) {
         if (!isFinishing && !isDestroyed) {
