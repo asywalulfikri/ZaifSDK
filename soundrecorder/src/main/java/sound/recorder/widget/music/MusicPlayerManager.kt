@@ -5,6 +5,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import kotlinx.coroutines.*
+import java.io.File
 
 object MusicPlayerManager {
 
@@ -17,7 +18,9 @@ object MusicPlayerManager {
         val duration: Long,
         val isRaw: Boolean,
         val rawResId: Int = 0,
-        val deviceUri: Uri? = null
+        val deviceUri: Uri? = null,
+        // Tambahkan path string untuk memudahkan mapping dari database
+        val path: String? = null
     )
 
     interface PlayerListener {
@@ -39,7 +42,6 @@ object MusicPlayerManager {
     private var _isPaused = false
     val isPaused: Boolean get() = _isPaused
 
-    // Volume internal (0.0 – 1.0), tidak terhubung ke volume system
     private var currentVolume: Float = DEFAULT_VOLUME
 
     fun setListener(l: PlayerListener?) {
@@ -48,10 +50,6 @@ object MusicPlayerManager {
 
     // ── Volume API ────────────────────────────────────────────────────────────
 
-    /**
-     * Set volume langsung ke MediaPlayer (terpisah dari volume system/device).
-     * Nilai antara 0.0 (diam) hingga 1.0 (penuh).
-     */
     fun setVolume(left: Float, right: Float) {
         val safeLeft  = left.coerceIn(0f, 1f)
         val safeRight = right.coerceIn(0f, 1f)
@@ -85,11 +83,27 @@ object MusicPlayerManager {
 
     // ── Playback ──────────────────────────────────────────────────────────────
 
+    /**
+     * Fungsi Tambahan: Memutar musik langsung dari Path (untuk Playback Cover)
+     */
+    fun playFromPath(context: Context, path: String) {
+        val file = File(path)
+        if (file.exists()) {
+            val uri = Uri.fromFile(file)
+            val track = MusicTrack(
+                title = file.name,
+                duration = 0, // Akan terupdate saat prepare
+                isRaw = false,
+                deviceUri = uri,
+                path = path
+            )
+            play(context, track)
+        }
+    }
+
     fun play(context: Context, track: MusicTrack) {
         stop()
         currentTrack = track
-
-        // Load volume tersimpan setiap kali lagu baru dimulai
         currentVolume = loadMusicVolume(context)
 
         try {
@@ -103,7 +117,6 @@ object MusicPlayerManager {
             }
 
             mediaPlayer?.apply {
-                // Terapkan volume tersimpan sebelum start
                 setVolume(currentVolume, currentVolume)
                 start()
                 _isPlaying = true
@@ -142,7 +155,6 @@ object MusicPlayerManager {
         mediaPlayer?.let {
             if (_isPaused) {
                 it.start()
-                // Pastikan volume tetap terjaga setelah resume
                 it.setVolume(currentVolume, currentVolume)
                 _isPlaying = true
                 _isPaused = false
