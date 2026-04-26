@@ -6,10 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import sound.recorder.widget.recording.database.RecordingDao
-import sound.recorder.widget.recording.database.RecordingEntity
 
-@Database(entities = [RecordingEntity::class], version = 3, exportSchema = false)
+// 1. Pastikan versi sekarang adalah 4
+@Database(entities = [RecordingEntity::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun recordingDao(): RecordingDao
 
@@ -17,17 +16,26 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        // Migrasi dari Versi 1 ke 3
-        private val MIGRATION_1_3 = object : Migration(1, 3) {
+        // Migrasi dari Versi 1 ke 4
+        private val MIGRATION_1_4 = object : Migration(1, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE recordings ADD COLUMN musicPath TEXT DEFAULT NULL")
                 database.execSQL("ALTER TABLE recordings ADD COLUMN musicOffset INTEGER NOT NULL DEFAULT 0")
             }
         }
 
-        // Migrasi dari Versi 2 ke 3
-        private val MIGRATION_2_3 = object : Migration(2, 3) {
+        // Migrasi dari Versi 2 ke 4
+        private val MIGRATION_2_4 = object : Migration(2, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE recordings ADD COLUMN musicPath TEXT DEFAULT NULL")
+                database.execSQL("ALTER TABLE recordings ADD COLUMN musicOffset INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        // Migrasi dari Versi 3 ke 4 (PENTING: Ini yang menangani error Identity Hash tadi)
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Tambahkan kolom jika belum ada di versi 3
                 database.execSQL("ALTER TABLE recordings ADD COLUMN musicPath TEXT DEFAULT NULL")
                 database.execSQL("ALTER TABLE recordings ADD COLUMN musicOffset INTEGER NOT NULL DEFAULT 0")
             }
@@ -40,9 +48,9 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "drum_db"
                 )
-                    // Masukkan semua kemungkinan migrasi
-                    .addMigrations(MIGRATION_1_3, MIGRATION_2_3)
-                    // Jika terjadi error migrasi yang tidak terduga, hapus & buat baru daripada crash
+                    // Daftarkan semua jalur migrasi yang mungkin dilalui user
+                    .addMigrations(MIGRATION_1_4, MIGRATION_2_4, MIGRATION_3_4)
+                    // Pengaman terakhir: Jika versi naik tapi migrasi gagal, reset DB agar tidak crash
                     .fallbackToDestructiveMigration()
                     .build()
 
