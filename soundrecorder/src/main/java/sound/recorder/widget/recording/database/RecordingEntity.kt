@@ -10,5 +10,7 @@ data class RecordingEntity(
     val setName: String,
     val eventsJson: String,   // JSON dari List<RecordedTap>
     val createdAt: Long = System.currentTimeMillis(),
-    val durationMs: Long = 0
+    val durationMs: Long = 0,
+    val musicPath: String?,
+    val musicOffset: Int // SIMPAN DISINI (misal 30000)
 )
