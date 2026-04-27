@@ -1,6 +1,5 @@
 package sound.recorder.widget.recording
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -31,7 +30,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@SuppressLint("UseKtx")
+
 object RecordingListDialogHelper {
 
     private const val COLOR_WOOD_DARK = "#1A0F09"
@@ -42,9 +41,7 @@ object RecordingListDialogHelper {
     private const val COLOR_DANGER = "#CF6679"
     private const val COLOR_WOOD_LIGHT = "#3E2717"
 
-    // PERBAIKAN: Callback onPlay sekarang mengirimkan RecordingEntity utuh agar musicPath & offset terbawa
-    @SuppressLint("UseKtx")
-    fun show(context: Context, instrumentFilter: String, onPlay: (RecordingEntity) -> Unit) {
+    fun show(context: Context, instrumentFilter: String, onPlay: (List<RecordedTap>) -> Unit) {
         val rootLayout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {
@@ -87,6 +84,7 @@ object RecordingListDialogHelper {
                 textSize = 18f
                 gravity = Gravity.CENTER
             })
+            // Dismiss instan
             setOnClickListener { dialog.dismiss() }
         }
 
@@ -110,6 +108,7 @@ object RecordingListDialogHelper {
 
         dialog.setView(rootLayout)
 
+        // Loading Data
         CoroutineScope(Dispatchers.Main).launch {
             val recordings = withContext(Dispatchers.IO) {
                 AppDatabase.getInstance(context).recordingDao().getAll()
@@ -134,12 +133,11 @@ object RecordingListDialogHelper {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     private fun buildRecordingCard(
         context: Context,
         rec: RecordingEntity,
         dialog: AlertDialog,
-        onPlay: (RecordingEntity) -> Unit,
+        onPlay: (List<RecordedTap>) -> Unit,
         listLayout: LinearLayout,
         allRecs: MutableList<RecordingEntity>
     ): View {
@@ -166,13 +164,9 @@ object RecordingListDialogHelper {
                 maxLines = 1
                 ellipsize = TextUtils.TruncateAt.END
             })
-
-            // UI Tambahan: Tampilkan icon musik jika ini adalah rekaman cover
-            val musicIndicator = if (!rec.musicPath.isNullOrEmpty()) " 🎵" else ""
-
             addView(TextView(context).apply {
                 val sdf = SimpleDateFormat("dd/MM/yy • HH:mm", Locale.getDefault())
-                text = "${sdf.format(Date(rec.createdAt))} | ${formatDuration(rec.durationMs)}$musicIndicator"
+                text = "${sdf.format(Date(rec.createdAt))} | ${formatDuration(rec.durationMs)}"
                 setTextColor(Color.parseColor(COLOR_GOLD_DIM))
                 textSize = 10f
             })
@@ -184,9 +178,16 @@ object RecordingListDialogHelper {
 
             // TOMBOL PLAY
             val playBtn = buildIconButton(context, "▶", COLOR_GOLD, Color.BLACK) {
+                // PERBAIKAN: Tutup dialog DULUAN agar responsif
                 dialog.dismiss()
-                // Langsung kirim seluruh objek RecordingEntity ke Fragment
-                onPlay(rec)
+
+                // Proses parsing di Background agar tidak nge-lag
+                CoroutineScope(Dispatchers.Main).launch {
+                    val events = withContext(Dispatchers.Default) {
+                        parseEvents(rec.eventsJson)
+                    }
+                    onPlay(events)
+                }
             }
 
             // TOMBOL DELETE
@@ -195,8 +196,8 @@ object RecordingListDialogHelper {
                     withContext(Dispatchers.IO) { AppDatabase.getInstance(context).recordingDao().delete(rec) }
                     val idx = listLayout.indexOfChild(card)
                     if (idx != -1) {
-                        listLayout.removeViewAt(idx)
-                        if (idx < listLayout.childCount) listLayout.removeViewAt(idx)
+                        listLayout.removeViewAt(idx) // Hapus Card
+                        if (idx < listLayout.childCount) listLayout.removeViewAt(idx) // Hapus Spacer
                     }
                     allRecs.remove(rec)
                     if (allRecs.isEmpty()) listLayout.addView(showEmptyState(context))
@@ -229,7 +230,6 @@ object RecordingListDialogHelper {
         setOnClickListener { onClick() }
     }
 
-    @SuppressLint("UseKtx")
     private fun showEmptyState(context: Context) = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER; setPadding(0, 100, 0, 100)
         addView(TextView(context).apply { text = "∅"; setTextColor(Color.parseColor(COLOR_WOOD_LIGHT)); textSize = 40f })
@@ -241,8 +241,8 @@ object RecordingListDialogHelper {
         return if (sec < 60) "${sec}s" else "${sec / 60}m ${sec % 60}s"
     }
 
-    // Fungsi ini dipindahkan atau tetap dipanggil di sisi Fragment agar Dialog tetap ringan
-    fun parseEvents(json: String): List<RecordedTap> {
+    // PERBAIKAN: Parsing lebih efisien
+    private fun parseEvents(json: String): List<RecordedTap> {
         if (json.isEmpty()) return emptyList()
         val result = mutableListOf<RecordedTap>()
         val pattern = Regex("""padIndex=(\d+),timestamp=(\d+),meta=([^|]*)""")

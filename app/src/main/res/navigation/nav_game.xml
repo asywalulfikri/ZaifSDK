@@ -38,7 +38,7 @@
 
     <fragment
         android:id="@+id/FragmentDholak"
-        android:name="recording.host.DholakFragment"
+        android:name="recording.host.DemungFragment"
         android:label=""
         tools:layout="@layout/activity_dholak">
 

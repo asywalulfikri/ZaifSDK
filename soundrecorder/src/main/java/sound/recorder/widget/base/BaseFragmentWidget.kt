@@ -97,6 +97,7 @@ import sound.recorder.widget.builder.ZaifSDKConfig
 import sound.recorder.widget.builder.ZaifSDKStorage
 import sound.recorder.widget.databinding.WidgetRecordHorizontalZaifBinding
 import sound.recorder.widget.databinding.WidgetRecordVerticalZaifBinding
+import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.music.MusicPlayerManager
 import sound.recorder.widget.tools.showcase.GuideView
 import sound.recorder.widget.util.Constant
@@ -304,6 +305,17 @@ open class BaseFragmentWidget : Fragment() {
         }
 
     }
+
+    val requestPermissionMusic =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                MusicListDialogHelper.show(requireContext()) // 🔥 otomatis kebuka
+            } else {
+                showAllowPermission()
+            }
+        }
+
+
 
     private val requestPermissionSong =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->

@@ -22,6 +22,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import sound.recorder.widget.R
 import sound.recorder.widget.music.InstrumentDialogHelper
@@ -67,10 +68,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private var isRecording = false
     private var globalTypeface: Typeface? = null
 
-    // State untuk Cover Musik (Versi 3)
-    private var currentMusicPath: String? = null
-    private var currentMusicOffset: Int = 0
-
     var adRequestListener: AdRequestListener? = null
     var onRequestAudioPermission: (() -> Unit)? = null
     var isMusicUnlocked = false
@@ -81,7 +78,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private val blinkHandler = Handler(Looper.getMainLooper())
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val scope = CoroutineScope(Dispatchers.Main) // Scope terkontrol untuk panel
 
     private lateinit var btnRecord: Button
     private lateinit var btnMusic: Button
@@ -112,23 +109,26 @@ class InstrumentControlPanel @JvmOverloads constructor(
         renderUI()
     }
 
-    // Fungsi untuk mengupdate konteks musik saat rekam cover
-    fun updateMusicContext(path: String?, offset: Int) {
-        this.currentMusicPath = path
-        this.currentMusicOffset = offset
-    }
+
+    // Di dalam InstrumentControlPanel.kt
 
     override fun onDetachedFromWindow() {
+        // Putus kabel ke Fragment
         this.adRequestListener = null
         this.listener = null
         this.onRequestAudioPermission = null
+
+        // Hentikan semua proses internal
         releaseAndStop()
         super.onDetachedFromWindow()
     }
 
+    // Tambahkan ini untuk memastikan tombol tidak menahan listener lama
     fun clearAllCallbacks() {
         this.adRequestListener = null
         this.listener = null
+
+        // Set click listener ke null pada semua tombol utama
         if (::btnMusic.isInitialized) btnMusic.setOnClickListener(null)
         if (::btnRecord.isInitialized) btnRecord.setOnClickListener(null)
         if (::btnList.isInitialized) btnList.setOnClickListener(null)
@@ -289,25 +289,11 @@ class InstrumentControlPanel @JvmOverloads constructor(
         btnVolume.setOnClickListener { listener?.onVolume() }
     }
 
-    /*private fun isNetworkAvailable(): Boolean {
+    private fun isNetworkAvailable(): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val nw = cm.activeNetwork ?: return false
         val actNw = cm.getNetworkCapabilities(nw) ?: return false
         return actNw.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }*/
-
-    private fun isNetworkAvailable(): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val nw = cm.activeNetwork ?: return false
-            val actNw = cm.getNetworkCapabilities(nw) ?: return false
-            actNw.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        } else {
-            // Fallback for API level 22
-            @Suppress("DEPRECATION")
-            val nwInfo = cm.activeNetworkInfo
-            nwInfo != null && nwInfo.isConnected
-        }
     }
 
     private fun showStartRecordConfirmation() {
@@ -333,21 +319,13 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
         val events = recorderManager.stopRecording()
         if (events.isNotEmpty()) {
-            val appContext = context.applicationContext
+            val appContext = context.applicationContext // Keamanan DB
             InstrumentDialogHelper.showSaveRecordDialog(context) { name ->
                 Toast.makeText(appContext, appContext.getString(R.string.success_saved), Toast.LENGTH_SHORT).show()
                 val json = recorderManager.getEventsAsString(events)
                 CoroutineScope(Dispatchers.IO).launch {
                     AppDatabase.getInstance(appContext).recordingDao().insert(
-                        RecordingEntity(
-                            name = name,
-                            setName = instrumentType,
-                            eventsJson = json,
-                            durationMs = events.last().timestamp,
-                            // Data cover musik (Versi 3)
-                            musicPath = currentMusicPath,
-                            musicOffset = currentMusicOffset
-                        )
+                        RecordingEntity(name = name, setName = instrumentType, eventsJson = json, durationMs = events.last().timestamp)
                     )
                 }
             }
@@ -355,18 +333,9 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private fun openRecordList() {
-        RecordingListDialogHelper.show(context, instrumentType) { recording ->
-            // Pastikan RecordingListDialogHelper mengembalikan RecordingEntity, bukan hanya List<Event>
-            if (recording.eventsJson.isNotEmpty()) {
+        RecordingListDialogHelper.show(context, instrumentType) { events ->
+            if (events.isNotEmpty()) {
                 btnStop.visibility = VISIBLE
-
-                // Parse JSON ke List<RecordedTap>
-                val events = recorderManager.parseJson(recording.eventsJson)
-
-                // Memicu playback di InstrumentControlListener (Fragment) agar musik pengiring jalan
-                // Kirim informasi recording agar fragment bisa memutar musik pengiringnya
-                // Note: Kamu bisa meng-cast 'recording' ke RecordedTap atau handle manual di Fragment
-
                 recorderManager.play(events) {
                     post {
                         btnStop.visibility = GONE
@@ -402,6 +371,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
         cornerRadius = dpToPx(config.cornerRadius).toFloat()
         setStroke(dpToPx(1), config.strokeColor)
     }
+
+
 
     private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
 }

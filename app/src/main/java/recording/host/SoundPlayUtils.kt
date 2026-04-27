@@ -12,7 +12,7 @@ import kotlin.let
 import kotlin.to
 
 // Menggunakan 'object' di Kotlin adalah cara termudah membuat Singleton
-object AudioEngine {
+object SoundPlayUtils {
 
     private var soundPool: SoundPool? = null
     private var mediaPlayer: MediaPlayer? = null
@@ -68,6 +68,31 @@ object AudioEngine {
                 "test1" to R.raw.dek,
                 "test2" to R.raw.dum,
                 )
+        )
+
+        loadInstrumentSounds(
+            context, "demung_pelog", listOf(
+                "type1" to R.raw.demung_pelog1,
+                "type2" to R.raw.demung_pelog2,
+                "type3" to R.raw.demung_pelog3,
+                "type4" to R.raw.demung_pelog4,
+                "type5" to R.raw.demung_pelog5,
+                "type6" to R.raw.demung_pelog6,
+                "type7" to R.raw.demung_pelog7
+            )
+        )
+
+
+        loadInstrumentSounds(
+            context, "demung_slendro", listOf(
+                "type1" to R.raw.demung_slendro1,
+                "type2" to R.raw.demung_slendro2,
+                "type3" to R.raw.demung_slendro3,
+                "type4" to R.raw.demung_slendro4,
+                "type5" to R.raw.demung_slendro5,
+                "type6" to R.raw.demung_slendro6,
+                "type7" to R.raw.demung_slendro7,
+            )
         )
     }
 

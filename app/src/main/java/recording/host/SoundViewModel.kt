@@ -8,16 +8,18 @@ import kotlin.let
 class SoundViewModel(application: Application) : AndroidViewModel(application) {
 
     // ViewModel sekarang hanya mengamati LiveData dari AudioEngine
-    val loadingProgress: LiveData<Int> = AudioEngine.loadingProgress
-    val isAllSoundsLoaded: LiveData<Boolean> = AudioEngine.isLoaded
+    val loadingProgress: LiveData<Int> = SoundPlayUtils.loadingProgress
+    val isAllSoundsLoaded: LiveData<Boolean> = SoundPlayUtils.isLoaded
 
     var isPremium: Boolean = true
 
+    var isMusicUnlocked: Boolean = true
+    var isRecordUnlocked: Boolean = false
     /**
      * Meneruskan perintah untuk memainkan suara ketukan ke AudioEngine.
      */
     fun playSound(instrument: String, soundName: String) {
-        AudioEngine.playSound(instrument, soundName)
+        SoundPlayUtils.playSound(instrument, soundName)
     }
 
     /**
@@ -25,14 +27,14 @@ class SoundViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun playAudioTrack(resId: Int) {
         // Menggunakan getApplication() untuk mendapatkan Context yang aman
-        AudioEngine.playAudioTrack(getApplication(), resId)
+        SoundPlayUtils.playAudioTrack(getApplication(), resId)
     }
 
     /**
      * Meneruskan perintah untuk mengatur volume.
      */
     fun setVolume(volume: Float?) {
-        volume?.let { AudioEngine.setVolume(it) }
+        volume?.let { SoundPlayUtils.setVolume(it) }
     }
 
     // onCleared() sekarang tidak perlu melakukan apa-apa terhadap AudioEngine

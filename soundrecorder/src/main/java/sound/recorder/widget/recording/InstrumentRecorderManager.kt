@@ -2,7 +2,6 @@ package sound.recorder.widget.recording
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import sound.recorder.widget.recording.database.RecordedTap
 
 class InstrumentRecorderManager(
@@ -26,6 +25,7 @@ class InstrumentRecorderManager(
         return recordedEvents.toList()
     }
 
+    // Fungsi record sekarang menerima metadata (misal: nama suara)
     fun onNoteEvent(padIndex: Int, metadata: String? = null) {
         if (isRecording) {
             val ts = System.currentTimeMillis() - startTime
@@ -46,7 +46,6 @@ class InstrumentRecorderManager(
             }, event.timestamp)
         }
 
-        // Memberikan buffer 200ms setelah note terakhir sebelum memicu onComplete
         val totalDuration = (events.lastOrNull()?.timestamp ?: 0L) + 200L
         playbackHandler.postDelayed({ onComplete() }, totalDuration)
     }
@@ -55,35 +54,11 @@ class InstrumentRecorderManager(
         playbackHandler.removeCallbacksAndMessages(null)
     }
 
-    // ─── UTILITY UNTUK DATABASE ───
-
-    /**
-     * Mengubah List Event menjadi String untuk disimpan di kolom eventsJson (Database)
-     */
+    // Untuk simpan ke Database (Parsing metadata juga)
     fun getEventsAsString(events: List<RecordedTap>): String {
         return events.joinToString("|") {
             "padIndex=${it.padIndex},timestamp=${it.timestamp},meta=${it.metadata ?: ""}"
         }
     }
 
-    /**
-     * Fungsi Tambahan: Mengubah String dari Database kembali menjadi List objek.
-     * Sangat berguna saat Playback agar tidak perlu menulis Regex berulang kali di Fragment.
-     */
-    fun parseJson(json: String): List<RecordedTap> {
-        if (json.isEmpty()) return emptyList()
-        val result = mutableListOf<RecordedTap>()
-        val pattern = Regex("""padIndex=(\d+),timestamp=(\d+),meta=([^|]*)""")
-        try {
-            pattern.findAll(json).forEach { matchResult ->
-                val padIndex = matchResult.groupValues[1].toInt()
-                val timestamp = matchResult.groupValues[2].toLong()
-                val metadata = matchResult.groupValues[3].trim().takeIf { it.isNotEmpty() && it != "null" }
-                result.add(RecordedTap(padIndex, timestamp, metadata))
-            }
-        } catch (e: Exception) {
-            Log.e("RecorderManager", "Error parsing events: ${e.message}")
-        }
-        return result
-    }
 }

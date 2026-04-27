@@ -111,7 +111,7 @@ open class GameApp: MyApp(), AdConfigProvider {
      */
     private fun initAudio() {
         try {
-            AudioEngine.init(applicationContext)
+            SoundPlayUtils.init(applicationContext)
         } catch (e: Exception) {
             Log.e("GameApp", "Audio init failed", e)
         }
