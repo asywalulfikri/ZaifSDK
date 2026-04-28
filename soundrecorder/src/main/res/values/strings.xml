@@ -26,7 +26,7 @@
     <string name="record_canceled">The recording has been cancelled</string>
     <string name="no_internet_connection">No Internet Connection, Try again</string>
     <string name="device_not_support">Your device not support to record audio</string>
-    <string name="allow_permission">Allow Permission in Setting Audio In Setting</string>
+    <string name="allow_permission">Allow Permission Audio In Setting</string>
 
     <string name="choose_language">Choose Language</string>
     <string name="indonesia">Indonesia</string>
@@ -225,6 +225,21 @@
     <string name="success_saved">Saved successfully</string>
     <string name="buy">Buy</string>
     <string name="unlock">Unlock</string>
+
+
+    <string name="dialog_record_title">RECORDING MODE</string>
+    <string name="dialog_record_message">Choose the best way to record your session:</string>
+    <string name="btn_instrument_only">INSTRUMENT ONLY</string>
+    <string name="desc_instrument_only">Record clean hits without background noise (internal data)</string>
+    <string name="btn_mic_instrument">MIC + INSTRUMENT</string>
+    <string name="desc_mic_instrument">Record your voice and ambient sound via microphone</string>
+    <string name="btn_cancel">CANCEL</string>
+
+    <string name="earphone_hint">Use earphones for echo-free mic recording.</string>
+    <string name="allow_permission_audio_mic">Grant microphone audio permission</string>
+
+    <string name="file_not_found">File not found</string>
+    <string name="share_failed">Failed to share file</string>
 
 
 </resources>

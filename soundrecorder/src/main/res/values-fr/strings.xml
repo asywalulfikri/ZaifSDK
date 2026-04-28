@@ -230,4 +230,18 @@
     <string name="success_saved">Enregistré avec succès</string>
     <string name="buy">Acheter</string>
     <string name="unlock">Déverrouiller</string>
+
+    <string name="dialog_record_title">MODE DENREGISTREMENT</string>
+    <string name="dialog_record_message">Choisissez la meilleure façon d enregistrer votre session :</string>
+    <string name="btn_instrument_only">INSTRUMENT SEUL</string>
+    <string name="desc_instrument_only">Enregistrez un son propre sans bruit de fond (données internes)</string>
+    <string name="btn_mic_instrument">MICRO + INSTRUMENT</string>
+    <string name="desc_mic_instrument">Enregistrez votre voix et les sons ambiants via le microphone</string>
+    <string name="btn_cancel">ANNULER</string>
+
+    <string name="earphone_hint">Utilisez des écouteurs pour un enregistrement sans écho.</string>
+    <string name="allow_permission_audio_mic">Autoriser l accès au microphone</string>
+
+    <string name="file_not_found">Fichier introuvable</string>
+    <string name="share_failed">Échec du partage du fichier</string>
 </resources>

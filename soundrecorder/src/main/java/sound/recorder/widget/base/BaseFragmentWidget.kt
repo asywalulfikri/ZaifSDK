@@ -114,8 +114,6 @@ open class BaseFragmentWidget : Fragment() {
     private var isLoad = false
     private var rewardedAd: RewardedAd? = null
     private var isLoadReward = false
-    private var isLoadInterstitialReward = false
-    private var rewardedInterstitialAd : RewardedInterstitialAd? =null
 
     private var adView: AdView? =null
 
@@ -609,7 +607,7 @@ open class BaseFragmentWidget : Fragment() {
         }
     }
 
-    private fun openSettings(activity: Context?) {
+    fun openSettings(activity: Context?) {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         intent.data = Uri.fromParts("package", activity?.packageName.toString(), null)
         activity?.startActivity(intent)
@@ -811,109 +809,6 @@ open class BaseFragmentWidget : Fragment() {
         return  valueNote
     }
 
-    fun setupBanner(adViewContainer:FrameLayout?){
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-        }else{
-            if(isWebViewSupported()&&isWebViewAvailable()){
-                if(isAdMobAvailable()){
-                    executeBanner(adViewContainer)
-                }
-            }
-        }
-    }
-
-    private fun isAdMobAvailable(): Boolean {
-        return try {
-            Class.forName("com.google.android.gms.ads.MobileAds")
-            true
-        } catch (e: ClassNotFoundException) {
-            false
-        }
-    }
-
-
-    private fun isWebViewAvailable(): Boolean {
-        val packageManager = requireContext().packageManager
-        return try {
-            packageManager.getPackageInfo("com.google.android.webview", 0)
-            true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
-    }
-
-
-    private fun isWebViewSupported(): Boolean {
-        return try {
-            WebView(requireContext())
-            if(BuildConfig.DEBUG){
-                setToast("WebView didukung pada perangkat ini.")
-            }
-            true
-        } catch (e: Exception) {
-            if(BuildConfig.DEBUG){
-                setToast("WebView tidak didukung pada perangkat ini.")
-            }
-            false
-        }
-    }
-
-
-
-   /* private fun getSize(): AdSize {
-        val widthPixels = resources.displayMetrics.widthPixels.toFloat()
-        val density = resources.displayMetrics.density
-        val adWidth = (widthPixels / density).toInt()
-
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(requireContext(), adWidth)
-    }*/
-
-    private fun getSize(): AdSize {
-        val widthPixels = resources.displayMetrics.widthPixels.toFloat()
-        val density = resources.displayMetrics.density.takeIf { it > 0 } ?: 1f
-        val adWidth = (widthPixels / density).toInt()
-
-        val adaptiveSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(requireContext(), adWidth)
-        val adHeight = adaptiveSize.height.coerceAtMost(60)
-
-        return AdSize(adWidth, adHeight)
-    }
-
-
-    private fun executeBanner(adViewContainer:FrameLayout?){
-        try {
-            val adView = AdView(requireContext())
-            adView.adUnitId = admobSDKBuilder?.bannerId.toString()
-            adView.setAdSize(getSize())
-            val adRequest = AdRequest.Builder().build()
-            adView.adListener = object : AdListener() {
-                override fun onAdLoaded() {
-                    Log.d("ADS_AdMob", "banner loaded successfully "+adView.adUnitId)
-                }
-                override fun onAdFailedToLoad(p0: LoadAdError) {
-                    Log.d("ADS_AdMob", "banner loaded failed "+p0.message)
-                }
-                override fun onAdOpened() {
-
-                }
-                override fun onAdClicked() {
-
-                }
-                override fun onAdClosed() {
-
-                }
-            }
-            adView.loadAd(adRequest)
-            adViewContainer?.removeAllViews()
-            adViewContainer?.addView(adView)
-            this.adView = adView
-
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
-
-
     private fun permissionNotification(){
         try {
             if (Build.VERSION.SDK_INT >= 33) {
@@ -930,265 +825,6 @@ open class BaseFragmentWidget : Fragment() {
 
     private val requestPermissionNotification = registerForActivityResult(ActivityResultContracts.RequestPermission()) { _ -> }
 
-
-
-    private fun setupInterstitial() {
-
-        if(isWebViewSupported()&&isWebViewAvailable()){
-
-            CoroutineScope(Dispatchers.Main).launch {
-
-                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O||Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
-
-                }else{
-
-                    if(isAdMobAvailable()){
-                        try {
-                            val adRequest = AdRequest.Builder().build()
-                            InterstitialAd.load(requireContext(), admobSDKBuilder?.interstitialId.toString(), adRequest,
-                                object : InterstitialAdLoadCallback() {
-                                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                                        mInterstitialAd = interstitialAd
-                                        isLoad = true
-                                        Log.d("AdMob", "Interstitial loaded successfully "+interstitialAd.adUnitId)
-                                        // Set the FullScreenContentCallback
-                                        mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                                            override fun onAdDismissedFullScreenContent() {
-                                                // Handle the ad dismissed event
-                                                setLog("AdMob Inters Ad Dismissed")
-                                                if (BuildConfig.DEBUG) {
-                                                    setToast("ads closed")
-                                                }
-                                                // Load a new interstitial ad
-                                                mInterstitialAd = null
-                                                setupInterstitial()
-                                            }
-
-                                            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                                                // Handle the ad failed to show event
-                                                setLog("AdMob Inters Ad Failed to Show: ${adError.message}")
-                                                if (BuildConfig.DEBUG) {
-                                                    setToast(adError.message)
-                                                }
-                                            }
-
-                                            override fun onAdShowedFullScreenContent() {
-                                                // Handle the ad showed event
-                                                setLog("AdMob Inters Ad Showed")
-                                                mInterstitialAd = null // Reset the interstitial ad
-                                            }
-                                        }
-                                    }
-
-                                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                                        mInterstitialAd = null
-                                        isLoad = false
-                                        Log.d("Admob","Interstitial Loaded Failed id = ${admobSDKBuilder?.interstitialId.toString()} ---> ${loadAdError.message}")
-
-                                    }
-                                })
-                        } catch (e: Exception) {
-                            setLog("asywalul inters :${e.message}")
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
-
-    fun releaseInterstitialAdmob(){
-        try {
-            mInterstitialAd?.fullScreenContentCallback = null
-            mInterstitialAd = null
-        }catch (e : Exception){
-            setLog(e.message)
-        }
-    }
-
-
-
-
-    fun setupRewardInterstitial(){
-        try {
-            RewardedInterstitialAd.load(requireContext(), DataSession(requireContext()).getRewardInterstitialId(),
-                AdRequest.Builder().build(), object : RewardedInterstitialAdLoadCallback() {
-                    override fun onAdLoaded(ad: RewardedInterstitialAd) {
-                        //Log.d(TAG, "Ad was loaded.")
-                        rewardedInterstitialAd = ad
-                        isLoadInterstitialReward = true
-                        rewardedInterstitialAd?.fullScreenContentCallback = object: FullScreenContentCallback() {
-                            override fun onAdClicked() {
-                                // Called when a click is recorded for an ad.
-                                Log.d("yametere", "Ad was clicked.")
-                            }
-
-                            override fun onAdDismissedFullScreenContent() {
-                                // Called when ad is dismissed.
-                                // Set the ad reference to null so you don't show the ad a second time.
-                                Log.d("yametere", "Ad dismissed fullscreen content.")
-                                rewardedInterstitialAd = null
-                            }
-
-                            override fun onAdFailedToShowFullScreenContent(p0: AdError) {
-                                // Called when ad fails to show.
-                                Log.d("yametere", "Ad failed to show fullscreen content.")
-                                rewardedInterstitialAd = null
-                            }
-
-                            override fun onAdImpression() {
-                                // Called when an impression is recorded for an ad.
-                                Log.d("yametere", "Ad recorded an impression.")
-                            }
-
-                            override fun onAdShowedFullScreenContent() {
-                                // Called when ad is shown.
-                                Log.d("yametere","Ad showed fullscreen content.")
-                            }
-                        }
-                    }
-
-                    override fun onAdFailedToLoad(adError: LoadAdError) {
-                        // Log.d(TAG, adError?.toString())
-                        Log.d("yameterex",adError.message.toString())
-                        rewardedInterstitialAd = null
-                    }
-                })
-
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
-
-    fun showRewardInterstitial(){
-        try {
-            if(isLoadInterstitialReward){
-                Log.d("yametere", "show")
-                rewardedInterstitialAd?.let { ad ->
-                    ad.show(requireActivity()) { rewardItem ->
-                        // Handle the reward.
-                        val rewardAmount = rewardItem.amount
-                        val rewardType = rewardItem.type
-                        Log.d("yametere", "User earned the reward.$rewardAmount--$rewardType")
-                    }
-                } ?: run {
-                    Log.d("yametere", "The rewarded ad wasn't ready yet.")
-                    showInterstitial()
-                }
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
-
-    fun setupReward(){
-        try {
-            val adRequest = AdRequest.Builder().build()
-            RewardedAd.load(requireActivity(),DataSession(requireContext()).getRewardId(), adRequest, object : RewardedAdLoadCallback() {
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    rewardedAd = null
-                }
-                override fun onAdLoaded(ad: RewardedAd) {
-                    rewardedAd = ad
-                    isLoadReward = true
-                    rewardedAd?.fullScreenContentCallback = object: FullScreenContentCallback() {
-                        override fun onAdClicked() {
-                            // Called when a click is recorded for an ad.
-                            Log.d("yametere", "Ad was clicked.")
-                        }
-
-                        override fun onAdDismissedFullScreenContent() {
-                            // Called when ad is dismissed.
-                            // Set the ad reference to null so you don't show the ad a second time.
-                            Log.d("yametere", "Ad dismissed fullscreen content.")
-                            rewardedAd = null
-                        }
-
-                        override fun onAdFailedToShowFullScreenContent(p0: AdError) {
-                            // Called when ad fails to show.
-                            Log.d("yametere", "Ad failed to show fullscreen content.")
-                            rewardedAd = null
-                        }
-
-                        override fun onAdImpression() {
-                            // Called when an impression is recorded for an ad.
-                            Log.d("yametere", "Ad recorded an impression.")
-                        }
-
-                        override fun onAdShowedFullScreenContent() {
-                            // Called when ad is shown.
-                            Log.d("yametere","Ad showed fullscreen content.")
-                        }
-                    }
-                }
-            })
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
-
-    fun showRewardAds(){
-        try {
-            if(isLoadReward){
-                Log.d("yametere", "show")
-                rewardedAd?.let { ad ->
-                    ad.show(requireActivity()) { rewardItem ->
-                        // Handle the reward.
-                        val rewardAmount = rewardItem.amount
-                        val rewardType = rewardItem.type
-                        Log.d("yametere", "User earned the reward.$rewardAmount--$rewardType")
-                    }
-                } ?: run {
-                    Log.d("yametere", "The rewarded ad wasn't ready yet.")
-                    showInterstitial()
-                }
-            }else{
-                Log.d("yametere", "nall")
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }
-   /* protected open fun getFirebaseToken(): String? {
-        val tokens = AtomicReference("")
-        FirebaseMessaging.getInstance().token
-            .addOnCompleteListener { task: Task<String> ->
-                if (!task.isSuccessful) {
-                    Log.w("response", "Fetching FCM registration token failed", task.exception)
-                    getFirebaseToken()
-                    return@addOnCompleteListener
-                }
-
-                // Get new FCM registration token
-                val tokenFirebase = task.result
-                tokens.set(tokenFirebase)
-                Log.d("tokenFirebase",tokenFirebase.toString())
-
-            }
-        return tokens.get()
-    }*/
-
-
-    /*fun showInterstitial(){
-        try {
-            if(isLoad){
-                mInterstitialAd?.show(requireActivity())
-            }else{
-                if(showFANInterstitial){
-                    interstitialFANAd?.show()
-                }else{
-                    if(getDataSession().getStarAppEnable()){
-                        if(getDataSession().getStarAppShowInterstitial()){
-                            StartAppAd.showAd(activity);
-                        }
-                    }
-                }
-            }
-        }catch (e : Exception){
-            setLog(e.message.toString())
-        }
-    }*/
 
     fun showInterstitial(){
         try {
@@ -1408,6 +1044,37 @@ open class BaseFragmentWidget : Fragment() {
         } catch (e: Exception) {
             setLog(e.message.toString())
         }
+    }
+
+    fun musicStatusManager(ivStop : ImageView?) {
+        MusicListDialogHelper.statusListener = object : MusicListDialogHelper.MusicStatusListener {
+            override fun onMusicPlay(track: MusicPlayerManager.MusicTrack) {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    delay(1000)
+                    ivStop?.visibility = View.VISIBLE
+                    startAnimation(ivStop)
+                }
+            }
+            override fun onMusicPause(track: MusicPlayerManager.MusicTrack?) {
+                ivStop?.visibility = View.GONE; stopAnimation(ivStop)
+            }
+            override fun onMusicStop() {
+                ivStop?.visibility = View.GONE; stopAnimation(ivStop)
+            }
+            override fun onMusicComplete() {
+                ivStop?.visibility = View.GONE; stopAnimation(ivStop)
+            }
+            override fun onMusicProgress(current: Int, max: Int) {}
+        }
+        ivStop?.setOnClickListener { MusicPlayerManager.stop() }
+    }
+
+    private fun startAnimation(ivStop : ImageView?) {
+        try { ivStop?.startAnimation(mPanAnim) } catch (e: Exception) {}
+    }
+
+    private fun stopAnimation(ivStop : ImageView?) {
+        try { ivStop?.clearAnimation(); ivStop?.visibility = View.GONE } catch (e: Exception) {}
     }
 
 }

@@ -230,5 +230,20 @@
     <string name="buy">Beli</string>
     <string name="unlock">Buka kunci</string>
 
+    <string name="dialog_record_title">MODE REKAMAN</string>
+    <string name="dialog_record_message">Pilih cara terbaik untuk merekam sesi Anda:</string>
+    <string name="btn_instrument_only">ALAT MUSIK SAJA</string>
+    <string name="desc_instrument_only">Rekam suara bersih tanpa noise latar (data internal)</string>
+    <string name="btn_mic_instrument">MIKROFON + ALAT MUSIK</string>
+    <string name="desc_mic_instrument">Rekam suara Anda dan suara sekitar melalui mikrofon</string>
+    <string name="btn_cancel">BATAL</string>
+
+    <string name="earphone_hint">Gunakan earphone untuk hasil rekaman mic tanpa gema.</string>
+    <string name="allow_permission_audio_mic">Setujui izin audio mic</string>
+
+    <string name="file_not_found">File tidak ditemukan</string>
+    <string name="share_failed">Gagal berbagi file</string>
+
+
 
 </resources>

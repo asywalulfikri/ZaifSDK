@@ -20,54 +20,10 @@
         android:paddingStart="@dimen/_8sdp"
         android:paddingEnd="@dimen/_8sdp">
 
-        <ImageView
-            android:id="@+id/tvSpeedMin"
-            android:layout_width="@dimen/_28sdp"
-            android:layout_height="@dimen/_28sdp"
-            android:background="@drawable/minus"
-            android:contentDescription="@string/app_name"
-            android:padding="@dimen/_6sdp"
-            android:visibility="gone"
-            app:tint="@color/white" />
-
-        <sound.recorder.widget.util.SpeedMarquee
-            android:id="@+id/tvRunningText"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/_24sdp"
-            android:layout_weight="1"
-            android:layout_marginStart="@dimen/_4sdp"
-            android:layout_marginEnd="@dimen/_4sdp"
-            android:background="@drawable/bg_marquee_curved"
-            android:gravity="center_vertical"
-            android:paddingStart="@dimen/_10sdp"
-            android:paddingEnd="@dimen/_10sdp"
-            android:fontFamily="@font/rimouski"
-            android:singleLine="true"
-            android:text="@string/text_choose_not"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_12ssp"
-            app:marquee_speed="100.0" />
-
-        <ImageView
-            android:id="@+id/tvClear"
-            android:layout_width="@dimen/_28sdp"
-            android:layout_height="@dimen/_28sdp"
-            android:layout_marginEnd="@dimen/_4sdp"
-            android:background="@drawable/button_black"
-            android:padding="@dimen/_6sdp"
-            android:visibility="gone"
-            app:srcCompat="@drawable/ic_delete_white"
-            app:tint="@color/white" />
-
-        <ImageView
-            android:id="@+id/tvSpeedPlus"
-            android:layout_width="@dimen/_28sdp"
-            android:layout_height="@dimen/_28sdp"
-            android:background="@drawable/plus"
-            android:padding="@dimen/_6sdp"
-            android:visibility="gone"
-            app:tint="@color/white" />
-
+        <sound.recorder.widget.util.MarqueeControlView
+            android:id="@+id/marqueeControl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
 

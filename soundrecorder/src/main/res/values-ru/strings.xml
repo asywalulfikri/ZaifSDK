@@ -229,5 +229,19 @@
     <string name="buy">Купить</string>
     <string name="unlock">Разблокировать</string>
 
+    <string name="dialog_record_title">РЕЖИМ ЗАПИСИ</string>
+    <string name="dialog_record_message">Выберите лучший способ записи вашей сессии:</string>
+    <string name="btn_instrument_only">ТОЛЬКО ИНСТРУМЕНТ</string>
+    <string name="desc_instrument_only">Чистая запись без фонового шума</string>
+    <string name="btn_mic_instrument">МИКРОФОН + ИНСТРУМЕНТ</string>
+    <string name="desc_mic_instrument">Запись голоса и окружающих звуков через микрофон</string>
+    <string name="btn_cancel">ОТМЕНА</string>
+
+    <string name="earphone_hint">Используйте наушники для записи без эха.</string>
+    <string name="allow_permission_audio_mic">Разрешить доступ к микрофону</string>
+
+    <string name="file_not_found">Файл не найден</string>
+    <string name="share_failed">Не удалось поделиться файлом</string>
+
 
 </resources>

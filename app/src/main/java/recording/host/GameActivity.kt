@@ -83,10 +83,24 @@ class GameActivity : BaseActivity(),
             loadSongsOnce()
         }
 
-        InstrumentDialogHelper.showCancelRecordDialog(this, ) {
+       /* InstrumentDialogHelper.showCancelRecordDialog(this) {
             // Kode di dalam brace ini hanya jalan kalau user klik "WATCH"
            setToast("open")
-        }
+        }*/
+
+      /*  InstrumentDialogHelper.showRecordChooseDialog(this) { useMic ->
+            if (useMic) {
+                // Contoh: jalankan sistem rekam audio eksternal
+               // startAudioAndDataRecording()
+            } else {
+                // Contoh: jalankan sistem rekam data internal saja
+               // startDataOnlyRecording()
+            }
+
+            // Beri tahu control panel bahwa status rekam berubah
+            //isRecording = true
+            setToast("Recording Started")
+        }*/
 
     }
 

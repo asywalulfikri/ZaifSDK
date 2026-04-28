@@ -233,4 +233,18 @@
     <string name="buy">구매</string>
     <string name="unlock">잠금 해제</string>
 
+    <string name="dialog_record_title">녹음 모드</string>
+    <string name="dialog_record_message">세션을 녹음하는 가장 좋은 방법을 선택하세요:</string>
+    <string name="btn_instrument_only">악기만</string>
+    <string name="desc_instrument_only">배경 소음 없이 깨끗하게 녹음</string>
+    <string name="btn_mic_instrument">마이크 + 악기</string>
+    <string name="desc_mic_instrument">마이크로 음성과 주변 소리를 녹음</string>
+    <string name="btn_cancel">취소</string>
+
+    <string name="earphone_hint">에코 없는 녹음을 위해 이어폰을 사용하세요.</string>
+    <string name="allow_permission_audio_mic">마이크 오디오 권한 허용</string>
+
+    <string name="file_not_found">파일을 찾을 수 없습니다</string>
+    <string name="share_failed">파일 공유에 실패했습니다</string>
+
 </resources>

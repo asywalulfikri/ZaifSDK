@@ -231,4 +231,18 @@
     <string name="buy">Kaufen</string>
     <string name="unlock">Entsperren</string>
 
+    <string name="dialog_record_title">AUFNAHMEMODUS</string>
+    <string name="dialog_record_message">Wählen Sie die beste Methode, um Ihre Sitzung aufzunehmen:</string>
+    <string name="btn_instrument_only">NUR INSTRUMENT</string>
+    <string name="desc_instrument_only">Saubere Aufnahmen ohne Hintergrundgeräusche (interne Daten)</string>
+    <string name="btn_mic_instrument">MIKROFON + INSTRUMENT</string>
+    <string name="desc_mic_instrument">Nehmen Sie Ihre Stimme und Umgebungsgeräusche über das Mikrofon auf</string>
+    <string name="btn_cancel">ABBRECHEN</string>
+
+    <string name="earphone_hint">Verwenden Sie Kopfhörer für eine Aufnahme ohne Echo.</string>
+    <string name="allow_permission_audio_mic">Erteilen Sie die Mikrofonberechtigung</string>
+
+    <string name="file_not_found">Datei nicht gefunden</string>
+    <string name="share_failed">Datei konnte nicht geteilt werden</string>
+
 </resources>

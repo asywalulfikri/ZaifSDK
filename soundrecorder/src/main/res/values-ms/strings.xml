@@ -233,4 +233,18 @@
     <string name="buy">Beli</string>
     <string name="unlock">Buka kunci</string>
 
+    <string name="dialog_record_title">MOD RAKAMAN</string>
+    <string name="dialog_record_message">Pilih cara terbaik untuk merakam sesi anda:</string>
+    <string name="btn_instrument_only">INSTRUMEN SAHAJA</string>
+    <string name="desc_instrument_only">Rakam bunyi bersih tanpa hingar latar</string>
+    <string name="btn_mic_instrument">MIKROFON + INSTRUMEN</string>
+    <string name="desc_mic_instrument">Rakam suara dan bunyi persekitaran melalui mikrofon</string>
+    <string name="btn_cancel">BATAL</string>
+
+    <string name="earphone_hint">Gunakan earphone untuk rakaman tanpa gema.</string>
+    <string name="allow_permission_audio_mic">Benarkan kebenaran audio mikrofon</string>
+
+    <string name="file_not_found">Fail tidak dijumpai</string>
+    <string name="share_failed">Gagal berkongsi fail</string>
+
 </resources>

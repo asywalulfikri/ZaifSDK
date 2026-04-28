@@ -228,5 +228,19 @@
     <string name="buy">购买</string>
     <string name="unlock">解锁</string>
 
+    <string name="dialog_record_title">录音模式</string>
+    <string name="dialog_record_message">选择录制会话的最佳方式：</string>
+    <string name="btn_instrument_only">仅乐器</string>
+    <string name="desc_instrument_only">无背景噪音的干净录音</string>
+    <string name="btn_mic_instrument">麦克风 + 乐器</string>
+    <string name="desc_mic_instrument">通过麦克风录制您的声音和环境声音</string>
+    <string name="btn_cancel">取消</string>
+
+    <string name="earphone_hint">使用耳机以获得无回声的录音效果。</string>
+    <string name="allow_permission_audio_mic">授予麦克风音频权限</string>
+
+    <string name="file_not_found">未找到文件</string>
+    <string name="share_failed">文件分享失败</string>
+
 
 </resources>

@@ -7,7 +7,9 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.Window
+import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import sound.recorder.widget.R
 import java.text.SimpleDateFormat
@@ -163,6 +165,41 @@ object InstrumentDialogHelper {
         dialog.show()
     }
 
+
+    @SuppressLint("UseKtx", "SetTextI18n")
+    fun showRecordChooseDialog(
+        context: Context,
+        onAccept: (useMic: Boolean) -> Unit
+    ) {
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_start_record, null)
+        dialog.setContentView(view)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val btnInstrumentOnly = view.findViewById<TextView>(R.id.btnInstrumentOnly)
+        val btnWithMic = view.findViewById<TextView>(R.id.btnWithMic)
+        val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
+
+        // Klik: Rekam Alat Musik Saja
+        btnInstrumentOnly.setOnClickListener {
+            onAccept(false)
+            dialog.dismiss()
+        }
+
+        // Klik: Rekam dengan Mic
+        btnWithMic.setOnClickListener {
+            onAccept(true)
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
 
     @SuppressLint("UseKtx", "SetTextI18n")
     fun showCancelRecordDialog(

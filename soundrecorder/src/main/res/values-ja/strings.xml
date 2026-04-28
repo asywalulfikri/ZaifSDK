@@ -232,4 +232,18 @@
     <string name="buy">購入</string>
     <string name="unlock">ロック解除</string>
 
+    <string name="dialog_record_title">録音モード</string>
+    <string name="dialog_record_message">セッションを録音する最適な方法を選択してください：</string>
+    <string name="btn_instrument_only">楽器のみ</string>
+    <string name="desc_instrument_only">バックグラウンドノイズなしでクリアに録音</string>
+    <string name="btn_mic_instrument">マイク + 楽器</string>
+    <string name="desc_mic_instrument">マイクで声や周囲の音を録音</string>
+    <string name="btn_cancel">キャンセル</string>
+
+    <string name="earphone_hint">エコーなしで録音するにはイヤホンを使用してください。</string>
+    <string name="allow_permission_audio_mic">マイクの音声権限を許可する</string>
+
+    <string name="file_not_found">ファイルが見つかりません</string>
+    <string name="share_failed">ファイルの共有に失敗しました</string>
+
 </resources>

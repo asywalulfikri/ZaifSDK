@@ -2,6 +2,8 @@ package sound.recorder.widget.recording
 
 import android.os.Handler
 import android.os.Looper
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import sound.recorder.widget.recording.database.RecordedTap
 
 class InstrumentRecorderManager(
@@ -11,6 +13,9 @@ class InstrumentRecorderManager(
     private var startTime = 0L
     private val recordedEvents = mutableListOf<RecordedTap>()
     private val playbackHandler = Handler(Looper.getMainLooper())
+
+    // Inisialisasi Gson untuk konversi JSON
+    private val gson = Gson()
 
     fun isRecording() = isRecording
 
@@ -22,10 +27,9 @@ class InstrumentRecorderManager(
 
     fun stopRecording(): List<RecordedTap> {
         isRecording = false
-        return recordedEvents.toList()
+        return ArrayList(recordedEvents) // Mengembalikan salinan list
     }
 
-    // Fungsi record sekarang menerima metadata (misal: nama suara)
     fun onNoteEvent(padIndex: Int, metadata: String? = null) {
         if (isRecording) {
             val ts = System.currentTimeMillis() - startTime
@@ -46,6 +50,7 @@ class InstrumentRecorderManager(
             }, event.timestamp)
         }
 
+        // Tambahkan delay sedikit setelah not terakhir selesai agar tidak terputus kasar
         val totalDuration = (events.lastOrNull()?.timestamp ?: 0L) + 200L
         playbackHandler.postDelayed({ onComplete() }, totalDuration)
     }
@@ -54,11 +59,32 @@ class InstrumentRecorderManager(
         playbackHandler.removeCallbacksAndMessages(null)
     }
 
-    // Untuk simpan ke Database (Parsing metadata juga)
+    // --- PENYESUAIAN PENTING: MENGGUNAKAN GSON ---
+
+    /**
+     * Mengubah List Events menjadi String JSON untuk disimpan ke database
+     */
     fun getEventsAsString(events: List<RecordedTap>): String {
-        return events.joinToString("|") {
-            "padIndex=${it.padIndex},timestamp=${it.timestamp},meta=${it.metadata ?: ""}"
+        return try {
+            gson.toJson(events)
+        } catch (e: Exception) {
+            ""
         }
     }
 
+    /**
+     * Mengubah String JSON dari database kembali menjadi List<RecordedTap>
+     */
+    fun parseJson(json: String): List<RecordedTap> {
+        return if (json.isEmpty()) {
+            emptyList()
+        } else {
+            try {
+                val type = object : TypeToken<List<RecordedTap>>() {}.type
+                gson.fromJson(json, type)
+            } catch (e: Exception) {
+                emptyList()
+            }
+        }
+    }
 }

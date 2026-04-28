@@ -231,4 +231,18 @@
     <string name="buy">ซื้อ</string>
     <string name="unlock">ปลดล็อก</string>
 
+    <string name="dialog_record_title">โหมดบันทึกเสียง</string>
+    <string name="dialog_record_message">เลือกวิธีที่ดีที่สุดในการบันทึกเซสชันของคุณ:</string>
+    <string name="btn_instrument_only">เฉพาะเครื่องดนตรี</string>
+    <string name="desc_instrument_only">บันทึกเสียงคมชัดโดยไม่มีเสียงรบกวน</string>
+    <string name="btn_mic_instrument">ไมค์ + เครื่องดนตรี</string>
+    <string name="desc_mic_instrument">บันทึกเสียงของคุณและเสียงรอบข้างผ่านไมโครโฟน</string>
+    <string name="btn_cancel">ยกเลิก</string>
+
+    <string name="earphone_hint">ใช้หูฟังเพื่อบันทึกเสียงโดยไม่มีเสียงสะท้อน</string>
+    <string name="allow_permission_audio_mic">อนุญาตการเข้าถึงไมโครโฟน</string>
+
+    <string name="file_not_found">ไม่พบไฟล์</string>
+    <string name="share_failed">แชร์ไฟล์ไม่สำเร็จ</string>
+
 </resources>

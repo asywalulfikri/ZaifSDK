@@ -229,4 +229,18 @@
     <string name="buy">Comprar</string>
     <string name="unlock">Desbloquear</string>
 
+    <string name="dialog_record_title">MODO DE GRAVAÇÃO</string>
+    <string name="dialog_record_message">Escolha a melhor forma de gravar sua sessão:</string>
+    <string name="btn_instrument_only">APENAS INSTRUMENTO</string>
+    <string name="desc_instrument_only">Grave som limpo sem ruído de fundo</string>
+    <string name="btn_mic_instrument">MIC + INSTRUMENTO</string>
+    <string name="desc_mic_instrument">Grave sua voz e som ambiente pelo microfone</string>
+    <string name="btn_cancel">CANCELAR</string>
+
+    <string name="earphone_hint">Use fones de ouvido para gravação sem eco.</string>
+    <string name="allow_permission_audio_mic">Conceder permissão de áudio do microfone</string>
+
+    <string name="file_not_found">Arquivo não encontrado</string>
+    <string name="share_failed">Falha ao compartilhar o arquivo</string>
+
 </resources>

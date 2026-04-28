@@ -7,12 +7,17 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.media.MediaRecorder
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
@@ -22,7 +27,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import sound.recorder.widget.R
 import sound.recorder.widget.music.InstrumentDialogHelper
@@ -31,6 +35,8 @@ import sound.recorder.widget.recording.database.AppDatabase
 import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.recording.database.RecordingEntity
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
+import java.io.File
+import java.io.IOException
 
 class InstrumentControlPanel @JvmOverloads constructor(
     context: Context,
@@ -44,6 +50,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         fun onPlaybackEvent(event: RecordedTap)
         fun onStopAll()
         fun onVolume()
+        fun onMuteControl(mute: Boolean)
     }
 
     data class ControlConfig(
@@ -66,10 +73,19 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private var config = ControlConfig()
     private var instrumentType = "general"
     private var isRecording = false
+    private var isMicMode = false
+    private var isEarphoneWhenRecording = false
     private var globalTypeface: Typeface? = null
 
+    private var mediaRecorder: MediaRecorder? = null
+    private var currentAudioFile: File? = null
+
+    private var audioPlayer: MediaPlayer? = null
+    private val syncHandler = Handler(Looper.getMainLooper())
+
     var adRequestListener: AdRequestListener? = null
-    var onRequestAudioPermission: (() -> Unit)? = null
+    var onRequestAudioPermissionMic: (() -> Unit)? = null
+    var onRequestAudioPermissionAudio: (() -> Unit)? = null
     var isMusicUnlocked = false
     var isListRecordUnlocked = false
 
@@ -78,7 +94,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private val blinkHandler = Handler(Looper.getMainLooper())
-    private val scope = CoroutineScope(Dispatchers.Main) // Scope terkontrol untuk panel
 
     private lateinit var btnRecord: Button
     private lateinit var btnMusic: Button
@@ -87,6 +102,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private lateinit var btnNote: Button
     private lateinit var btnVolume: Button
 
+    // ─── BLINK: btnRecord saat rekam ───
     private val blinkRunnable = object : Runnable {
         private var isOn = false
         override fun run() {
@@ -101,57 +117,179 @@ class InstrumentControlPanel @JvmOverloads constructor(
         }
     }
 
+    // ─── BLINK: btnStop saat playback berjalan ───
+    // Berkedip antara merah terang dan merah gelap agar user tahu playback sedang berjalan
+    private val blinkStopRunnable = object : Runnable {
+        private var isOn = false
+        override fun run() {
+            if (!::btnStop.isInitialized || btnStop.visibility != VISIBLE) return
+            isOn = !isOn
+            btnStop.background = StateListDrawable().apply {
+                addState(intArrayOf(android.R.attr.state_pressed), createBg(pressed = true, isRed = true))
+                addState(intArrayOf(), if (isOn) createBgStopOn() else createBg(pressed = false, isRed = true))
+            }
+            btnStop.setTextColor(if (isOn) Color.WHITE else Color.parseColor("#FF6666"))
+            blinkHandler.postDelayed(this, 500)
+        }
+    }
+
+    // Background btnStop saat blink ON — lebih terang
+    private fun createBgStopOn() = GradientDrawable().apply {
+        setColor(Color.parseColor("#FF2222"))
+        cornerRadius = dpToPx(config.cornerRadius).toFloat()
+        setStroke(dpToPx(1), Color.parseColor("#FF9999"))
+    }
+
+    private fun startStopBlink() {
+        blinkHandler.removeCallbacks(blinkStopRunnable)
+        blinkHandler.post(blinkStopRunnable)
+    }
+
+    private fun stopStopBlink() {
+        blinkHandler.removeCallbacks(blinkStopRunnable)
+        // Kembalikan tampilan btnStop ke state normal (merah solid)
+        if (::btnStop.isInitialized) {
+            btnStop.background = StateListDrawable().apply {
+                addState(intArrayOf(android.R.attr.state_pressed), createBg(pressed = true, isRed = true))
+                addState(intArrayOf(), createBg(pressed = false, isRed = true))
+            }
+            btnStop.setTextColor(Color.WHITE)
+        }
+    }
+
     init {
-        val orientationAttr = attrs?.getAttributeIntValue("http://schemas.android.com/apk/res/android", "orientation", HORIZONTAL) ?: HORIZONTAL
+        val orientationAttr = attrs?.getAttributeIntValue(
+            "http://schemas.android.com/apk/res/android", "orientation", HORIZONTAL
+        ) ?: HORIZONTAL
         this.orientation = orientationAttr
         this.setBackgroundColor(Color.TRANSPARENT)
         loadCustomFont()
         renderUI()
     }
 
-
-    // Di dalam InstrumentControlPanel.kt
-
-    override fun onDetachedFromWindow() {
-        // Putus kabel ke Fragment
-        this.adRequestListener = null
-        this.listener = null
-        this.onRequestAudioPermission = null
-
-        // Hentikan semua proses internal
-        releaseAndStop()
-        super.onDetachedFromWindow()
+    // ─── 3. AUDIO UTILS (DETEKSI EARPHONE) ───
+    private fun isEarphonePlugged(): Boolean {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
+            for (device in devices) {
+                Log.d("DEBUG_EARPHONE", "Device type=${device.type} name=${device.productName}")
+                if (device.type == AudioDeviceInfo.TYPE_WIRED_HEADSET ||
+                    device.type == AudioDeviceInfo.TYPE_WIRED_HEADPHONES ||
+                    device.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
+                    device.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO ||
+                    device.type == AudioDeviceInfo.TYPE_USB_HEADSET ||
+                    device.type == AudioDeviceInfo.TYPE_USB_DEVICE
+                ) return true
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            return audioManager.isWiredHeadsetOn || audioManager.isBluetoothA2dpOn
+        }
+        return false
     }
 
-    // Tambahkan ini untuk memastikan tombol tidak menahan listener lama
-    fun clearAllCallbacks() {
-        this.adRequestListener = null
-        this.listener = null
+    // ─── 4. MIC RECORDER ───
+    private fun startMicAudioEngine() {
+        val fileName = "REC_${System.currentTimeMillis()}.mp3"
+        currentAudioFile = File(context.filesDir, fileName)
 
-        // Set click listener ke null pada semua tombol utama
-        if (::btnMusic.isInitialized) btnMusic.setOnClickListener(null)
-        if (::btnRecord.isInitialized) btnRecord.setOnClickListener(null)
-        if (::btnList.isInitialized) btnList.setOnClickListener(null)
-    }
+        mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            MediaRecorder(context)
+        } else {
+            @Suppress("DEPRECATION")
+            MediaRecorder()
+        }.apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setOutputFile(currentAudioFile?.absolutePath)
 
-    fun releaseAndStop() {
-        isRecording = false
-        blinkHandler.removeCallbacks(blinkRunnable)
-        recorderManager.stopPlayback()
-        if (::btnStop.isInitialized) btnStop.visibility = GONE
-        if (::btnRecord.isInitialized) {
-            btnRecord.text = "REC ●"
-            btnRecord.setTextColor(config.textColor)
+            try {
+                prepare()
+                start()
+            } catch (e: IOException) {
+                Log.e("InstrumentControl", "MediaRecorder failed: ${e.message}")
+            }
         }
     }
 
-    private fun loadCustomFont() {
-        config.fontResId?.let {
-            globalTypeface = ResourcesCompat.getFont(context, it)
+    private fun stopMicAudioEngine() {
+        try {
+            mediaRecorder?.apply {
+                stop()
+                release()
+            }
+        } catch (e: Exception) {
+            Log.e("InstrumentControl", "Stop failed: ${e.message}")
+        }
+        mediaRecorder = null
+    }
+
+    // ─── 5. MEDIAPLAYER: PUTAR FILE AUDIO REKAMAN MIC ───
+    // Strategi sinkronisasi:
+    // 1. recorderManager.play() dimulai duluan (events mulai dari timestamp aslinya)
+    // 2. prepareAsync() dijalankan bersamaan
+    // 3. Saat onPrepared, ukur berapa lama prepare berlangsung (prepareElapsed)
+    // 4. seekTo(prepareElapsed) agar posisi audio mic = posisi events saat ini
+    // 5. Keduanya sinkron
+    private fun startPlayingAudioSync(
+        path: String,
+        onComplete: (() -> Unit)? = null
+    ) {
+        stopPlayingAudio()
+        val prepareStartTime = System.currentTimeMillis()
+        try {
+            audioPlayer = MediaPlayer().apply {
+                setDataSource(path)
+                setOnPreparedListener { mp ->
+                    val prepareElapsed = System.currentTimeMillis() - prepareStartTime
+                    Log.d("InstrumentControl", "prepareElapsed=${prepareElapsed}ms")
+                    try {
+                        mp.seekTo(prepareElapsed.toInt())
+                    } catch (e: Exception) {
+                        Log.e("InstrumentControl", "seekTo failed: ${e.message}")
+                    }
+                    mp.start()
+                }
+                setOnCompletionListener {
+                    stopPlayingAudio()
+                    onComplete?.invoke()
+                }
+                setOnErrorListener { _, what, extra ->
+                    Log.e("InstrumentControl", "MediaPlayer error: what=$what extra=$extra")
+                    stopPlayingAudio()
+                    onComplete?.invoke()
+                    true
+                }
+                prepareAsync()
+            }
+        } catch (e: Exception) {
+            Log.e("InstrumentControl", "Failed to play audio: ${e.message}")
+            onComplete?.invoke()
         }
     }
 
-    fun setup(type: String, orientation: Int, config: ControlConfig = ControlConfig(), listener: InstrumentControlListener) {
+    private fun stopPlayingAudio() {
+        syncHandler.removeCallbacksAndMessages(null)
+        try {
+            audioPlayer?.apply {
+                if (isPlaying) stop()
+                release()
+            }
+        } catch (e: Exception) {
+            Log.e("InstrumentControl", "Failed to stop audio player: ${e.message}")
+        }
+        audioPlayer = null
+    }
+
+    // ─── 6. UI & SETUP ───
+    fun setup(
+        type: String,
+        orientation: Int,
+        config: ControlConfig = ControlConfig(),
+        listener: InstrumentControlListener
+    ) {
         this.instrumentType = type
         this.config = config
         this.listener = listener
@@ -160,16 +298,10 @@ class InstrumentControlPanel @JvmOverloads constructor(
         renderUI()
     }
 
-    fun setNoteButtonVisible(isVisible: Boolean) {
-        if (::btnNote.isInitialized) btnNote.visibility = if (isVisible) VISIBLE else GONE
-    }
-
-    fun setInstrumentType(instrumentType : String) {
-        this.instrumentType = instrumentType
-    }
-
-    fun setVolumeButtonVisible(isVisible: Boolean) {
-        if (::btnVolume.isInitialized) btnVolume.visibility = if (isVisible) VISIBLE else GONE
+    fun setUnlockedStatus(isPremium: Boolean, musicUnlocked: Boolean, listRecordUnlocked: Boolean) {
+        this.isMusicUnlocked = isPremium || musicUnlocked
+        this.isListRecordUnlocked = isPremium || listRecordUnlocked
+        refreshStatusLabels()
     }
 
     private fun renderUI() {
@@ -178,17 +310,13 @@ class InstrumentControlPanel @JvmOverloads constructor(
         val p = (4 * resources.displayMetrics.density).toInt()
         setPadding(p, p, p, p)
 
-        btnMusic = createBtn(context.getString(R.string.music_unlock).uppercase())
+        btnMusic  = createBtn(context.getString(R.string.music_unlock).uppercase())
         btnRecord = createBtn("REC ●")
-        btnList = createBtn(context.getString(R.string.list_record_unlock).uppercase())
-        btnNote = createBtn(context.getString(R.string.note).uppercase())
-        btnStop = createBtn(context.getString(R.string.stop).uppercase())
+        btnList   = createBtn(context.getString(R.string.list_record_unlock).uppercase())
+        btnNote   = createBtn(context.getString(R.string.note).uppercase())
+        btnStop   = createBtn(context.getString(R.string.stop).uppercase(), isRed = true)
         btnVolume = createBtn(context.getString(R.string.volume).uppercase())
         btnStop.visibility = GONE
-
-        val recordMinWidth = dpToPx(65)
-        btnRecord.minimumWidth = recordMinWidth
-        btnRecord.minWidth = recordMinWidth
 
         val layoutParams = if (this.orientation == HORIZONTAL) {
             LayoutParams(LayoutParams.WRAP_CONTENT, dpToPx(38)).apply {
@@ -196,60 +324,24 @@ class InstrumentControlPanel @JvmOverloads constructor(
             }
         } else {
             LayoutParams(dpToPx(65), dpToPx(45)).apply {
-                setMargins(dpToPx(2), dpToPx(4), dpToPx(2), dpToPx(4))
+                setMargins(dpToPx(2), dpToPx(2), dpToPx(2), dpToPx(2))
             }
         }
 
-        arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop, btnVolume).forEach { btn ->
-            if (btn != btnRecord) {
-                btn.minWidth = 0
-                btn.minimumWidth = 0
-            }
-            btn.minHeight = 0
-            btn.minimumHeight = 0
-            if (this.orientation == HORIZONTAL) btn.setPadding(dpToPx(12), 0, dpToPx(12), 0)
-            else btn.setPadding(dpToPx(4), dpToPx(8), dpToPx(4), dpToPx(8))
-            this.addView(btn, layoutParams)
+        arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop, btnVolume).forEach {
+            this.addView(it, layoutParams)
         }
-
         setupClickListeners()
-        refreshLockLabels()
-    }
-
-    fun setUnlockedStatus(isPremium: Boolean, musicUnlocked: Boolean, listRecordUnlocked: Boolean) {
-        this.isMusicUnlocked = isPremium || musicUnlocked
-        this.isListRecordUnlocked = isPremium || listRecordUnlocked
-        refreshStatusLabels()
-    }
-
-    private fun refreshStatusLabels() {
-        if (::btnMusic.isInitialized) {
-            btnMusic.text = if (isMusicUnlocked) context.getString(R.string.music_unlock).uppercase() else context.getString(R.string.music_lock).uppercase()
-        }
-        if (::btnList.isInitialized) {
-            btnList.text = if (isListRecordUnlocked) context.getString(R.string.list_record_unlock).uppercase() else context.getString(R.string.list_record_lock).uppercase()
-        }
-        invalidate()
-    }
-
-    fun recordEvent(index: Int, metadata: String) {
-        if (isRecording) {
-            recorderManager.onNoteEvent(index, metadata)
-        }
     }
 
     private fun setupClickListeners() {
         btnMusic.setOnClickListener {
             if (!isMusicUnlocked) {
-                InstrumentDialogHelper.showUnlockDialog(context, context.getString(R.string.list_music).uppercase()) {
-                    if (!isNetworkAvailable()) {
-                        Toast.makeText(context, context.getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
-                    } else {
-                        adRequestListener?.onShowRewardedAd("music") {
-                            isMusicUnlocked = true
-                            refreshStatusLabels()
-                            handleMusicOpen()
-                        }
+                InstrumentDialogHelper.showUnlockDialog(
+                    context, context.getString(R.string.list_music).uppercase()
+                ) {
+                    adRequestListener?.onShowRewardedAd("music") {
+                        isMusicUnlocked = true; refreshStatusLabels(); handleMusicOpen()
                     }
                 }
             } else handleMusicOpen()
@@ -261,55 +353,89 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
         btnList.setOnClickListener {
             if (!isListRecordUnlocked) {
-                InstrumentDialogHelper.showUnlockDialog(context, context.getString(R.string.list_record_result).uppercase()) {
-                    if (!isNetworkAvailable()) {
-                        Toast.makeText(context, context.getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
-                    } else {
+                InstrumentDialogHelper.showUnlockDialog(
+                    context, context.getString(R.string.list_record_result).uppercase()
+                ) {
+                    if(isNetworkAvailable()){
                         adRequestListener?.onShowRewardedAd("list_record") {
-                            isListRecordUnlocked = true
-                            refreshStatusLabels()
-                            openRecordList()
+                            isListRecordUnlocked = true; refreshStatusLabels(); openRecordList()
                         }
+                    }else{
+                       setToast(context.getString(R.string.no_internet_connection))
                     }
                 }
             } else openRecordList()
         }
 
-        btnNote.setOnClickListener {
-            val activity = context as? FragmentActivity
-            activity?.let { BottomSheetNote().show(it.supportFragmentManager, "note_sheet") }
-        }
-
         btnStop.setOnClickListener {
             recorderManager.stopPlayback()
+            stopPlayingAudio()
+            stopStopBlink() // hentikan blink saat user klik stop
             btnStop.visibility = GONE
             listener?.onStopAll()
+            listener?.onMuteControl(false)
         }
 
         btnVolume.setOnClickListener { listener?.onVolume() }
+        btnNote.setOnClickListener {
+            (context as? FragmentActivity)?.let {
+                BottomSheetNote().show(it.supportFragmentManager, "note")
+            }
+        }
     }
 
-    private fun isNetworkAvailable(): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val nw = cm.activeNetwork ?: return false
-        val actNw = cm.getNetworkCapabilities(nw) ?: return false
-        return actNw.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
-
+    // ─── 7. RECORDING LOGIC ───
     private fun showStartRecordConfirmation() {
-        InstrumentDialogHelper.showRecordDialog(context) { startRecording() }
+        InstrumentDialogHelper.showRecordChooseDialog(context) { useMic ->
+            if (useMic) checkMicPermission { startRecording(true) }
+            else startRecording(false)
+        }
     }
 
-    private fun startRecording() {
+    private fun checkMicPermission(onGranted: () -> Unit) {
+        if (ContextCompat.checkSelfPermission(
+                context, Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) onGranted()
+        else onRequestAudioPermissionMic?.invoke()
+    }
+
+
+
+    fun startRecording(useMic: Boolean) {
         isRecording = true
+        isMicMode = useMic
+
+        if (useMic) {
+            isEarphoneWhenRecording = isEarphonePlugged()
+            if (!isEarphoneWhenRecording) {
+               // Toast.makeText(context, context.getString(R.string.earphone_hint), Toast.LENGTH_LONG).show()
+            } else {
+               // setToast("Earphone detected, sound ON")
+               // Log.d("InstrumentControl", "Earphone detected, sound remains ON")
+            }
+            listener?.onMuteControl(false)
+            startMicAudioEngine()
+        } else {
+            isEarphoneWhenRecording = false
+            listener?.onMuteControl(false)
+        }
+
         recorderManager.startRecording()
         listener?.onRecordStatusChanged(true)
         blinkHandler.post(blinkRunnable)
-        btnStop.visibility = GONE
+    }
+
+    fun setToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun stopRecording() {
+        if (!isRecording) return
         isRecording = false
+        if (isMicMode) stopMicAudioEngine()
+        listener?.onMuteControl(false)
+
         blinkHandler.removeCallbacks(blinkRunnable)
         if (::btnRecord.isInitialized) {
             btnRecord.text = "REC ●"
@@ -319,60 +445,150 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
         val events = recorderManager.stopRecording()
         if (events.isNotEmpty()) {
-            val appContext = context.applicationContext // Keamanan DB
             InstrumentDialogHelper.showSaveRecordDialog(context) { name ->
-                Toast.makeText(appContext, appContext.getString(R.string.success_saved), Toast.LENGTH_SHORT).show()
                 val json = recorderManager.getEventsAsString(events)
+                val audioPath = if (isMicMode) currentAudioFile?.absolutePath else null
+                val earphoneUsed = isEarphoneWhenRecording
                 CoroutineScope(Dispatchers.IO).launch {
-                    AppDatabase.getInstance(appContext).recordingDao().insert(
-                        RecordingEntity(name = name, setName = instrumentType, eventsJson = json, durationMs = events.last().timestamp)
+                    AppDatabase.getInstance(context.applicationContext).recordingDao().insert(
+                        RecordingEntity(
+                            name = name,
+                            setName = instrumentType,
+                            eventsJson = json,
+                            durationMs = events.last().timestamp,
+                            audioPath = audioPath,
+                            isEarphoneRecording = earphoneUsed
+                        )
                     )
                 }
             }
         }
     }
 
+    fun recordEvent(index: Int, metadata: String) {
+        if (isRecording) recorderManager.onNoteEvent(index, metadata)
+    }
+
+    // ─── 8. PLAYBACK LOGIC ───
     private fun openRecordList() {
-        RecordingListDialogHelper.show(context, instrumentType) { events ->
-            if (events.isNotEmpty()) {
+        RecordingListDialogHelper.show(context, instrumentType) { entity ->
+            if (entity.eventsJson.isNotEmpty()) {
                 btnStop.visibility = VISIBLE
-                recorderManager.play(events) {
-                    post {
-                        btnStop.visibility = GONE
-                        invalidate()
+                startStopBlink() // mulai blink saat playback dimulai
+
+                val events = recorderManager.parseJson(entity.eventsJson)
+                val hasAudioFile = !entity.audioPath.isNullOrEmpty()
+
+                if (hasAudioFile) {
+                    val onAudioFinished: () -> Unit = {
+                        post {
+                            stopStopBlink() // hentikan blink saat playback selesai
+                            btnStop.visibility = GONE
+                            listener?.onMuteControl(false)
+                            invalidate()
+                        }
+                    }
+
+                    if (entity.isEarphoneRecording) {
+                        listener?.onMuteControl(false)
+                        recorderManager.play(events) { post { invalidate() } }
+                        startPlayingAudioSync(entity.audioPath!!, onAudioFinished)
+                    } else {
+                        listener?.onMuteControl(true)
+                        recorderManager.play(events) { post { invalidate() } }
+                        startPlayingAudioSync(entity.audioPath!!, onAudioFinished)
+                    }
+
+                } else {
+                    listener?.onMuteControl(false)
+                    recorderManager.play(events) {
+                        post {
+                            stopStopBlink() // hentikan blink saat playback selesai
+                            btnStop.visibility = GONE
+                            listener?.onMuteControl(false)
+                            invalidate()
+                        }
                     }
                 }
             }
         }
     }
 
-    private fun handleMusicOpen() {
-        val perm = if (Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_AUDIO else Manifest.permission.READ_EXTERNAL_STORAGE
-        if (ContextCompat.checkSelfPermission(context, perm) != PackageManager.PERMISSION_GRANTED) onRequestAudioPermission?.invoke()
-        else MusicListDialogHelper.show(context)
-    }
-
-    private fun refreshLockLabels() {
-        refreshStatusLabels()
-    }
-
-    private fun createBtn(label: String) = Button(context).apply {
-        text = label; setTextColor(config.textColor); textSize = config.fontSize
-        typeface = globalTypeface ?: Typeface.DEFAULT_BOLD
-        setPadding(0, 0, 0, 0)
-        background = StateListDrawable().apply {
-            addState(intArrayOf(android.R.attr.state_pressed), createBg(true))
-            addState(intArrayOf(), createBg(false))
+    // ─── 9. RELEASE & LIFECYCLE ───
+    fun releaseAndStop() {
+        if (isRecording && isMicMode) stopMicAudioEngine()
+        isRecording = false
+        isMicMode = false
+        isEarphoneWhenRecording = false
+        blinkHandler.removeCallbacks(blinkRunnable)
+        stopStopBlink()
+        recorderManager.stopPlayback()
+        stopPlayingAudio()
+        if (::btnStop.isInitialized) btnStop.visibility = GONE
+        if (::btnRecord.isInitialized) {
+            btnRecord.text = "REC ●"
+            btnRecord.setTextColor(config.textColor)
         }
     }
 
-    private fun createBg(pressed: Boolean) = GradientDrawable().apply {
-        setColor(if (pressed) config.btnPressedColor else config.btnColor)
-        cornerRadius = dpToPx(config.cornerRadius).toFloat()
-        setStroke(dpToPx(1), config.strokeColor)
+    override fun onDetachedFromWindow() {
+        releaseAndStop()
+        super.onDetachedFromWindow()
     }
 
+    private fun refreshStatusLabels() {
+        if (::btnMusic.isInitialized) btnMusic.text =
+            if (isMusicUnlocked) context.getString(R.string.music_unlock).uppercase()
+            else context.getString(R.string.music_lock).uppercase()
+        if (::btnList.isInitialized) btnList.text =
+            if (isListRecordUnlocked) context.getString(R.string.list_record_unlock).uppercase()
+            else context.getString(R.string.list_record_lock).uppercase()
+    }
 
-
+    private fun handleMusicOpen() {
+        val perm = if (Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_AUDIO else Manifest.permission.READ_EXTERNAL_STORAGE
+        if (ContextCompat.checkSelfPermission(context, perm) != PackageManager.PERMISSION_GRANTED) onRequestAudioPermissionAudio?.invoke()
+        else MusicListDialogHelper.show(context)
+    }
+    private fun loadCustomFont() { config.fontResId?.let { globalTypeface = ResourcesCompat.getFont(context, it) } }
     private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
+
+    private fun createBtn(label: String, isRed: Boolean = false) = Button(context).apply {
+        text = label
+        setTextColor(if (isRed) Color.WHITE else config.textColor)
+        textSize = config.fontSize
+        typeface = globalTypeface ?: Typeface.DEFAULT_BOLD
+        background = StateListDrawable().apply {
+            addState(intArrayOf(android.R.attr.state_pressed), createBg(pressed = true, isRed = isRed))
+            addState(intArrayOf(), createBg(pressed = false, isRed = isRed))
+        }
+    }
+
+    private fun createBg(pressed: Boolean, isRed: Boolean = false) = GradientDrawable().apply {
+        setColor(when {
+            isRed && pressed -> Color.parseColor("#CC0000")
+            isRed            -> Color.parseColor("#FF2222")
+            pressed          -> config.btnPressedColor
+            else             -> config.btnColor
+        })
+        cornerRadius = dpToPx(config.cornerRadius).toFloat()
+        setStroke(dpToPx(1), if (isRed) Color.parseColor("#FF6666") else config.strokeColor)
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return cm.activeNetwork?.let {
+            cm.getNetworkCapabilities(it)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } ?: false
+    }
+
+    fun setNoteButtonVisible(isVisible: Boolean) {
+        if (::btnNote.isInitialized) btnNote.visibility = if (isVisible) VISIBLE else GONE
+    }
+
+    fun setVolumeButtonVisible(isVisible: Boolean) {
+        if (::btnVolume.isInitialized) btnVolume.visibility = if (isVisible) VISIBLE else GONE
+    }
+
+    fun setInstrumentType(type: String) { this.instrumentType = type }
 }

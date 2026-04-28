@@ -232,4 +232,18 @@
     <string name="buy">Kopen</string>
     <string name="unlock">Ontgrendelen</string>
 
+    <string name="dialog_record_title">OPNAMEMODUS</string>
+    <string name="dialog_record_message">Kies de beste manier om je sessie op te nemen:</string>
+    <string name="btn_instrument_only">ALLEEN INSTRUMENT</string>
+    <string name="desc_instrument_only">Neem schoon geluid op zonder achtergrondruis</string>
+    <string name="btn_mic_instrument">MIC + INSTRUMENT</string>
+    <string name="desc_mic_instrument">Neem je stem en omgevingsgeluid op via de microfoon</string>
+    <string name="btn_cancel">ANNULEREN</string>
+
+    <string name="earphone_hint">Gebruik oortjes voor opname zonder echo.</string>
+    <string name="allow_permission_audio_mic">Geef toestemming voor microfoonaudio</string>
+
+    <string name="file_not_found">Bestand niet gevonden</string>
+    <string name="share_failed">Bestand delen mislukt</string>
+
 </resources>

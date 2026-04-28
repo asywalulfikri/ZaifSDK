@@ -230,4 +230,18 @@
     <string name="buy">Mua</string>
     <string name="unlock">Mở khóa</string>
 
+    <string name="dialog_record_title">CHẾ ĐỘ GHI ÂM</string>
+    <string name="dialog_record_message">Chọn cách tốt nhất để ghi lại phiên của bạn:</string>
+    <string name="btn_instrument_only">CHỈ NHẠC CỤ</string>
+    <string name="desc_instrument_only">Ghi âm sạch không có tiếng ồn nền</string>
+    <string name="btn_mic_instrument">MIC + NHẠC CỤ</string>
+    <string name="desc_mic_instrument">Ghi lại giọng nói và âm thanh xung quanh qua mic</string>
+    <string name="btn_cancel">HỦY</string>
+
+    <string name="earphone_hint">Sử dụng tai nghe để ghi âm không có tiếng vọng.</string>
+    <string name="allow_permission_audio_mic">Cấp quyền truy cập micro</string>
+
+    <string name="file_not_found">Không tìm thấy tệp</string>
+    <string name="share_failed">Chia sẻ tệp thất bại</string>
+
 </resources>

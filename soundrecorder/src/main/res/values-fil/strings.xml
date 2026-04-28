@@ -231,5 +231,19 @@
     <string name="buy">Bilhin</string>
     <string name="unlock">I-unlock</string>
 
+    <string name="dialog_record_title">MODE NG PAG-REKORD</string>
+    <string name="dialog_record_message">Piliin ang pinakamahusay na paraan para i-record ang iyong session:</string>
+    <string name="btn_instrument_only">INSTRUMENTO LAMANG</string>
+    <string name="desc_instrument_only">Mag-record ng malinis na tunog nang walang ingay sa paligid</string>
+    <string name="btn_mic_instrument">MIC + INSTRUMENTO</string>
+    <string name="desc_mic_instrument">I-record ang iyong boses at tunog sa paligid gamit ang mikropono</string>
+    <string name="btn_cancel">KANSELAHIN</string>
+
+    <string name="earphone_hint">Gumamit ng earphone para sa malinaw na recording na walang echo.</string>
+    <string name="allow_permission_audio_mic">Payagan ang permiso sa audio ng mikropono</string>
+
+    <string name="file_not_found">Hindi natagpuan ang file</string>
+    <string name="share_failed">Nabigong ibahagi ang file</string>
+
 
 </resources>
