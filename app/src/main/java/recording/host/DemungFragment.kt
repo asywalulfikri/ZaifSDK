@@ -357,6 +357,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
         MyMusicListener.setMyListener(null)
         MyNoteListener.setMyListener(null)
         MyCompleteMarqueeListener.setMyListener(null)
+        MusicPlayerManager.setListener(null)
         super.onDestroy()
     }
 }

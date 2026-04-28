@@ -60,9 +60,10 @@ class InstrumentControlPanel @JvmOverloads constructor(
         val btnPressedColor: Int = Color.parseColor("#4A2E1C"),
         val strokeColor: Int = Color.parseColor("#9B6A14"),
         val cornerRadius: Int = 8,
-        val fontSize: Float = 10f,
+        val fontSize: Float = 8f,
         val fontResId: Int? = null
     )
+
 
     interface AdRequestListener {
         fun onShowRewardedAd(type: String, onComplete: () -> Unit)
@@ -323,7 +324,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 setMargins(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2))
             }
         } else {
-            LayoutParams(dpToPx(65), dpToPx(45)).apply {
+            LayoutParams(dpToPx(65), dpToPx(40)).apply {
                 setMargins(dpToPx(2), dpToPx(2), dpToPx(2), dpToPx(2))
             }
         }
