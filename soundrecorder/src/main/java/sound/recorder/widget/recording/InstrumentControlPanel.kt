@@ -320,8 +320,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
         btnStop.visibility = GONE
 
         val layoutParams = if (this.orientation == HORIZONTAL) {
-            LayoutParams(LayoutParams.WRAP_CONTENT, dpToPx(38)).apply {
-                setMargins(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2))
+            LayoutParams(65, dpToPx(40)).apply {
+                setMargins(dpToPx(2), dpToPx(2), dpToPx(2), dpToPx(2))
             }
         } else {
             LayoutParams(dpToPx(65), dpToPx(40)).apply {

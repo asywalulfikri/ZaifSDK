@@ -130,7 +130,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
             strokeColor = Color.parseColor("#9B6A14")
         )
 
-        b.controlPanel.setup(instrumentType, LinearLayout.VERTICAL, style, this)
+        b.controlPanel.setup(instrumentType, LinearLayout.HORIZONTAL, style, this)
         b.controlPanel.setVolumeButtonVisible(true)
 
         rewardedAdListener = object : InstrumentControlPanel.AdRequestListener {
