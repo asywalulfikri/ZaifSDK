@@ -241,6 +241,7 @@
 
     <string name="file_not_found">未找到文件</string>
     <string name="share_failed">文件分享失败</string>
+    <string name="recording">录音</string>
 
 
 </resources>

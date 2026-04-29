@@ -245,5 +245,6 @@
 
     <string name="file_not_found">ファイルが見つかりません</string>
     <string name="share_failed">ファイルの共有に失敗しました</string>
+    <string name="recording">録音</string>
 
 </resources>

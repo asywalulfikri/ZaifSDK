@@ -111,14 +111,14 @@ object InstrumentDialogHelper {
 
         tvTitle.text = context.getString(R.string.saved_recording_ask).uppercase()
         btnSave.text = context.getString(R.string.save).uppercase()
-        val defaultName = "Recording ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
+        val defaultName = context.getString(R.string.recording)+" "+"${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
         etName.setText(defaultName)
 
         btnSave.text = context.getString(R.string.save).uppercase()
         btnCancel.text = context.getString(R.string.cancel).uppercase()
 
         btnSave.setOnClickListener {
-            val name = etName.text.toString().ifEmpty { "New Recording" }
+            val name = etName.text.toString().ifEmpty { defaultName }
             onSave(name)
             dialog.dismiss()
         }

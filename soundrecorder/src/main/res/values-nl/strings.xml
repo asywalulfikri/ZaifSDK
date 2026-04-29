@@ -245,5 +245,6 @@
 
     <string name="file_not_found">Bestand niet gevonden</string>
     <string name="share_failed">Bestand delen mislukt</string>
+    <string name="recording">OPNAME</string>
 
 </resources>

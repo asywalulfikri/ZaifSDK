@@ -244,6 +244,7 @@
 
     <string name="file_not_found">Hindi natagpuan ang file</string>
     <string name="share_failed">Nabigong ibahagi ang file</string>
+    <string name="recording">PAG-REKORD</string>
 
 
 </resources>

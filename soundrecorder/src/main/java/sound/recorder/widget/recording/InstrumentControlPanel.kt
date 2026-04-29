@@ -54,15 +54,46 @@ class InstrumentControlPanel @JvmOverloads constructor(
         fun onMuteControl(mute: Boolean)
     }
 
+    /**
+     * Konfigurasi tampilan tombol.
+     *
+     * Gradient support:
+     * - Set [btnGradientColors] dengan array 2 warna untuk aktifkan gradient
+     * - Set [btnGradientOrientation] untuk arah gradient (default TOP_BOTTOM)
+     * - Jika [btnGradientColors] null, akan pakai solid color [btnColor]
+     *
+     * Contoh pakai gradient di Fragment:
+     * ```
+     * InstrumentControlPanel.ControlConfig(
+     *     btnGradientColors = intArrayOf(
+     *         Color.parseColor("#5A3010"),  // warna atas
+     *         Color.parseColor("#2A1008")   // warna bawah
+     *     ),
+     *     btnGradientOrientation = GradientDrawable.Orientation.TOP_BOTTOM
+     * )
+     * ```
+     */
     data class ControlConfig(
         val textColor: Int = Color.parseColor("#F5D76E"),
         val bgColor: Int = Color.parseColor("#1F1612"),
         val btnColor: Int = Color.parseColor("#3D2510"),
         val btnPressedColor: Int = Color.parseColor("#4A2E1C"),
         val strokeColor: Int = Color.parseColor("#9B6A14"),
-        val cornerRadiusDimenRes: Int = SdpR.dimen._6sdp, // pakai dimen res id
+        val cornerRadiusDimenRes: Int = SdpR.dimen._6sdp,
         val fontSize: Float = 8f,
-        val fontResId: Int? = null
+        val fontResId: Int? = null,
+
+        // ─── Gradient support ───
+        // Default: gradient emas gelap top-bottom sesuai tema yang sudah ada
+        val btnGradientColors: IntArray? = intArrayOf(
+            Color.parseColor("#5A3A1A"),  // atas — lebih terang
+            Color.parseColor("#2A1508")   // bawah — lebih gelap
+        ),
+        val btnPressedGradientColors: IntArray? = intArrayOf(
+            Color.parseColor("#7A5030"),  // atas pressed — lebih terang
+            Color.parseColor("#3D2510")   // bawah pressed
+        ),
+        val btnGradientOrientation: GradientDrawable.Orientation = GradientDrawable.Orientation.TOP_BOTTOM
     )
 
     interface AdRequestListener {
@@ -70,7 +101,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     // ─── Helper shorthand ───
-    private fun sdp(id: Int) = resources.getDimensionPixelSize(id)
+    private fun sdp(id: Int)  = resources.getDimensionPixelSize(id)
     private fun sdpF(id: Int) = resources.getDimension(id)
 
     // ─── 2. STATE & MANAGER ───
@@ -138,7 +169,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private fun createBgStopOn() = GradientDrawable().apply {
-        setColor(Color.parseColor("#FF2222"))
+        colors = intArrayOf(Color.parseColor("#FF4444"), Color.parseColor("#CC0000"))
+        orientation = GradientDrawable.Orientation.TOP_BOTTOM
         cornerRadius = sdpF(config.cornerRadiusDimenRes)
         setStroke(sdp(SdpR.dimen._1sdp), Color.parseColor("#FF9999"))
     }
@@ -289,7 +321,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         val pad = sdp(SdpR.dimen._2sdp)
         setPadding(pad, pad, pad, pad)
 
-        btnMusic  = createBtn(context.getString(R.string.music_unlock).uppercase()+"\uD83C\uDFB5")
+        btnMusic  = createBtn(context.getString(R.string.music_unlock).uppercase() + "\uD83C\uDFB5")
         btnRecord = createBtn("REC ●")
         btnList   = createBtn(context.getString(R.string.list_record_unlock).uppercase())
         btnNote   = createBtn(context.getString(R.string.note).uppercase())
@@ -301,14 +333,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
         val btnW   = sdp(SdpR.dimen._50sdp)
         val margin = sdp(SdpR.dimen._2sdp)
 
-        val layoutParams = if (this.orientation == HORIZONTAL) {
-            LayoutParams(btnW, btnH).apply {
-                setMargins(margin, margin, margin, margin)
-            }
-        } else {
-            LayoutParams(btnW, btnH).apply {
-                setMargins(margin, margin, margin, margin)
-            }
+        val layoutParams = LayoutParams(btnW, btnH).apply {
+            setMargins(margin, margin, margin, margin)
         }
 
         arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop, btnVolume).forEach {
@@ -515,7 +541,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     private fun refreshStatusLabels() {
         if (::btnMusic.isInitialized) btnMusic.text =
-            if (isMusicUnlocked) context.getString(R.string.music_unlock).uppercase()+"\uD83C\uDFB5"
+            if (isMusicUnlocked) context.getString(R.string.music_unlock).uppercase() + "\uD83C\uDFB5"
             else context.getString(R.string.music_lock).uppercase()
         if (::btnList.isInitialized) btnList.text =
             if (isListRecordUnlocked) context.getString(R.string.list_record_unlock).uppercase()
@@ -546,15 +572,49 @@ class InstrumentControlPanel @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Buat background button dengan support gradient.
+     *
+     * Priority:
+     * - Kalau [isRed] → pakai gradient merah built-in
+     * - Kalau [config.btnGradientColors] tidak null → pakai gradient custom
+     * - Kalau null → fallback ke solid color seperti sebelumnya
+     */
     private fun createBg(pressed: Boolean, isRed: Boolean = false) = GradientDrawable().apply {
-        setColor(when {
-            isRed && pressed -> Color.parseColor("#CC0000")
-            isRed            -> Color.parseColor("#FF2222")
-            pressed          -> config.btnPressedColor
-            else             -> config.btnColor
-        })
-        cornerRadius = sdpF(config.cornerRadiusDimenRes)
-        setStroke(sdp(SdpR.dimen._1sdp), if (isRed) Color.parseColor("#FF6666") else config.strokeColor)
+        val corner = sdpF(config.cornerRadiusDimenRes)
+        val stroke = sdp(SdpR.dimen._1sdp)
+        cornerRadius = corner
+
+        when {
+            // ─── Tombol STOP / DELETE — gradient merah ───
+            isRed -> {
+                colors = if (pressed) {
+                    intArrayOf(Color.parseColor("#FF4444"), Color.parseColor("#AA0000"))
+                } else {
+                    intArrayOf(Color.parseColor("#FF3333"), Color.parseColor("#CC0000"))
+                }
+                orientation = GradientDrawable.Orientation.TOP_BOTTOM
+                setStroke(stroke, Color.parseColor("#FF6666"))
+            }
+
+            // ─── Tombol normal — pakai gradient dari config jika ada ───
+            pressed && config.btnPressedGradientColors != null -> {
+                colors      = config.btnPressedGradientColors
+                orientation = config.btnGradientOrientation
+                setStroke(stroke, config.strokeColor)
+            }
+            !pressed && config.btnGradientColors != null -> {
+                colors      = config.btnGradientColors
+                orientation = config.btnGradientOrientation
+                setStroke(stroke, config.strokeColor)
+            }
+
+            // ─── Fallback solid color (jika gradient null) ───
+            else -> {
+                setColor(if (pressed) config.btnPressedColor else config.btnColor)
+                setStroke(stroke, config.strokeColor)
+            }
+        }
     }
 
     private fun isNetworkAvailable(): Boolean {

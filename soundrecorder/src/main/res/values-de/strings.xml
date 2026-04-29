@@ -244,5 +244,6 @@
 
     <string name="file_not_found">Datei nicht gefunden</string>
     <string name="share_failed">Datei konnte nicht geteilt werden</string>
+    <string name="recording">AUFNAHME</string>
 
 </resources>

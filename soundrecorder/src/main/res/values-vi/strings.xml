@@ -243,5 +243,6 @@
 
     <string name="file_not_found">Không tìm thấy tệp</string>
     <string name="share_failed">Chia sẻ tệp thất bại</string>
+    <string name="recording">GHI ÂM</string>
 
 </resources>

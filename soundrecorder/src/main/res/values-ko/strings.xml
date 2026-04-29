@@ -246,5 +246,6 @@
 
     <string name="file_not_found">파일을 찾을 수 없습니다</string>
     <string name="share_failed">파일 공유에 실패했습니다</string>
+    <string name="recording">녹음</string>
 
 </resources>

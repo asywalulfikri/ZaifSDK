@@ -244,5 +244,6 @@
 
     <string name="file_not_found">ไม่พบไฟล์</string>
     <string name="share_failed">แชร์ไฟล์ไม่สำเร็จ</string>
+    <string name="recording">กำลังบันทึก</string>
 
 </resources>

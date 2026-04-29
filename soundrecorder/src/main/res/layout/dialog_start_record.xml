@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_dialog_wood"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="@dimen/_16sdp">
 
     <TextView
         android:id="@+id/tvTitle"
@@ -14,35 +14,36 @@
         android:text="@string/dialog_record_title"
         android:textColor="#F5D76E"
         android:fontFamily="@font/campton_bold"
-        android:textSize="18sp"
+        android:textSize="@dimen/_14ssp"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="@dimen/_8sdp"
         android:gravity="center"
         android:fontFamily="@font/campton_medium"
         android:text="@string/dialog_record_message"
         android:textColor="#FFFFFF"
-        android:textSize="14sp" />
+        android:textSize="@dimen/_11ssp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/_14sdp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/btnInstrumentOnly"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="@dimen/_38sdp"
             android:gravity="center"
             android:background="@drawable/bg_btn_wood"
             android:text="@string/btn_instrument_only"
             android:fontFamily="@font/campton_bold"
             android:textColor="#1F1612"
+            android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
 
         <TextView
@@ -51,19 +52,20 @@
             android:gravity="center"
             android:text="@string/desc_instrument_only"
             android:textColor="#BBBBBB"
-            android:textSize="10sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="12dp" />
+            android:textSize="@dimen/_9ssp"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:layout_marginBottom="@dimen/_10sdp" />
 
         <TextView
             android:id="@+id/btnWithMic"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="@dimen/_38sdp"
             android:gravity="center"
             android:background="@drawable/bg_btn_wood"
             android:text="@string/btn_mic_instrument"
             android:fontFamily="@font/campton_bold"
             android:textColor="#1F1612"
+            android:textSize="@dimen/_11ssp"
             android:textStyle="bold" />
 
         <TextView
@@ -72,19 +74,20 @@
             android:gravity="center"
             android:text="@string/desc_mic_instrument"
             android:textColor="#BBBBBB"
-            android:textSize="10sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="12dp" />
+            android:textSize="@dimen/_9ssp"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:layout_marginBottom="@dimen/_10sdp" />
 
         <TextView
             android:id="@+id/btnCancel"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="@dimen/_38sdp"
             android:gravity="center"
             android:background="@drawable/bg_btn_dark"
             android:text="@string/btn_cancel"
             android:fontFamily="@font/campton_bold"
-            android:textColor="#AAAAAA" />
+            android:textColor="#AAAAAA"
+            android:textSize="@dimen/_11ssp" />
 
     </LinearLayout>
 </LinearLayout>

@@ -242,5 +242,6 @@
 
     <string name="file_not_found">Arquivo não encontrado</string>
     <string name="share_failed">Falha ao compartilhar o arquivo</string>
+    <string name="recording">GRAVAÇÃO</string>
 
 </resources>

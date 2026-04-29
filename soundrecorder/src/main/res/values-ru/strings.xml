@@ -242,6 +242,7 @@
 
     <string name="file_not_found">Файл не найден</string>
     <string name="share_failed">Не удалось поделиться файлом</string>
+    <string name="recording">ЗАПИСЬ</string>
 
 
 </resources>

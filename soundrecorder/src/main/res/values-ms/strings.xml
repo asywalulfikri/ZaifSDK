@@ -246,5 +246,6 @@
 
     <string name="file_not_found">Fail tidak dijumpai</string>
     <string name="share_failed">Gagal berkongsi fail</string>
+    <string name="recording">RAKAMAN</string>
 
 </resources>

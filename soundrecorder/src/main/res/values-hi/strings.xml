@@ -241,5 +241,6 @@
 
     <string name="file_not_found">फ़ाइल नहीं मिली</string>
     <string name="share_failed">फ़ाइल साझा करने में विफल</string>
+    <string name="recording">रिकॉर्डिंग</string>
 
 </resources>

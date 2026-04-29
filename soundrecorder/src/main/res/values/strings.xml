@@ -240,6 +240,7 @@
 
     <string name="file_not_found">File not found</string>
     <string name="share_failed">Failed to share file</string>
+    <string name="recording">RECORDING</string>
 
 
 </resources>
