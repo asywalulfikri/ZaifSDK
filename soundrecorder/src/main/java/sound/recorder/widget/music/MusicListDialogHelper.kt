@@ -499,7 +499,7 @@ object MusicListDialogHelper {
                 if (MusicPlayerManager.isPlaying) android.R.drawable.ic_media_pause
                 else android.R.drawable.ic_media_play
             )
-            card.findViewById<SeekBar>(104)?.progress = (loadMusicVolume(context) * 100).toInt()
+            card.findViewById<DJSeekBar>(104)?.progress = (loadMusicVolume(context) * 100).toInt()
         }
     }
 
