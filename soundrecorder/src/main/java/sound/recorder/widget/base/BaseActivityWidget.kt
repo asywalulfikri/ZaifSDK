@@ -434,7 +434,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         isBannerLoaded = false
         isLoading = false
         mInterstitialAd = null
-        rewardedAd = null
+        releaseRewardedAd()
 
         reloadJob?.cancel()
         retryJob?.cancel()
@@ -1034,7 +1034,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
 
-    fun loadInterstitialIfNeeded(isPremium: Boolean) {
+    /*fun loadInterstitialIfNeeded(isPremium: Boolean) {
         if (isPremium) return
 
         val now = System.currentTimeMillis()
@@ -1069,6 +1069,49 @@ open class BaseActivityWidget : AppCompatActivity() {
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     mInterstitialAd = null
                     scheduleRetry(isPremium)
+                }
+            }
+        )
+    }*/
+
+
+    fun loadInterstitialIfNeeded(isPremium: Boolean) {
+        if (isPremium) return
+
+        val now = System.currentTimeMillis()
+        if (mInterstitialAd != null) return
+        if (lastShowTime > 0 && now - lastShowTime < LOAD_INTERVAL) return
+        if (isFinishing || isDestroyed) return
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return
+
+        val adId = admobSDKBuilder?.interstitialId ?: return
+
+        // WeakReference agar Activity bisa di-GC meski callback belum dipanggil
+        val weakActivity = WeakReference(this)
+
+        InterstitialAd.load(
+            applicationContext,
+            adId,
+            AdRequest.Builder().build(),
+            object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(ad: InterstitialAd) {
+                    val activity = weakActivity.get()
+                    // Activity sudah mati → buang iklan, tidak update state
+                    if (activity == null || activity.isDestroyed || activity.isFinishing) {
+                        ad.fullScreenContentCallback = null
+                        return
+                    }
+                    activity.retryJob?.cancel()
+                    activity.retryCount = 0
+                    activity.mInterstitialAd = ad
+                    Log.d("ADS", "Interstitial loaded")
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    val activity = weakActivity.get()
+                    if (activity == null || activity.isDestroyed || activity.isFinishing) return
+                    activity.mInterstitialAd = null
+                    activity.scheduleRetry(isPremium)
                 }
             }
         )
@@ -1123,7 +1166,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private var retryCountReward = 0
 
-    fun loadRewardedAd(isPremium: Boolean) {
+    /*fun loadRewardedAd(isPremium: Boolean) {
         if (isPremium) return
 
         val adId = admobSDKBuilder?.rewardId.orEmpty()
@@ -1148,6 +1191,123 @@ open class BaseActivityWidget : AppCompatActivity() {
                 retryCountReward = 0
             }
         })
+    }*/
+
+
+    // Di class Activity — tambahkan property ini
+    private val retryHandler = Handler(Looper.getMainLooper())
+    private var retryRewardRunnable: Runnable? = null
+
+    fun loadRewardedAd(isPremium: Boolean) {
+        if (isPremium) return
+
+        val adId = admobSDKBuilder?.rewardId.orEmpty()
+        if (adId.isEmpty()) return
+        if (isFinishing || isDestroyed) return
+
+        val adRequest = AdRequest.Builder().build()
+
+        // WeakReference agar Activity bisa di-GC meski callback belum terpanggil
+        val weakActivity = WeakReference(this)
+
+        RewardedAd.load(
+            applicationContext, // pakai applicationContext bukan this
+            adId,
+            adRequest,
+            object : RewardedAdLoadCallback() {
+
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    val activity = weakActivity.get()
+                    // Activity sudah mati → tidak perlu lakukan apapun
+                    if (activity == null || activity.isDestroyed || activity.isFinishing) return
+
+                    activity.rewardedAd = null
+
+                    if (activity.retryCountReward < 3) {
+                        activity.retryCountReward++
+
+                        // Simpan Runnable ke property agar bisa di-cancel di onDestroy
+                        // Gunakan WeakReference di dalam Runnable untuk cegah leak selama 5 detik delay
+                        val weakRef = WeakReference(activity)
+                        activity.retryRewardRunnable = Runnable {
+                            val act = weakRef.get()
+                            if (act != null && !act.isDestroyed && !act.isFinishing) {
+                                act.retryRewardRunnable = null
+                                act.loadRewardedAd(isPremium)
+                            }
+                        }
+                        activity.retryHandler.postDelayed(activity.retryRewardRunnable!!, 5000)
+                    }
+                }
+
+                override fun onAdLoaded(ad: RewardedAd) {
+                    val activity = weakActivity.get()
+                    // Activity sudah mati saat iklan baru selesai load → buang iklan
+                    if (activity == null || activity.isDestroyed || activity.isFinishing) {
+                        ad.fullScreenContentCallback = null
+                        return
+                    }
+                    activity.rewardedAd = ad
+                    activity.retryCountReward = 0
+                    Log.d("ADS", "Rewarded ad loaded")
+                }
+            }
+        )
+    }
+
+    // ─── SHOW ─────────────────────────────────────────────────────────────────
+
+
+
+    fun showRewardedAd(isPremium: Boolean, onComplete: () -> Unit) {
+        if (isPremium) {
+            onComplete()
+            return
+        }
+
+        val ad = rewardedAd
+        if (ad != null) {
+            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+
+                override fun onAdDismissedFullScreenContent() {
+                    // Null-kan callback agar tidak menahan referensi
+                    ad.fullScreenContentCallback = null
+                    rewardedAd = null
+                    // Jalankan aksi unlock setelah iklan ditutup
+                    onComplete()
+                    // Load ulang untuk penayangan berikutnya
+                    loadRewardedAd(isPremium)
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    ad.fullScreenContentCallback = null
+                    rewardedAd = null
+                    // Tetap jalankan aksi agar user tidak stuck
+                    onComplete()
+                    loadRewardedAd(isPremium)
+                }
+            }
+
+            ad.show(this) { rewardItem ->
+                Log.d("ADS", "User earned reward: ${rewardItem.amount}")
+            }
+
+        } else {
+            // Iklan belum siap → tampilkan pesan dan coba load ulang
+            setToast(getString(R.string.ads_prepared_please_wait))
+            loadRewardedAd(isPremium)
+        }
+    }
+
+    private fun releaseRewardedAd() {
+        // Cancel pending retry agar Runnable tidak jalan setelah Activity mati
+        retryRewardRunnable?.let { retryHandler.removeCallbacks(it) }
+        retryRewardRunnable = null
+        retryCountReward = 0
+
+        // Null-kan callback dan iklan
+        rewardedAd?.fullScreenContentCallback = null
+        rewardedAd = null
     }
 
 
@@ -1230,46 +1390,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    fun showRewardedAd(isPremium: Boolean, onComplete: () -> Unit) {
-        if (isPremium) {
-            onComplete()
-            return
-        }
 
-        val ad = rewardedAd
-        if (ad != null) {
-            // 1. Pasang Callback untuk deteksi iklan ditutup
-            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
-                override fun onAdDismissedFullScreenContent() {
-                    // PENTING: Null-kan callback agar tidak menahan referensi Fragment
-                    ad.fullScreenContentCallback = null
-                    rewardedAd = null
-
-                    // Jalankan aksi (Unlock music/list)
-                    onComplete()
-
-                    // Load ulang untuk selanjutnya
-                    loadRewardedAd(isPremium)
-                }
-
-                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                    ad.fullScreenContentCallback = null
-                    rewardedAd = null
-                    onComplete() // Tetap jalankan atau kasih fail handler
-                }
-            }
-
-            // 2. Tampilkan Iklan
-            ad.show(this) { rewardItem ->
-                // User sudah menonton sampai habis (reward diberikan via onAdDismissed)
-                Log.d("ADS", "User earned reward: ${rewardItem.amount}")
-            }
-
-        } else {
-            setToast(getString(R.string.ads_prepared_please_wait))
-            loadRewardedAd(isPremium)
-        }
-    }
 
     private fun isWebViewAvailable(): Boolean {
         val packageManager = packageManager

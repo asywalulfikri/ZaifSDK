@@ -14,7 +14,7 @@ class SoundViewModel(application: Application) : AndroidViewModel(application) {
     var isPremium: Boolean = false
 
     var isMusicUnlocked: Boolean = true
-    var isRecordUnlocked: Boolean = true
+    var isRecordUnlocked: Boolean = false
     /**
      * Meneruskan perintah untuk memainkan suara ketukan ke AudioEngine.
      */

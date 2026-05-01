@@ -45,10 +45,16 @@ class HomeFragment : BaseFragmentWidget() {
 
         onViewAds(false)
         setupButtonClick()
+        setupOnBackPressed()
 
 
     }
 
+    private fun setupOnBackPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() { requireActivity().finishAffinity() }
+        })
+    }
     private fun setupButtonClick(){
 
         binding?.btnNext?.setOnClickListener {
