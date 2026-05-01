@@ -7,8 +7,8 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.RippleDrawable
 import android.net.Uri
 import android.os.Build
@@ -17,6 +17,7 @@ import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -30,7 +31,7 @@ import java.util.concurrent.TimeUnit
 
 object MusicListDialogHelper {
 
-    private const val PREFS_NAME    = "music_player_prefs"
+    private const val PREFS_NAME       = "music_player_prefs"
     private const val KEY_MUSIC_VOLUME = "music_volume"
     private const val DEFAULT_VOLUME   = 0.7f
 
@@ -44,9 +45,9 @@ object MusicListDialogHelper {
 
     var statusListener: MusicStatusListener? = null
 
-    val isMusicPlaying: Boolean  get() = MusicPlayerManager.isPlaying
-    val isMusicPaused: Boolean   get() = MusicPlayerManager.isPaused
-    val isMusicActive: Boolean   get() = MusicPlayerManager.isPlaying || MusicPlayerManager.isPaused
+    val isMusicPlaying: Boolean get() = MusicPlayerManager.isPlaying
+    val isMusicPaused: Boolean  get() = MusicPlayerManager.isPaused
+    val isMusicActive: Boolean  get() = MusicPlayerManager.isPlaying || MusicPlayerManager.isPaused
     val currentTrack: MusicPlayerManager.MusicTrack? get() = MusicPlayerManager.getCurrentTrack()
 
     private val rawTracks = mutableListOf<MusicPlayerManager.MusicTrack>()
@@ -58,10 +59,8 @@ object MusicListDialogHelper {
     private const val COLOR_TEXT_BRIGHT = "#FFFFFF"
     private const val COLOR_TEXT_DIM    = "#8B93B8"
 
-    // ─── Helper shorthand untuk sdp/ssp ───
-    private fun Context.sdp(id: Int)  = resources.getDimensionPixelSize(id)
-    private fun Context.ssp(id: Int)  = resources.getDimension(id)
-    private fun Context.sspSp(id: Int) = resources.getDimension(id) / resources.displayMetrics.scaledDensity
+    private fun Context.sdp(id: Int)    = resources.getDimensionPixelSize(id)
+    private fun Context.sspSp(id: Int)  = resources.getDimension(id) / resources.displayMetrics.scaledDensity
 
     @SuppressLint("UseKtx")
     private fun saveMusicVolume(context: Context, volume: Float) {
@@ -69,17 +68,16 @@ object MusicListDialogHelper {
             .edit().putFloat(KEY_MUSIC_VOLUME, volume).apply()
     }
 
-    private fun loadMusicVolume(context: Context): Float {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private fun loadMusicVolume(context: Context): Float =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getFloat(KEY_MUSIC_VOLUME, DEFAULT_VOLUME)
-    }
 
     fun registerRawTracks(tracks: List<MusicPlayerManager.MusicTrack>) {
         rawTracks.clear()
         rawTracks.addAll(tracks)
     }
 
-    @SuppressLint("UseKtx")
+    @SuppressLint("UseKtx", "ClickableViewAccessibility")
     fun show(context: Context) {
         val savedVolume = loadMusicVolume(context)
         MusicPlayerManager.setVolume(savedVolume, savedVolume)
@@ -96,10 +94,12 @@ object MusicListDialogHelper {
 
         // ─── HEADER ───
         val headerContainer = RelativeLayout(context).apply {
-            val padH = context.sdp(SdpR.dimen._16sdp)
-            val padT = context.sdp(SdpR.dimen._16sdp)
-            val padB = context.sdp(SdpR.dimen._8sdp)
-            setPadding(padH, padT, padH, padB)
+            setPadding(
+                context.sdp(SdpR.dimen._16sdp),
+                context.sdp(SdpR.dimen._16sdp),
+                context.sdp(SdpR.dimen._16sdp),
+                context.sdp(SdpR.dimen._8sdp)
+            )
         }
 
         val titleView = TextView(context).apply {
@@ -132,28 +132,30 @@ object MusicListDialogHelper {
         mainLayout.addView(headerContainer)
 
         // ─── SEARCH BAR ───
-        val searchPadH = context.sdp(SdpR.dimen._16sdp)
-        val searchPadV = context.sdp(SdpR.dimen._8sdp)
         val searchContainer = FrameLayout(context).apply {
-            setPadding(searchPadH, searchPadV, searchPadH, searchPadV)
+            setPadding(
+                context.sdp(SdpR.dimen._16sdp),
+                context.sdp(SdpR.dimen._8sdp),
+                context.sdp(SdpR.dimen._16sdp),
+                context.sdp(SdpR.dimen._8sdp)
+            )
         }
 
-        val searchInnerPadH = context.sdp(SdpR.dimen._12sdp)
-        val searchInnerPadV = context.sdp(SdpR.dimen._10sdp)
-        val searchCorner    = context.sdp(SdpR.dimen._20sdp).toFloat()
         val searchField = EditText(context).apply {
             hint = context.getString(R.string.search_song_accompaniment)
             setHintTextColor(Color.parseColor(COLOR_TEXT_DIM))
             setTextColor(Color.WHITE)
             textSize = context.sspSp(SspR.dimen._12ssp)
-            setPadding(searchInnerPadH, searchInnerPadV, searchInnerPadH, searchInnerPadV)
+            setPadding(
+                context.sdp(SdpR.dimen._12sdp),
+                context.sdp(SdpR.dimen._10sdp),
+                context.sdp(SdpR.dimen._12sdp),
+                context.sdp(SdpR.dimen._10sdp)
+            )
             background = GradientDrawable().apply {
                 setColor(Color.parseColor(COLOR_BG_MEDIUM))
-                setStroke(
-                    context.sdp(SdpR.dimen._1sdp),
-                    Color.parseColor(COLOR_BG_LIGHT)
-                )
-                cornerRadius = searchCorner
+                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor(COLOR_BG_LIGHT))
+                cornerRadius = context.sdp(SdpR.dimen._20sdp).toFloat()
             }
         }
         searchContainer.addView(searchField)
@@ -167,8 +169,7 @@ object MusicListDialogHelper {
         }
         val listLayout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            val bottomPad = context.sdp(SdpR.dimen._100sdp)
-            setPadding(0, 0, 0, bottomPad)
+            setPadding(0, 0, 0, context.sdp(SdpR.dimen._100sdp))
         }
         scrollView.addView(listLayout)
         mainLayout.addView(scrollView)
@@ -178,11 +179,10 @@ object MusicListDialogHelper {
         val playerCard = buildElegantPlayerCard(context, savedVolume)
         val playerMargin = context.sdp(SdpR.dimen._12sdp)
         val playerBottom = context.sdp(SdpR.dimen._16sdp)
-        val playerParams = FrameLayout.LayoutParams(-1, -2).apply {
+        rootContainer.addView(playerCard, FrameLayout.LayoutParams(-1, -2).apply {
             gravity = Gravity.BOTTOM
             setMargins(playerMargin, 0, playerMargin, playerBottom)
-        }
-        rootContainer.addView(playerCard, playerParams)
+        })
 
         val dialog = AlertDialog.Builder(
             context, android.R.style.Theme_Black_NoTitleBar_Fullscreen
@@ -192,10 +192,7 @@ object MusicListDialogHelper {
 
         ViewCompat.setOnApplyWindowInsetsListener(rootContainer) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(
-                systemBars.left, systemBars.top,
-                systemBars.right, systemBars.bottom
-            )
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
@@ -220,7 +217,7 @@ object MusicListDialogHelper {
                 statusListener?.onMusicStop()
             }
             override fun onProgress(current: Int, max: Int) {
-                playerCard.findViewById<SeekBar>(103)?.apply {
+                playerCard.findViewById<MusicSeekBar>(103)?.apply {
                     this.max = max
                     this.progress = current
                 }
@@ -241,11 +238,14 @@ object MusicListDialogHelper {
             filtered.forEach { track ->
                 val isPlaying = MusicPlayerManager.getCurrentTrack()?.title == track.title
 
-                val itemPadH = context.sdp(SdpR.dimen._16sdp)
-                val itemPadV = context.sdp(SdpR.dimen._10sdp)
                 val itemRow = LinearLayout(context).apply {
                     orientation = LinearLayout.HORIZONTAL
-                    setPadding(itemPadH, itemPadV, itemPadH, itemPadV)
+                    setPadding(
+                        context.sdp(SdpR.dimen._16sdp),
+                        context.sdp(SdpR.dimen._10sdp),
+                        context.sdp(SdpR.dimen._16sdp),
+                        context.sdp(SdpR.dimen._10sdp)
+                    )
                     gravity = Gravity.CENTER_VERTICAL
                     background = RippleDrawable(
                         ColorStateList.valueOf(Color.parseColor("#15FFFFFF")), null, null
@@ -266,20 +266,16 @@ object MusicListDialogHelper {
                     }
                     addView(TextView(context).apply {
                         text = "♪"
-                        setTextColor(
-                            if (isPlaying) Color.WHITE
-                            else Color.parseColor(COLOR_ACCENT)
-                        )
+                        setTextColor(if (isPlaying) Color.WHITE else Color.parseColor(COLOR_ACCENT))
                         textSize = context.sspSp(SspR.dimen._12ssp)
                         gravity = Gravity.CENTER
                     })
                 }
 
                 // Text stack
-                val textPadStart = context.sdp(SdpR.dimen._10sdp)
                 val textStack = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
-                    setPadding(textPadStart, 0, 0, 0)
+                    setPadding(context.sdp(SdpR.dimen._10sdp), 0, 0, 0)
                     layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
                 }
 
@@ -315,10 +311,9 @@ object MusicListDialogHelper {
                 listLayout.addView(itemRow)
 
                 // Divider
-                val divMargin = context.sdp(SdpR.dimen._16sdp)
                 listLayout.addView(View(context).apply {
                     layoutParams = LinearLayout.LayoutParams(-1, 1).apply {
-                        setMargins(divMargin, 0, divMargin, 0)
+                        setMargins(context.sdp(SdpR.dimen._16sdp), 0, context.sdp(SdpR.dimen._16sdp), 0)
                     }
                     setBackgroundColor(Color.parseColor("#156C63FF"))
                 })
@@ -342,7 +337,7 @@ object MusicListDialogHelper {
         renderList("")
     }
 
-    @SuppressLint("UseKtx")
+    @SuppressLint("UseKtx", "ClickableViewAccessibility")
     private fun buildElegantPlayerCard(context: Context, initialVolume: Float): LinearLayout {
         return LinearLayout(context).apply {
             id = 100
@@ -350,18 +345,18 @@ object MusicListDialogHelper {
             background = GradientDrawable().apply {
                 setColor(Color.parseColor(COLOR_BG_MEDIUM))
                 cornerRadius = context.sdp(SdpR.dimen._16sdp).toFloat()
-                setStroke(
-                    context.sdp(SdpR.dimen._1sdp),
-                    Color.parseColor(COLOR_ACCENT)
-                )
+                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor(COLOR_ACCENT))
             }
             elevation = context.sdp(SdpR.dimen._8sdp).toFloat()
 
             // ─── TOP ROW ───
-            val topPadH = context.sdp(SdpR.dimen._16sdp)
-            val topPadT = context.sdp(SdpR.dimen._12sdp)
             val topRow = LinearLayout(context).apply {
-                setPadding(topPadH, topPadT, topPadH, 0)
+                setPadding(
+                    context.sdp(SdpR.dimen._16sdp),
+                    context.sdp(SdpR.dimen._12sdp),
+                    context.sdp(SdpR.dimen._16sdp),
+                    0
+                )
                 gravity = Gravity.CENTER_VERTICAL
             }
 
@@ -400,31 +395,51 @@ object MusicListDialogHelper {
             addView(topRow)
 
             // ─── CONTROLS ROW ───
-            val ctrlPadH  = context.sdp(SdpR.dimen._12sdp)
-            val ctrlPadV  = context.sdp(SdpR.dimen._8sdp)
-            val ctrlPadB  = context.sdp(SdpR.dimen._12sdp)
-            val seekH     = context.sdp(SdpR.dimen._4sdp)
             val controlsRow = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                setPadding(ctrlPadH, ctrlPadV, ctrlPadH, ctrlPadB)
+                setPadding(
+                    context.sdp(SdpR.dimen._12sdp),
+                    context.sdp(SdpR.dimen._8sdp),
+                    context.sdp(SdpR.dimen._12sdp),
+                    context.sdp(SdpR.dimen._12sdp)
+                )
             }
 
-            val musicSeekBar = SeekBar(context).apply {
+
+
+            // ─── MUSIC SEEK BAR ───
+            val musicSeekBar = MusicSeekBar(context).apply {
                 id = 103
-                progressTintList = ColorStateList.valueOf(Color.parseColor(COLOR_ACCENT))
-                thumbTintList    = ColorStateList.valueOf(Color.parseColor(COLOR_ACCENT))
-                thumb = ColorDrawable(Color.TRANSPARENT)
-                layoutParams = LinearLayout.LayoutParams(0, seekH, 2.5f)
-                setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(s: SeekBar?, p: Int, fromUser: Boolean) {
-                        if (fromUser) MusicPlayerManager.seekTo(p)
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    context.sdp(SdpR.dimen._30sdp), // ← lebih tinggi karena ada label waktu
+                    2.5f
+                )
+                // ─── Style ───
+                progressStartColor = Color.parseColor("#00C9FF")
+                progressEndColor   = Color.parseColor("#92FE9D")
+                glowColor          = Color.parseColor("#00C9FF")
+                thumbBorderColor   = Color.parseColor("#00C9FF")
+                trackColor         = Color.parseColor("#1E2340")
+                showGlow           = true
+                showThumb          = true
+
+                // ─── Listener ───
+                listener = object : MusicSeekBar.OnProgressChangeListener {
+                    override fun onProgressChanged(progress: Int, fromUser: Boolean) {
+                        if (fromUser) MusicPlayerManager.seekTo(progress)
                     }
-                    override fun onStartTrackingTouch(s: SeekBar?) {}
-                    override fun onStopTrackingTouch(s: SeekBar?) {}
-                })
+                    override fun onStartTrackingTouch() {
+                        parent?.requestDisallowInterceptTouchEvent(true)
+                    }
+                    override fun onStopTrackingTouch() {
+                        parent?.requestDisallowInterceptTouchEvent(false)
+                    }
+                }
             }
 
+            // ─── VOLUME ICON ───
             val volIconSize   = context.sdp(SdpR.dimen._16sdp)
             val volIconMargin = context.sdp(SdpR.dimen._8sdp)
             val volIcon = ImageView(context).apply {
@@ -435,30 +450,44 @@ object MusicListDialogHelper {
                 }
             }
 
-            val volBar = SeekBar(context).apply {
+            // ─── VOLUME BAR ───
+            val volBar = DJSeekBar(context).apply {
                 id = 104
                 max = 100
                 progress = (initialVolume * 100).toInt()
-                progressTintList = ColorStateList.valueOf(Color.parseColor(COLOR_ACCENT))
-                thumbTintList    = ColorStateList.valueOf(Color.parseColor(COLOR_ACCENT))
-                layoutParams = LinearLayout.LayoutParams(0, seekH, 1.2f)
-                setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(s: SeekBar?, p: Int, fromUser: Boolean) {
+                layoutParams = LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._20sdp), 1.2f)
+                progressStartColor = Color.parseColor("#A78BFA")
+                progressEndColor   = Color.parseColor("#FF6B9D")
+                glowColor          = Color.parseColor("#A78BFA")
+               // thumbBorderColor   = Color.parseColor("#A78BFA")
+                trackColor         = Color.parseColor("#2A2F52")
+               // showWaveform       = false  // ← volume pakai gradient biasa, bukan waveform
+                showGlow           = true
+                listener = object : DJSeekBar.OnProgressChangeListener {
+                    override fun onProgressChanged(progress: Int, fromUser: Boolean) {
                         if (fromUser) {
-                            val vol = p / 100f
+                            val vol = progress / 100f
                             MusicPlayerManager.setVolume(vol, vol)
                             saveMusicVolume(context, vol)
                         }
                     }
-                    override fun onStartTrackingTouch(s: SeekBar?) {}
-                    override fun onStopTrackingTouch(s: SeekBar?) {}
-                })
+                    override fun onStartTrackingTouch() {
+                        parent?.requestDisallowInterceptTouchEvent(true)
+                    }
+                    override fun onStopTrackingTouch() {
+                        parent?.requestDisallowInterceptTouchEvent(false)
+                    }
+                }
             }
+
 
             controlsRow.addView(musicSeekBar)
             controlsRow.addView(volIcon)
             controlsRow.addView(volBar)
             addView(controlsRow)
+
+            // ← Pastikan touch di player card tidak tembus ke list di belakangnya
+            setOnTouchListener { _, _ -> true }
         }
     }
 
@@ -470,8 +499,7 @@ object MusicListDialogHelper {
                 if (MusicPlayerManager.isPlaying) android.R.drawable.ic_media_pause
                 else android.R.drawable.ic_media_play
             )
-            val savedVol = loadMusicVolume(context)
-            card.findViewById<SeekBar>(104)?.progress = (savedVol * 100).toInt()
+            card.findViewById<SeekBar>(104)?.progress = (loadMusicVolume(context) * 100).toInt()
         }
     }
 

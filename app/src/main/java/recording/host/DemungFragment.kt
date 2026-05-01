@@ -127,8 +127,11 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
         val style = InstrumentControlPanel.ControlConfig(
             textColor = Color.parseColor("#FFFFFF"),
             btnColor = Color.parseColor("#3D2510"),
-            strokeColor = Color.parseColor("#9B6A14")
+            strokeColor = Color.parseColor("#9B6A14"),
+            btnWidthDimenRes  = com.intuit.sdp.R.dimen._60sdp,  // ← custom width
+            btnHeightDimenRes = com.intuit.sdp.R.dimen._40sdp   // ← custom height
         )
+
 
         b.controlPanel.setup(instrumentType, LinearLayout.VERTICAL, style, this)
         b.controlPanel.setVolumeButtonVisible(true)

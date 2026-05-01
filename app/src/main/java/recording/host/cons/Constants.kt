@@ -1,6 +1,7 @@
 package recording.host.cons
 
 import recording.host.BuildConfig
+import recording.host.R
 
 class Constants {
 
@@ -15,6 +16,11 @@ class Constants {
        val pathRaw = arrayOf(
             "android.resource://"+ BuildConfig.APPLICATION_ID+"/raw/gundul_gundul_pacul",
             "android.resource://"+ BuildConfig.APPLICATION_ID+"/raw/ampar_ampar_pisang"
+        )
+
+        val rawList = listOf(
+            R.raw.ampar_ampar_pisang to "Ampar Ampar Pisang",
+            R.raw.gundul_gundul_pacul     to "GUndul2 pacul",
         )
 
 

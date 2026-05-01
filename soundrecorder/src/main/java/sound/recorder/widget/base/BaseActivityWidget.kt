@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
@@ -1217,6 +1218,17 @@ open class BaseActivityWidget : AppCompatActivity() {
         mInterstitialAd = null
     }
 
+
+    fun getRawDurationSafe(resId: Int): Long {
+        return try {
+            val mp = MediaPlayer.create(this, resId)
+            val duration = mp?.duration?.toLong() ?: 0L
+            mp?.release()
+            duration
+        } catch (e: Exception) {
+            0L
+        }
+    }
 
     fun showRewardedAd(isPremium: Boolean, onComplete: () -> Unit) {
         if (isPremium) {

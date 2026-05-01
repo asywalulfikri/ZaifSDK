@@ -9,22 +9,23 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import recording.host.cons.Constants
+import recording.host.cons.Constants.SongConstants.rawList
 import recording.host.databinding.ActivityGameBinding
 import sound.recorder.widget.MyApp
-import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.base.UnityBannerController
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
-import sound.recorder.widget.model.Song
-import sound.recorder.widget.music.InstrumentDialogHelper
+import sound.recorder.widget.music.MusicListDialogHelper
+import sound.recorder.widget.music.MusicPlayerManager
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.getValue
 
 class GameActivity : BaseActivity(),
     AdsListener,
@@ -39,7 +40,6 @@ class GameActivity : BaseActivity(),
      *  ===================== */
     private val adsSetupCalled = AtomicBoolean(false)
     private val adsFirstLoadIsOff = AtomicBoolean(false)
-    private val songsLoaded = AtomicBoolean(false)
 
     private var areBuildersReady = false
     private var areEssentialAdsReady = false
@@ -51,6 +51,7 @@ class GameActivity : BaseActivity(),
      *  ===================== */
     private lateinit var connectivityManager: ConnectivityManager
 
+    private val soundViewModel: SoundViewModel by viewModels()
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             if (adsFirstLoadIsOff.compareAndSet(true, false)) {
@@ -82,25 +83,6 @@ class GameActivity : BaseActivity(),
         if(BuildConfig.hasSong){
             loadSongsOnce()
         }
-
-       /* InstrumentDialogHelper.showCancelRecordDialog(this) {
-            // Kode di dalam brace ini hanya jalan kalau user klik "WATCH"
-           setToast("open")
-        }*/
-
-      /*  InstrumentDialogHelper.showRecordChooseDialog(this) { useMic ->
-            if (useMic) {
-                // Contoh: jalankan sistem rekam audio eksternal
-               // startAudioAndDataRecording()
-            } else {
-                // Contoh: jalankan sistem rekam data internal saja
-               // startDataOnlyRecording()
-            }
-
-            // Beri tahu control panel bahwa status rekam berubah
-            //isRecording = true
-            setToast("Recording Started")
-        }*/
 
     }
 
@@ -136,7 +118,7 @@ class GameActivity : BaseActivity(),
         try {
             connectivityManager.unregisterNetworkCallback(networkCallback)
         } catch (e: Exception) {
-            // ignore jika belum terdaftar
+            setLog(e.message.toString())
         }
     }
 
@@ -158,33 +140,22 @@ class GameActivity : BaseActivity(),
      *  SONG LOADING (ONE TIME, ANTI-ANR)
      *  ===================== */
     private fun loadSongsOnce() {
-        if (!songsLoaded.compareAndSet(false, true)) return
-
         lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val songs = Constants.SongConstants.listTitle.indices.map { i ->
-                    Song().apply {
-                        title = Constants.SongConstants.listTitle[i]
-                        pathRaw = Constants.SongConstants.pathRaw[i]
-                        note = Constants.SongConstants.listNote[i]
-                    }
-                }
-
-                withContext(Dispatchers.Main) {
-                    if (_binding != null && !isFinishing && !isDestroyed) {
-                        RecordingSDK.addSong(this@GameActivity, ArrayList(songs))
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    setLog("LoadSongs Error: ${e.message}")
+            val tracks = rawList.map { (resId, title) ->
+                MusicPlayerManager.MusicTrack(
+                    title = title,
+                    duration = getRawDurationSafe(resId),
+                    isRaw = true,
+                    rawResId = resId
+                )
+            }
+            withContext(Dispatchers.Main) {
+                if (!isDestroyed && !isFinishing) { // ← ganti isAdded ke ini
+                    MusicListDialogHelper.registerRawTracks(tracks)
                 }
             }
         }
     }
-
-
-
 
     /** =====================
      *  ADS SETUP (STRICTLY ONCE)
@@ -262,15 +233,19 @@ class GameActivity : BaseActivity(),
 
     override fun onViewBannerHome(show: Boolean) {
         _binding?.apply {
-            val homeTarget = if (show) View.GONE else View.VISIBLE
-            val gameTarget = if (show) View.VISIBLE else View.GONE
+            if(soundViewModel.isPremium){
+                onHideAllBanner()
+            }else{
+                val homeTarget = if (show) View.GONE else View.VISIBLE
+                val gameTarget = if (show) View.VISIBLE else View.GONE
 
-            // Animasi halus agar tidak UI Lag
-            bannerHome.animate().alpha(if (show) 0f else 1f).withEndAction {
-                bannerHome.visibility = homeTarget
-            }
-            bannerGame.animate().alpha(if (show) 1f else 0f).withStartAction {
-                bannerGame.visibility = gameTarget
+                // Animasi halus agar tidak UI Lag
+                bannerHome.animate().alpha(if (show) 0f else 1f).withEndAction {
+                    bannerHome.visibility = homeTarget
+                }
+                bannerGame.animate().alpha(if (show) 1f else 0f).withStartAction {
+                    bannerGame.visibility = gameTarget
+                }
             }
         }
     }
@@ -282,13 +257,11 @@ class GameActivity : BaseActivity(),
         }
     }
 
-
     override fun loadInterstitial() {
-        loadInterstitialIfNeeded(true)
+        loadInterstitialIfNeeded(soundViewModel.isPremium)
     }
-
     override fun loadReward() {
-        loadRewardedAd(true)
+        loadRewardedAd(soundViewModel.isPremium)
     }
 
     /** =====================

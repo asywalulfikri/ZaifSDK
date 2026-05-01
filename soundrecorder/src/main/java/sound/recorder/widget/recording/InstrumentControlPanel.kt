@@ -1,6 +1,7 @@
 package sound.recorder.widget.recording
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -23,6 +24,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.CoroutineScope
@@ -73,6 +75,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
      * )
      * ```
      */
+
+    @SuppressLint("UseKtx")
     data class ControlConfig(
         val textColor: Int = Color.parseColor("#F5D76E"),
         val bgColor: Int = Color.parseColor("#1F1612"),
@@ -93,8 +97,47 @@ class InstrumentControlPanel @JvmOverloads constructor(
             Color.parseColor("#7A5030"),  // atas pressed — lebih terang
             Color.parseColor("#3D2510")   // bawah pressed
         ),
-        val btnGradientOrientation: GradientDrawable.Orientation = GradientDrawable.Orientation.TOP_BOTTOM
-    )
+        val btnGradientOrientation: GradientDrawable.Orientation = GradientDrawable.Orientation.TOP_BOTTOM,
+
+        val btnWidthDimenRes: Int? = null,   // ← tambah ini
+        val btnHeightDimenRes: Int? = null   // ← tambah ini
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as ControlConfig
+
+            if (textColor != other.textColor) return false
+            if (bgColor != other.bgColor) return false
+            if (btnColor != other.btnColor) return false
+            if (btnPressedColor != other.btnPressedColor) return false
+            if (strokeColor != other.strokeColor) return false
+            if (cornerRadiusDimenRes != other.cornerRadiusDimenRes) return false
+            if (fontSize != other.fontSize) return false
+            if (fontResId != other.fontResId) return false
+            if (!btnGradientColors.contentEquals(other.btnGradientColors)) return false
+            if (!btnPressedGradientColors.contentEquals(other.btnPressedGradientColors)) return false
+            if (btnGradientOrientation != other.btnGradientOrientation) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = textColor
+            result = 31 * result + bgColor
+            result = 31 * result + btnColor
+            result = 31 * result + btnPressedColor
+            result = 31 * result + strokeColor
+            result = 31 * result + cornerRadiusDimenRes
+            result = 31 * result + fontSize.hashCode()
+            result = 31 * result + (fontResId ?: 0)
+            result = 31 * result + (btnGradientColors?.contentHashCode() ?: 0)
+            result = 31 * result + (btnPressedGradientColors?.contentHashCode() ?: 0)
+            result = 31 * result + btnGradientOrientation.hashCode()
+            return result
+        }
+    }
 
     interface AdRequestListener {
         fun onShowRewardedAd(type: String, onComplete: () -> Unit)
@@ -156,6 +199,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     // ─── BLINK: btnStop saat playback berjalan ───
     private val blinkStopRunnable = object : Runnable {
         private var isOn = false
+        @SuppressLint("UseKtx")
         override fun run() {
             if (!::btnStop.isInitialized || btnStop.visibility != VISIBLE) return
             isOn = !isOn
@@ -168,6 +212,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         }
     }
 
+    @SuppressLint("UseKtx")
     private fun createBgStopOn() = GradientDrawable().apply {
         colors = intArrayOf(Color.parseColor("#FF4444"), Color.parseColor("#CC0000"))
         orientation = GradientDrawable.Orientation.TOP_BOTTOM
@@ -227,22 +272,26 @@ class InstrumentControlPanel @JvmOverloads constructor(
         val fileName = "REC_${System.currentTimeMillis()}.mp3"
         currentAudioFile = File(context.filesDir, fileName)
 
-        mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            MediaRecorder(context)
-        } else {
-            @Suppress("DEPRECATION")
-            MediaRecorder()
-        }.apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setOutputFile(currentAudioFile?.absolutePath)
-            try {
-                prepare()
-                start()
-            } catch (e: IOException) {
-                Log.e("InstrumentControl", "MediaRecorder failed: ${e.message}")
+        try {
+            mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                MediaRecorder(context)
+            } else {
+                @Suppress("DEPRECATION")
+                MediaRecorder()
+            }.apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setOutputFile(currentAudioFile?.absolutePath)
+                try {
+                    prepare()
+                    start()
+                } catch (e: IOException) {
+                    Log.e("InstrumentControl", "MediaRecorder failed: ${e.message}")
+                }
             }
+        }catch (e : Exception){
+            setToast("MIC ERROR")
         }
     }
 
@@ -314,7 +363,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         refreshStatusLabels()
     }
 
-    private fun renderUI() {
+    /*private fun renderUI() {
         this.removeAllViews()
         this.gravity = Gravity.CENTER
 
@@ -331,6 +380,37 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
         val btnH   = sdp(SdpR.dimen._32sdp)
         val btnW   = sdp(SdpR.dimen._50sdp)
+        val margin = sdp(SdpR.dimen._2sdp)
+
+        val layoutParams = LayoutParams(btnW, btnH).apply {
+            setMargins(margin, margin, margin, margin)
+        }
+
+        arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop, btnVolume).forEach {
+            this.addView(it, layoutParams)
+        }
+        setupClickListeners()
+    }*/
+
+
+    private fun renderUI() {
+        this.removeAllViews()
+        this.gravity = Gravity.CENTER
+
+        val pad = sdp(SdpR.dimen._2sdp)
+        setPadding(pad, pad, pad, pad)
+
+        btnMusic  = createBtn(context.getString(R.string.music_unlock).uppercase() + "\uD83C\uDFB5")
+        btnRecord = createBtn("REC ●")
+        btnList   = createBtn(context.getString(R.string.list_record_unlock).uppercase())
+        btnNote   = createBtn(context.getString(R.string.note).uppercase())
+        btnStop   = createBtn(context.getString(R.string.stop).uppercase(), isRed = true)
+        btnVolume = createBtn(context.getString(R.string.volume).uppercase())
+        btnStop.visibility = GONE
+
+        // ← pakai custom size kalau ada, fallback ke default
+        val btnH   = config.btnHeightDimenRes?.let { sdp(it) } ?: sdp(SdpR.dimen._32sdp)
+        val btnW   = config.btnWidthDimenRes?.let { sdp(it) }  ?: sdp(SdpR.dimen._50sdp)
         val margin = sdp(SdpR.dimen._2sdp)
 
         val layoutParams = LayoutParams(btnW, btnH).apply {
@@ -435,6 +515,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun stopRecording() {
         if (!isRecording) return
         isRecording = false
@@ -496,11 +577,11 @@ class InstrumentControlPanel @JvmOverloads constructor(
                     if (entity.isEarphoneRecording) {
                         listener?.onMuteControl(false)
                         recorderManager.play(events) { post { invalidate() } }
-                        startPlayingAudioSync(entity.audioPath!!, onAudioFinished)
+                        startPlayingAudioSync(entity.audioPath, onAudioFinished)
                     } else {
                         listener?.onMuteControl(true)
                         recorderManager.play(events) { post { invalidate() } }
-                        startPlayingAudioSync(entity.audioPath!!, onAudioFinished)
+                        startPlayingAudioSync(entity.audioPath, onAudioFinished)
                     }
                 } else {
                     listener?.onMuteControl(false)
@@ -518,6 +599,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     // ─── 9. RELEASE & LIFECYCLE ───
+    @SuppressLint("SetTextI18n")
     fun releaseAndStop() {
         if (isRecording && isMicMode) stopMicAudioEngine()
         isRecording = false
@@ -580,6 +662,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
      * - Kalau [config.btnGradientColors] tidak null → pakai gradient custom
      * - Kalau null → fallback ke solid color seperti sebelumnya
      */
+    @SuppressLint("UseKtx")
     private fun createBg(pressed: Boolean, isRed: Boolean = false) = GradientDrawable().apply {
         val corner = sdpF(config.cornerRadiusDimenRes)
         val stroke = sdp(SdpR.dimen._1sdp)
@@ -619,9 +702,14 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     private fun isNetworkAvailable(): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return cm.activeNetwork?.let {
-            cm.getNetworkCapabilities(it)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        } ?: false
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            cm.activeNetwork?.let {
+                cm.getNetworkCapabilities(it)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            } ?: false
+        } else {
+            @Suppress("DEPRECATION")
+            cm.activeNetworkInfo?.isConnected ?: false
+        }
     }
 
     fun setNoteButtonVisible(isVisible: Boolean) {
