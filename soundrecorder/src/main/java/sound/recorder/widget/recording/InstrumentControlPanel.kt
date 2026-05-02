@@ -24,7 +24,6 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.CoroutineScope
@@ -56,26 +55,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
         fun onMuteControl(mute: Boolean)
     }
 
-    /**
-     * Konfigurasi tampilan tombol.
-     *
-     * Gradient support:
-     * - Set [btnGradientColors] dengan array 2 warna untuk aktifkan gradient
-     * - Set [btnGradientOrientation] untuk arah gradient (default TOP_BOTTOM)
-     * - Jika [btnGradientColors] null, akan pakai solid color [btnColor]
-     *
-     * Contoh pakai gradient di Fragment:
-     * ```
-     * InstrumentControlPanel.ControlConfig(
-     *     btnGradientColors = intArrayOf(
-     *         Color.parseColor("#5A3010"),  // warna atas
-     *         Color.parseColor("#2A1008")   // warna bawah
-     *     ),
-     *     btnGradientOrientation = GradientDrawable.Orientation.TOP_BOTTOM
-     * )
-     * ```
-     */
-
     @SuppressLint("UseKtx")
     data class ControlConfig(
         val textColor: Int = Color.parseColor("#F5D76E"),
@@ -86,28 +65,22 @@ class InstrumentControlPanel @JvmOverloads constructor(
         val cornerRadiusDimenRes: Int = SdpR.dimen._6sdp,
         val fontSize: Float = 8f,
         val fontResId: Int? = null,
-
-        // ─── Gradient support ───
-        // Default: gradient emas gelap top-bottom sesuai tema yang sudah ada
         val btnGradientColors: IntArray? = intArrayOf(
-            Color.parseColor("#5A3A1A"),  // atas — lebih terang
-            Color.parseColor("#2A1508")   // bawah — lebih gelap
+            Color.parseColor("#5A3A1A"),
+            Color.parseColor("#2A1508")
         ),
         val btnPressedGradientColors: IntArray? = intArrayOf(
-            Color.parseColor("#7A5030"),  // atas pressed — lebih terang
-            Color.parseColor("#3D2510")   // bawah pressed
+            Color.parseColor("#7A5030"),
+            Color.parseColor("#3D2510")
         ),
         val btnGradientOrientation: GradientDrawable.Orientation = GradientDrawable.Orientation.TOP_BOTTOM,
-
-        val btnWidthDimenRes: Int? = null,   // ← tambah ini
-        val btnHeightDimenRes: Int? = null   // ← tambah ini
+        val btnWidthDimenRes: Int? = null,
+        val btnHeightDimenRes: Int? = null
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
-
             other as ControlConfig
-
             if (textColor != other.textColor) return false
             if (bgColor != other.bgColor) return false
             if (btnColor != other.btnColor) return false
@@ -119,7 +92,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
             if (!btnGradientColors.contentEquals(other.btnGradientColors)) return false
             if (!btnPressedGradientColors.contentEquals(other.btnPressedGradientColors)) return false
             if (btnGradientOrientation != other.btnGradientOrientation) return false
-
             return true
         }
 
@@ -143,7 +115,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
         fun onShowRewardedAd(type: String, onComplete: () -> Unit)
     }
 
-    // ─── Helper shorthand ───
     private fun sdp(id: Int)  = resources.getDimensionPixelSize(id)
     private fun sdpF(id: Int) = resources.getDimension(id)
 
@@ -158,7 +129,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     private var mediaRecorder: MediaRecorder? = null
     private var currentAudioFile: File? = null
-
     private var audioPlayer: MediaPlayer? = null
     private val syncHandler = Handler(Looper.getMainLooper())
 
@@ -181,7 +151,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private lateinit var btnNote: Button
     private lateinit var btnVolume: Button
 
-    // ─── BLINK: btnRecord saat rekam ───
+    // ─── BLINK: btnRecord — teks + background ikut merah ───
     private val blinkRunnable = object : Runnable {
         private var isOn = false
         override fun run() {
@@ -189,8 +159,16 @@ class InstrumentControlPanel @JvmOverloads constructor(
             isOn = !isOn
             if (::btnRecord.isInitialized) {
                 val stopStr = try { context.getString(R.string.stop) } catch (e: Exception) { "STOP" }
+
+                // Teks berubah
                 btnRecord.text = if (isOn) "${stopStr.uppercase()} ●" else stopStr.uppercase()
-                btnRecord.setTextColor(if (isOn) Color.RED else config.textColor)
+                btnRecord.setTextColor(if (isOn) Color.WHITE else config.textColor)
+
+                // Background button ikut merah saat isOn
+                btnRecord.background = StateListDrawable().apply {
+                    addState(intArrayOf(android.R.attr.state_pressed), createBg(pressed = true, isRed = true))
+                    addState(intArrayOf(), createBgRec(isOn))
+                }
             }
             blinkHandler.postDelayed(this, 600)
         }
@@ -210,6 +188,22 @@ class InstrumentControlPanel @JvmOverloads constructor(
             btnStop.setTextColor(if (isOn) Color.WHITE else Color.parseColor("#FF6666"))
             blinkHandler.postDelayed(this, 500)
         }
+    }
+
+    // ─── Background merah untuk btnRecord saat blink ───
+    @SuppressLint("UseKtx")
+    private fun createBgRec(isOn: Boolean) = GradientDrawable().apply {
+        cornerRadius = sdpF(config.cornerRadiusDimenRes)
+        setStroke(
+            sdp(SdpR.dimen._1sdp),
+            if (isOn) Color.parseColor("#FF9999") else config.strokeColor
+        )
+        colors = if (isOn) {
+            intArrayOf(Color.parseColor("#FF3333"), Color.parseColor("#CC0000"))
+        } else {
+            config.btnGradientColors ?: intArrayOf(config.btnColor, config.btnColor)
+        }
+        orientation = config.btnGradientOrientation
     }
 
     @SuppressLint("UseKtx")
@@ -236,6 +230,16 @@ class InstrumentControlPanel @JvmOverloads constructor(
         }
     }
 
+    // ─── Reset background btnRecord ke normal ───
+    private fun resetRecordBtnBackground() {
+        if (::btnRecord.isInitialized) {
+            btnRecord.background = StateListDrawable().apply {
+                addState(intArrayOf(android.R.attr.state_pressed), createBg(pressed = true))
+                addState(intArrayOf(), createBg(pressed = false))
+            }
+        }
+    }
+
     init {
         val orientationAttr = attrs?.getAttributeIntValue(
             "http://schemas.android.com/apk/res/android", "orientation", HORIZONTAL
@@ -246,7 +250,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         renderUI()
     }
 
-    // ─── 3. AUDIO UTILS (DETEKSI EARPHONE) ───
+    // ─── 3. AUDIO UTILS ───
     private fun isEarphonePlugged(): Boolean {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -271,7 +275,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private fun startMicAudioEngine() {
         val fileName = "REC_${System.currentTimeMillis()}.mp3"
         currentAudioFile = File(context.filesDir, fileName)
-
         try {
             mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 MediaRecorder(context)
@@ -290,7 +293,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
                     Log.e("InstrumentControl", "MediaRecorder failed: ${e.message}")
                 }
             }
-        }catch (e : Exception){
+        } catch (e: Exception) {
             setToast("MIC ERROR")
         }
     }
@@ -304,7 +307,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         mediaRecorder = null
     }
 
-    // ─── 5. MEDIAPLAYER: PUTAR FILE AUDIO REKAMAN MIC ───
+    // ─── 5. MEDIAPLAYER ───
     private fun startPlayingAudioSync(path: String, onComplete: (() -> Unit)? = null) {
         stopPlayingAudio()
         val prepareStartTime = System.currentTimeMillis()
@@ -363,36 +366,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
         refreshStatusLabels()
     }
 
-    /*private fun renderUI() {
-        this.removeAllViews()
-        this.gravity = Gravity.CENTER
-
-        val pad = sdp(SdpR.dimen._2sdp)
-        setPadding(pad, pad, pad, pad)
-
-        btnMusic  = createBtn(context.getString(R.string.music_unlock).uppercase() + "\uD83C\uDFB5")
-        btnRecord = createBtn("REC ●")
-        btnList   = createBtn(context.getString(R.string.list_record_unlock).uppercase())
-        btnNote   = createBtn(context.getString(R.string.note).uppercase())
-        btnStop   = createBtn(context.getString(R.string.stop).uppercase(), isRed = true)
-        btnVolume = createBtn(context.getString(R.string.volume).uppercase())
-        btnStop.visibility = GONE
-
-        val btnH   = sdp(SdpR.dimen._32sdp)
-        val btnW   = sdp(SdpR.dimen._50sdp)
-        val margin = sdp(SdpR.dimen._2sdp)
-
-        val layoutParams = LayoutParams(btnW, btnH).apply {
-            setMargins(margin, margin, margin, margin)
-        }
-
-        arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop, btnVolume).forEach {
-            this.addView(it, layoutParams)
-        }
-        setupClickListeners()
-    }*/
-
-
     private fun renderUI() {
         this.removeAllViews()
         this.gravity = Gravity.CENTER
@@ -408,7 +381,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
         btnVolume = createBtn(context.getString(R.string.volume).uppercase())
         btnStop.visibility = GONE
 
-        // ← pakai custom size kalau ada, fallback ke default
         val btnH   = config.btnHeightDimenRes?.let { sdp(it) } ?: sdp(SdpR.dimen._32sdp)
         val btnW   = config.btnWidthDimenRes?.let { sdp(it) }  ?: sdp(SdpR.dimen._50sdp)
         val margin = sdp(SdpR.dimen._2sdp)
@@ -496,7 +468,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
     fun startRecording(useMic: Boolean) {
         isRecording = true
         isMicMode = useMic
-
         if (useMic) {
             isEarphoneWhenRecording = isEarphonePlugged()
             listener?.onMuteControl(false)
@@ -505,7 +476,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
             isEarphoneWhenRecording = false
             listener?.onMuteControl(false)
         }
-
         recorderManager.startRecording()
         listener?.onRecordStatusChanged(true)
         blinkHandler.post(blinkRunnable)
@@ -526,6 +496,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         if (::btnRecord.isInitialized) {
             btnRecord.text = "REC ●"
             btnRecord.setTextColor(config.textColor)
+            resetRecordBtnBackground() // ← reset background ke normal
         }
         listener?.onRecordStatusChanged(false)
 
@@ -613,6 +584,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         if (::btnRecord.isInitialized) {
             btnRecord.text = "REC ●"
             btnRecord.setTextColor(config.textColor)
+            resetRecordBtnBackground() // ← reset background ke normal
         }
     }
 
@@ -654,22 +626,12 @@ class InstrumentControlPanel @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Buat background button dengan support gradient.
-     *
-     * Priority:
-     * - Kalau [isRed] → pakai gradient merah built-in
-     * - Kalau [config.btnGradientColors] tidak null → pakai gradient custom
-     * - Kalau null → fallback ke solid color seperti sebelumnya
-     */
     @SuppressLint("UseKtx")
     private fun createBg(pressed: Boolean, isRed: Boolean = false) = GradientDrawable().apply {
         val corner = sdpF(config.cornerRadiusDimenRes)
         val stroke = sdp(SdpR.dimen._1sdp)
         cornerRadius = corner
-
         when {
-            // ─── Tombol STOP / DELETE — gradient merah ───
             isRed -> {
                 colors = if (pressed) {
                     intArrayOf(Color.parseColor("#FF4444"), Color.parseColor("#AA0000"))
@@ -679,8 +641,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 orientation = GradientDrawable.Orientation.TOP_BOTTOM
                 setStroke(stroke, Color.parseColor("#FF6666"))
             }
-
-            // ─── Tombol normal — pakai gradient dari config jika ada ───
             pressed && config.btnPressedGradientColors != null -> {
                 colors      = config.btnPressedGradientColors
                 orientation = config.btnGradientOrientation
@@ -691,8 +651,6 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 orientation = config.btnGradientOrientation
                 setStroke(stroke, config.strokeColor)
             }
-
-            // ─── Fallback solid color (jika gradient null) ───
             else -> {
                 setColor(if (pressed) config.btnPressedColor else config.btnColor)
                 setStroke(stroke, config.strokeColor)
