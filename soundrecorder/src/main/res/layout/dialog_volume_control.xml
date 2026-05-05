@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -13,6 +14,7 @@
         android:orientation="vertical"
         android:padding="@dimen/_16sdp">
 
+        <!-- Judul -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -24,6 +26,7 @@
             android:textStyle="bold"
             android:layout_marginBottom="@dimen/_12sdp" />
 
+        <!-- Label Music -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,6 +36,7 @@
             android:textSize="@dimen/_13ssp"
             android:alpha="0.7" />
 
+        <!-- Row SeekBar Music -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,16 +51,19 @@
                 app:srcCompat="@drawable/volume_loud_svgrepo_com"
                 app:tint="@color/black_de" />
 
-            <SeekBar
+            <!--
+                SmoothSeekBar: hanya butuh id, layout_width, layout_height.
+                Hapus android:max, android:progressDrawable, android:thumb, android:splitTrack
+                karena semua itu dikontrol langsung dari Kotlin (bukan SeekBar bawaan).
+            -->
+            <sound.recorder.widget.music.SmoothSeekBar
                 android:id="@+id/seekBarMusic"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="100"
-                android:progressDrawable="@drawable/custom_seekbar_track"
-                android:thumb="@drawable/thumb_baru"
-                android:splitTrack="false" />
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
 
+        <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -64,6 +71,7 @@
             android:layout_marginTop="@dimen/_16sdp"
             android:layout_marginBottom="@dimen/_16sdp" />
 
+        <!-- Label Audio -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,8 +97,10 @@
                 android:textSize="@dimen/_11ssp"
                 android:textStyle="italic"
                 android:alpha="0.5" />
+
         </LinearLayout>
 
+        <!-- Row SeekBar Audio -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -105,15 +115,13 @@
                 app:srcCompat="@drawable/volume_loud_svgrepo_com"
                 app:tint="@color/black_de" />
 
-            <SeekBar
+            <sound.recorder.widget.music.SmoothSeekBar
                 android:id="@+id/seekBarAudio"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="100"
-                android:progressDrawable="@drawable/custom_seekbar_track"
-                android:thumb="@drawable/thumb_baru"
-                android:splitTrack="false" />
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
 
     </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>
