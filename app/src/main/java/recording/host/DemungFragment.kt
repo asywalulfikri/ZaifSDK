@@ -106,7 +106,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
             }
         })
 
-        binding?.marqueeControl?.setMarqueeTextColor(Color.RED)
+        binding?.marqueeControl?.setMarqueeTextColor(Color.WHITE)
 
 // Mengganti Background ke Biru Tua
        // binding?.marqueeControl?.setBackgroundColor(Color.parseColor("#000000"))

@@ -61,37 +61,36 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         attachGlobalListener()
     }
 
+    // FIX PADDING: Lebar efektif view setelah dikurangi padding kiri & kanan
+    // Semua kalkulasi scroll harus pakai ini, bukan width mentah
+    private val effectiveWidth: Int
+        get() = (width - paddingLeft - paddingRight).coerceAtLeast(0)
+
     // ─── CUSTOMIZATION HANDLERS ───
 
-    /** Mengganti warna teks (Color Int) */
     fun setTextColorCustom(@ColorInt color: Int) {
         setTextColor(color)
         invalidate()
     }
 
-    /** Mengganti warna teks dari Resource ID */
     fun setTextColorRes(resId: Int) {
         setTextColor(ContextCompat.getColor(context, resId))
     }
 
-    /** Mengganti background warna (Color Int) */
     fun setBackgroundColorCustom(@ColorInt color: Int) {
         setBackgroundColor(color)
     }
 
-    /** Mengganti background dari Resource ID (Drawable/Shape) */
     fun setBackgroundResourceCustom(resId: Int) {
         setBackgroundResource(resId)
     }
 
-    /** Mengganti Font via Typeface object */
     fun setTypefaceCustom(tf: Typeface?) {
         typeface = tf
-        requestLayout() // Hitung ulang dimensi karena font berubah
+        requestLayout()
         invalidate()
     }
 
-    /** Mengganti Font dari Folder res/font */
     fun setFontRes(resId: Int) {
         try {
             val tf = ResourcesCompat.getFont(context, resId)
@@ -101,7 +100,6 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         }
     }
 
-    /** Mengganti Font dari Folder assets */
     fun setFontAssets(path: String) {
         try {
             val tf = Typeface.createFromAsset(context.assets, path)
@@ -135,7 +133,8 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         }
         if (!isPaused && textScroller != null && !textScroller!!.isFinished) return
 
-        mXPaused = -1 * (width / 2)
+        // FIX PADDING: Pakai effectiveWidth bukan width mentah
+        mXPaused = -1 * (effectiveWidth / 2)
         isPaused = true
         resumeScroll()
     }
@@ -179,9 +178,10 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
     }
 
     private fun checkIfNeedsScrolling(): Boolean {
-        if (width <= 0) return false
+        // FIX PADDING: Bandingkan textWidth dengan effectiveWidth bukan width mentah
+        if (effectiveWidth <= 0) return false
         val textWidth = paint.measureText(text.toString())
-        return textWidth > width
+        return textWidth > effectiveWidth
     }
 
     fun resumeScroll() {
@@ -191,8 +191,9 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         textScroller = Scroller(this.context, LinearInterpolator())
         setScroller(textScroller)
 
+        // FIX PADDING: Pakai effectiveWidth bukan width mentah
         val scrollingLen = calculateScrollingLen()
-        val distance = scrollingLen - (width + mXPaused)
+        val distance = scrollingLen - (effectiveWidth + mXPaused)
         if (distance <= 0) return
 
         val duration = (1000f * distance / mScrollSpeed).toInt()
@@ -203,7 +204,8 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         invalidate()
     }
 
-    private fun calculateScrollingLen(): Int = textLength + width
+    // FIX PADDING: Pakai effectiveWidth bukan width mentah
+    private fun calculateScrollingLen(): Int = textLength + effectiveWidth
 
     private val textLength: Int
         get() {
@@ -226,7 +228,8 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         val scroller = textScroller ?: return
 
         if (scroller.isFinished && !isPaused) {
-            val isAtEnd = scroller.currX >= calculateScrollingLen() - width
+            // FIX PADDING: Pakai effectiveWidth bukan width mentah
+            val isAtEnd = scroller.currX >= calculateScrollingLen() - effectiveWidth
             if (isAtEnd) {
                 pauseScroll()
                 onScrollCompleteListener?.onScrollComplete()

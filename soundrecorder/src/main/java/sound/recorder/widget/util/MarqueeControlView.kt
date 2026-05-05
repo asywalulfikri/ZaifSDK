@@ -2,8 +2,8 @@ package sound.recorder.widget.util
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.Typeface
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
@@ -24,21 +24,22 @@ class MarqueeControlView @JvmOverloads constructor(
     private val btnPlus: ImageView
     private val btnClear: ImageView
 
-    private val speedStep = 20f
-    private val speedMin = 20f
+    private val speedStep    = 20f
+    private val speedMin     = 20f
     private val speedDefault = 45f
 
     init {
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
 
-        val dp4 = (4 * resources.displayMetrics.density).toInt()
-        val dp8 = (8 * resources.displayMetrics.density).toInt()
-        setPadding(dp8, 0, dp8, 0)
+        val density    = resources.displayMetrics.density
+        val dp4        = (4  * density).toInt()
+        val dp8        = (8  * density).toInt()
+        val iconSize   = (28 * density).toInt()
+        val iconPad    = (6  * density).toInt()
+        val iconMargin = (4  * density).toInt()
 
-        val iconSize = (28 * resources.displayMetrics.density).toInt()
-        val iconPad = (6 * resources.displayMetrics.density).toInt()
-        val iconMargin = (4 * resources.displayMetrics.density).toInt()
+        setPadding(dp8, 0, dp8, 0)
 
         btnMinus = ImageView(context).apply {
             layoutParams = LayoutParams(iconSize, iconSize)
@@ -50,14 +51,14 @@ class MarqueeControlView @JvmOverloads constructor(
         addView(btnMinus)
 
         marquee = SpeedMarquee(context, null, android.R.attr.textViewStyle).apply {
-            layoutParams = LayoutParams(0, (30 * resources.displayMetrics.density).toInt(), 1f).apply {
+            layoutParams = LayoutParams(0, (30 * density).toInt(), 1f).apply {
                 setMargins(dp4, 0, dp4, 0)
             }
             setBackgroundResource(R.drawable.bg_marquee_curved)
             gravity = Gravity.CENTER_VERTICAL
             setPadding(
-                (10 * resources.displayMetrics.density).toInt(), 0,
-                (10 * resources.displayMetrics.density).toInt(), 0
+                (16 * density).toInt(), 0,
+                (16 * density).toInt(), 0
             )
             isSingleLine = true
             setTextColor(Color.WHITE)
@@ -66,7 +67,7 @@ class MarqueeControlView @JvmOverloads constructor(
             try {
                 typeface = ResourcesCompat.getFont(context, R.font.campton_thin)
             } catch (e: Exception) {
-                android.util.Log.e("MarqueeControl", "Font error: ${e.message}")
+                Log.e("MarqueeControl", "Font load error: ${e.message}")
             }
 
             setSpeed(speedDefault)
@@ -78,7 +79,7 @@ class MarqueeControlView @JvmOverloads constructor(
             layoutParams = LayoutParams(iconSize, iconSize).apply {
                 setMargins(0, 0, iconMargin, 0)
             }
-            setBackgroundResource(R.drawable.button_black)
+            setBackgroundResource(R.drawable.circle_red_champ )
             setImageResource(R.drawable.ic_delete_white)
             setColorFilter(Color.WHITE)
             setPadding(iconPad, iconPad, iconPad, iconPad)
@@ -115,11 +116,10 @@ class MarqueeControlView @JvmOverloads constructor(
         }
     }
 
-    // ─── PUBLIC API UNTUK KUSTOMISASI ───
+    // ─── CUSTOMIZATION API ───
 
     fun setMarqueeTextColor(@ColorInt color: Int) {
         marquee.setTextColor(color)
-        marquee.invalidate()
     }
 
     fun setMarqueeTextColorRes(resId: Int) {
@@ -133,17 +133,10 @@ class MarqueeControlView @JvmOverloads constructor(
     fun setMarqueeFontRes(resId: Int) {
         try {
             marquee.typeface = ResourcesCompat.getFont(context, resId)
-            marquee.requestLayout()
             marquee.invalidate()
         } catch (e: Exception) {
-            android.util.Log.e("MarqueeControl", "Font error: ${e.message}")
+            Log.e("MarqueeControl", "Font change error: ${e.message}")
         }
-    }
-
-    fun setMarqueeTypeface(tf: Typeface?) {
-        marquee.typeface = tf
-        marquee.requestLayout()
-        marquee.invalidate()
     }
 
     fun setButtonsColor(@ColorInt color: Int) {
@@ -152,12 +145,13 @@ class MarqueeControlView @JvmOverloads constructor(
         btnClear.setColorFilter(color)
     }
 
-    // ─── EXISTING PUBLIC API ───
+    // ─── FLOW API ───
 
     fun setText(text: String) {
         marquee.text = text
         marquee.setSpeed(speedDefault)
         marquee.startScroll()
+        // Tampilkan tombol kontrol ketika teks di-set
         showControls(true)
     }
 
@@ -169,21 +163,19 @@ class MarqueeControlView @JvmOverloads constructor(
     fun pauseScroll() { marquee.pauseScroll() }
     fun startScroll() { marquee.startScroll() }
 
-    // Fungsi ini sudah saya kembalikan!
     fun startScrollAfterUpdate(currX: Int) {
         marquee.startScrollAfterUpdate(currX)
-        showControls(true)
     }
 
-    fun getCurrentScrollX(): Int { return marquee.textScroller?.currX ?: 0 }
+    fun getCurrentScrollX(): Int = marquee.textScroller?.currX ?: 0
 
     fun setOnScrollCompleteListener(listener: SpeedMarquee.OnScrollCompleteListener?) {
         marquee.setOnScrollCompleteListener(listener)
     }
 
-    private fun showControls(show: Boolean) {
+    fun showControls(show: Boolean) {
         val v = if (show) View.VISIBLE else View.GONE
-        btnPlus.visibility = v
+        btnPlus.visibility  = v
         btnClear.visibility = v
         btnMinus.visibility = if (show && marquee.getSpeed() > speedMin) View.VISIBLE else View.GONE
     }
@@ -191,9 +183,6 @@ class MarqueeControlView @JvmOverloads constructor(
     override fun onDetachedFromWindow() {
         marquee.setOnScrollCompleteListener(null)
         marquee.stopScroll()
-        btnPlus.setOnClickListener(null)
-        btnMinus.setOnClickListener(null)
-        btnClear.setOnClickListener(null)
         super.onDetachedFromWindow()
     }
 }
