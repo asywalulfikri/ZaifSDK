@@ -1,17 +1,20 @@
 package sound.recorder.widget.util
 
-import sound.recorder.widget.R
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.util.AttributeSet
+import android.util.Log
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.animation.LinearInterpolator
 import android.widget.Scroller
 import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import sound.recorder.widget.R
 import sound.recorder.widget.listener.MyCompleteMarqueeListener
-import kotlin.apply
-import kotlin.let
 
 @SuppressLint("AppCompatCustomView")
 class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
@@ -58,12 +61,62 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         attachGlobalListener()
     }
 
+    // ─── CUSTOMIZATION HANDLERS ───
+
+    /** Mengganti warna teks (Color Int) */
+    fun setTextColorCustom(@ColorInt color: Int) {
+        setTextColor(color)
+        invalidate()
+    }
+
+    /** Mengganti warna teks dari Resource ID */
+    fun setTextColorRes(resId: Int) {
+        setTextColor(ContextCompat.getColor(context, resId))
+    }
+
+    /** Mengganti background warna (Color Int) */
+    fun setBackgroundColorCustom(@ColorInt color: Int) {
+        setBackgroundColor(color)
+    }
+
+    /** Mengganti background dari Resource ID (Drawable/Shape) */
+    fun setBackgroundResourceCustom(resId: Int) {
+        setBackgroundResource(resId)
+    }
+
+    /** Mengganti Font via Typeface object */
+    fun setTypefaceCustom(tf: Typeface?) {
+        typeface = tf
+        requestLayout() // Hitung ulang dimensi karena font berubah
+        invalidate()
+    }
+
+    /** Mengganti Font dari Folder res/font */
+    fun setFontRes(resId: Int) {
+        try {
+            val tf = ResourcesCompat.getFont(context, resId)
+            setTypefaceCustom(tf)
+        } catch (e: Exception) {
+            Log.e("SpeedMarquee", "Font res not found: ${e.message}")
+        }
+    }
+
+    /** Mengganti Font dari Folder assets */
+    fun setFontAssets(path: String) {
+        try {
+            val tf = Typeface.createFromAsset(context.assets, path)
+            setTypefaceCustom(tf)
+        } catch (e: Exception) {
+            Log.e("SpeedMarquee", "Font asset not found: ${e.message}")
+        }
+    }
+
+    // ─── SCROLL LOGIC ───
+
     private fun attachGlobalListener() {
         if (onGlobalLayoutListener == null) {
             onGlobalLayoutListener = OnGlobalLayoutListener {
-                if (isPaused) {
-                    startScroll()
-                }
+                if (isPaused) startScroll()
             }
             viewTreeObserver.addOnGlobalLayoutListener(onGlobalLayoutListener)
         }
@@ -75,20 +128,15 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
     }
 
     fun startScroll() {
-        // Jika listener pernah dihapus (oleh clear), pasang lagi
         attachGlobalListener()
-
-        val needsScrolling = checkIfNeedsScrolling()
-        if (!needsScrolling) {
+        if (!checkIfNeedsScrolling()) {
             stopScroll()
             return
         }
-
-        // Jangan restart jika sudah berjalan
         if (!isPaused && textScroller != null && !textScroller!!.isFinished) return
 
         mXPaused = -1 * (width / 2)
-        isPaused = true // Set true agar resumeScroll mau jalan
+        isPaused = true
         resumeScroll()
     }
 
@@ -116,11 +164,7 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
             val needsScrolling = checkIfNeedsScrolling()
             mXPaused = currX
             isPaused = true
-            if (needsScrolling) {
-                resumeScroll()
-            } else {
-                pauseScroll()
-            }
+            if (needsScrolling) resumeScroll() else pauseScroll()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -149,7 +193,6 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
 
         val scrollingLen = calculateScrollingLen()
         val distance = scrollingLen - (width + mXPaused)
-
         if (distance <= 0) return
 
         val duration = (1000f * distance / mScrollSpeed).toInt()
@@ -160,9 +203,7 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
         invalidate()
     }
 
-    private fun calculateScrollingLen(): Int {
-        return textLength + width
-    }
+    private fun calculateScrollingLen(): Int = textLength + width
 
     private val textLength: Int
         get() {
@@ -191,7 +232,6 @@ class SpeedMarquee(context: Context?, attrs: AttributeSet?, defStyle: Int) :
                 onScrollCompleteListener?.onScrollComplete()
                 MyCompleteMarqueeListener.postOnCompleteMarquee()
             } else {
-                // Looping jika belum benar-benar sampai ujung (jarang terjadi dengan LinearInterpolator)
                 isPaused = true
                 resumeScroll()
             }

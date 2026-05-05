@@ -105,6 +105,13 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
                 binding?.marqueeControl?.clear()
             }
         })
+
+        binding?.marqueeControl?.setMarqueeTextColor(Color.RED)
+
+// Mengganti Background ke Biru Tua
+       // binding?.marqueeControl?.setBackgroundColor(Color.parseColor("#000000"))
+        binding?.marqueeControl?.setMarqueeBackgroundRes(R.drawable.circle_line_champ)
+
     }
 
     // ─── 3. CONTROL PANEL SETUP ───
