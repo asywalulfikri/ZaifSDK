@@ -6,5 +6,4 @@ import sound.recorder.widget.builder.UnitySDKBuilder
 
 interface AdConfigProvider {
     fun getAdmobBuilder(): AdmobSDKBuilder?
-   // fun getUnityBuilder(): UnitySDKBuilder?
 }

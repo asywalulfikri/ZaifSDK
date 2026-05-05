@@ -19,13 +19,11 @@ import kotlinx.coroutines.withContext
 import recording.host.cons.Constants.SongConstants.rawList
 import recording.host.databinding.ActivityGameBinding
 import sound.recorder.widget.MyApp
-import sound.recorder.widget.base.UnityBannerController
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.music.MusicPlayerManager
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.getValue
 
 class GameActivity : BaseActivity(),
     AdsListener,
@@ -38,22 +36,22 @@ class GameActivity : BaseActivity(),
     /** =====================
      *  STATE FLAGS (THREAD SAFE)
      *  ===================== */
-    private val adsSetupCalled = AtomicBoolean(false)
+    private val adsSetupCalled    = AtomicBoolean(false)
     private val adsFirstLoadIsOff = AtomicBoolean(false)
 
-    private var areBuildersReady = false
+    private var areBuildersReady     = false
     private var areEssentialAdsReady = false
 
-    private lateinit var bannerController: UnityBannerController
-
     /** =====================
-     *  NETWORK CALLBACK (NON-DEPRECATED)
+     *  NETWORK CALLBACK
      *  ===================== */
     private lateinit var connectivityManager: ConnectivityManager
 
     private val soundViewModel: SoundViewModel by viewModels()
+
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
+            // compareAndSet memastikan hanya sekali trigger setelah koneksi hilang
             if (adsFirstLoadIsOff.compareAndSet(true, false)) {
                 runOnUiThreadSafe {
                     setToastADS("Internet restored, loading ads…")
@@ -63,6 +61,9 @@ class GameActivity : BaseActivity(),
         }
     }
 
+    /** =====================
+     *  LIFECYCLE
+     *  ===================== */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -76,17 +77,18 @@ class GameActivity : BaseActivity(),
 
         MyAdsListener.setMyListener(this)
         GameApp.registerListener(this)
+
+        // Jika SDK sudah selesai init sebelum Activity ini dibuat,
+        // MyApp.registerListener() akan langsung callback via mainHandler.post {}
+        // sehingga tidak ada race condition
         MyApp.registerListener(this)
 
         permissionNotification()
 
-        if(BuildConfig.hasSong){
+        if (BuildConfig.hasSong) {
             loadSongsOnce()
         }
-
     }
-
-
 
     override fun onStart() {
         super.onStart()
@@ -98,6 +100,17 @@ class GameActivity : BaseActivity(),
         unregisterNetworkCallbackSafe()
     }
 
+    override fun onDestroy() {
+        MyAdsListener.setMyListener(null)
+        GameApp.unregisterListener(this)
+        MyApp.unregisterListener(this)
+        _binding = null
+        super.onDestroy()
+    }
+
+    /** =====================
+     *  NETWORK HELPERS
+     *  ===================== */
     private fun registerNetworkCallbackSafe() {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -106,7 +119,6 @@ class GameActivity : BaseActivity(),
                 val request = NetworkRequest.Builder()
                     .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                     .build()
-
                 connectivityManager.registerNetworkCallback(request, networkCallback)
             }
         } catch (e: Exception) {
@@ -122,20 +134,6 @@ class GameActivity : BaseActivity(),
         }
     }
 
-    override fun onDestroy() {
-
-        if (::bannerController.isInitialized) {
-            bannerController.destroy()
-        }
-
-        MyAdsListener.setMyListener(null)
-        GameApp.unregisterListener(this)
-        MyApp.unregisterListener(this)
-        _binding = null
-        super.onDestroy()
-    }
-
-
     /** =====================
      *  SONG LOADING (ONE TIME, ANTI-ANR)
      *  ===================== */
@@ -143,14 +141,14 @@ class GameActivity : BaseActivity(),
         lifecycleScope.launch(Dispatchers.IO) {
             val tracks = rawList.map { (resId, title) ->
                 MusicPlayerManager.MusicTrack(
-                    title = title,
+                    title    = title,
                     duration = getRawDurationSafe(resId),
-                    isRaw = true,
+                    isRaw    = true,
                     rawResId = resId
                 )
             }
             withContext(Dispatchers.Main) {
-                if (!isDestroyed && !isFinishing) { // ← ganti isAdded ke ini
+                if (!isDestroyed && !isFinishing) {
                     MusicListDialogHelper.registerRawTracks(tracks)
                 }
             }
@@ -160,9 +158,8 @@ class GameActivity : BaseActivity(),
     /** =====================
      *  ADS SETUP (STRICTLY ONCE)
      *  ===================== */
-
     private fun tryToSetupAds() {
-
+        // Kedua flag harus true sebelum lanjut
         if (!areBuildersReady || !areEssentialAdsReady) return
 
         if (!isInternetTrulyAvailable(this)) {
@@ -170,54 +167,47 @@ class GameActivity : BaseActivity(),
             return
         }
 
+        // compareAndSet memastikan blok ini hanya dieksekusi satu kali
         if (!adsSetupCalled.compareAndSet(false, true)) return
 
         lifecycleScope.launch {
 
-            delay(1200)
+            delay(1_200)
 
+            // Pastikan binding masih ada setelah delay
             _binding?.let {
                 loadBannerGame(it.bannerGame, true)
             }
 
             delay(10_000)
 
-            // ❗ Pastikan Activity masih hidup
-            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                return@launch
-            }
+            // Pastikan Activity masih aktif setelah delay panjang
+            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
+            if (isDestroyed || isFinishing) return@launch
 
             try {
-
-                val app = application as GameApp
-
-                if (app.isUnityAdsReady()) {
-
-                    // ❗ Jangan buat ulang kalau sudah ada
-                    if (!::bannerController.isInitialized) {
-
-                        bannerController = UnityBannerController(
-                            activity = this@GameActivity,
-                            lifecycleOwner = this@GameActivity,
-                            placementId = "Banner_Android",
-                            loadTimeoutMs = 10_000L
-                        )
-                    }
-
-                    _binding?.let {
-                        bannerController.load(it.bannerHome)
-                    }
-                }
-
+                loadBannerHome()
             } catch (e: Exception) {
                 setLog(e.message.toString())
             }
         }
     }
 
+    /**
+     * Load banner AdMob di bannerHome.
+     * Dipanggil setelah delay 10 detik di tryToSetupAds().
+     */
+    private fun loadBannerHome() {
+        _binding?.let {
+            loadBannerGame(it.bannerHome, false)
+        }
+    }
+
     /** =====================
-     *  ADS CALLBACK
+     *  SDK CALLBACKS
      *  ===================== */
+
+    // Callback dari MyApp — dipanggil di Main Thread (via mainHandler.post)
     override fun onSdkInitialized(sdk: MyApp.Sdk) {
         if (sdk == MyApp.Sdk.ALL_ESSENTIALS) {
             areEssentialAdsReady = true
@@ -225,27 +215,30 @@ class GameActivity : BaseActivity(),
         }
     }
 
+    // Callback dari GameApp
     override fun onInitializationComplete() {
         areBuildersReady = true
         tryToSetupAds()
     }
 
-
+    /** =====================
+     *  ADS LISTENER CALLBACKS
+     *  ===================== */
     override fun onViewBannerHome(show: Boolean) {
         _binding?.apply {
-            if(soundViewModel.isPremium){
+            if (soundViewModel.isPremium) {
                 onHideAllBanner()
-            }else{
+            } else {
                 val homeTarget = if (show) View.GONE else View.VISIBLE
                 val gameTarget = if (show) View.VISIBLE else View.GONE
 
-                // Animasi halus agar tidak UI Lag
-                bannerHome.animate().alpha(if (show) 0f else 1f).withEndAction {
-                    bannerHome.visibility = homeTarget
-                }
-                bannerGame.animate().alpha(if (show) 1f else 0f).withStartAction {
-                    bannerGame.visibility = gameTarget
-                }
+                bannerHome.animate()
+                    .alpha(if (show) 0f else 1f)
+                    .withEndAction { bannerHome.visibility = homeTarget }
+
+                bannerGame.animate()
+                    .alpha(if (show) 1f else 0f)
+                    .withStartAction { bannerGame.visibility = gameTarget }
             }
         }
     }
@@ -260,6 +253,7 @@ class GameActivity : BaseActivity(),
     override fun loadInterstitial() {
         loadInterstitialIfNeeded(soundViewModel.isPremium)
     }
+
     override fun loadReward() {
         loadRewardedAd(soundViewModel.isPremium)
     }

@@ -3,16 +3,14 @@ package sound.recorder.widget
 import android.app.Application
 import android.os.Build
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.Looper
 import android.util.Log
 import android.webkit.WebView
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
-import com.unity3d.ads.IUnityAdsInitializationListener
-import com.unity3d.ads.UnityAds
 import kotlinx.coroutines.*
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 
 open class MyApp : Application() {
@@ -25,15 +23,13 @@ open class MyApp : Application() {
         fun onSdkInitialized(sdk: Sdk)
     }
 
+    // Scope di IO agar tidak ada operasi blocking di Main Thread
     private val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val mainHandler = Handler(Looper.getMainLooper())
 
     companion object {
         private const val TAG = "MyApp"
-        private const val FIREBASE_TIMEOUT_MS = 15000L // 15 detik
-        private const val ADMOB_TIMEOUT_MS = 10000L // 10 detik
-        private const val ADMOB_DELAY_DEFAULT = 1500L // 1.5 detik
-        private const val ADMOB_DELAY_LOW_END = 3000L // 3 detik untuk low-end
+        private const val FIREBASE_TIMEOUT_MS = 15_000L
+        private const val ADMOB_TIMEOUT_MS    = 10_000L
 
         @Volatile
         private var instance: MyApp? = null
@@ -41,22 +37,27 @@ open class MyApp : Application() {
         fun getApplicationContext(): MyApp =
             instance ?: throw IllegalStateException("MyApp not initialized")
 
-        @Volatile
-        var areEssentialsInitialized = false
-            private set
+        // AtomicBoolean agar set + read bersifat atomic
+        private val _areEssentialsInitialized = AtomicBoolean(false)
+
+        val areEssentialsInitialized: Boolean
+            get() = _areEssentialsInitialized.get()
 
         private val sdkListeners = CopyOnWriteArrayList<SdkInitializationListener>()
-        private val mainHandler = Handler(Looper.getMainLooper())
+        private val mainHandler  = Handler(Looper.getMainLooper())
 
         fun registerListener(listener: SdkInitializationListener) {
             if (!sdkListeners.contains(listener)) {
                 sdkListeners.add(listener)
             }
-
-            // Jika sudah initialized, notify listener
-            if (areEssentialsInitialized) {
+            // Jika sudah init, langsung callback di Main Thread
+            if (_areEssentialsInitialized.get()) {
                 mainHandler.post {
-                    listener.onSdkInitialized(Sdk.ALL_ESSENTIALS)
+                    try {
+                        listener.onSdkInitialized(Sdk.ALL_ESSENTIALS)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Listener immediate callback error: ${e.message}")
+                    }
                 }
             }
         }
@@ -70,7 +71,6 @@ open class MyApp : Application() {
         }
 
         private fun notifyListeners(sdk: Sdk) {
-            // Bungkus seluruh iterasi dalam satu post
             mainHandler.post {
                 sdkListeners.forEach { listener ->
                     try {
@@ -92,54 +92,46 @@ open class MyApp : Application() {
         }
     }
 
-    private suspend fun initializeEssentialSDKs() = coroutineScope {
-        val jobs = mutableListOf<Deferred<Unit>>()
-
-        // Firebase dengan timeout
-        jobs.add(async {
-            val result = withTimeoutOrNull(FIREBASE_TIMEOUT_MS) {
-                initializeFirebase()
+    private suspend fun initializeEssentialSDKs() {
+        coroutineScope {
+            // 1. Firebase — parallel di IO
+            val firebaseJob = launch(Dispatchers.IO) {
+                withTimeoutOrNull(FIREBASE_TIMEOUT_MS) {
+                    initializeFirebase()
+                } ?: Log.w(TAG, "Firebase initialization timed out")
             }
-            if (result == null) {
-                Log.w(TAG, "Firebase init timeout after ${FIREBASE_TIMEOUT_MS}ms")
-            }
-        })
 
-        // WebView setup
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val processName = getProcessName()
-            if (packageName != processName) {
-                try {
-                    WebView.setDataDirectorySuffix(processName)
-                } catch (e: Exception) {
-                    Log.e(TAG, "WebView suffix error: ${e.message}")
+            // 2. WebView DataDirectory Suffix — wajib Main Thread
+            withContext(Dispatchers.Main) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    val processName = getProcessName()
+                    if (packageName != processName) {
+                        try {
+                            WebView.setDataDirectorySuffix(processName)
+                            Log.d(TAG, "WebView suffix set: $processName")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "WebView suffix error: ${e.message}")
+                        }
+                    }
                 }
             }
-        }
 
-        // AdMob dengan timeout
-        if (isWebViewAvailableSafely()) {
-            jobs.add(async {
-                val result = withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
+            // 3. AdMob — withContext(Main) ada di dalam initializeAdMob()
+            if (isWebViewAvailableSafely()) {
+                withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
                     initializeAdMob()
-                }
-                if (result == null) {
-                    Log.w(TAG, "AdMob init timeout after ${ADMOB_TIMEOUT_MS}ms")
-                }
-            })
-        }
-
-        // Tunggu semua jobs selesai atau timeout
-        try {
-            withTimeout(FIREBASE_TIMEOUT_MS + ADMOB_TIMEOUT_MS + 5000L) {
-                jobs.awaitAll()
+                } ?: Log.w(TAG, "AdMob initialization timed out")
+            } else {
+                Log.w(TAG, "WebView not available, skipping AdMob init")
             }
-        } catch (e: TimeoutCancellationException) {
-            Log.e(TAG, "Overall SDK initialization timeout")
-            jobs.forEach { it.cancel() }
+
+            // 4. Tunggu Firebase selesai — aman karena join() di IO bukan Main
+            firebaseJob.join()
         }
 
-        areEssentialsInitialized = true
+        // Tandai selesai secara atomic
+        _areEssentialsInitialized.set(true)
+        Log.d(TAG, "All essential SDKs initialized")
         notifyListeners(Sdk.ALL_ESSENTIALS)
     }
 
@@ -152,52 +144,17 @@ open class MyApp : Application() {
         }
     }
 
-
-    // Optimized untuk device low-end
     private suspend fun initializeAdMob() = withContext(Dispatchers.Main) {
-
         suspendCancellableCoroutine<Unit> { cont ->
-            val delay = if (isLowEndDevice()) ADMOB_DELAY_LOW_END else ADMOB_DELAY_DEFAULT
-
-            val runnable = Runnable {
-                if (!cont.isActive) return@Runnable
-
-                try {
-                    MobileAds.initialize(this@MyApp) { status ->
-                        Log.d(TAG, "AdMob initialized: $status")
-                        if (cont.isActive) cont.resume(Unit)
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "AdMob init crash-safe: ${e.message}")
+            try {
+                MobileAds.initialize(this@MyApp) { status ->
+                    Log.d(TAG, "AdMob initialized: $status")
                     if (cont.isActive) cont.resume(Unit)
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "AdMob init error: ${e.message}")
+                if (cont.isActive) cont.resume(Unit)
             }
-
-            mainHandler.postDelayed(runnable, delay)
-
-            // Cleanup handler jika coroutine dibatalkan
-            cont.invokeOnCancellation {
-                mainHandler.removeCallbacks(runnable)
-            }
-        }
-    }
-
-    private fun isLowEndDevice(): Boolean {
-        return try {
-            val activityManager = getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager
-            val memInfo = android.app.ActivityManager.MemoryInfo()
-            activityManager.getMemoryInfo(memInfo)
-
-            // Device dianggap low-end jika:
-            // - Total RAM < 2GB
-            // - Processor cores <= 4
-            val totalRamGB = memInfo.totalMem / (1024.0 * 1024.0 * 1024.0)
-            val cores = Runtime.getRuntime().availableProcessors()
-
-            totalRamGB < 2.0 || cores <= 4
-        } catch (e: Exception) {
-            Log.e(TAG, "Error detecting device: ${e.message}")
-            false
         }
     }
 
@@ -205,9 +162,7 @@ open class MyApp : Application() {
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WebView.getCurrentWebViewPackage() != null ||
-                        packageManager.hasSystemFeature(
-                            android.content.pm.PackageManager.FEATURE_WEBVIEW
-                        )
+                        packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_WEBVIEW)
             } else {
                 true
             }
@@ -219,76 +174,7 @@ open class MyApp : Application() {
 
     override fun onTerminate() {
         super.onTerminate()
-        try {
-            // Hapus semua pending callbacks
-            mainHandler.removeCallbacksAndMessages(null)
-
-            // Clear listeners
-            clearAllListeners()
-
-            // Cancel coroutine scope
-            applicationScope.cancel()
-
-            instance = null
-        } catch (e: Exception) {
-            Log.e(TAG, "Error during termination: ${e.message}")
-        }
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        Log.w(TAG, "Low memory detected")
-        // Bisa tambahkan cleanup logic di sini jika perlu
-    }
-
-    override fun onTrimMemory(level: Int) {
-        super.onTrimMemory(level)
-        when (level) {
-            TRIM_MEMORY_RUNNING_CRITICAL,
-            TRIM_MEMORY_COMPLETE -> {
-                Log.w(TAG, "Critical memory condition: $level")
-                // Cleanup resources jika perlu
-            }
-        }
-    }
-
-    fun initUnityAdsOnce(unityId : String? = null) {
-
-        if(unityId!=null){
-            if (UnityAds.isInitialized) {
-                Log.d("UNITY_ADS", "Already initialized")
-                return
-            }
-
-            try {
-                UnityAds.initialize(
-                    applicationContext, // Application context = aman
-                    unityId,// true hanya untuk testing
-                    object : IUnityAdsInitializationListener {
-
-                        override fun onInitializationComplete() {
-                            Log.d("UNITY_ADS", "Initialization success")
-                        }
-
-                        override fun onInitializationFailed(
-                            error: UnityAds.UnityAdsInitializationError,
-                            message: String
-                        ) {
-                            // NOTE:
-                            // Jangan retry initialize
-                            // Tangani fallback ads di layer lain
-                            Log.e("UNITY_ADS", "Initialization failed: $error - $message")
-                        }
-                    }
-                )
-            } catch (e: Exception) {
-                Log.e("UNITY_ADS", "Initialization exception", e)
-            }
-        }
-
-    }
-
-    fun isUnityAdsReady(): Boolean {
-        return UnityAds.isInitialized
+        applicationScope.cancel()
+        Log.d(TAG, "Application terminated, scope cancelled")
     }
 }

@@ -15,20 +15,22 @@ import sound.recorder.widget.util.Constant
 import java.util.concurrent.CopyOnWriteArrayList
 
 @SuppressLint("Registered")
-open class GameApp: MyApp(), AdConfigProvider {
+open class GameApp : MyApp(), AdConfigProvider {
 
-    /**
-     * Main dispatcher TANPA immediate
-     * → aman untuk Application.onCreate()
-     */
-    private val appScope =
-        CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    // Scope di IO — operasi yang butuh Main Thread pakai withContext(Main) eksplisit
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     interface AppInitializationListener {
         fun onInitializationComplete()
     }
 
     companion object {
+        private const val TAG = "GameApp"
+
+        // Maksimal tunggu MyApp essentials sebelum lanjut
+        private const val ESSENTIALS_WAIT_TIMEOUT_MS  = 2_000L
+        private const val ESSENTIALS_POLL_INTERVAL_MS = 100L
+
         @Volatile
         var isInitialized = false
             private set
@@ -36,24 +38,22 @@ open class GameApp: MyApp(), AdConfigProvider {
         @Volatile
         private var admobSDKBuilder: AdmobSDKBuilder? = null
 
-        private val listeners =
-            CopyOnWriteArrayList<AppInitializationListener>()
-
+        private val listeners  = CopyOnWriteArrayList<AppInitializationListener>()
+        private val mainHandler = Handler(Looper.getMainLooper())
 
         fun registerListener(listener: AppInitializationListener) {
             listeners.addIfAbsent(listener)
-
             if (isInitialized) {
-                if (Looper.myLooper() == Looper.getMainLooper()) {
-                    listener.onInitializationComplete()
-                } else {
-                    Handler(Looper.getMainLooper()).post {
+                // Selalu callback di Main Thread dari thread manapun
+                mainHandler.post {
+                    try {
                         listener.onInitializationComplete()
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Listener immediate callback error: ${e.message}")
                     }
                 }
             }
         }
-
 
         fun unregisterListener(listener: AppInitializationListener) {
             listeners.remove(listener)
@@ -62,63 +62,75 @@ open class GameApp: MyApp(), AdConfigProvider {
 
     override fun onCreate() {
         super.onCreate()
-        BaseActivityWidget.adConfigProvider = this
 
-        initUnityAdsOnce(BuildConfig.unityGameId)
+        BaseActivityWidget.adConfigProvider = this
 
         appScope.launch {
             try {
-                // 1️⃣ Tunggu essential dari MyApp (maks 2 detik)
+                // 1. Tunggu MyApp essentials selesai (maks 2 detik, di IO)
                 waitEssentialsSafe()
 
-                // 2️⃣ Audio → IO (tidak boleh di Main)
-                withContext(Dispatchers.IO) {
-                    initAudio()
+                // 2. Audio — wajib IO
+                initAudio()
+
+                // 3. AdMob builder — wajib Main Thread
+                withContext(Dispatchers.Main) {
+                    initPrimaryAds()
                 }
 
-                // 3️⃣ AdMob → Main (wajib)
-                initPrimaryAds()
+                // 4. ZaifSDK — wajib Main Thread
+                withContext(Dispatchers.Main) {
+                    initSecondaryComponents()
+                }
 
-                // 4️⃣ SDK UI → Main
-                initSecondaryComponents()
-
-                // 5️⃣ Notify listener
+                // 5. Tandai selesai dan notify listener
                 isInitialized = true
                 notifyListeners()
 
-                Log.d("GameApp", "Initialization completed safely")
+                Log.d(TAG, "GameApp initialization completed")
 
             } catch (e: Exception) {
-                Log.e("GameApp", "Fatal initialization error", e)
+                Log.e(TAG, "Fatal initialization error", e)
+                // Tetap notify agar Activity tidak menggantung selamanya
+                isInitialized = true
+                notifyListeners()
             }
         }
     }
 
     /**
-     * Maksimal tunggu 2 detik
-     * Jangan bikin startup menggantung
+     * Poll sampai MyApp.areEssentialsInitialized == true.
+     * Berjalan di IO — tidak block Main Thread sama sekali.
      */
     private suspend fun waitEssentialsSafe() {
-        repeat(4) { // 4 x 500ms = 2 detik
-            if (areEssentialsInitialized) return
-            delay(500)
+        val startTime = System.currentTimeMillis()
+        while (!areEssentialsInitialized) {
+            val elapsed = System.currentTimeMillis() - startTime
+            if (elapsed >= ESSENTIALS_WAIT_TIMEOUT_MS) {
+                Log.w(TAG, "MyApp essentials timeout after ${elapsed}ms, continuing anyway")
+                return
+            }
+            delay(ESSENTIALS_POLL_INTERVAL_MS)
         }
-        Log.w("GameApp", "Essentials not fully ready, continue anyway")
+        Log.d(TAG, "MyApp essentials ready")
     }
 
     /**
-     * Audio HARUS background
+     * Audio init — HARUS background thread.
+     * Dipanggil dari appScope (IO) — sudah aman.
      */
     private fun initAudio() {
         try {
             SoundPlayUtils.init(applicationContext)
+            Log.d(TAG, "Audio initialized")
         } catch (e: Exception) {
-            Log.e("GameApp", "Audio init failed", e)
+            Log.e(TAG, "Audio init failed: ${e.message}")
         }
     }
 
     /**
-     * AdMob HARUS Main Thread
+     * AdMob builder — HARUS Main Thread.
+     * Dipanggil via withContext(Dispatchers.Main).
      */
     private fun initPrimaryAds() {
         try {
@@ -140,17 +152,18 @@ open class GameApp: MyApp(), AdConfigProvider {
                         setRewardInterstitialId(Constants.AdsProductionId.admobRewardInterstitialId)
                     }
                 }
-                .setUnityGameId(BuildConfig.unityGameId)
                 .setToast(true)
                 .build()
 
+            Log.d(TAG, "AdMob builder initialized")
         } catch (e: Exception) {
-            Log.e("GameApp", "AdMob init failed", e)
+            Log.e(TAG, "AdMob init failed: ${e.message}")
         }
     }
 
     /**
-     * SDK UI → Main Thread
+     * ZaifSDK — HARUS Main Thread.
+     * Dipanggil via withContext(Dispatchers.Main).
      */
     private fun initSecondaryComponents() {
         try {
@@ -167,20 +180,25 @@ open class GameApp: MyApp(), AdConfigProvider {
                 .showVolume(BuildConfig.showVolume)
                 .showListSong(BuildConfig.showListSong)
                 .build()
+
+            Log.d(TAG, "Secondary components initialized")
         } catch (e: Exception) {
-            Log.e("GameApp", "Secondary SDK init failed", e)
+            Log.e(TAG, "Secondary SDK init failed: ${e.message}")
         }
     }
 
     /**
-     * Listener selalu di Main Thread
+     * Notify semua listener di Main Thread.
+     * Aman dipanggil dari thread manapun.
      */
     private fun notifyListeners() {
-        for (listener in listeners) {
-            try {
-                listener.onInitializationComplete()
-            } catch (e: Exception) {
-                Log.e("GameApp", "Listener error", e)
+        mainHandler.post {
+            listeners.forEach { listener ->
+                try {
+                    listener.onInitializationComplete()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Listener notify error: ${e.message}")
+                }
             }
         }
     }
@@ -190,6 +208,5 @@ open class GameApp: MyApp(), AdConfigProvider {
         super.onTerminate()
     }
 
-    override fun getAdmobBuilder(): AdmobSDKBuilder? =
-        admobSDKBuilder
+    override fun getAdmobBuilder(): AdmobSDKBuilder? = admobSDKBuilder
 }
