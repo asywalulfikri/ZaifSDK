@@ -244,5 +244,33 @@
     <string name="share_failed">Не удалось поделиться файлом</string>
     <string name="recording">ЗАПИСЬ</string>
 
+    <string name="notation">Нотация</string>
+    <string name="notation_mode">Режим нотации</string>
+    <string name="color">Цвет</string>
+    <string name="audio">Аудио</string>
+
+    <string name="number">Число</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">Буква</string>
+
+    <string name="blue">Синий</string>
+    <string name="red">Красный</string>
+    <string name="green">Зелёный</string>
+    <string name="purple">Фиолетовый</string>
+    <string name="orange">Оранжевый</string>
+    <string name="yellow">Жёлтый</string>
+    <string name="pink">Розовый</string>
+    <string name="lavender">Лавандовый</string>
+    <string name="sky_blue">Небесно-голубой</string>
+    <string name="peach">Персиковый</string>
+    <string name="cream">Кремовый</string>
+    <string name="salmon">Лососевый</string>
+    <string name="midnight">Полночный</string>
+    <string name="maroon">Бордовый</string>
+    <string name="emerald">Изумрудный</string>
+    <string name="gold">Золотой</string>
+    <string name="graphite">Графитовый</string>
+    <string name="navy">Тёмно-синий</string>
+
 
 </resources>

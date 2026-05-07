@@ -245,4 +245,32 @@
     <string name="share_failed">Error al compartir el archivo</string>
     <string name="recording">GRABACIÓN</string>
 
+    <string name="notation">Notación</string>
+    <string name="notation_mode">Modo de Notación</string>
+    <string name="color">Color</string>
+    <string name="audio">Audio</string>
+
+    <string name="number">Número</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">Letra</string>
+
+    <string name="blue">Azul</string>
+    <string name="red">Rojo</string>
+    <string name="green">Verde</string>
+    <string name="purple">Morado</string>
+    <string name="orange">Naranja</string>
+    <string name="yellow">Amarillo</string>
+    <string name="pink">Rosa</string>
+    <string name="lavender">Lavanda</string>
+    <string name="sky_blue">Azul Cielo</string>
+    <string name="peach">Durazno</string>
+    <string name="cream">Crema</string>
+    <string name="salmon">Salmón</string>
+    <string name="midnight">Medianoche</string>
+    <string name="maroon">Granate</string>
+    <string name="emerald">Esmeralda</string>
+    <string name="gold">Oro</string>
+    <string name="graphite">Grafito</string>
+    <string name="navy">Azul Marino</string>
+
 </resources>

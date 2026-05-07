@@ -247,4 +247,32 @@
     <string name="share_failed">Bestand delen mislukt</string>
     <string name="recording">OPNAME</string>
 
+    <string name="notation">Notatie</string>
+    <string name="notation_mode">Notatiemodus</string>
+    <string name="color">Kleur</string>
+    <string name="audio">Audio</string>
+
+    <string name="number">Nummer</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">Letter</string>
+
+    <string name="blue">Blauw</string>
+    <string name="red">Rood</string>
+    <string name="green">Groen</string>
+    <string name="purple">Paars</string>
+    <string name="orange">Oranje</string>
+    <string name="yellow">Geel</string>
+    <string name="pink">Roze</string>
+    <string name="lavender">Lavendel</string>
+    <string name="sky_blue">Hemelsblauw</string>
+    <string name="peach">Perzik</string>
+    <string name="cream">Crème</string>
+    <string name="salmon">Zalm</string>
+    <string name="midnight">Middernacht</string>
+    <string name="maroon">Kastanjebruin</string>
+    <string name="emerald">Smaragd</string>
+    <string name="gold">Goud</string>
+    <string name="graphite">Grafiet</string>
+    <string name="navy">Marineblauw</string>
+
 </resources>

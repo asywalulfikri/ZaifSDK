@@ -246,4 +246,32 @@
     <string name="share_failed">แชร์ไฟล์ไม่สำเร็จ</string>
     <string name="recording">กำลังบันทึก</string>
 
+    <string name="notation">โน้ต</string>
+    <string name="notation_mode">โหมดโน้ต</string>
+    <string name="color">สี</string>
+    <string name="audio">เสียง</string>
+
+    <string name="number">ตัวเลข</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">ตัวอักษร</string>
+
+    <string name="blue">สีน้ำเงิน</string>
+    <string name="red">สีแดง</string>
+    <string name="green">สีเขียว</string>
+    <string name="purple">สีม่วง</string>
+    <string name="orange">สีส้ม</string>
+    <string name="yellow">สีเหลือง</string>
+    <string name="pink">สีชมพู</string>
+    <string name="lavender">สีลาเวนเดอร์</string>
+    <string name="sky_blue">สีฟ้า</string>
+    <string name="peach">สีพีช</string>
+    <string name="cream">สีครีม</string>
+    <string name="salmon">สีแซลมอน</string>
+    <string name="midnight">สีมิดไนท์</string>
+    <string name="maroon">สีเลือดหมู</string>
+    <string name="emerald">สีมรกต</string>
+    <string name="gold">สีทอง</string>
+    <string name="graphite">สีกราไฟต์</string>
+    <string name="navy">สีกรมท่า</string>
+
 </resources>

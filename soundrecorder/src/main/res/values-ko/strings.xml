@@ -248,4 +248,32 @@
     <string name="share_failed">파일 공유에 실패했습니다</string>
     <string name="recording">녹음</string>
 
+    <string name="notation">표기법</string>
+    <string name="notation_mode">표기 모드</string>
+    <string name="color">색상</string>
+    <string name="audio">오디오</string>
+
+    <string name="number">숫자</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">문자</string>
+
+    <string name="blue">파랑</string>
+    <string name="red">빨강</string>
+    <string name="green">초록</string>
+    <string name="purple">보라</string>
+    <string name="orange">주황</string>
+    <string name="yellow">노랑</string>
+    <string name="pink">분홍</string>
+    <string name="lavender">라벤더</string>
+    <string name="sky_blue">하늘색</string>
+    <string name="peach">복숭아색</string>
+    <string name="cream">크림색</string>
+    <string name="salmon">연어색</string>
+    <string name="midnight">미드나이트</string>
+    <string name="maroon">마룬</string>
+    <string name="emerald">에메랄드</string>
+    <string name="gold">골드</string>
+    <string name="graphite">흑연색</string>
+    <string name="navy">네이비</string>
+
 </resources>

@@ -243,5 +243,33 @@
     <string name="share_failed">文件分享失败</string>
     <string name="recording">录音</string>
 
+    <string name="notation">记谱</string>
+    <string name="notation_mode">记谱模式</string>
+    <string name="color">颜色</string>
+    <string name="audio">音频</string>
+
+    <string name="number">数字</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">字母</string>
+
+    <string name="blue">蓝色</string>
+    <string name="red">红色</string>
+    <string name="green">绿色</string>
+    <string name="purple">紫色</string>
+    <string name="orange">橙色</string>
+    <string name="yellow">黄色</string>
+    <string name="pink">粉色</string>
+    <string name="lavender">薰衣草色</string>
+    <string name="sky_blue">天蓝色</string>
+    <string name="peach">桃色</string>
+    <string name="cream">奶油色</string>
+    <string name="salmon">鲑鱼色</string>
+    <string name="midnight">午夜色</string>
+    <string name="maroon">栗色</string>
+    <string name="emerald">祖母绿色</string>
+    <string name="gold">金色</string>
+    <string name="graphite">石墨色</string>
+    <string name="navy">海军蓝</string>
+
 
 </resources>

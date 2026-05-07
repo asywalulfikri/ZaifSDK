@@ -243,4 +243,32 @@
     <string name="share_failed">फ़ाइल साझा करने में विफल</string>
     <string name="recording">रिकॉर्डिंग</string>
 
+    <string name="notation">नोटेशन</string>
+    <string name="notation_mode">नोटेशन मोड</string>
+    <string name="color">रंग</string>
+    <string name="audio">ऑडियो</string>
+
+    <string name="number">संख्या</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">अक्षर</string>
+
+    <string name="blue">नीला</string>
+    <string name="red">लाल</string>
+    <string name="green">हरा</string>
+    <string name="purple">बैंगनी</string>
+    <string name="orange">नारंगी</string>
+    <string name="yellow">पीला</string>
+    <string name="pink">गुलाबी</string>
+    <string name="lavender">लैवेंडर</string>
+    <string name="sky_blue">आसमानी नीला</string>
+    <string name="peach">पीच</string>
+    <string name="cream">क्रीम</string>
+    <string name="salmon">सैल्मन</string>
+    <string name="midnight">मिडनाइट</string>
+    <string name="maroon">मैरून</string>
+    <string name="emerald">पन्ना</string>
+    <string name="gold">सोना</string>
+    <string name="graphite">ग्रेफाइट</string>
+    <string name="navy">नेवी ब्लू</string>
+
 </resources>

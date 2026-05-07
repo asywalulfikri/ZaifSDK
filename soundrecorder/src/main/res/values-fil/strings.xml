@@ -246,5 +246,33 @@
     <string name="share_failed">Nabigong ibahagi ang file</string>
     <string name="recording">PAG-REKORD</string>
 
+    <string name="notation">Notasyon</string>
+    <string name="notation_mode">Mode ng Notasyon</string>
+    <string name="color">Kulay</string>
+    <string name="audio">Audio</string>
+
+    <string name="number">Numero</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">Titik</string>
+
+    <string name="blue">Asul</string>
+    <string name="red">Pula</string>
+    <string name="green">Berde</string>
+    <string name="purple">Lila</string>
+    <string name="orange">Kahel</string>
+    <string name="yellow">Dilaw</string>
+    <string name="pink">Rosas</string>
+    <string name="lavender">Lavender</string>
+    <string name="sky_blue">Langit na Asul</string>
+    <string name="peach">Peach</string>
+    <string name="cream">Krema</string>
+    <string name="salmon">Salmon</string>
+    <string name="midnight">Hatinggabi</string>
+    <string name="maroon">Maroon</string>
+    <string name="emerald">Esmeralda</string>
+    <string name="gold">Ginto</string>
+    <string name="graphite">Graphite</string>
+    <string name="navy">Navy</string>
+
 
 </resources>

@@ -247,4 +247,32 @@
     <string name="share_failed">ファイルの共有に失敗しました</string>
     <string name="recording">録音</string>
 
+    <string name="notation">記譜</string>
+    <string name="notation_mode">記譜モード</string>
+    <string name="color">色</string>
+    <string name="audio">オーディオ</string>
+
+    <string name="number">数字</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">文字</string>
+
+    <string name="blue">青</string>
+    <string name="red">赤</string>
+    <string name="green">緑</string>
+    <string name="purple">紫</string>
+    <string name="orange">オレンジ</string>
+    <string name="yellow">黄色</string>
+    <string name="pink">ピンク</string>
+    <string name="lavender">ラベンダー</string>
+    <string name="sky_blue">スカイブルー</string>
+    <string name="peach">ピーチ</string>
+    <string name="cream">クリーム</string>
+    <string name="salmon">サーモン</string>
+    <string name="midnight">ミッドナイト</string>
+    <string name="maroon">マルーン</string>
+    <string name="emerald">エメラルド</string>
+    <string name="gold">ゴールド</string>
+    <string name="graphite">グラファイト</string>
+    <string name="navy">ネイビー</string>
+
 </resources>

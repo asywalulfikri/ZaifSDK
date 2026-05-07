@@ -245,4 +245,32 @@
     <string name="file_not_found">Fichier introuvable</string>
     <string name="share_failed">Échec du partage du fichier</string>
     <string name="recording">ENREGISTREMENT</string>
+
+    <string name="notation">Notation</string>
+    <string name="notation_mode">Mode de Notation</string>
+    <string name="color">Couleur</string>
+    <string name="audio">Audio</string>
+
+    <string name="number">Nombre</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">Lettre</string>
+
+    <string name="blue">Bleu</string>
+    <string name="red">Rouge</string>
+    <string name="green">Vert</string>
+    <string name="purple">Violet</string>
+    <string name="orange">Orange</string>
+    <string name="yellow">Jaune</string>
+    <string name="pink">Rose</string>
+    <string name="lavender">Lavande</string>
+    <string name="sky_blue">Bleu Ciel</string>
+    <string name="peach">Pêche</string>
+    <string name="cream">Crème</string>
+    <string name="salmon">Saumon</string>
+    <string name="midnight">Minuit</string>
+    <string name="maroon">Bordeaux</string>
+    <string name="emerald">Émeraude</string>
+    <string name="gold">Or</string>
+    <string name="graphite">Graphite</string>
+    <string name="navy">Bleu Marine</string>
 </resources>

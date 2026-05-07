@@ -245,4 +245,32 @@
     <string name="share_failed">Chia sẻ tệp thất bại</string>
     <string name="recording">GHI ÂM</string>
 
+    <string name="notation">Ký hiệu</string>
+    <string name="notation_mode">Chế độ ký hiệu</string>
+    <string name="color">Màu sắc</string>
+    <string name="audio">Âm thanh</string>
+
+    <string name="number">Số</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">Chữ cái</string>
+
+    <string name="blue">Xanh dương</string>
+    <string name="red">Đỏ</string>
+    <string name="green">Xanh lá</string>
+    <string name="purple">Tím</string>
+    <string name="orange">Cam</string>
+    <string name="yellow">Vàng</string>
+    <string name="pink">Hồng</string>
+    <string name="lavender">Oải hương</string>
+    <string name="sky_blue">Xanh da trời</string>
+    <string name="peach">Màu đào</string>
+    <string name="cream">Kem</string>
+    <string name="salmon">Cá hồi</string>
+    <string name="midnight">Nửa đêm</string>
+    <string name="maroon">Đỏ sẫm</string>
+    <string name="emerald">Ngọc lục bảo</string>
+    <string name="gold">Vàng kim</string>
+    <string name="graphite">Than chì</string>
+    <string name="navy">Xanh hải quân</string>
+
 </resources>

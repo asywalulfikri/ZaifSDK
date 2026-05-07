@@ -243,4 +243,32 @@
     <string name="share_failed">Failed to share file</string>
     <string name="recording">RECORDING</string>
 
+    <string name="notation">Notation</string>
+    <string name="notation_mode">Notation Mode</string>
+    <string name="color">Color</string>
+    <string name="audio">Audio</string>
+
+    <string name="number">Number</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">Letter</string>
+
+    <string name="blue">Blue</string>
+    <string name="red">Red</string>
+    <string name="green">Green</string>
+    <string name="purple">Purple</string>
+    <string name="orange">Orange</string>
+    <string name="yellow">Yellow</string>
+    <string name="pink">Pink</string>
+    <string name="lavender">Lavender</string>
+    <string name="sky_blue">Sky Blue</string>
+    <string name="peach">Peach</string>
+    <string name="cream">Cream</string>
+    <string name="salmon">Salmon</string>
+    <string name="midnight">Midnight</string>
+    <string name="maroon">Maroon</string>
+    <string name="emerald">Emerald</string>
+    <string name="gold">Gold</string>
+    <string name="graphite">Graphite</string>
+    <string name="navy">Navy</string>
+
 </resources>

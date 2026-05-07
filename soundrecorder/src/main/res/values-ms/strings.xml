@@ -248,4 +248,32 @@
     <string name="share_failed">Gagal berkongsi fail</string>
     <string name="recording">RAKAMAN</string>
 
+    <string name="notation">Notasi</string>
+    <string name="notation_mode">Mod Notasi</string>
+    <string name="color">Warna</string>
+    <string name="audio">Audio</string>
+
+    <string name="number">Nombor</string>
+    <string name="doremi">DoReMi</string>
+    <string name="letter">Huruf</string>
+
+    <string name="blue">Biru</string>
+    <string name="red">Merah</string>
+    <string name="green">Hijau</string>
+    <string name="purple">Ungu</string>
+    <string name="orange">Oren</string>
+    <string name="yellow">Kuning</string>
+    <string name="pink">Merah Jambu</string>
+    <string name="lavender">Lavender</string>
+    <string name="sky_blue">Biru Langit</string>
+    <string name="peach">Peach</string>
+    <string name="cream">Krim</string>
+    <string name="salmon">Salmon</string>
+    <string name="midnight">Tengah Malam</string>
+    <string name="maroon">Marun</string>
+    <string name="emerald">Zamrud</string>
+    <string name="gold">Emas</string>
+    <string name="graphite">Grafit</string>
+    <string name="navy">Navy</string>
+
 </resources>
