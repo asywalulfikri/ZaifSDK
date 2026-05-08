@@ -88,44 +88,45 @@ object MusicPlayerManager {
     fun play(context: Context, track: MusicTrack) {
         stop()
         currentTrack = track
-
-        // Load volume tersimpan setiap kali lagu baru dimulai
         currentVolume = loadMusicVolume(context)
 
-        try {
-            mediaPlayer = if (track.isRaw) {
-                MediaPlayer.create(context, track.rawResId)
-            } else {
-                MediaPlayer().apply {
-                    setDataSource(context, track.deviceUri!!)
-                    prepare()
-                }
-            }
-
-            mediaPlayer?.apply {
-                // Terapkan volume tersimpan sebelum start
-                setVolume(currentVolume, currentVolume)
-                start()
-                _isPlaying = true
-                _isPaused = false
-
-                listener?.onPlay(track)
-
-                setOnCompletionListener {
-                    _isPlaying = false
-                    _isPaused = false
-                    progressJob?.cancel()
-                    listener?.onComplete()
-                    stop()
+        CoroutineScope(Dispatchers.IO).launch {          // ← pindah ke IO thread
+            try {
+                val player = if (track.isRaw) {
+                    MediaPlayer.create(context, track.rawResId)
+                } else {
+                    MediaPlayer().apply {
+                        setDataSource(context, track.deviceUri!!)
+                        prepare()                         // aman di IO thread
+                    }
                 }
 
-                startProgressTracking()
+                withContext(Dispatchers.Main) {           // ← balik ke Main untuk UI
+                    mediaPlayer = player
+                    mediaPlayer?.apply {
+                        setVolume(currentVolume, currentVolume)
+                        start()
+                        _isPlaying = true
+                        _isPaused = false
+
+                        listener?.onPlay(track)
+
+                        setOnCompletionListener {
+                            _isPlaying = false
+                            _isPaused = false
+                            progressJob?.cancel()
+                            listener?.onComplete()
+                            stop()
+                        }
+
+                        startProgressTracking()
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
-
     fun pause() {
         mediaPlayer?.let {
             if (it.isPlaying) {

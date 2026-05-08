@@ -170,7 +170,7 @@ class VoiceRecordFragmentHorizontalZaif :
 
         binding.ivListRecord.setOnClickListener {
             safeNavigate(R.id.action_widget_to_list_record)
-            MyAdsListener.setHideAllBanner()
+            MyAdsListener.setBanner(false)
         }
 
         binding.ivVolume.setOnClickListener {
@@ -237,7 +237,7 @@ class VoiceRecordFragmentHorizontalZaif :
 
         if (currentDestination?.getAction(R.id.action_widget_to_list_song) != null) {
             navController.navigate(R.id.action_widget_to_list_song)
-            MyAdsListener.setHideAllBanner()
+            MyAdsListener.setBanner(false)
         }
     }
 

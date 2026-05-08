@@ -143,8 +143,7 @@ open class MyApp : Application() {
             Log.e(TAG, "Firebase error: ${e.message}")
         }
     }
-
-    private suspend fun initializeAdMob() = withContext(Dispatchers.Main) {
+    private suspend fun initializeAdMob() = withContext(Dispatchers.IO) { // ← IO, bukan Main
         suspendCancellableCoroutine<Unit> { cont ->
             try {
                 MobileAds.initialize(this@MyApp) { status ->

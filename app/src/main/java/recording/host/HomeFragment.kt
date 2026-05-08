@@ -20,7 +20,6 @@ import sound.recorder.widget.music.MusicPlayerManager
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.Toastic
 import sound.recorder.widget.util.dialog.DialogSDK
-import kotlin.system.exitProcess
 import kotlin.toString
 
 class HomeFragment : BaseFragmentWidget() {
@@ -63,7 +62,7 @@ class HomeFragment : BaseFragmentWidget() {
                 (activity as? GameActivity)?.showInterstitialIfAllowed(true) {
 
                     if (!isAdded) return@showInterstitialIfAllowed
-                    MyAdsListener.setBannerHome(true)
+                    MyAdsListener.setBanner(true)
                     findNavController().navigate(R.id.action_home_fragment_to_dholak_fragment)
                 }
 
@@ -74,7 +73,7 @@ class HomeFragment : BaseFragmentWidget() {
 
         binding?.btnSetting?.setOnClickListener {
             try {
-                MyAdsListener.setBannerHome(false)
+                MyAdsListener.setBanner(false)
                 findNavController().navigate(R.id.action_home_fragment_to_setting_fragment)
             } catch (e: Exception) {
                 setToastTic(Toastic.ERROR, e.message.toString())
@@ -105,7 +104,7 @@ class HomeFragment : BaseFragmentWidget() {
     }
 
     fun onViewAds(show : Boolean){
-        MyAdsListener.setBannerHome(show)
+        MyAdsListener.setBanner(show)
     }
 
     override fun onDestroy() {

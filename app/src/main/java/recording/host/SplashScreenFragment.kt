@@ -31,7 +31,7 @@ class SplashScreenFragment : BaseFragmentWidget() {
         super.onViewCreated(view, savedInstanceState)
 
         observeViewModel()
-        MyAdsListener.setHideAllBanner()
+        MyAdsListener.setBanner(false)
     }
 
     @SuppressLint("SetTextI18n")

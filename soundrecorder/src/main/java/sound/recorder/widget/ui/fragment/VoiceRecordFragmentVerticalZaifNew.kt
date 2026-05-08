@@ -25,7 +25,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sound.recorder.widget.R
 import sound.recorder.widget.base.BaseFragmentWidget
-import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.databinding.WidgetRecordVerticalZaifBinding
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyMusicListener
@@ -218,7 +217,7 @@ class VoiceRecordFragmentVerticalZaifNew : BaseFragmentWidget(),SharedPreference
             activity?.let {
                 try {
                     findNavController().navigate(R.id.action_widget_to_list_record)
-                    MyAdsListener.setBannerHome(false)
+                    MyAdsListener.setBanner(false)
                 } catch (e: Exception) {
                     setToast(e.message.toString())
                 }
@@ -285,7 +284,7 @@ class VoiceRecordFragmentVerticalZaifNew : BaseFragmentWidget(),SharedPreference
         try {
             if(activity!=null){
                 findNavController().navigate(R.id.action_widget_to_list_song)
-                MyAdsListener.setBannerHome(false)
+                MyAdsListener.setBanner(false)
             }
         }catch (e : Exception){
             setLog(e.message)

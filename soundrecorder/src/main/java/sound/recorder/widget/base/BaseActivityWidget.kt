@@ -20,18 +20,14 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
-import android.webkit.WebView
-import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -1008,7 +1004,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         if(BuildConfig.DEBUG){
                             setToast("close by user")
                         }
-                        MyAdsListener.setBannerHome(true)
+                        MyAdsListener.setBanner(true)
                     }
 
                     override fun onAdFailedToShowFullScreenContent(p0: AdError) {
@@ -1016,7 +1012,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
 
                     override fun onAdShowedFullScreenContent() {
-                        MyAdsListener.setBannerHome(false)
+                        MyAdsListener.setBanner(false)
                         Log.d("AppOpenAd", "Ad showed")
                     }
                 }

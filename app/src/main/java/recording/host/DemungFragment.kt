@@ -241,7 +241,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
                         (activity as? GameActivity)?.showInterstitialIfAllowed(soundViewModel.isPremium) {
                             if (!isAdded) return@showInterstitialIfAllowed
                             isEnabled = false
-                            MyAdsListener.setBannerHome(false)
+                            MyAdsListener.setBanner(false)
                             findNavController().navigateUp()
                         }
                     } catch (e: Exception) {

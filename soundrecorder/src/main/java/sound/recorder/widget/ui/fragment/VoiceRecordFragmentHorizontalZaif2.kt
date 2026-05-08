@@ -14,7 +14,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -25,7 +24,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sound.recorder.widget.R
 import sound.recorder.widget.base.BaseFragmentWidget
-import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.databinding.WidgetRecordHorizontalZaifBinding
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyMusicListener
@@ -238,7 +236,7 @@ class VoiceRecordFragmentHorizontalZaif2 : BaseFragmentWidget(),SharedPreference
             activity?.let {
                 try {
                     findNavController().navigate(R.id.action_widget_to_list_record)
-                    MyAdsListener.setBannerHome(false)
+                    MyAdsListener.setBanner(false)
                 } catch (e: Exception) {
                     setToast(e.message.toString())
                 }
@@ -314,7 +312,7 @@ class VoiceRecordFragmentHorizontalZaif2 : BaseFragmentWidget(),SharedPreference
         try {
             if(activity!=null){
                 findNavController().navigate(R.id.action_widget_to_list_song)
-                MyAdsListener.setBannerHome(false)
+                MyAdsListener.setBanner(false)
             }
         }catch (e : Exception){
             setLog(e.message)

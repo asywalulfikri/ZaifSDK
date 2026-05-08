@@ -68,12 +68,12 @@ class FragmentListRecord : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
 
         }
 
-        MyAdsListener.setHideAllBanner()
+        MyAdsListener.setBanner(false)
 
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 try {
-                    MyAdsListener.setBannerHome(true)
+                    MyAdsListener.setBanner(true)
                     findNavController().navigateUp()
                 }catch (e : Exception){
                     setToast(e.message.toString())
@@ -290,7 +290,7 @@ class FragmentListRecord : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
     }
 
     fun onBackPressed(): Boolean {
-        MyAdsListener.setBannerHome(true)
+        MyAdsListener.setBanner(true)
         activity?.supportFragmentManager?.beginTransaction()?.remove(this)?.commit()
         return false
     }

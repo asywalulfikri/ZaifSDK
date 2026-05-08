@@ -45,12 +45,12 @@ open class FragmentSettings : BaseFragmentWidget() {
     ): View? {
         binding = FragmentSettingBinding.inflate(inflater, container, false)
 
-        MyAdsListener.setHideAllBanner()
+        MyAdsListener.setBanner(false)
 
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 try {
-                    MyAdsListener.setBannerHome(false)
+                    MyAdsListener.setBanner(false)
                     findNavController().navigateUp()
                 }catch (e : Exception){
                     setToast(e.message.toString())

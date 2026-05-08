@@ -14,7 +14,6 @@ import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -85,7 +84,7 @@ class FragmentListSong(
                 requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
                     override fun handleOnBackPressed() {
                         try {
-                            MyAdsListener.setBannerHome(true)
+                            MyAdsListener.setBanner(true)
                             findNavController().navigateUp()
                         }catch (e : Exception){
                             setToast(e.message.toString())
@@ -93,7 +92,7 @@ class FragmentListSong(
                     }
                 })
 
-                MyAdsListener.setHideAllBanner()
+                MyAdsListener.setBanner(false)
                 sharedPreferences = DataSession(it).getShared()
                 sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
                 initAnim()
@@ -103,7 +102,7 @@ class FragmentListSong(
                 volumeAudio = dataSession.getVolumeAudio()
 
                 binding?.btnCLose?.setOnClickListener {
-                    MyAdsListener.setBannerHome(true)
+                    MyAdsListener.setBanner(true)
                     findNavController().navigateUp()
                 }
 
