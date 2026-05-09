@@ -7,9 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.Window
-import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import sound.recorder.widget.R
 import java.text.SimpleDateFormat
@@ -29,27 +27,20 @@ object InstrumentDialogHelper {
 
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
         dialog.setContentView(view)
-
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
+        val tvTitle   = view.findViewById<TextView>(R.id.tvTitle)
         val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
-        val btnWatch = view.findViewById<TextView>(R.id.btnWatch)
+        val btnWatch  = view.findViewById<TextView>(R.id.btnWatch)
         val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
 
-        tvTitle.text = "${context.getString(R.string.open)} $title".uppercase()
+        tvTitle.text   = "${context.getString(R.string.open)} $title".uppercase()
         tvMessage.text = "${context.getString(R.string.watch_ads)} $title?"
-        btnWatch.text = context.getString(R.string.watch).uppercase()
+        btnWatch.text  = context.getString(R.string.watch).uppercase()
         btnCancel.text = context.getString(R.string.cancel).uppercase()
 
-        btnWatch.setOnClickListener {
-            onAccept()
-            dialog.dismiss()
-        }
-
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnWatch.setOnClickListener  { onAccept(); dialog.dismiss() }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }
@@ -64,39 +55,34 @@ object InstrumentDialogHelper {
 
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
         dialog.setContentView(view)
-
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
+        val tvTitle   = view.findViewById<TextView>(R.id.tvTitle)
         val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
-        val btnWatch = view.findViewById<TextView>(R.id.btnWatch)
+        val btnWatch  = view.findViewById<TextView>(R.id.btnWatch)
         val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
 
-        tvTitle.text = context.getString(R.string.remove_ads)
+        tvTitle.text   = context.getString(R.string.remove_ads)
         tvMessage.text = context.getString(R.string.are_you_buy_no_ads)
-        btnWatch.text = context.getString(R.string.buy).uppercase() // Diganti jadi BUY biasanya
+        btnWatch.text  = context.getString(R.string.buy).uppercase()
         btnCancel.text = context.getString(R.string.cancel).uppercase()
 
-        btnWatch.setOnClickListener {
-            onAccept()
-            dialog.dismiss()
-        }
-
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnWatch.setOnClickListener  { onAccept(); dialog.dismiss() }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }
 
     /**
      * Dialog untuk memasukkan nama rekaman sebelum disimpan.
-     * Menggunakan callback onSave untuk mengirimkan nama yang diinput user.
+     * onSave   → user klik Save   (nama rekaman dikirim)
+     * onCancel → user klik Cancel (rekaman di-discard)
      */
     @SuppressLint("UseKtx", "SetTextI18n")
     fun showSaveRecordDialog(
         context: Context,
-        onSave: (name: String) -> Unit
+        onSave: (name: String) -> Unit,
+        onCancel: (() -> Unit)? = null       // ← nullable, backward-compatible
     ) {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -104,18 +90,18 @@ object InstrumentDialogHelper {
         dialog.setContentView(view)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
-        val etName = view.findViewById<EditText>(R.id.tvMessage) // Nanti kita sembunyikan atau ganti jadi EditText
-        val btnSave = view.findViewById<TextView>(R.id.btnWatch)
+        val tvTitle   = view.findViewById<TextView>(R.id.tvTitle)
+        val etName    = view.findViewById<EditText>(R.id.tvMessage)
+        val btnSave   = view.findViewById<TextView>(R.id.btnWatch)
         val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
 
-        tvTitle.text = context.getString(R.string.saved_recording_ask).uppercase()
-        btnSave.text = context.getString(R.string.save).uppercase()
-        val defaultName = context.getString(R.string.recording)+" "+"${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())}"
-        etName.setText(defaultName)
+        val defaultName = context.getString(R.string.recording) + " " +
+                SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
 
-        btnSave.text = context.getString(R.string.save).uppercase()
+        tvTitle.text   = context.getString(R.string.saved_recording_ask).uppercase()
+        btnSave.text   = context.getString(R.string.save).uppercase()
         btnCancel.text = context.getString(R.string.cancel).uppercase()
+        etName.setText(defaultName)
 
         btnSave.setOnClickListener {
             val name = etName.text.toString().ifEmpty { defaultName }
@@ -124,6 +110,7 @@ object InstrumentDialogHelper {
         }
 
         btnCancel.setOnClickListener {
+            onCancel?.invoke()      // ← fire callback cancel
             dialog.dismiss()
         }
 
@@ -140,31 +127,23 @@ object InstrumentDialogHelper {
 
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
         dialog.setContentView(view)
-
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
+        val tvTitle   = view.findViewById<TextView>(R.id.tvTitle)
         val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
-        val btnWatch = view.findViewById<TextView>(R.id.btnWatch)
+        val btnWatch  = view.findViewById<TextView>(R.id.btnWatch)
         val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
 
-        tvTitle.text = context.getString(R.string.record)
+        tvTitle.text   = context.getString(R.string.record)
         tvMessage.text = context.getString(R.string.title_recording_dialog)
-        btnWatch.text = context.getString(R.string.yes).uppercase()
+        btnWatch.text  = context.getString(R.string.yes).uppercase()
         btnCancel.text = context.getString(R.string.cancel).uppercase()
 
-        btnWatch.setOnClickListener {
-            onAccept()
-            dialog.dismiss()
-        }
-
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnWatch.setOnClickListener  { onAccept(); dialog.dismiss() }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }
-
 
     @SuppressLint("UseKtx", "SetTextI18n")
     fun showRecordChooseDialog(
@@ -179,24 +158,12 @@ object InstrumentDialogHelper {
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val btnInstrumentOnly = view.findViewById<TextView>(R.id.btnInstrumentOnly)
-        val btnWithMic = view.findViewById<TextView>(R.id.btnWithMic)
-        val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
+        val btnWithMic        = view.findViewById<TextView>(R.id.btnWithMic)
+        val btnCancel         = view.findViewById<TextView>(R.id.btnCancel)
 
-        // Klik: Rekam Alat Musik Saja
-        btnInstrumentOnly.setOnClickListener {
-            onAccept(false)
-            dialog.dismiss()
-        }
-
-        // Klik: Rekam dengan Mic
-        btnWithMic.setOnClickListener {
-            onAccept(true)
-            dialog.dismiss()
-        }
-
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnInstrumentOnly.setOnClickListener { onAccept(false); dialog.dismiss() }
+        btnWithMic.setOnClickListener        { onAccept(true);  dialog.dismiss() }
+        btnCancel.setOnClickListener         { dialog.dismiss() }
 
         dialog.show()
     }
@@ -211,27 +178,20 @@ object InstrumentDialogHelper {
 
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
         dialog.setContentView(view)
-
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        val tvTitle = view.findViewById<TextView>(R.id.tvTitle)
+        val tvTitle   = view.findViewById<TextView>(R.id.tvTitle)
         val tvMessage = view.findViewById<TextView>(R.id.tvMessage)
-        val btnWatch = view.findViewById<TextView>(R.id.btnWatch)
+        val btnWatch  = view.findViewById<TextView>(R.id.btnWatch)
         val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
 
-        tvTitle.text = context.getString(R.string.record)
+        tvTitle.text   = context.getString(R.string.record)
         tvMessage.text = context.getString(R.string.title_recording_canceled)
-        btnWatch.text = context.getString(R.string.yes).uppercase()
+        btnWatch.text  = context.getString(R.string.yes).uppercase()
         btnCancel.text = context.getString(R.string.no).uppercase()
 
-        btnWatch.setOnClickListener {
-            onAccept()
-            dialog.dismiss()
-        }
-
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnWatch.setOnClickListener  { onAccept(); dialog.dismiss() }
+        btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
     }

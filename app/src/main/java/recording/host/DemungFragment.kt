@@ -19,6 +19,7 @@ import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
+import sound.recorder.widget.recording.ControlConfig
 import recording.host.databinding.FragmentDemungBinding
 import sound.recorder.widget.R
 import sound.recorder.widget.listener.CompleteMarqueeListener
@@ -131,7 +132,27 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
             requestPermissionMusic.launch(permission)
         }
 
-        val style = InstrumentControlPanel.ControlConfig(
+        binding?.controlPanel?.onRecordingTick = { elapsedMs, formattedTime ->
+            // formattedTime → "00:01", "01:23", dst.
+            binding?.tvTimer?.text = formattedTime
+            b.tvTimer.visibility = View.VISIBLE  // atau hide sesuai kebutuhan
+
+            // Atau pakai elapsedMs kalau mau progress bar
+           // binding.progressBar.progress = (elapsedMs / 1000).toInt()
+        }
+
+
+        b.controlPanel.onRecordingStopped = { isSaved ->
+            // Reset timer apapun pilihannya
+            b.tvTimer.text = "00:00"
+            b.tvTimer.visibility = View.GONE  // atau hide sesuai kebutuhan
+
+            if (isSaved) {
+                // misal tampilkan snackbar "Recording saved!"
+            }
+        }
+
+        val style = ControlConfig(
             textColor = Color.parseColor("#FFFFFF"),
             btnColor = Color.parseColor("#3D2510"),
             strokeColor = Color.parseColor("#9B6A14"),

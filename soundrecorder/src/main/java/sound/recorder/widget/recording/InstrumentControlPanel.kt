@@ -1,24 +1,16 @@
 package sound.recorder.widget.recording
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.StateListDrawable
-import android.media.AudioDeviceInfo
-import android.media.AudioManager
-import android.media.MediaPlayer
-import android.media.MediaRecorder
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
@@ -36,8 +28,6 @@ import sound.recorder.widget.recording.database.AppDatabase
 import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.recording.database.RecordingEntity
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
-import java.io.File
-import java.io.IOException
 import com.intuit.sdp.R as SdpR
 
 class InstrumentControlPanel @JvmOverloads constructor(
@@ -46,7 +36,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
-    // ─── 1. KONTRAK & KONFIGURASI ───
+    // ─── KONTRAK ───
     interface InstrumentControlListener {
         fun onRecordStatusChanged(isRecording: Boolean)
         fun onPlaybackEvent(event: RecordedTap)
@@ -55,70 +45,11 @@ class InstrumentControlPanel @JvmOverloads constructor(
         fun onMuteControl(mute: Boolean)
     }
 
-    @SuppressLint("UseKtx")
-    data class ControlConfig(
-        val textColor: Int = Color.parseColor("#F5D76E"),
-        val bgColor: Int = Color.parseColor("#1F1612"),
-        val btnColor: Int = Color.parseColor("#3D2510"),
-        val btnPressedColor: Int = Color.parseColor("#4A2E1C"),
-        val strokeColor: Int = Color.parseColor("#9B6A14"),
-        val cornerRadiusDimenRes: Int = SdpR.dimen._6sdp,
-        val fontSize: Float = 8f,
-        val fontResId: Int? = null,
-        val btnGradientColors: IntArray? = intArrayOf(
-            Color.parseColor("#5A3A1A"),
-            Color.parseColor("#2A1508")
-        ),
-        val btnPressedGradientColors: IntArray? = intArrayOf(
-            Color.parseColor("#7A5030"),
-            Color.parseColor("#3D2510")
-        ),
-        val btnGradientOrientation: GradientDrawable.Orientation = GradientDrawable.Orientation.TOP_BOTTOM,
-        val btnWidthDimenRes: Int? = null,
-        val btnHeightDimenRes: Int? = null
-    ) {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-            other as ControlConfig
-            if (textColor != other.textColor) return false
-            if (bgColor != other.bgColor) return false
-            if (btnColor != other.btnColor) return false
-            if (btnPressedColor != other.btnPressedColor) return false
-            if (strokeColor != other.strokeColor) return false
-            if (cornerRadiusDimenRes != other.cornerRadiusDimenRes) return false
-            if (fontSize != other.fontSize) return false
-            if (fontResId != other.fontResId) return false
-            if (!btnGradientColors.contentEquals(other.btnGradientColors)) return false
-            if (!btnPressedGradientColors.contentEquals(other.btnPressedGradientColors)) return false
-            if (btnGradientOrientation != other.btnGradientOrientation) return false
-            return true
-        }
-
-        override fun hashCode(): Int {
-            var result = textColor
-            result = 31 * result + bgColor
-            result = 31 * result + btnColor
-            result = 31 * result + btnPressedColor
-            result = 31 * result + strokeColor
-            result = 31 * result + cornerRadiusDimenRes
-            result = 31 * result + fontSize.hashCode()
-            result = 31 * result + (fontResId ?: 0)
-            result = 31 * result + (btnGradientColors?.contentHashCode() ?: 0)
-            result = 31 * result + (btnPressedGradientColors?.contentHashCode() ?: 0)
-            result = 31 * result + btnGradientOrientation.hashCode()
-            return result
-        }
-    }
-
     interface AdRequestListener {
         fun onShowRewardedAd(type: String, onComplete: () -> Unit)
     }
 
-    private fun sdp(id: Int)  = resources.getDimensionPixelSize(id)
-    private fun sdpF(id: Int) = resources.getDimension(id)
-
-    // ─── 2. STATE & MANAGER ───
+    // ─── STATE ───
     private var listener: InstrumentControlListener? = null
     private var config = ControlConfig()
     private var instrumentType = "general"
@@ -127,23 +58,51 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private var isEarphoneWhenRecording = false
     private var globalTypeface: Typeface? = null
 
-    private var mediaRecorder: MediaRecorder? = null
-    private var currentAudioFile: File? = null
-    private var audioPlayer: MediaPlayer? = null
-    private val syncHandler = Handler(Looper.getMainLooper())
-
     var adRequestListener: AdRequestListener? = null
     var onRequestAudioPermissionMic: (() -> Unit)? = null
     var onRequestAudioPermissionAudio: (() -> Unit)? = null
     var isMusicUnlocked = false
     var isListRecordUnlocked = false
 
+    // ─── TIMER RECORDING ───
+    // Dipanggil setiap detik saat recording berjalan.
+    // Parameter: elapsedMs (Long), formattedTime (String) contoh "01:23"
+    var onRecordingTick: ((elapsedMs: Long, formattedTime: String) -> Unit)? = null
+
+    // Dipanggil saat recording selesai (save atau cancel).
+    // isSaved = true  → user klik Save
+    // isSaved = false → user klik Cancel / discard
+    var onRecordingStopped: ((isSaved: Boolean) -> Unit)? = null
+
+    private var recordingStartTime = 0L
+    private val timerHandler = Handler(Looper.getMainLooper())
+    private val timerRunnable = object : Runnable {
+        override fun run() {
+            if (!isRecording) return
+            val elapsed = System.currentTimeMillis() - recordingStartTime
+            val formatted = formatDuration(elapsed)
+            onRecordingTick?.invoke(elapsed, formatted)
+            timerHandler.postDelayed(this, 1000)
+        }
+    }
+
+    private fun formatDuration(ms: Long): String {
+        val totalSec = ms / 1000
+        val minutes  = totalSec / 60
+        val seconds  = totalSec % 60
+        return "%02d:%02d".format(minutes, seconds)
+    }
+
+    // ─── HELPERS ───
+    private lateinit var audioEngine: AudioEngine
+    private lateinit var btnFactory: ControlButtonFactory
+    private lateinit var blinkManager: BlinkManager
+
     private val recorderManager = InstrumentRecorderManager { event ->
         listener?.onPlaybackEvent(event)
     }
 
-    private val blinkHandler = Handler(Looper.getMainLooper())
-
+    // ─── BUTTONS ───
     private lateinit var btnRecord: Button
     private lateinit var btnMusic: Button
     private lateinit var btnList: Button
@@ -151,94 +110,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private lateinit var btnNote: Button
     private lateinit var btnVolume: Button
 
-    // ─── BLINK: btnRecord — teks + background ikut merah ───
-    private val blinkRunnable = object : Runnable {
-        private var isOn = false
-        override fun run() {
-            if (!isRecording) return
-            isOn = !isOn
-            if (::btnRecord.isInitialized) {
-                val stopStr = try { context.getString(R.string.stop) } catch (e: Exception) { "STOP" }
-
-                // Teks berubah
-                btnRecord.text = if (isOn) "${stopStr.uppercase()} ●" else stopStr.uppercase()
-                btnRecord.setTextColor(if (isOn) Color.WHITE else config.textColor)
-
-                // Background button ikut merah saat isOn
-                btnRecord.background = StateListDrawable().apply {
-                    addState(intArrayOf(android.R.attr.state_pressed), createBg(pressed = true, isRed = true))
-                    addState(intArrayOf(), createBgRec(isOn))
-                }
-            }
-            blinkHandler.postDelayed(this, 600)
-        }
-    }
-
-    // ─── BLINK: btnStop saat playback berjalan ───
-    private val blinkStopRunnable = object : Runnable {
-        private var isOn = false
-        @SuppressLint("UseKtx")
-        override fun run() {
-            if (!::btnStop.isInitialized || btnStop.visibility != VISIBLE) return
-            isOn = !isOn
-            btnStop.background = StateListDrawable().apply {
-                addState(intArrayOf(android.R.attr.state_pressed), createBg(pressed = true, isRed = true))
-                addState(intArrayOf(), if (isOn) createBgStopOn() else createBg(pressed = false, isRed = true))
-            }
-            btnStop.setTextColor(if (isOn) Color.WHITE else Color.parseColor("#FF6666"))
-            blinkHandler.postDelayed(this, 500)
-        }
-    }
-
-    // ─── Background merah untuk btnRecord saat blink ───
-    @SuppressLint("UseKtx")
-    private fun createBgRec(isOn: Boolean) = GradientDrawable().apply {
-        cornerRadius = sdpF(config.cornerRadiusDimenRes)
-        setStroke(
-            sdp(SdpR.dimen._1sdp),
-            if (isOn) Color.parseColor("#FF9999") else config.strokeColor
-        )
-        colors = if (isOn) {
-            intArrayOf(Color.parseColor("#FF3333"), Color.parseColor("#CC0000"))
-        } else {
-            config.btnGradientColors ?: intArrayOf(config.btnColor, config.btnColor)
-        }
-        orientation = config.btnGradientOrientation
-    }
-
-    @SuppressLint("UseKtx")
-    private fun createBgStopOn() = GradientDrawable().apply {
-        colors = intArrayOf(Color.parseColor("#FF4444"), Color.parseColor("#CC0000"))
-        orientation = GradientDrawable.Orientation.TOP_BOTTOM
-        cornerRadius = sdpF(config.cornerRadiusDimenRes)
-        setStroke(sdp(SdpR.dimen._1sdp), Color.parseColor("#FF9999"))
-    }
-
-    private fun startStopBlink() {
-        blinkHandler.removeCallbacks(blinkStopRunnable)
-        blinkHandler.post(blinkStopRunnable)
-    }
-
-    private fun stopStopBlink() {
-        blinkHandler.removeCallbacks(blinkStopRunnable)
-        if (::btnStop.isInitialized) {
-            btnStop.background = StateListDrawable().apply {
-                addState(intArrayOf(android.R.attr.state_pressed), createBg(pressed = true, isRed = true))
-                addState(intArrayOf(), createBg(pressed = false, isRed = true))
-            }
-            btnStop.setTextColor(Color.WHITE)
-        }
-    }
-
-    // ─── Reset background btnRecord ke normal ───
-    private fun resetRecordBtnBackground() {
-        if (::btnRecord.isInitialized) {
-            btnRecord.background = StateListDrawable().apply {
-                addState(intArrayOf(android.R.attr.state_pressed), createBg(pressed = true))
-                addState(intArrayOf(), createBg(pressed = false))
-            }
-        }
-    }
+    private fun sdp(id: Int) = resources.getDimensionPixelSize(id)
 
     init {
         val orientationAttr = attrs?.getAttributeIntValue(
@@ -246,106 +118,24 @@ class InstrumentControlPanel @JvmOverloads constructor(
         ) ?: HORIZONTAL
         this.orientation = orientationAttr
         this.setBackgroundColor(Color.TRANSPARENT)
-        loadCustomFont()
+        initHelpers()
         renderUI()
     }
 
-    // ─── 3. AUDIO UTILS ───
-    private fun isEarphonePlugged(): Boolean {
-        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
-            for (device in devices) {
-                if (device.type == AudioDeviceInfo.TYPE_WIRED_HEADSET ||
-                    device.type == AudioDeviceInfo.TYPE_WIRED_HEADPHONES ||
-                    device.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
-                    device.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO ||
-                    device.type == AudioDeviceInfo.TYPE_USB_HEADSET ||
-                    device.type == AudioDeviceInfo.TYPE_USB_DEVICE
-                ) return true
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            return audioManager.isWiredHeadsetOn || audioManager.isBluetoothA2dpOn
-        }
-        return false
+    private fun initHelpers() {
+        loadCustomFont()
+        audioEngine = AudioEngine(context)
+        btnFactory  = ControlButtonFactory(context, config, globalTypeface)
+        blinkManager = BlinkManager(
+            config    = config,
+            factory   = btnFactory,
+            getRecordBtn = { if (::btnRecord.isInitialized) btnRecord else null },
+            getStopBtn   = { if (::btnStop.isInitialized) btnStop else null },
+            getRecordLabel = { try { context.getString(R.string.stop) } catch (e: Exception) { "STOP" } }
+        )
     }
 
-    // ─── 4. MIC RECORDER ───
-    private fun startMicAudioEngine() {
-        val fileName = "REC_${System.currentTimeMillis()}.mp3"
-        currentAudioFile = File(context.filesDir, fileName)
-        try {
-            mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                MediaRecorder(context)
-            } else {
-                @Suppress("DEPRECATION")
-                MediaRecorder()
-            }.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setOutputFile(currentAudioFile?.absolutePath)
-                try {
-                    prepare()
-                    start()
-                } catch (e: IOException) {
-                    Log.e("InstrumentControl", "MediaRecorder failed: ${e.message}")
-                }
-            }
-        } catch (e: Exception) {
-            setToast("MIC ERROR")
-        }
-    }
-
-    private fun stopMicAudioEngine() {
-        try {
-            mediaRecorder?.apply { stop(); release() }
-        } catch (e: Exception) {
-            Log.e("InstrumentControl", "Stop failed: ${e.message}")
-        }
-        mediaRecorder = null
-    }
-
-    // ─── 5. MEDIAPLAYER ───
-    private fun startPlayingAudioSync(path: String, onComplete: (() -> Unit)? = null) {
-        stopPlayingAudio()
-        val prepareStartTime = System.currentTimeMillis()
-        try {
-            audioPlayer = MediaPlayer().apply {
-                setDataSource(path)
-                setOnPreparedListener { mp ->
-                    val prepareElapsed = System.currentTimeMillis() - prepareStartTime
-                    Log.d("InstrumentControl", "prepareElapsed=${prepareElapsed}ms")
-                    try { mp.seekTo(prepareElapsed.toInt()) } catch (e: Exception) {
-                        Log.e("InstrumentControl", "seekTo failed: ${e.message}")
-                    }
-                    mp.start()
-                }
-                setOnCompletionListener { stopPlayingAudio(); onComplete?.invoke() }
-                setOnErrorListener { _, what, extra ->
-                    Log.e("InstrumentControl", "MediaPlayer error: what=$what extra=$extra")
-                    stopPlayingAudio(); onComplete?.invoke(); true
-                }
-                prepareAsync()
-            }
-        } catch (e: Exception) {
-            Log.e("InstrumentControl", "Failed to play audio: ${e.message}")
-            onComplete?.invoke()
-        }
-    }
-
-    private fun stopPlayingAudio() {
-        syncHandler.removeCallbacksAndMessages(null)
-        try {
-            audioPlayer?.apply { if (isPlaying) stop(); release() }
-        } catch (e: Exception) {
-            Log.e("InstrumentControl", "Failed to stop audio player: ${e.message}")
-        }
-        audioPlayer = null
-    }
-
-    // ─── 6. UI & SETUP ───
+    // ─── SETUP PUBLIC ───
     fun setup(
         type: String,
         orientation: Int,
@@ -356,92 +146,117 @@ class InstrumentControlPanel @JvmOverloads constructor(
         this.config = config
         this.listener = listener
         this.orientation = orientation
-        loadCustomFont()
+        initHelpers()
         renderUI()
     }
 
     fun setUnlockedStatus(isPremium: Boolean, musicUnlocked: Boolean, listRecordUnlocked: Boolean) {
-        this.isMusicUnlocked = isPremium || musicUnlocked
-        this.isListRecordUnlocked = isPremium || listRecordUnlocked
+        isMusicUnlocked = isPremium || musicUnlocked
+        isListRecordUnlocked = isPremium || listRecordUnlocked
         refreshStatusLabels()
     }
 
-    private fun renderUI() {
-        this.removeAllViews()
-        this.gravity = Gravity.CENTER
+    /**
+     * Update warna semua button tanpa reset state recording/playback.
+     * Panggil dari Fragment saat user ganti tema/warna.
+     */
+    fun updateButtonColors(newConfig: ControlConfig) {
+        this.config = newConfig
 
+        // Re-init factory & blinkManager dengan config baru
+        btnFactory = ControlButtonFactory(context, config, globalTypeface)
+        blinkManager = BlinkManager(
+            config         = config,
+            factory        = btnFactory,
+            getRecordBtn   = { if (::btnRecord.isInitialized) btnRecord else null },
+            getStopBtn     = { if (::btnStop.isInitialized) btnStop else null },
+            getRecordLabel = { try { context.getString(R.string.stop) } catch (e: Exception) { "STOP" } }
+        )
+
+        // Update tiap button tanpa rebuild layout (state recording aman)
+        if (::btnMusic.isInitialized)  applyNormalStyle(btnMusic)
+        if (::btnList.isInitialized)   applyNormalStyle(btnList)
+        if (::btnNote.isInitialized)   applyNormalStyle(btnNote)
+        if (::btnVolume.isInitialized) applyNormalStyle(btnVolume)
+        if (::btnStop.isInitialized)   applyRedStyle(btnStop)
+        // btnRecord: kalau sedang recording biarkan blinkManager yang handle warnanya
+        if (::btnRecord.isInitialized && !isRecording) applyNormalStyle(btnRecord)
+    }
+
+    private fun applyNormalStyle(btn: Button) {
+        btn.setTextColor(config.textColor)
+        btn.background = android.graphics.drawable.StateListDrawable().apply {
+            addState(intArrayOf(android.R.attr.state_pressed), btnFactory.createBg(pressed = true))
+            addState(intArrayOf(), btnFactory.createBg(pressed = false))
+        }
+    }
+
+    private fun applyRedStyle(btn: Button) {
+        btn.setTextColor(android.graphics.Color.WHITE)
+        btn.background = android.graphics.drawable.StateListDrawable().apply {
+            addState(intArrayOf(android.R.attr.state_pressed), btnFactory.createBg(pressed = true, isRed = true))
+            addState(intArrayOf(), btnFactory.createBg(pressed = false, isRed = true))
+        }
+    }
+
+    // ─── UI ───
+    private fun renderUI() {
+        removeAllViews()
+        gravity = Gravity.CENTER
         val pad = sdp(SdpR.dimen._2sdp)
         setPadding(pad, pad, pad, pad)
 
-        btnMusic  = createBtn(context.getString(R.string.music_unlock).uppercase() + "\uD83C\uDFB5")
-        btnRecord = createBtn("REC ●")
-        btnList   = createBtn(context.getString(R.string.list_record_unlock).uppercase())
-        btnNote   = createBtn(context.getString(R.string.note).uppercase())
-        btnStop   = createBtn(context.getString(R.string.stop).uppercase(), isRed = true)
-        btnVolume = createBtn(context.getString(R.string.volume).uppercase())
+        btnMusic  = btnFactory.createBtn(context.getString(R.string.music_unlock).uppercase() + "\uD83C\uDFB5")
+        btnRecord = btnFactory.createBtn("REC ●")
+        btnList   = btnFactory.createBtn(context.getString(R.string.list_record_unlock).uppercase())
+        btnNote   = btnFactory.createBtn(context.getString(R.string.note).uppercase())
+        btnStop   = btnFactory.createBtn(context.getString(R.string.stop).uppercase(), isRed = true)
+        btnVolume = btnFactory.createBtn(context.getString(R.string.volume).uppercase())
         btnStop.visibility = GONE
 
         val btnH   = config.btnHeightDimenRes?.let { sdp(it) } ?: sdp(SdpR.dimen._32sdp)
         val btnW   = config.btnWidthDimenRes?.let { sdp(it) }  ?: sdp(SdpR.dimen._50sdp)
         val margin = sdp(SdpR.dimen._2sdp)
 
-        val layoutParams = LayoutParams(btnW, btnH).apply {
-            setMargins(margin, margin, margin, margin)
-        }
+        val lp = LayoutParams(btnW, btnH).apply { setMargins(margin, margin, margin, margin) }
+        arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop, btnVolume).forEach { addView(it, lp) }
 
-        arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop, btnVolume).forEach {
-            this.addView(it, layoutParams)
-        }
         setupClickListeners()
     }
 
     private fun setupClickListeners() {
         btnMusic.setOnClickListener {
             if (!isMusicUnlocked) {
-                if (!isNetworkAvailable()) {
-                    setToast(context.getString(R.string.no_internet_connection))
-                    return@setOnClickListener
-                }
-                InstrumentDialogHelper.showUnlockDialog(
-                    context, context.getString(R.string.list_music).uppercase()
-                ) {
-                    adRequestListener?.onShowRewardedAd("music") {
-                        isMusicUnlocked = true; refreshStatusLabels(); handleMusicOpen()
-                    }
+                if (!isNetworkAvailable()) { setToast(context.getString(R.string.no_internet_connection)); return@setOnClickListener }
+                InstrumentDialogHelper.showUnlockDialog(context, context.getString(R.string.list_music).uppercase()) {
+                    adRequestListener?.onShowRewardedAd("music") { isMusicUnlocked = true; refreshStatusLabels(); handleMusicOpen() }
                 }
             } else handleMusicOpen()
         }
 
-        btnRecord.setOnClickListener {
-            if (isRecording) stopRecording() else showStartRecordConfirmation()
-        }
+        btnRecord.setOnClickListener { if (isRecording) stopRecording() else showStartRecordConfirmation() }
 
         btnList.setOnClickListener {
             if (!isListRecordUnlocked) {
-                InstrumentDialogHelper.showUnlockDialog(
-                    context, context.getString(R.string.list_record_result).uppercase()
-                ) {
+                InstrumentDialogHelper.showUnlockDialog(context, context.getString(R.string.list_record_result).uppercase()) {
                     if (isNetworkAvailable()) {
-                        adRequestListener?.onShowRewardedAd("list_record") {
-                            isListRecordUnlocked = true; refreshStatusLabels(); openRecordList()
-                        }
-                    } else {
-                        setToast(context.getString(R.string.no_internet_connection))
-                    }
+                        adRequestListener?.onShowRewardedAd("list_record") { isListRecordUnlocked = true; refreshStatusLabels(); openRecordList() }
+                    } else setToast(context.getString(R.string.no_internet_connection))
                 }
             } else openRecordList()
         }
 
         btnStop.setOnClickListener {
             recorderManager.stopPlayback()
-            stopPlayingAudio()
-            stopStopBlink()
+            audioEngine.stopPlayingAudio()
+            blinkManager.stopStopBlink()
             btnStop.visibility = GONE
             listener?.onStopAll()
             listener?.onMuteControl(false)
         }
 
         btnVolume.setOnClickListener { listener?.onVolume() }
+
         btnNote.setOnClickListener {
             (context as? FragmentActivity)?.let {
                 BottomSheetNote().show(it.supportFragmentManager, "note")
@@ -449,7 +264,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         }
     }
 
-    // ─── 7. RECORDING LOGIC ───
+    // ─── RECORDING ───
     private fun showStartRecordConfirmation() {
         InstrumentDialogHelper.showRecordChooseDialog(context) { useMic ->
             if (useMic) checkMicPermission { startRecording(true) }
@@ -458,67 +273,65 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private fun checkMicPermission(onGranted: () -> Unit) {
-        if (ContextCompat.checkSelfPermission(
-                context, Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED
-        ) onGranted()
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
+            onGranted()
         else onRequestAudioPermissionMic?.invoke()
     }
 
     fun startRecording(useMic: Boolean) {
         isRecording = true
         isMicMode = useMic
-        if (useMic) {
-            isEarphoneWhenRecording = isEarphonePlugged()
-            listener?.onMuteControl(false)
-            startMicAudioEngine()
-        } else {
-            isEarphoneWhenRecording = false
-            listener?.onMuteControl(false)
-        }
+        isEarphoneWhenRecording = if (useMic) audioEngine.isEarphonePlugged() else false
+        listener?.onMuteControl(false)
+        if (useMic) audioEngine.startMicRecording()
         recorderManager.startRecording()
         listener?.onRecordStatusChanged(true)
-        blinkHandler.post(blinkRunnable)
+        blinkManager.startRecordBlink()
+        // Mulai timer tick
+        recordingStartTime = System.currentTimeMillis()
+        timerHandler.post(timerRunnable)
     }
 
-    fun setToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-    }
-
-    @SuppressLint("SetTextI18n")
     private fun stopRecording() {
         if (!isRecording) return
         isRecording = false
-        if (isMicMode) stopMicAudioEngine()
+        timerHandler.removeCallbacks(timerRunnable)
+        if (isMicMode) audioEngine.stopMicRecording()
         listener?.onMuteControl(false)
-
-        blinkHandler.removeCallbacks(blinkRunnable)
-        if (::btnRecord.isInitialized) {
-            btnRecord.text = "REC ●"
-            btnRecord.setTextColor(config.textColor)
-            resetRecordBtnBackground() // ← reset background ke normal
-        }
+        blinkManager.resetRecordBtn()
         listener?.onRecordStatusChanged(false)
 
         val events = recorderManager.stopRecording()
         if (events.isNotEmpty()) {
-            InstrumentDialogHelper.showSaveRecordDialog(context) { name ->
-                val json = recorderManager.getEventsAsString(events)
-                val audioPath = if (isMicMode) currentAudioFile?.absolutePath else null
-                val earphoneUsed = isEarphoneWhenRecording
-                CoroutineScope(Dispatchers.IO).launch {
-                    AppDatabase.getInstance(context.applicationContext).recordingDao().insert(
-                        RecordingEntity(
-                            name = name,
-                            setName = instrumentType,
-                            eventsJson = json,
-                            durationMs = events.last().timestamp,
-                            audioPath = audioPath,
-                            isEarphoneRecording = earphoneUsed
+            InstrumentDialogHelper.showSaveRecordDialog(
+                context = context,
+                onSave = { name ->
+                    // User pilih SAVE
+                    onRecordingStopped?.invoke(true)
+                    val json = recorderManager.getEventsAsString(events)
+                    val audioPath = if (isMicMode) audioEngine.currentAudioFile?.absolutePath else null
+                    val earphoneUsed = isEarphoneWhenRecording
+                    CoroutineScope(Dispatchers.IO).launch {
+                        AppDatabase.getInstance(context.applicationContext).recordingDao().insert(
+                            RecordingEntity(
+                                name = name,
+                                setName = instrumentType,
+                                eventsJson = json,
+                                durationMs = events.last().timestamp,
+                                audioPath = audioPath,
+                                isEarphoneRecording = earphoneUsed
+                            )
                         )
-                    )
+                    }
+                },
+                onCancel = {
+                    // User pilih CANCEL / discard
+                    onRecordingStopped?.invoke(false)
                 }
-            }
+            )
+        } else {
+            // Tidak ada event sama sekali → langsung anggap cancel
+            onRecordingStopped?.invoke(false)
         }
     }
 
@@ -526,72 +339,52 @@ class InstrumentControlPanel @JvmOverloads constructor(
         if (isRecording) recorderManager.onNoteEvent(index, metadata)
     }
 
-    // ─── 8. PLAYBACK LOGIC ───
+    // ─── PLAYBACK ───
     private fun openRecordList() {
         RecordingListDialogHelper.show(context, instrumentType) { entity ->
             if (entity.eventsJson.isNotEmpty()) {
                 btnStop.visibility = VISIBLE
-                startStopBlink()
+                blinkManager.startStopBlink()
 
                 val events = recorderManager.parseJson(entity.eventsJson)
-                val hasAudioFile = !entity.audioPath.isNullOrEmpty()
+                val hasAudio = !entity.audioPath.isNullOrEmpty()
 
-                if (hasAudioFile) {
-                    val onAudioFinished: () -> Unit = {
-                        post {
-                            stopStopBlink()
-                            btnStop.visibility = GONE
-                            listener?.onMuteControl(false)
-                            invalidate()
-                        }
-                    }
-                    if (entity.isEarphoneRecording) {
-                        listener?.onMuteControl(false)
-                        recorderManager.play(events) { post { invalidate() } }
-                        startPlayingAudioSync(entity.audioPath, onAudioFinished)
-                    } else {
-                        listener?.onMuteControl(true)
-                        recorderManager.play(events) { post { invalidate() } }
-                        startPlayingAudioSync(entity.audioPath, onAudioFinished)
-                    }
+                val onFinish: () -> Unit = {
+                    post { blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate() }
+                }
+
+                if (hasAudio) {
+                    listener?.onMuteControl(!entity.isEarphoneRecording)
+                    recorderManager.play(events) { post { invalidate() } }
+                    audioEngine.startPlayingAudioSync(entity.audioPath!!, onFinish)
                 } else {
                     listener?.onMuteControl(false)
-                    recorderManager.play(events) {
-                        post {
-                            stopStopBlink()
-                            btnStop.visibility = GONE
-                            listener?.onMuteControl(false)
-                            invalidate()
-                        }
-                    }
+                    recorderManager.play(events) { post { blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate() } }
                 }
             }
         }
     }
 
-    // ─── 9. RELEASE & LIFECYCLE ───
-    @SuppressLint("SetTextI18n")
+    // ─── LIFECYCLE ───
     fun releaseAndStop() {
-        if (isRecording && isMicMode) stopMicAudioEngine()
         isRecording = false
         isMicMode = false
         isEarphoneWhenRecording = false
-        blinkHandler.removeCallbacks(blinkRunnable)
-        stopStopBlink()
+        timerHandler.removeCallbacks(timerRunnable)
+        audioEngine.release()
+        blinkManager.removeAllCallbacks()
+        blinkManager.resetRecordBtn()
         recorderManager.stopPlayback()
-        stopPlayingAudio()
         if (::btnStop.isInitialized) btnStop.visibility = GONE
-        if (::btnRecord.isInitialized) {
-            btnRecord.text = "REC ●"
-            btnRecord.setTextColor(config.textColor)
-            resetRecordBtnBackground() // ← reset background ke normal
-        }
     }
 
     override fun onDetachedFromWindow() {
         releaseAndStop()
         super.onDetachedFromWindow()
     }
+
+    // ─── HELPERS ───
+    fun setToast(message: String) = Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 
     private fun refreshStatusLabels() {
         if (::btnMusic.isInitialized) btnMusic.text =
@@ -603,8 +396,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private fun handleMusicOpen() {
-        val perm = if (Build.VERSION.SDK_INT >= 33)
-            Manifest.permission.READ_MEDIA_AUDIO
+        val perm = if (Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_AUDIO
         else Manifest.permission.READ_EXTERNAL_STORAGE
         if (ContextCompat.checkSelfPermission(context, perm) != PackageManager.PERMISSION_GRANTED)
             onRequestAudioPermissionAudio?.invoke()
@@ -615,55 +407,10 @@ class InstrumentControlPanel @JvmOverloads constructor(
         config.fontResId?.let { globalTypeface = ResourcesCompat.getFont(context, it) }
     }
 
-    private fun createBtn(label: String, isRed: Boolean = false) = Button(context).apply {
-        text = label
-        setTextColor(if (isRed) Color.WHITE else config.textColor)
-        textSize = config.fontSize
-        typeface = globalTypeface ?: Typeface.DEFAULT_BOLD
-        background = StateListDrawable().apply {
-            addState(intArrayOf(android.R.attr.state_pressed), createBg(pressed = true, isRed = isRed))
-            addState(intArrayOf(), createBg(pressed = false, isRed = isRed))
-        }
-    }
-
-    @SuppressLint("UseKtx")
-    private fun createBg(pressed: Boolean, isRed: Boolean = false) = GradientDrawable().apply {
-        val corner = sdpF(config.cornerRadiusDimenRes)
-        val stroke = sdp(SdpR.dimen._1sdp)
-        cornerRadius = corner
-        when {
-            isRed -> {
-                colors = if (pressed) {
-                    intArrayOf(Color.parseColor("#FF4444"), Color.parseColor("#AA0000"))
-                } else {
-                    intArrayOf(Color.parseColor("#FF3333"), Color.parseColor("#CC0000"))
-                }
-                orientation = GradientDrawable.Orientation.TOP_BOTTOM
-                setStroke(stroke, Color.parseColor("#FF6666"))
-            }
-            pressed && config.btnPressedGradientColors != null -> {
-                colors      = config.btnPressedGradientColors
-                orientation = config.btnGradientOrientation
-                setStroke(stroke, config.strokeColor)
-            }
-            !pressed && config.btnGradientColors != null -> {
-                colors      = config.btnGradientColors
-                orientation = config.btnGradientOrientation
-                setStroke(stroke, config.strokeColor)
-            }
-            else -> {
-                setColor(if (pressed) config.btnPressedColor else config.btnColor)
-                setStroke(stroke, config.strokeColor)
-            }
-        }
-    }
-
     private fun isNetworkAvailable(): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            cm.activeNetwork?.let {
-                cm.getNetworkCapabilities(it)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            } ?: false
+            cm.activeNetwork?.let { cm.getNetworkCapabilities(it)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) } ?: false
         } else {
             @Suppress("DEPRECATION")
             cm.activeNetworkInfo?.isConnected ?: false
