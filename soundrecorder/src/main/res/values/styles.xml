@@ -91,4 +91,12 @@
         <item name="android:textSize">@dimen/_11ssp</item>
         <item name="fontFamily">@font/campton_bold</item>
     </style>
+
+    <!-- styles.xml -->
+    <style name="FullScreenDialogTheme" parent="Theme.AppCompat.DayNight.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 </resources>

@@ -1,3 +1,4 @@
+/*
 package sound.recorder.widget.base
 
 import android.app.Activity
@@ -9,9 +10,6 @@ import android.widget.FrameLayout
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import com.unity3d.services.banners.BannerErrorInfo
-import com.unity3d.services.banners.BannerView
-import com.unity3d.services.banners.UnityBannerSize
 import java.util.concurrent.atomic.AtomicBoolean
 
 class UnityBannerController(
@@ -219,3 +217,4 @@ class UnityBannerController(
         lifecycleOwner.lifecycle.removeObserver(this)
     }
 }
+*/

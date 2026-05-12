@@ -41,6 +41,15 @@ class DialogSDK : DialogFragment() {
         dialogType = arguments?.getString(ARG_DIALOG_TYPE)
     }
 
+    // FIX: helper agar dismiss tidak crash setelah onSaveInstanceState
+    private fun safeDismiss() {
+        if (isAdded && !isStateSaved) {
+            dismiss()
+        } else {
+            dismissAllowingStateLoss()
+        }
+    }
+
     @SuppressLint("UseKtx", "SetTextI18n", "UseGetLayoutInflater")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialogView = LayoutInflater.from(requireContext())
@@ -59,8 +68,9 @@ class DialogSDK : DialogFragment() {
                 tvCancel.text = getString(R.string.later)
 
                 tvAction.setOnClickListener {
+                    if (!isAdded) return@setOnClickListener  // FIX: guard
                     action?.invoke(true)
-                    dismiss()
+                    safeDismiss()
                     AppRatingHelper(requireContext()).openRating()
                 }
             }
@@ -70,8 +80,9 @@ class DialogSDK : DialogFragment() {
                 tvContent.text = getString(R.string.how_to_add_song_content)
 
                 tvAction.setOnClickListener {
+                    if (!isAdded) return@setOnClickListener  // FIX: guard
                     action?.invoke(true)
-                    dismiss()
+                    safeDismiss()
                 }
 
                 tvCancel.visibility = View.GONE
@@ -79,8 +90,9 @@ class DialogSDK : DialogFragment() {
         }
 
         tvCancel.setOnClickListener {
+            if (!isAdded) return@setOnClickListener  // FIX: guard
             action?.invoke(false)
-            dismiss()
+            safeDismiss()
         }
 
         return AlertDialog.Builder(requireContext())
@@ -91,5 +103,11 @@ class DialogSDK : DialogFragment() {
                 requestWindowFeature(Window.FEATURE_NO_TITLE)
                 window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             }
+    }
+
+    // FIX: clear action saat fragment di-destroy untuk hindari memory leak
+    override fun onDestroyView() {
+        super.onDestroyView()
+        action = null
     }
 }
