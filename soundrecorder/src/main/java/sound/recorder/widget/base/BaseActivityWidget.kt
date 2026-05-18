@@ -47,6 +47,7 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
@@ -510,7 +511,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         })
 
                     if (consentInformation.canRequestAds()) {
-                        //MobileAds.initialize(this@BaseActivityWidget) {}
+                        MobileAds.initialize(this@BaseActivityWidget) {}
                     }
                 } catch (e: Exception) {
                     Log.d("message", e.message.toString())

@@ -75,6 +75,15 @@ open class FragmentSettings : BaseFragmentWidget() {
 
             }
 
+            binding.ivExit.setOnClickListener {
+                try {
+                    MyAdsListener.setBanner(false)
+                    findNavController().navigateUp()
+                }catch (e : Exception){
+                    setToast(e.message.toString())
+                }
+            }
+
             binding.llMoreApps.setOnClickListener {
                 openPlayStoreForMoreApps(zaifSDKConfig?.developerName)
             }
