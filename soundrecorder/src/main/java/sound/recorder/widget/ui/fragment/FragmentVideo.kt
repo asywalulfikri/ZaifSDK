@@ -43,7 +43,6 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
         binding = ActivityListVideoBinding.inflate(inflater, container, false)
         setupRecyclerView()
         load(false)
-        binding.ivClose.visibility = View.GONE
         return binding.root
     }
 
@@ -66,6 +65,15 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
                 }
             }
         })
+
+        binding.ivClose.setOnClickListener {
+            try {
+                MyAdsListener.setBanner(false)
+                findNavController().navigateUp()
+            }catch (e : Exception){
+                setToast(e.message.toString())
+            }
+        }
     }
 
 
