@@ -199,13 +199,9 @@ object MusicListDialogHelper {
         })
 
         // ── FIX: Dialog pakai themedContext, bukan raw context ───────────────
-        // Theme_AppCompat_Dialog_Alert memiliki semua color resource yang dibutuhkan TextView
         val dialog = AlertDialog.Builder(themedContext, R.style.FullScreenDialogTheme)
             .setView(rootContainer)
             .create()
-
-        // Fallback jika R.style.FullScreenDialogTheme belum ada di styles.xml
-        // Gunakan: AlertDialog.Builder(themedContext, androidx.appcompat.R.style.Theme_AppCompat_Dialog)
 
         closeBtn.setOnClickListener { dialog.dismiss() }
 
@@ -250,9 +246,11 @@ object MusicListDialogHelper {
 
         val allTracks = rawTracks + loadDeviceTracks(themedContext)
 
+        // ── FIX: null-safe renderList ─────────────────────────────────────────
         fun renderList(query: String) {
             listLayout.removeAllViews()
-            val filtered = allTracks.filter { it.title.contains(query, true) }
+            val safeQuery = query.orEmpty()
+            val filtered = allTracks.filter { it.title.orEmpty().contains(safeQuery, true) }
 
             filtered.forEach { track ->
                 val isPlaying = MusicPlayerManager.getCurrentTrack()?.title == track.title
@@ -297,7 +295,7 @@ object MusicListDialogHelper {
                 }
 
                 textStack.addView(TextView(themedContext).apply {
-                    text = track.title.uppercase()
+                    text = track.title.orEmpty().uppercase()
                     textSize = themedContext.sspSp(SspR.dimen._12ssp)
                     setTextColor(
                         if (isPlaying) Color.parseColor(COLOR_ACCENT)
@@ -322,7 +320,8 @@ object MusicListDialogHelper {
                 itemRow.addView(textStack)
                 itemRow.setOnClickListener {
                     MusicPlayerManager.play(themedContext, track)
-                    renderList(searchField.text.toString())
+                    // ── FIX: null-safe saat click ─────────────────────────────
+                    renderList(searchField.text?.toString().orEmpty())
                 }
 
                 listLayout.addView(itemRow)
@@ -337,7 +336,8 @@ object MusicListDialogHelper {
         }
 
         searchField.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) { renderList(s.toString()) }
+            // ── FIX: null-safe afterTextChanged ──────────────────────────────
+            override fun afterTextChanged(s: Editable?) { renderList(s?.toString().orEmpty()) }
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
             override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
         })
@@ -524,9 +524,15 @@ object MusicListDialogHelper {
             "${MediaStore.Audio.Media.IS_MUSIC} != 0", null, null
         )?.use { cursor ->
             while (cursor.moveToNext()) {
-                val title = cursor.getString(0) ?: "Unknown"
-                val dur   = cursor.getLong(1)
-                val id    = cursor.getLong(2)
+                // ── FIX: pakai getColumnIndex yang aman ──────────────────────
+                val titleIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+                val durIndex   = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
+                val idIndex    = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
+
+                val title = if (titleIndex >= 0) cursor.getString(titleIndex) ?: "Unknown" else "Unknown"
+                val dur   = if (durIndex >= 0) cursor.getLong(durIndex) else 0L
+                val id    = if (idIndex >= 0) cursor.getLong(idIndex) else continue
+
                 tracks.add(
                     MusicPlayerManager.MusicTrack(
                         title, dur, false, 0,
