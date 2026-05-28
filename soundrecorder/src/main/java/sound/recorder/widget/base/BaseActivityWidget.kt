@@ -62,7 +62,6 @@ import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -81,6 +80,9 @@ import sound.recorder.widget.util.Toastic
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.cancellation.CancellationException
+
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 
 
 open class BaseActivityWidget : AppCompatActivity() {
@@ -463,58 +465,61 @@ open class BaseActivityWidget : AppCompatActivity() {
             adView2?.resume()
         }
     }
+    
 
     fun setupGDPR() {
-        if (isAdMobAvailable()) {
-            CoroutineScope(Dispatchers.Main).launch {
-                try {
-                    val params = ConsentRequestParameters
-                        .Builder()
-                        .setTagForUnderAgeOfConsent(false)
-                        .build()
+        if (!isAdMobAvailable()) return
 
-                    consentInformation =
-                        UserMessagingPlatform.getConsentInformation(this@BaseActivityWidget)
-                    isPrivacyOptionsRequired =
-                        consentInformation.privacyOptionsRequirementStatus == ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
+        // Gunakan lifecycleScope agar otomatis dibatalkan saat Activity destroy
+        lifecycleScope.launch {
+            try {
+                val params = ConsentRequestParameters.Builder()
+                    .setTagForUnderAgeOfConsent(false)
+                    .build()
 
-                    consentInformation.requestConsentInfoUpdate(
-                        this@BaseActivityWidget,
-                        params, {
-                            UserMessagingPlatform.loadAndShowConsentFormIfRequired(this@BaseActivityWidget) { loadAndShowError ->
-                                loadAndShowError?.let {
-                                    Log.w(TAG, String.format("%s: %s", it.errorCode, it.message))
-                                }
+                consentInformation = UserMessagingPlatform.getConsentInformation(this@BaseActivityWidget)
 
-                                if (isPrivacyOptionsRequired) {
-                                    // Regenerate the options menu to include a privacy setting.
-                                    UserMessagingPlatform.showPrivacyOptionsForm(this@BaseActivityWidget) { formError ->
-                                        formError?.let {
-                                            if (BuildConfig.DEBUG) {
-                                                setToastTic(Toastic.ERROR, it.message.toString())
-                                            }
-                                        }
-                                    }
-                                }
+                // 1. Request update status consent
+                val consentUpdateSuccess = withTimeoutOrNull(10_000L) {
+                    suspendCancellableCoroutine { cont ->
+                        consentInformation.requestConsentInfoUpdate(
+                            this@BaseActivityWidget,
+                            params,
+                            {
+                                if (cont.isActive) cont.resume(true) { }
+                            },
+                            { error ->
+                                Log.w(TAG, "Consent update failed: ${error.message}")
+                                if (cont.isActive) cont.resume(false) { }
                             }
-                        },
-                        { requestConsentError ->
-                            // Consent gathering failed.
-                            Log.w(
-                                TAG,
-                                String.format(
-                                    "%s: %s",
-                                    requestConsentError.errorCode,
-                                    requestConsentError.message
-                                )
-                            )
-                        })
-
-                    if (consentInformation.canRequestAds()) {
-                        MobileAds.initialize(this@BaseActivityWidget) {}
+                        )
                     }
-                } catch (e: Exception) {
-                    Log.d("message", e.message.toString())
+                }
+
+                // 2. Tampilkan form jika diperlukan (Pertama kali atau jika expired)
+                if (consentUpdateSuccess == true) {
+                    withTimeoutOrNull(10_000L) {
+                        suspendCancellableCoroutine { cont ->
+                            UserMessagingPlatform.loadAndShowConsentFormIfRequired(this@BaseActivityWidget) { error ->
+                                error?.let { Log.w(TAG, "Form show error: ${it.message}") }
+                                if (cont.isActive) cont.resume(Unit) { }
+                            }
+                        }
+                    }
+                }
+
+                // 3. Simpan status apakah user perlu opsi untuk mengubah privasi (untuk tombol di Settings)
+                isPrivacyOptionsRequired = consentInformation.privacyOptionsRequirementStatus ==
+                        ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
+
+            } catch (e: CancellationException) {
+                // Coroutine dibatalkan secara normal (Activity hancur)
+            } catch (e: Exception) {
+                Log.e(TAG, "setupGDPR error: ${e.message}")
+            } finally {
+                // 4. Inisialisasi MobileAds apapun yang terjadi (jika diizinkan)
+                if (::consentInformation.isInitialized && consentInformation.canRequestAds()) {
+                    MobileAds.initialize(this@BaseActivityWidget) { }
                 }
             }
         }
@@ -523,6 +528,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     fun showDialogEmail(appName: String, info: String) {
+        if (isFinishing || isDestroyed) return
 
         // custom dialog
         val dialog = Dialog(this)
@@ -575,21 +581,23 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     fun showLoadingProgress(context: Context, long: Long) {
+        if (isFinishing || isDestroyed) return
 
         try {
-            var dialogLoading: Dialog? = Dialog(context)
-            dialogLoading?.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialogLoading?.setContentView(R.layout.loading_layout)
-            dialogLoading?.setCancelable(false)
+            val dialogLoading = Dialog(this)
+            dialogLoading.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialogLoading.setContentView(R.layout.loading_layout)
+            dialogLoading.setCancelable(false)
 
-            dialogLoading?.show()
+            dialogLoading.show()
 
-            val handler = Handler()
-            handler.postDelayed({
-                val dialog = dialogLoading
-                if (dialog != null && dialog.isShowing) {
-                    dialog.dismiss()
-                    dialogLoading = null // Release the dialog instance
+            Handler(Looper.getMainLooper()).postDelayed({
+                try {
+                    if (!isFinishing && !isDestroyed && dialogLoading.isShowing) {
+                        dialogLoading.dismiss()
+                    }
+                } catch (e: Exception) {
+                    Log.e("BaseActivity", "Error dismissing dialog", e)
                 }
             }, long)
         } catch (e: Exception) {
@@ -1407,48 +1415,36 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
     fun setupRewardInterstitial(){
+        if (isFinishing || isDestroyed) return
+        val adId = DataSession(this).getRewardInterstitialId()
+        if (adId.isEmpty()) return
+
         try {
-            RewardedInterstitialAd.load(this, DataSession(this).getRewardInterstitialId(),
+            val weakActivity = WeakReference(this)
+            RewardedInterstitialAd.load(applicationContext, adId,
                 AdRequest.Builder().build(), object : RewardedInterstitialAdLoadCallback() {
                     override fun onAdLoaded(ad: RewardedInterstitialAd) {
-                        //Log.d(TAG, "Ad was loaded.")
-                        rewardedInterstitialAd = ad
-                        isLoadInterstitialReward = true
-                        rewardedInterstitialAd?.fullScreenContentCallback = object: FullScreenContentCallback() {
-                            override fun onAdClicked() {
-                                // Called when a click is recorded for an ad.
-                                Log.d("yametere", "Ad was clicked.")
-                            }
+                        val activity = weakActivity.get()
+                        if (activity == null || activity.isFinishing || activity.isDestroyed) return
 
+                        activity.rewardedInterstitialAd = ad
+                        activity.isLoadInterstitialReward = true
+                        
+                        ad.fullScreenContentCallback = object: FullScreenContentCallback() {
                             override fun onAdDismissedFullScreenContent() {
-                                // Called when ad is dismissed.
-                                // Set the ad reference to null so you don't show the ad a second time.
-                                Log.d("yametere", "Ad dismissed fullscreen content.")
-                                rewardedInterstitialAd = null
+                                activity.rewardedInterstitialAd = null
                             }
 
                             override fun onAdFailedToShowFullScreenContent(p0: AdError) {
-                                // Called when ad fails to show.
-                                Log.d("yametere", "Ad failed to show fullscreen content.")
-                                rewardedInterstitialAd = null
-                            }
-
-                            override fun onAdImpression() {
-                                // Called when an impression is recorded for an ad.
-                                Log.d("yametere", "Ad recorded an impression.")
-                            }
-
-                            override fun onAdShowedFullScreenContent() {
-                                // Called when ad is shown.
-                                Log.d("yametere","Ad showed fullscreen content.")
+                                activity.rewardedInterstitialAd = null
                             }
                         }
                     }
 
                     override fun onAdFailedToLoad(adError: LoadAdError) {
-                        // Log.d(TAG, adError?.toString())
-                        Log.d("yameterex",adError.message.toString())
-                        rewardedInterstitialAd = null
+                        val activity = weakActivity.get()
+                        activity?.rewardedInterstitialAd = null
+                        activity?.isLoadInterstitialReward = false
                     }
                 })
 

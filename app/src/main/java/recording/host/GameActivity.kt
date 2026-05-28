@@ -82,6 +82,7 @@ class GameActivity : BaseActivity(),
         MyApp.registerListener(this)
 
         permissionNotification()
+        setupGDPR()
 
         if (BuildConfig.hasSong) {
             loadSongsOnce()
