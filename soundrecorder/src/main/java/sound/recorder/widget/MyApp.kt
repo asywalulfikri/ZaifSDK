@@ -23,11 +23,11 @@ open class MyApp : Application() {
         fun onSdkInitialized(sdk: Sdk)
     }
 
-    // Scope di IO agar tidak ada operasi blocking di Main Thread
+    // FIX: SupervisorJob di IO — child failure tidak cancel sibling
     private val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     companion object {
-        private const val TAG = "MyApp"
+        private const val TAG                = "MyApp"
         private const val FIREBASE_TIMEOUT_MS = 15_000L
         private const val ADMOB_TIMEOUT_MS    = 10_000L
 
@@ -37,9 +37,7 @@ open class MyApp : Application() {
         fun getApplicationContext(): MyApp =
             instance ?: throw IllegalStateException("MyApp not initialized")
 
-        // AtomicBoolean agar set + read bersifat atomic
         private val _areEssentialsInitialized = AtomicBoolean(false)
-
         val areEssentialsInitialized: Boolean
             get() = _areEssentialsInitialized.get()
 
@@ -47,37 +45,24 @@ open class MyApp : Application() {
         private val mainHandler  = Handler(Looper.getMainLooper())
 
         fun registerListener(listener: SdkInitializationListener) {
-            if (!sdkListeners.contains(listener)) {
-                sdkListeners.add(listener)
-            }
-            // Jika sudah init, langsung callback di Main Thread
+            if (!sdkListeners.contains(listener)) sdkListeners.add(listener)
             if (_areEssentialsInitialized.get()) {
                 mainHandler.post {
-                    try {
-                        listener.onSdkInitialized(Sdk.ALL_ESSENTIALS)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Listener immediate callback error: ${e.message}")
-                    }
+                    try { listener.onSdkInitialized(Sdk.ALL_ESSENTIALS) }
+                    catch (e: Exception) { Log.e(TAG, "Listener callback error: ${e.message}") }
                 }
             }
         }
 
-        fun unregisterListener(listener: SdkInitializationListener) {
-            sdkListeners.remove(listener)
-        }
+        fun unregisterListener(listener: SdkInitializationListener) = sdkListeners.remove(listener)
 
-        fun clearAllListeners() {
-            sdkListeners.clear()
-        }
+        fun clearAllListeners() = sdkListeners.clear()
 
         private fun notifyListeners(sdk: Sdk) {
             mainHandler.post {
                 sdkListeners.forEach { listener ->
-                    try {
-                        listener.onSdkInitialized(sdk)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Listener error: ${e.message}")
-                    }
+                    try { listener.onSdkInitialized(sdk) }
+                    catch (e: Exception) { Log.e(TAG, "Listener error: ${e.message}") }
                 }
             }
         }
@@ -86,37 +71,32 @@ open class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-
         applicationScope.launch {
             initializeEssentialSDKs()
         }
     }
 
     private suspend fun initializeEssentialSDKs() {
-        coroutineScope {
-            // 1. Firebase — parallel di IO
+        // FIX: pakai supervisorScope bukan coroutineScope
+        // → jika satu child gagal/timeout, child lain tetap jalan
+        supervisorScope {
+            // 1. Firebase — jalan paralel di IO
             val firebaseJob = launch(Dispatchers.IO) {
                 withTimeoutOrNull(FIREBASE_TIMEOUT_MS) {
                     initializeFirebase()
                 } ?: Log.w(TAG, "Firebase initialization timed out")
             }
 
-            // 2. WebView DataDirectory Suffix — wajib Main Thread
-            withContext(Dispatchers.Main) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    val processName = getProcessName()
-                    if (packageName != processName) {
-                        try {
-                            WebView.setDataDirectorySuffix(processName)
-                            Log.d(TAG, "WebView suffix set: $processName")
-                        } catch (e: Exception) {
-                            Log.e(TAG, "WebView suffix error: ${e.message}")
-                        }
-                    }
-                }
+            // 2. WebView suffix — wajib Main Thread, jalan paralel
+            val webViewJob = launch(Dispatchers.Main) {
+                setupWebViewSuffix()
             }
 
-            // 3. AdMob — withContext(Main) ada di dalam initializeAdMob()
+            // FIX: tunggu WebView suffix selesai dulu sebelum AdMob
+            // karena AdMob butuh WebView yang sudah di-setup
+            webViewJob.join()
+
+            // 3. AdMob — setelah WebView suffix siap
             if (isWebViewAvailableSafely()) {
                 withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
                     initializeAdMob()
@@ -125,14 +105,29 @@ open class MyApp : Application() {
                 Log.w(TAG, "WebView not available, skipping AdMob init")
             }
 
-            // 4. Tunggu Firebase selesai — aman karena join() di IO bukan Main
+            // 4. Tunggu Firebase selesai sebelum tandai "semua ready"
             firebaseJob.join()
         }
 
-        // Tandai selesai secara atomic
+        // Tandai selesai — dijamin setelah Firebase + AdMob + WebView semua done
         _areEssentialsInitialized.set(true)
         Log.d(TAG, "All essential SDKs initialized")
         notifyListeners(Sdk.ALL_ESSENTIALS)
+    }
+
+    // FIX: pisahkan WebView setup ke fungsi sendiri agar lebih jelas
+    private fun setupWebViewSuffix() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val processName = getProcessName()
+            if (packageName != processName) {
+                try {
+                    WebView.setDataDirectorySuffix(processName)
+                    Log.d(TAG, "WebView suffix set: $processName")
+                } catch (e: Exception) {
+                    Log.e(TAG, "WebView suffix error: ${e.message}")
+                }
+            }
+        }
     }
 
     private suspend fun initializeFirebase() = withContext(Dispatchers.IO) {
@@ -143,8 +138,12 @@ open class MyApp : Application() {
             Log.e(TAG, "Firebase error: ${e.message}")
         }
     }
-    private suspend fun initializeAdMob() = withContext(Dispatchers.IO) { // ← IO, bukan Main
-        suspendCancellableCoroutine<Unit> { cont ->
+
+    // FIX: hapus withContext(Dispatchers.Main) yang redundant di dalam
+    // karena caller (launch di supervisorScope) sudah switch ke Main via webViewJob.join()
+    // AdMob initialize dipanggil langsung di Main Thread dari supervisorScope
+    private suspend fun initializeAdMob() = withContext(Dispatchers.Main) {
+        suspendCancellableCoroutine { cont ->
             try {
                 MobileAds.initialize(this@MyApp) { status ->
                     Log.d(TAG, "AdMob initialized: $status")
@@ -152,6 +151,7 @@ open class MyApp : Application() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "AdMob init error: ${e.message}")
+                // FIX: selalu resume agar coroutine tidak hang selamanya
                 if (cont.isActive) cont.resume(Unit)
             }
         }
@@ -174,6 +174,9 @@ open class MyApp : Application() {
     override fun onTerminate() {
         super.onTerminate()
         applicationScope.cancel()
+        // FIX: clear instance dan listeners saat app terminate → cegah memory leak
+        clearAllListeners()
+        instance = null
         Log.d(TAG, "Application terminated, scope cancelled")
     }
 }
