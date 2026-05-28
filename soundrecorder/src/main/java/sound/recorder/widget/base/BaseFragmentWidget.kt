@@ -614,16 +614,21 @@ open class BaseFragmentWidget : Fragment() {
     }
 
 
-    fun openPlayStoreForMoreApps(devName : String? =null) {
+    fun openPlayStoreForMoreApps(devName: String? = null) {
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://developer?id=$devName"))
-            intent.setPackage("com.android.vending") // Specify the Play Store app package name
-
+            intent.setPackage("com.android.vending")
             startActivity(intent)
-        } catch (e: android.content.ActivityNotFoundException) {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/developer?id=$devName"))
-
-            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            try {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/developer?id=$devName")
+                )
+                startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                Toast.makeText(requireContext(), "Play Store Not Available", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
