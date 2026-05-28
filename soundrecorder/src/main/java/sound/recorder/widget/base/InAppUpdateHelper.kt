@@ -34,6 +34,8 @@ class InAppUpdateHelper(
 
     private val updateLock = Any()
     private var isUpdateFlowRunning = false
+    private var isListenerRegistered = false
+    private var lastResumeCheckTime = 0L
     private var updateJob: Job? = null
 
     private val updateLauncher =
@@ -80,6 +82,7 @@ class InAppUpdateHelper(
 
         updateJob = activity.lifecycleScope.launch {
             try {
+                // Gunakan IO dan Timeout panjang untuk initial check
                 val info = withTimeoutOrNull(15_000L) {
                     withContext(Dispatchers.IO) {
                         appUpdateManager.appUpdateInfo.await()
@@ -120,7 +123,7 @@ class InAppUpdateHelper(
         activity.lifecycleScope.launch {
             try {
                 if (updateType == AppUpdateType.FLEXIBLE) {
-                    appUpdateManager.registerListener(installStateUpdatedListener)
+                    registerListenerIfNeeded()
                 }
 
                 val options = AppUpdateOptions.newBuilder(updateType).build()
@@ -148,31 +151,37 @@ class InAppUpdateHelper(
         }
     }
 
-
-
     fun onResume() {
-        appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
+        val now = System.currentTimeMillis()
+        
+        synchronized(updateLock) {
+            // Throttling: Jangan cek di onResume jika baru saja dicek (30 detik)
+            if (isUpdateFlowRunning || (now - lastResumeCheckTime < 30_000L)) return
+            lastResumeCheckTime = now
+        }
 
-            // IMMEDIATE: lanjutkan flow yang tertunda
-            if (updateType == AppUpdateType.IMMEDIATE &&
-                info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
-            ) {
-                startUpdateSafely(info)
-            }
+        activity.lifecycleScope.launch {
+            try {
+                val info = withTimeoutOrNull(5_000L) {
+                    withContext(Dispatchers.IO) {
+                        appUpdateManager.appUpdateInfo.await()
+                    }
+                } ?: return@launch
 
-            // FLEXIBLE: jika sudah terdownload saat app ditinggal
-            else if (updateType == AppUpdateType.FLEXIBLE &&
-                info.installStatus() == InstallStatus.DOWNLOADED
-            ) {
-                try {
+                if (updateType == AppUpdateType.IMMEDIATE &&
+                    info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
+                ) {
+                    startUpdateSafely(info)
+                } else if (updateType == AppUpdateType.FLEXIBLE &&
+                    info.installStatus() == InstallStatus.DOWNLOADED
+                ) {
                     completeFlexibleUpdate()
-                } catch (e: Exception) {
-                    Log.e("Update", "Resume complete update failed", e)
                 }
+            } catch (e: Exception) {
+                Log.e("Update", "Resume check failed", e)
             }
         }
     }
-
 
     fun onDestroy() {
         try {
@@ -184,10 +193,20 @@ class InAppUpdateHelper(
         }
     }
 
+    private fun registerListenerIfNeeded() {
+        if (updateType == AppUpdateType.FLEXIBLE && !isListenerRegistered) {
+            try {
+                appUpdateManager.registerListener(installStateUpdatedListener)
+                isListenerRegistered = true
+            } catch (_: Exception) { }
+        }
+    }
+
     private fun unregisterListenerIfNeeded() {
-        if (updateType == AppUpdateType.FLEXIBLE) {
+        if (isListenerRegistered) {
             try {
                 appUpdateManager.unregisterListener(installStateUpdatedListener)
+                isListenerRegistered = false
             } catch (_: Exception) { }
         }
     }
