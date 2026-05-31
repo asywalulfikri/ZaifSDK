@@ -34,7 +34,7 @@ class BillingManager(
                     purchases.forEach { handlePurchase(it) }
                 }
             }
-            .enablePendingPurchases()
+            .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
             .build()
     }
 
@@ -95,7 +95,8 @@ class BillingManager(
             .setProductList(productList)
             .build()
 
-        billingClient.queryProductDetailsAsync(params) { result, productDetailsList ->
+        billingClient.queryProductDetailsAsync(params) { result, queryProductDetailsResult ->
+            val productDetailsList = queryProductDetailsResult.productDetailsList
 
             if (result.responseCode == BillingClient.BillingResponseCode.OK && productDetailsList.isNotEmpty()) {
 

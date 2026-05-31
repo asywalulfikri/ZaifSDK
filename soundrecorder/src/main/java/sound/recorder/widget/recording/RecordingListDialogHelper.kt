@@ -42,6 +42,7 @@ object RecordingListDialogHelper {
     private const val COLOR_DANGER     = "CF6679"
     private const val COLOR_WOOD_LIGHT = "#3E2717"
     private const val COLOR_SHARE      = "4A9EBF"
+    private const val COLOR_JSON       = "81C784"
 
     // ─── Helper shorthand ───
     private fun Context.sdp(id: Int) = resources.getDimensionPixelSize(id)
@@ -226,6 +227,20 @@ object RecordingListDialogHelper {
 
             addView(spacer(context, btnSpacer))
 
+            // ─── EXPORT JSON (Hanya di mode Debug) ───
+            if (sound.recorder.widget.BuildConfig.DEBUG) {
+                addView(spacer(context, btnSpacer))
+                val jsonBtn = buildIconButton(
+                    context, "{}", "#20$COLOR_JSON",
+                    Color.parseColor("#$COLOR_JSON"), btnSize
+                ) {
+                    shareJsonFile(context, rec)
+                }
+                addView(jsonBtn)
+            }
+
+            addView(spacer(context, btnSpacer))
+
             // ─── DELETE ───
             val deleteBtn = buildIconButton(
                 context, "🗑", "#20$COLOR_DANGER",
@@ -291,6 +306,45 @@ object RecordingListDialogHelper {
         } catch (e: Exception) {
             android.widget.Toast.makeText(
                 context, context.getString(R.string.share_failed), android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    // ─── EXPORT JSON ─────────────────────────────────────────────────────────
+
+    private fun shareJsonFile(context: Context, rec: RecordingEntity) {
+        val jsonContent = """
+            {
+              "id": ${rec.id},
+              "name": "${rec.name}",
+              "category": "${rec.setName}",
+              "events": ${rec.eventsJson},
+              "audio_path": "${rec.audioPath ?: ""}",
+              "created_at": ${rec.createdAt},
+              "duration_ms": ${rec.durationMs},
+              "is_earphone": ${rec.isEarphoneRecording}
+            }
+        """.trimIndent()
+
+        val fileName = "Export_${rec.name.replace(Regex("[^a-zA-Z0-9]"), "_")}.json"
+        val file = File(context.cacheDir, fileName)
+        try {
+            file.writeText(jsonContent)
+            val uri = FileProvider.getUriForFile(
+                context, "${context.packageName}.provider", file
+            )
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/json"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_SUBJECT, "JSON: ${rec.name}")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                // Specific for WhatsApp if you want, but general is better
+                // setPackage("com.whatsapp") // Optional: force WhatsApp
+            }
+            context.startActivity(Intent.createChooser(shareIntent, "Share JSON via"))
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(
+                context, "Export Failed: ${e.message}", android.widget.Toast.LENGTH_SHORT
             ).show()
         }
     }

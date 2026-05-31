@@ -83,13 +83,13 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:1.8.9"
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0")
 
-    implementation("com.android.billingclient:billing-ktx:7.0.0")
+    implementation("com.android.billingclient:billing-ktx:9.0.0")
     implementation "androidx.navigation:navigation-fragment-ktx:2.9.8"
     implementation("androidx.navigation:navigation-ui-ktx:2.9.8")
 
 
     implementation 'org.greenrobot:eventbus:3.3.1'
-    implementation platform('com.google.firebase:firebase-bom:34.13.0')
+    implementation platform('com.google.firebase:firebase-bom:34.14.0')
     implementation 'com.google.firebase:firebase-messaging:25.0.2'
     implementation 'com.google.firebase:firebase-firestore:26.3.0'
     implementation 'com.google.code.gson:gson:2.14.0'
