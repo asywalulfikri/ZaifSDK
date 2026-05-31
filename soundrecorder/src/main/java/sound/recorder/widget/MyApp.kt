@@ -23,7 +23,7 @@ open class MyApp : Application() {
         fun onSdkInitialized(sdk: Sdk)
     }
 
-    // FIX: SupervisorJob di IO — child failure tidak cancel sibling
+    // SupervisorJob di IO — child failure tidak cancel sibling
     private val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     companion object {
@@ -71,61 +71,59 @@ open class MyApp : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+
+        // 1. SETUP WEBVIEW SUFFIX SECEPAT MUNGKIN (SINKRON)
+        // Wajib sinkron di Main Thread untuk mencegah crash "UncaughtExceptionException" 
+        // pada engine Chromium jika ada multi-proses.
+        setupWebViewSuffix()
+
+        // 2. INISIALISASI BERAT DI BACKGROUND
         applicationScope.launch {
             initializeEssentialSDKs()
         }
     }
 
     private suspend fun initializeEssentialSDKs() {
-        // FIX: pakai supervisorScope bukan coroutineScope
-        // → jika satu child gagal/timeout, child lain tetap jalan
         supervisorScope {
-            // 1. Firebase — jalan paralel di IO
+            // A. Firebase — jalan paralel di IO
             val firebaseJob = launch(Dispatchers.IO) {
                 withTimeoutOrNull(FIREBASE_TIMEOUT_MS) {
                     initializeFirebase()
                 } ?: Log.w(TAG, "Firebase initialization timed out")
             }
 
-            // 2. WebView suffix — wajib Main Thread, jalan paralel
-            val webViewJob = launch(Dispatchers.Main) {
-                setupWebViewSuffix()
+            // B. AdMob — Setelah WebView Suffix siap (karena dipanggil di onCreate, di sini sudah pasti siap)
+            val admobJob = launch(Dispatchers.IO) {
+                if (isWebViewAvailableSafely()) {
+                    withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
+                        initializeAdMob()
+                    } ?: Log.w(TAG, "AdMob initialization timed out")
+                } else {
+                    Log.w(TAG, "WebView not available, skipping AdMob init")
+                }
             }
 
-            // FIX: tunggu WebView suffix selesai dulu sebelum AdMob
-            // karena AdMob butuh WebView yang sudah di-setup
-            webViewJob.join()
-
-            // 3. AdMob — setelah WebView suffix siap
-            if (isWebViewAvailableSafely()) {
-                withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
-                    initializeAdMob()
-                } ?: Log.w(TAG, "AdMob initialization timed out")
-            } else {
-                Log.w(TAG, "WebView not available, skipping AdMob init")
-            }
-
-            // 4. Tunggu Firebase selesai sebelum tandai "semua ready"
-            firebaseJob.join()
+            // Tunggu semua selesai
+            joinAll(firebaseJob, admobJob)
         }
 
-        // Tandai selesai — dijamin setelah Firebase + AdMob + WebView semua done
+        // Tandai selesai
         _areEssentialsInitialized.set(true)
         Log.d(TAG, "All essential SDKs initialized")
         notifyListeners(Sdk.ALL_ESSENTIALS)
     }
 
-    // FIX: pisahkan WebView setup ke fungsi sendiri agar lebih jelas
     private fun setupWebViewSuffix() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val processName = getProcessName()
-            if (packageName != processName) {
-                try {
+            try {
+                val processName = getProcessName()
+                if (packageName != processName) {
                     WebView.setDataDirectorySuffix(processName)
                     Log.d(TAG, "WebView suffix set: $processName")
-                } catch (e: Exception) {
-                    Log.e(TAG, "WebView suffix error: ${e.message}")
                 }
+            } catch (e: Exception) {
+                // Jangan throw error di sini agar app tidak mati jika WebView sistem bermasalah
+                Log.e(TAG, "WebView suffix error: ${e.message}")
             }
         }
     }
@@ -139,10 +137,7 @@ open class MyApp : Application() {
         }
     }
 
-    // FIX: hapus withContext(Dispatchers.Main) yang redundant di dalam
-    // karena caller (launch di supervisorScope) sudah switch ke Main via webViewJob.join()
-    // AdMob initialize dipanggil langsung di Main Thread dari supervisorScope
-    private suspend fun initializeAdMob() = withContext(Dispatchers.Main) {
+    private suspend fun initializeAdMob() = withContext(Dispatchers.IO) {
         suspendCancellableCoroutine { cont ->
             try {
                 MobileAds.initialize(this@MyApp) { status ->
@@ -151,7 +146,6 @@ open class MyApp : Application() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "AdMob init error: ${e.message}")
-                // FIX: selalu resume agar coroutine tidak hang selamanya
                 if (cont.isActive) cont.resume(Unit)
             }
         }
@@ -174,7 +168,6 @@ open class MyApp : Application() {
     override fun onTerminate() {
         super.onTerminate()
         applicationScope.cancel()
-        // FIX: clear instance dan listeners saat app terminate → cegah memory leak
         clearAllListeners()
         instance = null
         Log.d(TAG, "Application terminated, scope cancelled")
