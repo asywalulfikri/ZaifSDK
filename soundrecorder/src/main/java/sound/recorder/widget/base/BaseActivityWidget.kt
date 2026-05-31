@@ -7,6 +7,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.media.MediaPlayer
@@ -1004,13 +1005,14 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     fun showOpenAd(){
+        val isDebug = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         if(appOpenAd!=null){
             try {
                 appOpenAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         appOpenAd = null
                         setupAppOpenAd()
-                        if(BuildConfig.DEBUG){
+                        if(isDebug){
                             setToast("close by user")
                         }
                         MyAdsListener.setBanner(true)
@@ -1027,12 +1029,12 @@ open class BaseActivityWidget : AppCompatActivity() {
                 }
                 appOpenAd?.show(this)
             }catch (e : Exception){
-                if(BuildConfig.DEBUG){
+                if(isDebug){
                     setToast("open ads f" + e.message.toString())
                 }
             }
         }else{
-            if(BuildConfig.DEBUG){
+            if(isDebug){
                 setToast("open ad null")
             }
         }
@@ -1519,13 +1521,15 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     fun setLog(message: String){
-        if(BuildConfig.DEBUG){
+        val isDebug = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if(isDebug){
             Log.d("response", "$message - ")
         }
     }
 
     fun setLog(name : String, message: String){
-        if(BuildConfig.DEBUG){
+        val isDebug = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if(isDebug){
             Log.d(name, "$message - ")
         }
     }

@@ -2,6 +2,7 @@ package sound.recorder.widget.recording
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
@@ -228,7 +229,8 @@ object RecordingListDialogHelper {
             addView(spacer(context, btnSpacer))
 
             // ─── EXPORT JSON (Hanya di mode Debug) ───
-            if (sound.recorder.widget.BuildConfig.DEBUG) {
+            val isDebug = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+            if (isDebug) {
                 addView(spacer(context, btnSpacer))
                 val jsonBtn = buildIconButton(
                     context, "{}", "#20$COLOR_JSON",
