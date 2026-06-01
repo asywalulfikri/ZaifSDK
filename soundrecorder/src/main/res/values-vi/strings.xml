@@ -273,4 +273,38 @@
     <string name="graphite">Than chì</string>
     <string name="navy">Xanh hải quân</string>
 
+    <string name="try_again">Thử lại</string>
+    <string name="game_over">Trò chơi kết thúc</string>
+    <string name="play_again">Chơi lại</string>
+    <string name="score">Điểm số</string>
+    <string name="congratulation">Chúc mừng!</string>
+    <string name="miss">Trượt</string>
+    <string name="best">Tốt nhất</string>
+    <string name="start">Bắt đầu</string>
+    <string name="speed">Tốc độ</string>
+    <string name="song">Bài hát</string>
+    <string name="learn">Học</string>
+    <string name="step_by_step">Chơi ngay hoặc học từng bước</string>
+    <string name="play_it">Chơi</string>
+    <string name="chord">Hợp âm</string>
+    <string name="locked">Đã khóa</string>
+
+    <string name="not_approve_notification">Bạn sẽ nhận được thông báo khi bản nhạc bạn gửi được phê duyệt.</string>
+    <string name="promosikan">Quảng bá</string>
+    <string name="promot_info">Bạn có chắc muốn quảng bá bản nhạc này ra toàn thế giới không?</string>
+    <string name="your_name">Tên của bạn</string>
+    <string name="send_note_success">Gửi bản nhạc thành công.</string>
+    <string name="send_note_failed">Gửi bản nhạc thất bại.</string>
+    <string name="promotion_my_note_info">Giờ đây bạn có thể tạo bản nhạc từ bản ghi âm của mình và chia sẻ với cả thế giới. Những bản nhạc xuất sắc nhất được chọn sẽ được hiển thị trong ứng dụng cùng với tên tác giả. Bạn chỉ có thể gửi một bản nhạc mỗi ngày, vì vậy hãy chắc chắn gửi tác phẩm tốt nhất của mình!</string>
+
+    <string name="limit_promot">Bạn đã đạt giới hạn quảng bá hàng ngày. Vui lòng thử lại vào ngày mai.</string>
+    <string name="delete_not_title">Bạn có muốn xóa bản nhạc này không?</string>
+    <string name="not_approved">Bản nhạc của bạn đã được phê duyệt và xuất bản. Hãy kiểm tra ngay.</string>
+    <string name="user_notes_title">Ghi chú của người dùng</string>
+    <string name="user_notes_subtitle">Chọn một nốt để chơi hoặc học</string>
+    <string name="invalid_note_format">Định dạng nốt không hợp lệ</string>
+    <string name="learn_complete">Hoàn thành! Bạn đã chơi tất cả các nốt.</string>
+    <string name="note_locked">Ghi chú đã bị khóa</string>
+    <string name="watch_ad_unlock_note">Xem quảng cáo ngắn để mở khóa ghi chú này trong 7 ngày.</string>
+    <string name="watch_ad_label">▶ Xem quảng cáo</string>
 </resources>

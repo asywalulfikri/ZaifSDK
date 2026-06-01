@@ -16,6 +16,8 @@ class ZaifSDKBuilder private constructor(
     var showListSong = true
     var showVolume = true
     var showTooltip = false
+    var fcmKey = ""
+    var isPromotNot = false
 
     fun setAppName(value: String) = apply { appName = value }
     fun setVersionCode(value: Int) = apply { versionCode = value }
@@ -28,6 +30,8 @@ class ZaifSDKBuilder private constructor(
     fun showListSong(value: Boolean) = apply { showListSong = value }
     fun showVolume(value: Boolean) = apply { showVolume = value }
     fun showTooltip(value: Boolean) = apply { showTooltip = value }
+    fun setFcmKey(value: String) = apply { fcmKey = value }
+    fun isPromotNot(value: Boolean) = apply { isPromotNot = value }
 
     fun build(): ZaifSDKConfig {
         val config = ZaifSDKConfig(
@@ -41,7 +45,9 @@ class ZaifSDKBuilder private constructor(
             backgroundWidgetColor = backgroundWidgetColor,
             showListSong = showListSong,
             showVolume = showVolume,
-            showTooltip = showTooltip
+            showTooltip = showTooltip,
+            fcmKey = fcmKey,
+            isPromotNot = isPromotNot
         )
         instance = config // ✅ langsung simpan di memory
         ZaifSDKStorage.save(context, config)

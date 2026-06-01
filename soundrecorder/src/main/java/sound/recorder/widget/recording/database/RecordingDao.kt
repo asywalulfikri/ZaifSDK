@@ -14,4 +14,7 @@ interface RecordingDao {
 
     @Delete
     suspend fun delete(recording: RecordingEntity)
+
+    @Query("UPDATE recordings SET name = :newName WHERE id = :id")
+    suspend fun updateName(id: Int, newName: String)
 }

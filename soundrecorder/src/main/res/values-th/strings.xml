@@ -274,4 +274,38 @@
     <string name="graphite">สีกราไฟต์</string>
     <string name="navy">สีกรมท่า</string>
 
+    <string name="try_again">ลองอีกครั้ง</string>
+    <string name="game_over">จบเกม</string>
+    <string name="play_again">เล่นอีกครั้ง</string>
+    <string name="score">คะแนน</string>
+    <string name="congratulation">ยินดีด้วย!</string>
+    <string name="miss">พลาด</string>
+    <string name="best">ดีที่สุด</string>
+    <string name="start">เริ่มต้น</string>
+    <string name="speed">ความเร็ว</string>
+    <string name="song">เพลง</string>
+    <string name="learn">เรียนรู้</string>
+    <string name="step_by_step">เล่นได้ทันทีหรือเรียนรู้ทีละขั้นตอน</string>
+    <string name="play_it">เล่น</string>
+    <string name="chord">คอร์ด</string>
+    <string name="locked">ถูกล็อก</string>
+
+    <string name="not_approve_notification">คุณจะได้รับการแจ้งเตือนเมื่อโน้ตเพลงที่คุณส่งได้รับการอนุมัติ</string>
+    <string name="promosikan">โปรโมต</string>
+    <string name="promot_info">คุณแน่ใจหรือไม่ว่าต้องการโปรโมตโน้ตเพลงนี้ไปทั่วโลก?</string>
+    <string name="your_name">ชื่อของคุณ</string>
+    <string name="send_note_success">ส่งโน้ตเพลงเรียบร้อยแล้ว</string>
+    <string name="send_note_failed">ส่งโน้ตเพลงไม่สำเร็จ</string>
+    <string name="promotion_my_note_info">ตอนนี้คุณสามารถสร้างโน้ตเพลงจากการบันทึกเสียงของคุณและแบ่งปันให้คนทั่วโลกได้แล้ว โน้ตเพลงที่ได้รับการคัดเลือกจะถูกแสดงในแอปพร้อมชื่อผู้สร้าง คุณสามารถส่งได้เพียงวันละหนึ่งผลงานเท่านั้น ดังนั้นอย่าลืมส่งผลงานที่ดีที่สุดของคุณ!</string>
+
+    <string name="limit_promot">คุณใช้สิทธิ์โปรโมตครบตามจำนวนต่อวันแล้ว กรุณาลองใหม่อีกครั้งในวันพรุ่งนี้</string>
+     <string name="delete_not_title">คุณต้องการลบโน้ตเพลงนี้หรือไม่?</string>
+    <string name="not_approved">โน้ตเพลงของคุณได้รับการอนุมัติและเผยแพร่แล้ว กรุณาตรวจสอบได้เลย</string>
+    <string name="user_notes_title">โน้ตจากผู้ใช้</string>
+    <string name="user_notes_subtitle">เลือกโน้ตเพื่อเล่นหรือเรียนรู้</string>
+    <string name="invalid_note_format">รูปแบบโน้ตไม่ถูกต้อง</string>
+    <string name="learn_complete">เสร็จสิ้น! คุณได้เล่นโน้ตทั้งหมดแล้ว</string>
+    <string name="note_locked">โน้ตถูกล็อค</string>
+    <string name="watch_ad_unlock_note">ชมโฆษณาสั้นๆ เพื่อปลดล็อคโน้ตนี้เป็นเวลา 7 วัน</string>
+    <string name="watch_ad_label">▶ ชมโฆษณา</string>
 </resources>

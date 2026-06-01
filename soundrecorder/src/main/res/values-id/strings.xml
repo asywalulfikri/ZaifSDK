@@ -274,5 +274,43 @@
     <string name="navy">Navy</string>
 
 
+    <string name="try_again">Coba Lagi</string>
+    <string name="game_over">Permainan Selesai</string>
+    <string name="play_again">Main Lagi</string>
+    <string name="score">Skor</string>
+    <string name="congratulation">Selamat!</string>
+    <string name="miss">Meleset</string>
+    <string name="best">Terbaik</string>
+    <string name="start">Mulai</string>
+    <string name="speed">Kecepatan</string>
+    <string name="song">Lagu</string>
+    <string name="learn">Belajar</string>
+    <string name="step_by_step">Mainkan langsung atau belajar langkah demi langkah</string>
+    <string name="play_it">Mainkan</string>
+    <string name="chord">Chord</string>
+    <string name="locked">Terkunci</string>
 
+    <!-- Promosi Not -->
+    <string name="not_approve_notification">Kamu akan menerima notifikasi ketika not yang kamu kirim disetujui.</string>
+    <string name="promosikan">Promosikan</string>
+    <string name="your_name">Nama Kamu</string>
+    <string name="send_note_success">Not berhasil dikirim.</string>
+    <string name="send_note_failed">Not gagal dikirim.</string>
+    <string name="promotion_my_note_info">Sekarang kamu bisa membuat not musik dari rekamanmu dan membagikannya ke seluruh dunia. Not terbaik yang terpilih akan ditampilkan di aplikasi beserta nama pembuatnya. Kamu hanya dapat mengirimkan satu not setiap hari, jadi pastikan kamu mengirimkan karya terbaikmu!</string>
+
+    <string name="limit_promot">Kamu telah melewati limit harian promosi not. silahkan coba besok</string>
+    <string name="promot_info">Apakah kamu yakin ingin mempromosikan not kamu ini ke seluruh dunia? not kamu akan di review dulu. jika not kamu bagus . not akan di publikasikan dan nama kamu akan di tampilkan sebagai pembuat</string>
+    <string name="delete_not_title">Apakah ingin menghapus not ini ?</string>
+    <string name="not_approved">Not kamu telah di setujui dan telah di publikasikan, silahkan cek</string>
+
+
+
+
+    <string name="user_notes_title">Not dari Pengguna</string>
+    <string name="user_notes_subtitle">Pilih not untuk dimainkan atau dipelajari</string>
+    <string name="invalid_note_format">Format not tidak valid</string>
+    <string name="learn_complete">Selesai! Kamu sudah memainkan semua not.</string>
+    <string name="note_locked">Not Terkunci</string>
+    <string name="watch_ad_unlock_note">Tonton iklan pendek untuk membuka not ini selama 7 hari.</string>
+    <string name="watch_ad_label">▶ Tonton Iklan</string>
 </resources>

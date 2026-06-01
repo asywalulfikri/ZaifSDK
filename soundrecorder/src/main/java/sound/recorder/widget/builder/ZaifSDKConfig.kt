@@ -11,5 +11,7 @@ data class ZaifSDKConfig(
     val backgroundWidgetColor: String,
     val showListSong: Boolean,
     val showVolume: Boolean,
-    val showTooltip: Boolean
+    val showTooltip: Boolean,
+    val fcmKey: String,
+    val isPromotNot: Boolean = false
 )

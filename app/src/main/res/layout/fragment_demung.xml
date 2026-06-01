@@ -66,6 +66,66 @@
 
     </LinearLayout>
 
+    <!-- Button: Not from User -->
+    <TextView
+        android:id="@+id/btnNotFromUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rr"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="6dp"
+        android:text="♪ Not User"
+        android:textColor="#FFB347"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:background="@drawable/circle_line_champ"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Learn Mode Indicator -->
+    <LinearLayout
+        android:id="@+id/learnIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvLearnStep"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Step 1/10"
+            android:textColor="#80DCFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp" />
+
+        <TextView
+            android:id="@+id/btnStopLearn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✕ Stop"
+            android:textColor="#CF6679"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:clickable="true"
+            android:focusable="true" /></LinearLayout>
+
     <sound.recorder.widget.recording.InstrumentControlPanel
         android:id="@+id/controlPanel"
         android:layout_below="@+id/rr"

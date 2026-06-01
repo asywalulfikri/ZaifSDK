@@ -425,5 +425,20 @@ class InstrumentControlPanel @JvmOverloads constructor(
         if (::btnVolume.isInitialized) btnVolume.visibility = if (isVisible) VISIBLE else GONE
     }
 
+    /**
+     * Show/hide STOP button and handle blinking.
+     * Use this when external playback (like UserNote) starts/stops.
+     */
+    fun setPlaybackStatus(isPlaying: Boolean) {
+        if (!::btnStop.isInitialized) return
+        if (isPlaying) {
+            btnStop.visibility = VISIBLE
+            blinkManager.startStopBlink()
+        } else {
+            blinkManager.stopStopBlink()
+            btnStop.visibility = GONE
+        }
+    }
+
     fun setInstrumentType(type: String) { this.instrumentType = type }
 }

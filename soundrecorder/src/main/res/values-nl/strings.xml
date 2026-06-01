@@ -275,4 +275,39 @@
     <string name="graphite">Grafiet</string>
     <string name="navy">Marineblauw</string>
 
+    <string name="try_again">Opnieuw proberen</string>
+    <string name="game_over">Spel afgelopen</string>
+    <string name="play_again">Opnieuw spelen</string>
+    <string name="score">Score</string>
+    <string name="congratulation">Gefeliciteerd!</string>
+    <string name="miss">Mis</string>
+    <string name="best">Beste</string>
+    <string name="start">Start</string>
+    <string name="speed">Snelheid</string>
+    <string name="song">Lied</string>
+    <string name="learn">Leren</string>
+    <string name="step_by_step">Speel direct of leer stap voor stap</string>
+    <string name="play_it">Spelen</string>
+    <string name="chord">Akkoord</string>
+    <string name="locked">Vergrendeld</string>
+
+
+    <string name="not_approve_notification">Je ontvangt een melding wanneer je ingezonden noot is goedgekeurd.</string>
+    <string name="promosikan">Promoten</string>
+    <string name="promot_info">Weet je zeker dat je deze noot wereldwijd wilt promoten?</string>
+    <string name="your_name">Jouw Naam</string>
+    <string name="send_note_success">Noot succesvol verzonden.</string>
+    <string name="send_note_failed">Verzenden van de noot mislukt.</string>
+    <string name="promotion_my_note_info">Je kunt nu muzieknoten maken van je opnames en deze met de hele wereld delen. De beste geselecteerde noten worden in de app weergegeven samen met de naam van de maker. Je kunt slechts één noot per dag inzenden, dus zorg ervoor dat je je beste werk instuurt!</string>
+
+    <string name="limit_promot">Je hebt de dagelijkse promotielimiet bereikt. Probeer het morgen opnieuw.</string>
+    <string name="delete_not_title">Wil je deze noot verwijderen?</string>
+    <string name="not_approved">Je noot is goedgekeurd en gepubliceerd. Bekijk hem nu.</string>
+    <string name="user_notes_title">Gebruikersnotities</string>
+    <string name="user_notes_subtitle">Selecteer een notitie om te spelen of te leren</string>
+    <string name="invalid_note_format">Ongeldig notatieformaat</string>
+    <string name="learn_complete">Klaar! Je hebt alle noten gespeeld.</string>
+    <string name="note_locked">Notitie vergrendeld</string>
+    <string name="watch_ad_unlock_note">Bekijk een korte advertentie om deze notitie 7 dagen te ontgrendelen.</string>
+    <string name="watch_ad_label">▶ Advertentie bekijken</string>
 </resources>

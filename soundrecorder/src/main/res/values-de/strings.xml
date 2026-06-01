@@ -274,4 +274,38 @@
     <string name="graphite">Graphit</string>
     <string name="navy">Marineblau</string>
 
+    <string name="try_again">Erneut versuchen</string>
+    <string name="game_over">Spiel vorbei</string>
+    <string name="play_again">Noch einmal spielen</string>
+    <string name="score">Punktzahl</string>
+    <string name="congratulation">Herzlichen Glückwunsch</string>
+    <string name="miss">Verfehlt</string>
+    <string name="best">Beste</string>
+    <string name="start">Start</string>
+    <string name="speed">Geschwindigkeit</string>
+    <string name="song">Lied</string>
+    <string name="learn">Lernen</string>
+    <string name="step_by_step">Direkt spielen oder Schritt für Schritt lernen</string>
+    <string name="play_it">Spielen</string>
+    <string name="chord">Akkord</string>
+    <string name="locked">Gesperrt</string>
+
+    <string name="not_approve_notification">Du erhältst eine Benachrichtigung, wenn deine eingereichte Note genehmigt wurde.</string>
+    <string name="promosikan">Bewerben</string>
+    <string name="your_name">Dein Name</string>
+    <string name="send_note_success">Note erfolgreich gesendet.</string>
+    <string name="send_note_failed">Senden der Note fehlgeschlagen.</string>
+    <string name="promotion_my_note_info">Du kannst jetzt aus deinen Aufnahmen Musiknoten erstellen und sie mit der ganzen Welt teilen. Die besten ausgewählten Noten werden zusammen mit dem Namen des Erstellers in der App angezeigt. Du kannst nur eine Note pro Tag einreichen, also sende dein bestes Werk!</string>
+
+    <string name="limit_promot">Du hast das tägliche Werbelimit erreicht. Bitte versuche es morgen erneut.</string>
+    <string name="promot_info">Möchtest du diese Musiknote wirklich weltweit bewerben? Deine Note wird zunächst geprüft. Wenn sie unseren Qualitätsstandards entspricht, wird sie veröffentlicht und dein Name wird als Ersteller angezeigt.</string>
+    <string name="delete_not_title">Möchtest du diese Note löschen?</string>
+    <string name="not_approved">Deine Note wurde genehmigt und veröffentlicht. Bitte schau sie dir an.</string>
+    <string name="user_notes_title">Benutzernotizen</string>
+    <string name="user_notes_subtitle">Wählen Sie eine Notiz zum Spielen oder Lernen</string>
+    <string name="invalid_note_format">Ungültiges Notenformat</string>
+    <string name="learn_complete">Fertig! Sie haben alle Noten gespielt.</string>
+    <string name="note_locked">Notiz gesperrt</string>
+    <string name="watch_ad_unlock_note">Schauen Sie sich eine kurze Anzeige an, um diese Notiz für 7 Tage freizuschalten.</string>
+    <string name="watch_ad_label">▶ Anzeige ansehen</string>
 </resources>

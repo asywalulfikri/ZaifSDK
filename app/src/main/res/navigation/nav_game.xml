@@ -32,7 +32,7 @@
 
     <fragment
         android:id="@+id/FragmentSetting"
-        android:name="sound.recorder.widget.ui.fragment.FragmentSettings"
+        android:name="sound.recorder.widget.ui.fragment.NotePromotionAdminFragment"
         android:label=""
         tools:layout="@layout/fragment_setting"/>
 

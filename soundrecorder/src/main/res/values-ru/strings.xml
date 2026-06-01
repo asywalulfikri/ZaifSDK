@@ -272,5 +272,38 @@
     <string name="graphite">Графитовый</string>
     <string name="navy">Тёмно-синий</string>
 
+    <string name="try_again">Попробовать снова</string>
+    <string name="game_over">Игра окончена</string>
+    <string name="play_again">Играть снова</string>
+    <string name="score">Счёт</string>
+    <string name="congratulation">Поздравляем!</string>
+    <string name="miss">Промах</string>
+    <string name="best">Лучший</string>
+    <string name="start">Начать</string>
+    <string name="speed">Скорость</string>
+    <string name="song">Песня</string>
+    <string name="learn">Учиться</string>
+    <string name="step_by_step">Играйте сразу или учитесь шаг за шагом</string>
+    <string name="play_it">Играть</string>
+    <string name="chord">Аккорд</string>
+    <string name="locked">Заблокировано</string>
 
+    <string name="not_approve_notification">Вы получите уведомление, когда отправленная вами нота будет одобрена.</string>
+    <string name="promosikan">Продвигать</string>
+    <string name="promot_info">Вы уверены, что хотите продвигать эту ноту по всему миру?</string>
+    <string name="your_name">Ваше имя</string>
+    <string name="send_note_success">Нота успешно отправлена.</string>
+    <string name="send_note_failed">Не удалось отправить ноту.</string>
+    <string name="promotion_my_note_info">Теперь вы можете создавать музыкальные ноты из своих записей и делиться ими со всем миром. Лучшие выбранные ноты будут отображаться в приложении вместе с именем автора. Вы можете отправлять только одну ноту в день, поэтому отправляйте свою лучшую работу!</string>
+
+    <string name="limit_promot">Вы достигли дневного лимита продвижения. Пожалуйста, попробуйте снова завтра.</string>
+    <string name="delete_not_title">Вы хотите удалить эту ноту?</string>
+    <string name="not_approved">Ваша нота была одобрена и опубликована. Пожалуйста, проверьте её.</string>
+    <string name="user_notes_title">Заметки пользователя</string>
+    <string name="user_notes_subtitle">Выберите ноту для игры или обучения</string>
+    <string name="invalid_note_format">Неверный формат нот</string>
+    <string name="learn_complete">Готово! Вы сыграли все ноты.</string>
+    <string name="note_locked">Нота заблокирована</string>
+    <string name="watch_ad_unlock_note">Посмотрите короткую рекламу, чтобы разблокировать эту ноту на 7 дней.</string>
+    <string name="watch_ad_label">▶ Посмотреть рекламу</string>
 </resources>

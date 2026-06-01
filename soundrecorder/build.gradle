@@ -74,7 +74,8 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.8.4'
     implementation 'androidx.room:room-ktx:2.8.4'
   //  implementation("com.github.skydoves:balloon:1.7.1")
-    implementation "com.google.android.gms:play-services-ads:25.2.0"// support android stable
+    implementation "com.google.android.gms:play-services-ads:25.3.0"// support android stable
+    implementation 'com.google.android.gms:play-services-base:18.10.0'
 
 
     //use version 18 if min sdk  26

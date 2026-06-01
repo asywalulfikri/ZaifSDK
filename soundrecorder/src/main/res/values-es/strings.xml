@@ -273,4 +273,38 @@
     <string name="graphite">Grafito</string>
     <string name="navy">Azul Marino</string>
 
+    <string name="try_again">Intentar de nuevo</string>
+    <string name="game_over">Fin del juego</string>
+    <string name="play_again">Jugar de nuevo</string>
+    <string name="score">Puntuación</string>
+    <string name="congratulation">¡Felicidades!</string>
+    <string name="miss">Fallo</string>
+    <string name="best">Mejor</string>
+    <string name="start">Comenzar</string>
+    <string name="speed">Velocidad</string>
+    <string name="song">Canción</string>
+    <string name="learn">Aprender</string>
+    <string name="step_by_step">Juega directamente o aprende paso a paso</string>
+    <string name="play_it">Jugar</string>
+    <string name="chord">Acorde</string>
+    <string name="locked">Bloqueado</string>
+
+    <string name="not_approve_notification">Recibirás una notificación cuando la partitura que enviaste sea aprobada.</string>
+    <string name="promosikan">Promocionar</string>
+    <string name="your_name">Tu Nombre</string>
+    <string name="send_note_success">Partitura enviada correctamente.</string>
+    <string name="send_note_failed">No se pudo enviar la partitura.</string>
+    <string name="promotion_my_note_info">Ahora puedes crear partituras musicales a partir de tus grabaciones y compartirlas con todo el mundo. Las mejores partituras seleccionadas aparecerán en la aplicación junto con el nombre de su creador. Solo puedes enviar una partitura por día, ¡así que asegúrate de enviar tu mejor trabajo!</string>
+
+    <string name="limit_promot">Has alcanzado el límite diario de promociones. Por favor, inténtalo de nuevo mañana.</string>
+    <string name="promot_info">¿Estás seguro de que deseas promocionar esta partitura en todo el mundo? Primero será revisada. Si cumple con nuestros estándares de calidad, será publicada y tu nombre aparecerá como creador.</string>
+    <string name="delete_not_title">¿Deseas eliminar esta partitura?</string>
+    <string name="not_approved">Tu partitura ha sido aprobada y publicada. Por favor, revísala.</string>
+    <string name="user_notes_title">Notas de Usuarios</string>
+    <string name="user_notes_subtitle">Selecciona una nota para tocar o aprender</string>
+    <string name="invalid_note_format">Formato de nota no válido</string>
+    <string name="learn_complete">¡Terminado! Has tocado todas las notas.</string>
+    <string name="note_locked">Nota Bloqueada</string>
+    <string name="watch_ad_unlock_note">Mira un anuncio corto para desbloquear esta nota por 7 días.</string>
+    <string name="watch_ad_label">▶ Ver Anuncio</string>
 </resources>

@@ -271,5 +271,39 @@
     <string name="graphite">石墨色</string>
     <string name="navy">海军蓝</string>
 
+    <string name="try_again">再试一次</string>
+    <string name="game_over">游戏结束</string>
+    <string name="play_again">再玩一次</string>
+    <string name="score">得分</string>
+    <string name="congratulation">恭喜！</string>
+    <string name="miss">未击中</string>
+    <string name="best">最佳</string>
+    <string name="start">开始</string>
+    <string name="speed">速度</string>
+    <string name="song">歌曲</string>
+    <string name="learn">学习</string>
+    <string name="step_by_step">直接开始游戏或一步一步学习</string>
+    <string name="play_it">开始游戏</string>
+    <string name="chord">和弦</string>
+    <string name="locked">已锁定</string>
 
+    <string name="not_approve_notification">当你提交的乐谱获得批准时，你将收到通知。</string>
+    <string name="promosikan">推广</string>
+    <string name="promot_info">你确定要将这份乐谱推广给全世界吗？</string>
+    <string name="your_name">你的名字</string>
+    <string name="send_note_success">乐谱发送成功。</string>
+    <string name="send_note_failed">乐谱发送失败。</string>
+    <string name="promotion_my_note_info">现在你可以根据自己的录音创建乐谱，并与全世界分享。被选中的优秀乐谱将会在应用中展示，并附上创作者的名字。你每天只能提交一份乐谱，所以请确保提交你最好的作品！</string>
+
+    <string name="limit_promot">你已达到每日推广上限，请明天再试。</string>
+    <string name="delete_not_title">你想删除这份乐谱吗？</string>
+    <string name="not_approved">你的乐谱已获得批准并发布，请查看。</string>
+
+    <string name="user_notes_title">用户乐谱</string>
+    <string name="user_notes_subtitle">选择乐谱进行演奏或学习</string>
+    <string name="invalid_note_format">乐谱格式无效</string>
+    <string name="learn_complete">完成！你已经演奏了所有音符。</string>
+    <string name="note_locked">乐谱已锁定</string>
+    <string name="watch_ad_unlock_note">观看短广告即可解锁此乐谱 7 天。</string>
+    <string name="watch_ad_label">▶ 观看广告</string>
 </resources>

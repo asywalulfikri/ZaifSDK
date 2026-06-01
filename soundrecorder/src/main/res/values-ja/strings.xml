@@ -275,4 +275,38 @@
     <string name="graphite">グラファイト</string>
     <string name="navy">ネイビー</string>
 
+    <string name="try_again">もう一度試す</string>
+    <string name="game_over">ゲームオーバー</string>
+    <string name="play_again">もう一度プレイ</string>
+    <string name="score">スコア</string>
+    <string name="congratulation">おめでとうございます！</string>
+    <string name="miss">ミス</string>
+    <string name="best">ベスト</string>
+    <string name="start">スタート</string>
+    <string name="speed">速度</string>
+    <string name="song">曲</string>
+    <string name="learn">学ぶ</string>
+    <string name="step_by_step">すぐにプレイするか、ステップごとに学ぶ</string>
+    <string name="play_it">プレイ</string>
+    <string name="chord">コード</string>
+    <string name="locked">ロック中</string>
+
+    <string name="not_approve_notification">投稿した譜面が承認されると通知が届きます。</string>
+    <string name="promosikan">宣伝する</string>
+    <string name="promot_info">この譜面を世界中に公開して宣伝しますか？</string>
+    <string name="your_name">あなたの名前</string>
+    <string name="send_note_success">譜面を送信しました。</string>
+    <string name="send_note_failed">譜面の送信に失敗しました。</string>
+    <string name="promotion_my_note_info">録音した音源から楽譜を作成し、世界中に共有できるようになりました。選ばれた最高の楽譜は、作成者名とともにアプリ内で紹介されます。楽譜は1日に1つしか投稿できないため、最高の作品を投稿してください！</string>
+
+    <string name="limit_promot">1日の宣伝上限に達しました。明日もう一度お試しください。</string>
+    <string name="delete_not_title">この楽譜を削除しますか？</string>
+    <string name="not_approved">あなたの楽譜は承認され、公開されました。ご確認ください。</string>
+    <string name="user_notes_title">ユーザーノート</string>
+    <string name="user_notes_subtitle">再生または学習するノートを選択してください</string>
+    <string name="invalid_note_format">無効なノート形式</string>
+    <string name="learn_complete">完了しました！すべての音符を演奏しました。</string>
+    <string name="note_locked">ノートがロックされています</string>
+    <string name="watch_ad_unlock_note">短い広告を視聴して、このノートを 7 日間ロック解除します。</string>
+    <string name="watch_ad_label">▶ 広告を視聴</string>
 </resources>

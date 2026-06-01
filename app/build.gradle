@@ -28,8 +28,10 @@ android {
         buildConfigField("Boolean", "fanEnable", "true")
         buildConfigField("Boolean", "hasSong", "true")
         buildConfigField("Boolean", "isPotrait", "false")
+        buildConfigField("Boolean", "isPromotNot", "true")
         buildConfigField("String", "unityGameId", "\"5278177\"")
         buildConfigField("String", "developerName", "\"sayunara+dev\"")
+        buildConfigField("String","fcmKey","\"BK2Xmb93zZnC_613i4UqayFrvjkMDeWwU87fqFNSOeIlVh6Pf7tI9QArzsiC7V_Xu0KN7qUuw4GDONckxgZ3Wdw\"")
     }
 
     buildTypes {
@@ -58,6 +60,12 @@ android {
 
 dependencies {
     implementation project(path: ':soundrecorder')
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:34.14.0')
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-analytics'
+
     implementation("androidx.multidex:multidex:2.0.1")
     implementation 'androidx.core:core-ktx:1.17.0'
 
@@ -68,6 +76,8 @@ dependencies {
 
     implementation 'com.google.android.material:material:1.13.0'
     implementation "androidx.constraintlayout:constraintlayout:2.2.1"
+    implementation 'com.intuit.sdp:sdp-android:1.1.1'
+    implementation 'com.intuit.ssp:ssp-android:1.1.1'
     debugImplementation ("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'

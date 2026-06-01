@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.activityViewModels
@@ -48,6 +49,8 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
     private val viewModel: MusicViewModel by activityViewModels()
     private val soundViewModel: SoundViewModel by activityViewModels()
     private var volumeAudio: Float = 1.0f
+
+    private lateinit var userNoteHelper: UserNoteDialogHelper
 
     private val instrumentType = "demung"
     private val typePelog = "_pelog"
@@ -93,6 +96,28 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
             setupTouchListener()
             setupMarquee()
             musicStatus()
+
+            userNoteHelper = UserNoteDialogHelper(
+                lifecycleScope          = viewLifecycleOwner.lifecycleScope,
+                onTabSelect             = { slendro -> binding?.instrumentView?.setSelectedTab(if (slendro) 1 else 0) },
+                onTriggerAnim           = { padIndex -> binding?.instrumentView?.triggerHitAnimation(padIndex) },
+                onHighlight             = { padIndex -> binding?.instrumentView?.highlightBilah(padIndex) },
+                onClearHighlight        = { binding?.instrumentView?.clearHighlight() },
+                onLearnStepUpdate       = { step, total -> binding?.tvLearnStep?.text = "Step $step / $total" },
+                onLearnVisible          = { visible -> binding?.learnIndicator?.visibility = if (visible) View.VISIBLE else View.GONE },
+                onPlaybackStatusChanged = { isPlaying -> binding?.controlPanel?.setPlaybackStatus(isPlaying) },
+                onToast                 = { msg -> Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show() },
+                onRequestAd             = { onComplete ->
+                    val act = activity as? GameActivity
+                    if (act != null && isAdded) {
+                        act.showRewardedAd(soundViewModel.isPremium) {
+                            if (isAdded) onComplete()
+                        }
+                    }
+                }
+            )
+            binding?.btnNotFromUser?.setOnClickListener { userNoteHelper.show(requireContext(), instrumentType) }
+            binding?.btnStopLearn?.setOnClickListener { userNoteHelper.stopAll() }
 
             activity?.volumeControlStream = AudioManager.STREAM_MUSIC
         }
@@ -157,7 +182,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
             btnColor = Color.parseColor("#3D2510"),
             strokeColor = Color.parseColor("#9B6A14"),
             btnWidthDimenRes  = com.intuit.sdp.R.dimen._60sdp,  // ← custom width
-            btnHeightDimenRes = com.intuit.sdp.R.dimen._40sdp   // ← custom height
+            btnHeightDimenRes = com.intuit.sdp.R.dimen._30sdp   // ← custom height
         )
 
 
@@ -219,6 +244,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
         SoundPlayUtils.setVolume(volumeAudio)
         soundViewModel.setVolume(volumeAudio)
         MusicPlayerManager.stop()
+        if (::userNoteHelper.isInitialized) userNoteHelper.stopAll()
     }
 
     override fun onPlaybackEvent(event: RecordedTap) {
@@ -249,6 +275,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
     // ─── 5. TOUCH & NAVIGATION ───
     private fun setupTouchListener() {
         binding?.instrumentView?.onBilahHitListener = { index, metadata ->
+            userNoteHelper.onBilahHit(index)
             binding?.controlPanel?.recordEvent(index, metadata)
         }
     }
@@ -313,6 +340,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
             pauseScroll()
         }
 
+        if (::userNoteHelper.isInitialized) userNoteHelper.stopAll()
         MusicListDialogHelper.statusListener = null
         viewLifecycleOwner.lifecycleScope.coroutineContext.cancelChildren()
         sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)

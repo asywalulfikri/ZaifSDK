@@ -272,4 +272,40 @@
     <string name="graphite">Grafite</string>
     <string name="navy">Azul Marinho</string>
 
+    <string name="try_again">Tentar Novamente</string>
+    <string name="game_over">Fim de Jogo</string>
+    <string name="play_again">Jogar Novamente</string>
+    <string name="score">Pontuação</string>
+    <string name="congratulation">Parabéns!</string>
+    <string name="miss">Errou</string>
+    <string name="best">Melhor</string>
+    <string name="start">Iniciar</string>
+    <string name="speed">Velocidade</string>
+    <string name="song">Música</string>
+    <string name="learn">Aprender</string>
+    <string name="step_by_step">Jogue diretamente ou aprenda passo a passo</string>
+    <string name="play_it">Jogar</string>
+    <string name="chord">Acorde</string>
+    <string name="locked">Bloqueado</string>
+
+
+    <string name="not_approve_notification">Você receberá uma notificação quando a partitura enviada for aprovada.</string>
+    <string name="promosikan">Promover</string>
+    <string name="promot_info">Tem certeza de que deseja promover esta partitura para o mundo inteiro?</string>
+    <string name="your_name">Seu Nome</string>
+    <string name="send_note_success">Partitura enviada com sucesso.</string>
+    <string name="send_note_failed">Falha ao enviar a partitura.</string>
+    <string name="promotion_my_note_info">Agora você pode criar partituras musicais a partir de suas gravações e compartilhá-las com o mundo inteiro. As melhores partituras selecionadas serão exibidas no aplicativo juntamente com o nome do criador. Você pode enviar apenas uma partitura por dia, então certifique-se de enviar seu melhor trabalho!</string>
+
+
+    <string name="limit_promot">Você atingiu o limite diário de promoções. Tente novamente amanhã.</string>
+    <string name="delete_not_title">Deseja excluir esta partitura?</string>
+    <string name="not_approved">Sua partitura foi aprovada e publicada. Confira.</string>
+    <string name="user_notes_title">Notas do Usuário</string>
+    <string name="user_notes_subtitle">Selecione uma nota para tocar ou aprender</string>
+    <string name="invalid_note_format">Formato de nota inválido</string>
+    <string name="learn_complete">Concluído! Você tocou todas as notas.</string>
+    <string name="note_locked">Nota Bloqueada</string>
+    <string name="watch_ad_unlock_note">Assista a um pequeno anúncio para desbloquear esta nota por 7 dias.</string>
+    <string name="watch_ad_label">▶ Assistir Anúncio</string>
 </resources>

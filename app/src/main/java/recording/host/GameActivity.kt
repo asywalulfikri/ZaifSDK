@@ -23,6 +23,7 @@ import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.music.MusicPlayerManager
+import sound.recorder.widget.util.NotificationBannerHelper
 import java.util.concurrent.atomic.AtomicBoolean
 
 class GameActivity : BaseActivity(),
@@ -83,6 +84,7 @@ class GameActivity : BaseActivity(),
 
         permissionNotification()
         setupGDPR()
+        NotificationBannerHelper.showIfNotSeen(this)
 
         if (BuildConfig.hasSong) {
             loadSongsOnce()

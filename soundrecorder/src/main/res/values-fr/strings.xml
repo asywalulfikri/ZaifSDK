@@ -273,4 +273,39 @@
     <string name="gold">Or</string>
     <string name="graphite">Graphite</string>
     <string name="navy">Bleu Marine</string>
+
+    <string name="try_again">Réessayer</string>
+    <string name="game_over">Partie terminée</string>
+    <string name="play_again">Rejouer</string>
+    <string name="score">Score</string>
+    <string name="congratulation">Félicitations !</string>
+    <string name="miss">Raté</string>
+    <string name="best">Meilleur</string>
+    <string name="start">Démarrer</string>
+    <string name="speed">Vitesse</string>
+    <string name="song">Chanson</string>
+    <string name="learn">Apprendre</string>
+    <string name="step_by_step">Jouez directement ou apprenez étape par étape</string>
+    <string name="play_it">Jouer</string>
+    <string name="chord">Accord</string>
+    <string name="locked">Verrouillé</string>
+
+    <string name="not_approve_notification">Vous recevrez une notification lorsque votre partition soumise sera approuvée.</string>
+    <string name="promosikan">Promouvoir</string>
+    <string name="your_name">Votre nom</string>
+    <string name="send_note_success">Partition envoyée avec succès.</string>
+    <string name="send_note_failed">Échec de lenvoi de la partition.</string>
+    <string name="promotion_my_note_info">Vous pouvez désormais créer des partitions musicales à partir de vos enregistrements et les partager avec le monde entier. Les meilleures partitions sélectionnées seront affichées dans l application avec le nom de leur créateur. Vous ne pouvez soumettre qu une seule partition par jour, alors assurez-vous d envoyer votre meilleure création !</string>
+
+    <string name="limit_promot">Vous avez atteint la limite quotidienne de promotion. Veuillez réessayer demain.</string>
+    <string name="promot_info">Êtes-vous sûr de vouloir promouvoir cette partition dans le monde entier ? Votre partition sera d abord examinée. Si elle répond à nos critères de qualité, elle sera publiée et votre nom sera affiché comme créateur.</string>
+    <string name="delete_not_title">Voulez-vous supprimer cette partition ?</string>
+    <string name="not_approved">Votre partition a été approuvée et publiée. Veuillez la consulter.</string>
+    <string name="user_notes_title">Notes des Utilisateurs</string>
+    <string name="user_notes_subtitle">Choisissez une note pour jouer ou apprendre</string>
+    <string name="invalid_note_format">Format de note invalide</string>
+    <string name="learn_complete">Terminé ! Vous avez joué toutes les notes.</string>
+    <string name="note_locked">Note Verrouillée</string>
+    <string name="watch_ad_unlock_note">Regardez une courte publicité pour déverrouiller cette note pendant 7 jours.</string>
+    <string name="watch_ad_label">▶ Voir la Publicité</string>
 </resources>

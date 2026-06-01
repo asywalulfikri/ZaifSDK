@@ -271,4 +271,38 @@
     <string name="graphite">ग्रेफाइट</string>
     <string name="navy">नेवी ब्लू</string>
 
+    <string name="try_again">फिर से प्रयास करें</string>
+    <string name="game_over">खेल समाप्त</string>
+    <string name="play_again">फिर से खेलें</string>
+    <string name="score">स्कोर</string>
+    <string name="congratulation">बधाई हो!</string>
+    <string name="miss">चूक गए</string>
+    <string name="best">सर्वश्रेष्ठ</string>
+    <string name="start">शुरू करें</string>
+    <string name="speed">गति</string>
+    <string name="song">गीत</string>
+    <string name="learn">सीखें</string>
+    <string name="step_by_step">सीधे खेलें या चरण-दर-चरण सीखें</string>
+    <string name="play_it">खेलें</string>
+    <string name="chord">कॉर्ड</string>
+    <string name="locked">लॉक किया गया</string>
+
+    <string name="not_approve_notification">आपके द्वारा भेजे गए नोट के स्वीकृत होने पर आपको एक सूचना प्राप्त होगी।</string>
+    <string name="promosikan">प्रचार करें</string>
+    <string name="promot_info">क्या आप वाकई इस नोट को पूरी दुनिया में प्रचारित करना चाहते हैं?</string>
+    <string name="your_name">आपका नाम</string>
+    <string name="send_note_success">नोट सफलतापूर्वक भेजा गया।</string>
+    <string name="send_note_failed">नोट भेजने में विफल।</string>
+    <string name="promotion_my_note_info">अब आप अपनी रिकॉर्डिंग से संगीत नोट्स बना सकते हैं और उन्हें पूरी दुनिया के साथ साझा कर सकते हैं। चुने गए सर्वश्रेष्ठ नोट्स निर्माता के नाम के साथ ऐप में प्रदर्शित किए जाएंगे। आप प्रतिदिन केवल एक नोट भेज सकते हैं, इसलिए अपना सर्वश्रेष्ठ कार्य ही भेजें!</string>
+
+    <string name="limit_promot">आप दैनिक प्रचार सीमा पार कर चुके हैं। कृपया कल पुनः प्रयास करें।</string>
+    <string name="delete_not_title">क्या आप इस नोट को हटाना चाहते हैं?</string>
+    <string name="not_approved">आपका नोट स्वीकृत हो गया है और प्रकाशित कर दिया गया है। कृपया इसे देखें।</string>
+    <string name="user_notes_title">उपयोगकर्ता नोट्स</string>
+    <string name="user_notes_subtitle">खेलने या सीखने के लिए एक नोट चुनें</string>
+    <string name="invalid_note_format">अमान्य नोट प्रारूप</string>
+    <string name="learn_complete">पूर्ण! आपने सभी नोट्स बजा लिए हैं।</string>
+    <string name="note_locked">नोट लॉक है</string>
+    <string name="watch_ad_unlock_note">इस नोट को 7 दिनों के लिए अनलॉक करने के लिए एक छोटा विज्ञापन देखें।</string>
+    <string name="watch_ad_label">▶ विज्ञापन देखें</string>
 </resources>

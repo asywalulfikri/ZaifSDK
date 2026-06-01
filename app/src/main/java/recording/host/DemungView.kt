@@ -68,6 +68,43 @@ class DemungView @JvmOverloads constructor(
 
     private val activeAnims = mutableListOf<BilahAnim>()
 
+    // ── Learn Mode Highlight ──────────────────────────────────────
+    private var highlightIndex = -1
+    private var highlightAlpha = 0f
+    private var highlightAnim: ValueAnimator? = null
+    private val highlightFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+    private val highlightStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(255, 80, 220, 255)
+        style = Paint.Style.STROKE
+        strokeWidth = 5f
+    }
+
+    fun highlightBilah(index: Int) {
+        if (index !in 0 until BILAH_COUNT) return
+        highlightAnim?.cancel()
+        highlightIndex = index
+        highlightAnim = ValueAnimator.ofFloat(0.3f, 1f).apply {
+            duration = 600
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = ValueAnimator.INFINITE
+            addUpdateListener {
+                highlightAlpha = it.animatedValue as Float
+                invalidate()
+            }
+            start()
+        }
+    }
+
+    fun clearHighlight() {
+        highlightAnim?.cancel()
+        highlightAnim = null
+        highlightIndex = -1
+        highlightAlpha = 0f
+        invalidate()
+    }
+
     // ══════════════════════════════════════════════════════════════
     //  STATE UI
     // ══════════════════════════════════════════════════════════════
@@ -205,6 +242,20 @@ class DemungView @JvmOverloads constructor(
         drawBilah(canvas)
         drawRipples(canvas)
         drawHammers(canvas)
+        drawHighlight(canvas)
+    }
+
+    private fun drawHighlight(canvas: Canvas) {
+        if (highlightIndex < 0 || highlightIndex >= BILAH_COUNT) return
+        val dp = resources.displayMetrics.density
+        val rect = bilahRects[highlightIndex]
+        val radius = rect.width() * 0.14f
+        val expand = 6f * dp
+        val expandedRect = RectF(rect.left - expand, rect.top - expand, rect.right + expand, rect.bottom + expand)
+        highlightFillPaint.color = Color.argb((highlightAlpha * 80).toInt().coerceIn(0, 255), 80, 220, 255)
+        highlightStrokePaint.alpha = (highlightAlpha * 255).toInt().coerceIn(0, 255)
+        canvas.drawRoundRect(expandedRect, radius + expand, radius + expand, highlightFillPaint)
+        canvas.drawRoundRect(expandedRect, radius + expand, radius + expand, highlightStrokePaint)
     }
 
     private fun drawTabs(canvas: Canvas) {
