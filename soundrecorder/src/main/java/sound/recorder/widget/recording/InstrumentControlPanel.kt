@@ -64,6 +64,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     var onRequestAudioPermissionAudio: (() -> Unit)? = null
     var isMusicUnlocked = false
     var isListRecordUnlocked = false
+    var showPromotButton = true
 
     // ─── TIMER RECORDING ───
     // Dipanggil setiap detik saat recording berjalan.
@@ -353,9 +354,13 @@ class InstrumentControlPanel @JvmOverloads constructor(
         if (isRecording) recorderManager.onNoteEvent(index, metadata)
     }
 
+    fun setPromotButtonVisible(isVisible: Boolean) {
+        showPromotButton = isVisible
+    }
+
     // ─── PLAYBACK ───
     private fun openRecordList() {
-        RecordingListDialogHelper.show(context, instrumentType) { entity ->
+        RecordingListDialogHelper.show(context, instrumentType, showPromotButton) { entity ->
             if (entity.eventsJson.isNotEmpty()) {
                 btnStop.visibility = VISIBLE
                 blinkManager.startStopBlink()

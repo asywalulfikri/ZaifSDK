@@ -90,7 +90,7 @@ object RecordingListDialogHelper {
     }
     var zaifSDKConfig : ZaifSDKConfig? =null
 
-    fun show(context: Context, instrumentFilter: String, onPlay: (RecordingEntity) -> Unit) {
+    fun show(context: Context, instrumentFilter: String, showPromot: Boolean = true, onPlay: (RecordingEntity) -> Unit) {
         zaifSDKConfig = ZaifSDKBuilder.load(context)
         val rootLayout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -184,7 +184,7 @@ object RecordingListDialogHelper {
                 val spacerH = context.sdp(SdpR.dimen._8sdp)
                 filtered.forEach { rec ->
                     listLayout.addView(
-                        buildRecordingCard(context, rec, dialog, onPlay, listLayout, filtered.toMutableList())
+                        buildRecordingCard(context, rec, dialog, onPlay, listLayout, filtered.toMutableList(), showPromot)
                     )
                     listLayout.addView(View(context).apply {
                         layoutParams = LinearLayout.LayoutParams(-1, spacerH)
@@ -209,7 +209,8 @@ object RecordingListDialogHelper {
         dialog: AlertDialog,
         onPlay: (RecordingEntity) -> Unit,
         listLayout: LinearLayout,
-        allRecs: MutableList<RecordingEntity>
+        allRecs: MutableList<RecordingEntity>,
+        showPromot: Boolean = true
     ): View {
         val card = CardView(context).apply {
             radius = context.sdpF(SdpR.dimen._10sdp)
@@ -351,7 +352,7 @@ object RecordingListDialogHelper {
             }
         }
 
-        if (zaifSDKConfig?.isPromotNot == true) {
+        if (zaifSDKConfig?.isPromotNot == true && showPromot) {
             row.addView(spacer(context, gap))
             row.addView(promoteContainer)
             applyPromoteState(isPromoted(context, rec.id))

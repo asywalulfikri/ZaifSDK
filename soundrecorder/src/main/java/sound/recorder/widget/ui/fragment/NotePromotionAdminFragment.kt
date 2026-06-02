@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Bundle
+import android.text.InputType
 import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
@@ -18,6 +19,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -342,6 +344,96 @@ class NotePromotionAdminFragment : Fragment() {
         }
     }
 
+    private fun showEditNameDialog(note: PromotionNote, position: Int) {
+        if (!isAdded) return
+        val ctx = requireContext()
+        val dialog = AlertDialog.Builder(ctx).create()
+
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#1A0F09"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._14sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#22D2B48C"))
+            }
+            val pad = ctx.sdp(SdpR.dimen._16sdp)
+            setPadding(pad, pad, pad, pad)
+        }
+
+        root.addView(TextView(ctx).apply {
+            text = "Edit Nama Rekaman"
+            setTextColor(Color.parseColor("#F5F5DC"))
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+        })
+
+        val input = EditText(ctx).apply {
+            setText(note.recordName)
+            setTextColor(Color.parseColor("#F5F5DC"))
+            setHintTextColor(Color.parseColor("#4A3020"))
+            hint = "Nama rekaman"
+            textSize = 12f
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#2D1B10"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._8sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#44D2B48C"))
+            }
+            val padH = ctx.sdp(SdpR.dimen._12sdp)
+            val padV = ctx.sdp(SdpR.dimen._10sdp)
+            setPadding(padH, padV, padH, padV)
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply {
+                topMargin = ctx.sdp(SdpR.dimen._12sdp)
+                bottomMargin = ctx.sdp(SdpR.dimen._8sdp)
+            }
+            setSelection(text.length)
+        }
+        root.addView(input)
+
+        val btnRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.END
+            val topPad = ctx.sdp(SdpR.dimen._8sdp)
+            setPadding(0, topPad, 0, 0)
+        }
+        btnRow.addView(buildActionBtn(ctx, "Batal", "8A7456") { dialog.dismiss() })
+        btnRow.addView(View(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1)
+        })
+        btnRow.addView(buildActionBtn(ctx, "Simpan", "D2B48C") {
+            val newName = input.text.toString().trim()
+            if (newName.isNotEmpty()) {
+                updateRecordName(note, position, newName)
+                dialog.dismiss()
+            } else {
+                input.error = "Nama tidak boleh kosong"
+            }
+        })
+        root.addView(btnRow)
+
+        dialog.setView(root)
+        dialog.show()
+        val dm = ctx.resources.displayMetrics
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((dm.widthPixels * 0.85).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+    }
+
+    private fun updateRecordName(note: PromotionNote, position: Int, newName: String) {
+        db.collection(COLLECTION).document(note.docId)
+            .update("record_name", newName)
+            .addOnSuccessListener {
+                if (!isAdded) return@addOnSuccessListener
+                notes[position] = note.copy(recordName = newName)
+                adapter.notifyItemChanged(position)
+            }
+            .addOnFailureListener { e ->
+                if (!isAdded) return@addOnFailureListener
+                Toast.makeText(context, "Gagal update nama: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
     private fun deleteNote(note: PromotionNote, position: Int) {
         db.collection(COLLECTION).document(note.docId)
             .delete()
@@ -604,6 +696,14 @@ class NotePromotionAdminFragment : Fragment() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.END
         }
+
+        actionRow.addView(buildActionBtn(ctx, "Edit", "7BAFD4") {
+            showEditNameDialog(note, position)
+        })
+
+        actionRow.addView(View(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(8.dp(ctx), 1)
+        })
 
         actionRow.addView(buildActionBtn(ctx, "Hapus", "CF6679") {
             showDeleteConfirm(note, position)
