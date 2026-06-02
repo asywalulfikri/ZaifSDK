@@ -31,7 +31,6 @@ android {
         buildConfigField("Boolean", "isPromotNot", "true")
         buildConfigField("String", "unityGameId", "\"5278177\"")
         buildConfigField("String", "developerName", "\"sayunara+dev\"")
-        buildConfigField("String","fcmKey","\"BK2Xmb93zZnC_613i4UqayFrvjkMDeWwU87fqFNSOeIlVh6Pf7tI9QArzsiC7V_Xu0KN7qUuw4GDONckxgZ3Wdw\"")
     }
 
     buildTypes {
