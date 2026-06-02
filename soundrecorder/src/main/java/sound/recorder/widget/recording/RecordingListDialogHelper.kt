@@ -91,6 +91,7 @@ object RecordingListDialogHelper {
     var zaifSDKConfig : ZaifSDKConfig? =null
 
     fun show(context: Context, instrumentFilter: String, onPlay: (RecordingEntity) -> Unit) {
+        zaifSDKConfig = ZaifSDKBuilder.load(context)
         val rootLayout = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             background = GradientDrawable().apply {

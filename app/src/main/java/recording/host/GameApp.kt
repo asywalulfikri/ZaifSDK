@@ -180,6 +180,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                 .showVolume(BuildConfig.showVolume)
                 .showListSong(BuildConfig.showListSong)
                 .setFcmKey("")
+                .isPromotNot(true)
                 .build()
 
             Log.d(TAG, "Secondary components initialized")
