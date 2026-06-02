@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
@@ -5,6 +7,10 @@ plugins {
     id("com.google.firebase.crashlytics")
     id("com.google.gms.google-services")
 }
+
+def localProps = new Properties()
+def localFile = rootProject.file("local.properties")
+if (localFile.exists()) localFile.withInputStream { localProps.load(it) }
 
 android {
     namespace 'recording.host'
@@ -31,6 +37,7 @@ android {
         buildConfigField("Boolean", "isPromotNot", "true")
         buildConfigField("String", "unityGameId", "\"5278177\"")
         buildConfigField("String", "developerName", "\"sayunara+dev\"")
+        buildConfigField("String", "FCM_KEY", "\"${localProps.getProperty('FCM_KEY', '')}\"")
     }
 
     buildTypes {

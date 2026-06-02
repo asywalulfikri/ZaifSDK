@@ -179,7 +179,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                 .setBackgroundWidgetColor(Constants.Widget.WIDGET_COLOR)
                 .showVolume(BuildConfig.showVolume)
                 .showListSong(BuildConfig.showListSong)
-                .setFcmKey("")
+                .setFcmKey(BuildConfig.FCM_KEY)
                 .isPromotNot(true)
                 .build()
 

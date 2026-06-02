@@ -39,12 +39,12 @@ import org.json.JSONObject
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
-import sound.recorder.widget.encrypt.CryptoManager
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.KeyFactory
 import java.security.Signature
+import sound.recorder.widget.encrypt.CryptoManager
 import java.security.spec.PKCS8EncodedKeySpec
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -83,8 +83,6 @@ class NotePromotionAdminFragment : Fragment() {
     private var isLoading = false
     private var isLastPage = false
 
-    private lateinit var crypto: CryptoManager
-
     private lateinit var recyclerView : RecyclerView
     private lateinit var progressBar  : ProgressBar
     private lateinit var emptyView    : TextView
@@ -114,8 +112,6 @@ class NotePromotionAdminFragment : Fragment() {
 
 
         root.addView(buildHeader(ctx))
-        crypto = CryptoManager(ctx)
-
         val config = ZaifSDKBuilder.load(ctx)
         zaifSDKConfig = config
         COLLECTION = config?.applicationId ?: "note_promotions"
@@ -383,7 +379,18 @@ class NotePromotionAdminFragment : Fragment() {
     // ─── FCM Notification (HTTP v1 API) ──────────────────────────────────────
 
     private fun sendPublishNotification(note: PromotionNote) {
-        val serviceAccountJson = crypto.decrypt(zaifSDKConfig?.fcmKey.orEmpty())
+        val encryptedKey = zaifSDKConfig?.fcmKey.orEmpty()
+        if (encryptedKey.isBlank()) {
+            Toast.makeText(context, "FCM Service Account belum diset", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val encryptionKey = zaifSDKConfig?.applicationId.orEmpty()
+        val serviceAccountJson = try {
+            CryptoManager(requireContext(), encryptionKey).decrypt(encryptedKey)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Gagal dekripsi FCM key", Toast.LENGTH_SHORT).show()
+            return
+        }
         if (serviceAccountJson.isBlank()) {
             Toast.makeText(context, "FCM Service Account belum diset", Toast.LENGTH_SHORT).show()
             return
