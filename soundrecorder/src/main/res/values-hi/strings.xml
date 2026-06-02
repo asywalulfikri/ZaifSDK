@@ -303,6 +303,6 @@
     <string name="invalid_note_format">अमान्य नोट प्रारूप</string>
     <string name="learn_complete">पूर्ण! आपने सभी नोट्स बजा लिए हैं।</string>
     <string name="note_locked">नोट लॉक है</string>
-    <string name="watch_ad_unlock_note">इस नोट को 7 दिनों के लिए अनलॉक करने के लिए एक छोटा विज्ञापन देखें।</string>
+    <string name="watch_ad_unlock_note">इस नोट को 1 दिनों के लिए अनलॉक करने के लिए एक छोटा विज्ञापन देखें।</string>
     <string name="watch_ad_label">▶ विज्ञापन देखें</string>
 </resources>

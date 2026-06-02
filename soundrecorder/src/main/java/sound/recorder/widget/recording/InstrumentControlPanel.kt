@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.StateListDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -166,11 +167,17 @@ class InstrumentControlPanel @JvmOverloads constructor(
         // Re-init factory & blinkManager dengan config baru
         btnFactory = ControlButtonFactory(context, config, globalTypeface)
         blinkManager = BlinkManager(
-            config         = config,
-            factory        = btnFactory,
-            getRecordBtn   = { if (::btnRecord.isInitialized) btnRecord else null },
-            getStopBtn     = { if (::btnStop.isInitialized) btnStop else null },
-            getRecordLabel = { try { context.getString(R.string.stop) } catch (e: Exception) { "STOP" } }
+            config = config,
+            factory = btnFactory,
+            getRecordBtn = { if (::btnRecord.isInitialized) btnRecord else null },
+            getStopBtn = { if (::btnStop.isInitialized) btnStop else null },
+            getRecordLabel = {
+                try {
+                    context.getString(R.string.stop)
+                } catch (e: Exception) {
+                    "STOP"
+                }
+            }
         )
 
         // Update tiap button tanpa rebuild layout (state recording aman)
@@ -185,15 +192,15 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     private fun applyNormalStyle(btn: Button) {
         btn.setTextColor(config.textColor)
-        btn.background = android.graphics.drawable.StateListDrawable().apply {
+        btn.background = StateListDrawable().apply {
             addState(intArrayOf(android.R.attr.state_pressed), btnFactory.createBg(pressed = true))
             addState(intArrayOf(), btnFactory.createBg(pressed = false))
         }
     }
 
     private fun applyRedStyle(btn: Button) {
-        btn.setTextColor(android.graphics.Color.WHITE)
-        btn.background = android.graphics.drawable.StateListDrawable().apply {
+        btn.setTextColor(Color.WHITE)
+        btn.background = StateListDrawable().apply {
             addState(intArrayOf(android.R.attr.state_pressed), btnFactory.createBg(pressed = true, isRed = true))
             addState(intArrayOf(), btnFactory.createBg(pressed = false, isRed = true))
         }
@@ -218,7 +225,14 @@ class InstrumentControlPanel @JvmOverloads constructor(
         val btnW   = config.btnWidthDimenRes?.let { sdp(it) }  ?: sdp(SdpR.dimen._50sdp)
         val margin = sdp(SdpR.dimen._2sdp)
 
-        val lp = LayoutParams(btnW, btnH).apply { setMargins(margin, margin, margin, margin) }
+        val lp = LayoutParams(btnW, btnH).apply {
+            setMargins(
+                margin,
+                margin,
+                margin,
+                margin
+            )
+        }
         arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop, btnVolume).forEach { addView(it, lp) }
 
         setupClickListeners()
@@ -363,6 +377,15 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    // ─── STOP PLAYBACK ONLY (dipanggil saat tutorial/learn mulai) ───
+    fun stopPlayback() {
+        recorderManager.stopPlayback()
+        audioEngine.stopPlayingAudio()
+        blinkManager.stopStopBlink()
+        if (::btnStop.isInitialized) btnStop.visibility = GONE
+        listener?.onMuteControl(false)
     }
 
     // ─── LIFECYCLE ───

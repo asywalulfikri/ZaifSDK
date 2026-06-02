@@ -308,6 +308,6 @@
     <string name="invalid_note_format">Format nota tidak sah</string>
     <string name="learn_complete">Selesai! Anda telah memainkan semua nota.</string>
     <string name="note_locked">Nota Terkunci</string>
-    <string name="watch_ad_unlock_note">Tonton iklan pendek untuk membuka kunci nota ini selama 7 hari.</string>
+    <string name="watch_ad_unlock_note">Tonton iklan pendek untuk membuka kunci nota ini selama 1 hari.</string>
     <string name="watch_ad_label">▶ Tonton Iklan</string>
 </resources>

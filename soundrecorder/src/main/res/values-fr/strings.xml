@@ -306,6 +306,6 @@
     <string name="invalid_note_format">Format de note invalide</string>
     <string name="learn_complete">Terminé ! Vous avez joué toutes les notes.</string>
     <string name="note_locked">Note Verrouillée</string>
-    <string name="watch_ad_unlock_note">Regardez une courte publicité pour déverrouiller cette note pendant 7 jours.</string>
+    <string name="watch_ad_unlock_note">Regardez une courte publicité pour déverrouiller cette note pendant 1 jours.</string>
     <string name="watch_ad_label">▶ Voir la Publicité</string>
 </resources>

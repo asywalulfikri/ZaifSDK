@@ -308,6 +308,6 @@
     <string name="invalid_note_format">잘못된 노트 형식</string>
     <string name="learn_complete">완료되었습니다! 모든 노트를 연주했습니다.</string>
     <string name="note_locked">노트 잠김</string>
-    <string name="watch_ad_unlock_note">짧은 광고를 시청하고 7일 동안 이 노트를 잠금 해제하세요.</string>
+    <string name="watch_ad_unlock_note">짧은 광고를 시청하고 1일 동안 이 노트를 잠금 해제하세요.</string>
     <string name="watch_ad_label">▶ 광고 시청</string>
 </resources>

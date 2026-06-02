@@ -304,6 +304,6 @@
     <string name="invalid_note_format">乐谱格式无效</string>
     <string name="learn_complete">完成！你已经演奏了所有音符。</string>
     <string name="note_locked">乐谱已锁定</string>
-    <string name="watch_ad_unlock_note">观看短广告即可解锁此乐谱 7 天。</string>
+    <string name="watch_ad_unlock_note">观看短广告即可解锁此乐谱 1 天。</string>
     <string name="watch_ad_label">▶ 观看广告</string>
 </resources>

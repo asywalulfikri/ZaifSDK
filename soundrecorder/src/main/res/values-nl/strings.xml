@@ -308,6 +308,6 @@
     <string name="invalid_note_format">Ongeldig notatieformaat</string>
     <string name="learn_complete">Klaar! Je hebt alle noten gespeeld.</string>
     <string name="note_locked">Notitie vergrendeld</string>
-    <string name="watch_ad_unlock_note">Bekijk een korte advertentie om deze notitie 7 dagen te ontgrendelen.</string>
+    <string name="watch_ad_unlock_note">Bekijk een korte advertentie om deze notitie 1 dagen te ontgrendelen.</string>
     <string name="watch_ad_label">▶ Advertentie bekijken</string>
 </resources>

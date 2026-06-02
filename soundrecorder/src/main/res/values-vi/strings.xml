@@ -305,6 +305,6 @@
     <string name="invalid_note_format">Định dạng nốt không hợp lệ</string>
     <string name="learn_complete">Hoàn thành! Bạn đã chơi tất cả các nốt.</string>
     <string name="note_locked">Ghi chú đã bị khóa</string>
-    <string name="watch_ad_unlock_note">Xem quảng cáo ngắn để mở khóa ghi chú này trong 7 ngày.</string>
+    <string name="watch_ad_unlock_note">Xem quảng cáo ngắn để mở khóa ghi chú này trong 1 ngày.</string>
     <string name="watch_ad_label">▶ Xem quảng cáo</string>
 </resources>

@@ -304,6 +304,6 @@
     <string name="invalid_note_format">Неверный формат нот</string>
     <string name="learn_complete">Готово! Вы сыграли все ноты.</string>
     <string name="note_locked">Нота заблокирована</string>
-    <string name="watch_ad_unlock_note">Посмотрите короткую рекламу, чтобы разблокировать эту ноту на 7 дней.</string>
+    <string name="watch_ad_unlock_note">Посмотрите короткую рекламу, чтобы разблокировать эту ноту на 1 дней.</string>
     <string name="watch_ad_label">▶ Посмотреть рекламу</string>
 </resources>

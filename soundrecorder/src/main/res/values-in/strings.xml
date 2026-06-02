@@ -304,6 +304,6 @@
     <string name="invalid_note_format">Format not tidak valid</string>
     <string name="learn_complete">Selesai! Kamu sudah memainkan semua not.</string>
     <string name="note_locked">Not Terkunci</string>
-    <string name="watch_ad_unlock_note">Tonton iklan pendek untuk membuka not ini selama 7 hari.</string>
+    <string name="watch_ad_unlock_note">Tonton iklan pendek untuk membuka not ini selama 1 hari.</string>
     <string name="watch_ad_label">▶ Tonton Iklan</string>
 </resources>

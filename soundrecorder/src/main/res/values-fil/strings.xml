@@ -303,6 +303,6 @@
     <string name="invalid_note_format">Maling format ng note</string>
     <string name="learn_complete">Tapos na! Natugtog mo na ang lahat ng note.</string>
     <string name="note_locked">Naka-lock ang Note</string>
-    <string name="watch_ad_unlock_note">Manood ng maikling ad para i-unlock ang note na ito sa loob ng 7 araw.</string>
+    <string name="watch_ad_unlock_note">Manood ng maikling ad para i-unlock ang note na ito sa loob ng 1 araw.</string>
     <string name="watch_ad_label">▶ Manood ng Ad</string>
 </resources>

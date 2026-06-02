@@ -306,6 +306,6 @@
     <string name="invalid_note_format">รูปแบบโน้ตไม่ถูกต้อง</string>
     <string name="learn_complete">เสร็จสิ้น! คุณได้เล่นโน้ตทั้งหมดแล้ว</string>
     <string name="note_locked">โน้ตถูกล็อค</string>
-    <string name="watch_ad_unlock_note">ชมโฆษณาสั้นๆ เพื่อปลดล็อคโน้ตนี้เป็นเวลา 7 วัน</string>
+    <string name="watch_ad_unlock_note">ชมโฆษณาสั้นๆ เพื่อปลดล็อคโน้ตนี้เป็นเวลา 1 วัน</string>
     <string name="watch_ad_label">▶ ชมโฆษณา</string>
 </resources>

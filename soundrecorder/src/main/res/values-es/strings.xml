@@ -305,6 +305,6 @@
     <string name="invalid_note_format">Formato de nota no válido</string>
     <string name="learn_complete">¡Terminado! Has tocado todas las notas.</string>
     <string name="note_locked">Nota Bloqueada</string>
-    <string name="watch_ad_unlock_note">Mira un anuncio corto para desbloquear esta nota por 7 días.</string>
+    <string name="watch_ad_unlock_note">Mira un anuncio corto para desbloquear esta nota por 1 días.</string>
     <string name="watch_ad_label">▶ Ver Anuncio</string>
 </resources>

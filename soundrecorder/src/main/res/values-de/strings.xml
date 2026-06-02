@@ -306,6 +306,6 @@
     <string name="invalid_note_format">Ungültiges Notenformat</string>
     <string name="learn_complete">Fertig! Sie haben alle Noten gespielt.</string>
     <string name="note_locked">Notiz gesperrt</string>
-    <string name="watch_ad_unlock_note">Schauen Sie sich eine kurze Anzeige an, um diese Notiz für 7 Tage freizuschalten.</string>
+    <string name="watch_ad_unlock_note">Schauen Sie sich eine kurze Anzeige an, um diese Notiz für 1 Tage freizuschalten.</string>
     <string name="watch_ad_label">▶ Anzeige ansehen</string>
 </resources>

@@ -58,34 +58,34 @@ object NotificationBannerHelper {
         }
 
         // ─── Header ───
-        val padH = context.sdp(SdpR.dimen._20sdp)
-        val padV = context.sdp(SdpR.dimen._16sdp)
+        val padH = context.sdp(SdpR.dimen._12sdp)
+        val padV = context.sdp(SdpR.dimen._10sdp)
         val header = FrameLayout(context)
 
         val headerContent = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(padH, padV, padH, context.sdp(SdpR.dimen._8sdp))
+            setPadding(padH, padV, padH, context.sdp(SdpR.dimen._6sdp))
 
             addView(TextView(context).apply {
                 text = context.getString(R.string.system_notification)
                 setTextColor(Color.parseColor(NEON_CYAN))
-                textSize = 10f
+                textSize = 9f
                 letterSpacing = 0.3f
                 typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
             })
             addView(TextView(context).apply {
                 text = context.getString(R.string.notification).uppercase()
                 setTextColor(Color.parseColor(GOLD))
-                textSize = 22f
+                textSize = 17f
                 typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-                setShadowLayer(10f, 0f, 0f, Color.parseColor(GOLD))
-                val topPad = context.sdp(SdpR.dimen._4sdp)
+                setShadowLayer(8f, 0f, 0f, Color.parseColor(GOLD))
+                val topPad = context.sdp(SdpR.dimen._2sdp)
                 setPadding(0, topPad, 0, 0)
             })
         }
 
-        val closeSize   = context.sdp(SdpR.dimen._32sdp)
-        val closeMargin = context.sdp(SdpR.dimen._8sdp)
+        val closeSize   = context.sdp(SdpR.dimen._24sdp)
+        val closeMargin = context.sdp(SdpR.dimen._6sdp)
         val closeBtn = FrameLayout(context).apply {
             layoutParams = FrameLayout.LayoutParams(closeSize, closeSize).apply {
                 gravity = Gravity.TOP or Gravity.END
@@ -98,7 +98,7 @@ object NotificationBannerHelper {
             addView(TextView(context).apply {
                 text = "✕"
                 setTextColor(Color.parseColor(NEON_CYAN))
-                textSize = 18f
+                textSize = 14f
                 gravity = Gravity.CENTER
                 layoutParams = FrameLayout.LayoutParams(-1, -1)
             })
@@ -116,40 +116,40 @@ object NotificationBannerHelper {
         val scrollView = ScrollView(context).apply { isVerticalScrollBarEnabled = false }
         val body = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(padH, padV, padH, padV)
+            setPadding(padH, context.sdp(SdpR.dimen._8sdp), padH, context.sdp(SdpR.dimen._8sdp))
         }
 
         body.addView(TextView(context).apply {
             text = context.getString(R.string.promotion_my_note_info)
             setTextColor(Color.parseColor(BODY))
-            textSize = 14f
-            setLineSpacing(0f, 1.4f)
+            textSize = 12f
+            setLineSpacing(0f, 1.3f)
         })
 
         body.addView(LinearLayout(context).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._16sdp))
+            layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._8sdp))
         })
 
         body.addView(buildNoteChip(context, context.getString(R.string.not_approve_notification)))
 
         scrollView.addView(body)
-        root.addView(scrollView, LinearLayout.LayoutParams(-1, (metrics.heightPixels * 0.4).toInt()))
+        root.addView(scrollView, LinearLayout.LayoutParams(-1, (metrics.heightPixels * 0.28).toInt()))
 
         // ─── Glow divider ───
         root.addView(buildDivider(context, NEON_MAG))
 
         // ─── Confirm button ───
         val btnContainer = FrameLayout(context).apply {
-            setPadding(padH, padV, padH, padV)
+            setPadding(padH, context.sdp(SdpR.dimen._8sdp), padH, context.sdp(SdpR.dimen._10sdp))
         }
         btnContainer.addView(TextView(context).apply {
             text = context.getString(R.string.understand).uppercase()
             setTextColor(Color.BLACK)
-            textSize = 15f
+            textSize = 13f
             gravity = Gravity.CENTER
             typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
             letterSpacing = 0.15f
-            setPadding(0, context.sdp(SdpR.dimen._12sdp), 0, context.sdp(SdpR.dimen._12sdp))
+            setPadding(0, context.sdp(SdpR.dimen._8sdp), 0, context.sdp(SdpR.dimen._8sdp))
             
             val normalBg = GradientDrawable(
                 GradientDrawable.Orientation.LEFT_RIGHT,
@@ -169,11 +169,12 @@ object NotificationBannerHelper {
         dialog.show()
         dialog.window?.apply {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
             setLayout(
-                (metrics.widthPixels * 0.9).toInt(),
+                (metrics.widthPixels * 0.82).toInt(),
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            attributes?.windowAnimations = android.R.style.Animation_Dialog // Optional: add standard zoom animation
+            attributes?.windowAnimations = android.R.style.Animation_Dialog
         }
     }
 

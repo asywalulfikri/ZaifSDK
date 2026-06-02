@@ -304,6 +304,6 @@
     <string name="invalid_note_format">Invalid note format</string>
     <string name="learn_complete">Finished! You have played all notes.</string>
     <string name="note_locked">Note Locked</string>
-    <string name="watch_ad_unlock_note">Watch a short ad to unlock this note for 7 days.</string>
+    <string name="watch_ad_unlock_note">Watch a short ad to unlock this note for 1 days.</string>
     <string name="watch_ad_label">▶ Watch Ad</string>
 </resources>
