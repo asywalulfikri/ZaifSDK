@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
 import recording.host.cons.Constants
 import recording.host.databinding.ActivityGameBinding
 import sound.recorder.widget.MyApp
+import sound.recorder.widget.encrypt.CryptoManager
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.music.MusicListDialogHelper

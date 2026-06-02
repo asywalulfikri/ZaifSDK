@@ -637,66 +637,6 @@ object RecordingListDialogHelper {
         }
     }
 
-    // ─── BUTTON BUILDERS ─────────────────────────────────────────────────────
-
-    private fun buildShareButton(
-        context: Context,
-        size: Int,
-        onClick: () -> Unit
-    ) = FrameLayout(context).apply {
-        layoutParams = LinearLayout.LayoutParams(size, size)
-        background = RippleDrawable(
-            ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
-            GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#20$COLOR_SHARE"))
-                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#$COLOR_SHARE"))
-            },
-            null
-        )
-        val pad = context.sdp(SdpR.dimen._6sdp)
-        addView(android.widget.ImageView(context).apply {
-            layoutParams = FrameLayout.LayoutParams(-1, -1)
-            setImageResource(R.drawable.ic_shared_forward)
-            setColorFilter(Color.parseColor("#$COLOR_SHARE"))
-            scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
-            setPadding(pad, pad, pad, pad)
-        })
-        setOnClickListener { onClick() }
-    }
-
-    private fun buildIconButton(
-        context: Context,
-        icon: String,
-        bgColor: String,
-        iconColor: Int,
-        size: Int,
-        onClick: () -> Unit
-    ) = FrameLayout(context).apply {
-        layoutParams = LinearLayout.LayoutParams(size, size)
-        background = RippleDrawable(
-            ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
-            GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Color.parseColor(bgColor))
-                if (bgColor.startsWith("#20")) setStroke(
-                    context.sdp(SdpR.dimen._1sdp), iconColor
-                )
-            },
-            null
-        )
-        addView(TextView(context).apply {
-            text = icon
-            setTextColor(iconColor)
-            textSize = 9f
-            typeface = Typeface.DEFAULT_BOLD
-            gravity = Gravity.CENTER
-        })
-        setOnClickListener { onClick() }
-    }
-
-    // ─── HELPERS ─────────────────────────────────────────────────────────────
-
     private fun spacer(context: Context, width: Int) = View(context).apply {
         layoutParams = LinearLayout.LayoutParams(width, 1)
     }

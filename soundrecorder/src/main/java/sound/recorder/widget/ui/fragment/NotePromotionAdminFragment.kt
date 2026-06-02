@@ -39,6 +39,7 @@ import org.json.JSONObject
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
+import sound.recorder.widget.encrypt.CryptoManager
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
@@ -82,6 +83,8 @@ class NotePromotionAdminFragment : Fragment() {
     private var isLoading = false
     private var isLastPage = false
 
+    private lateinit var crypto: CryptoManager
+
     private lateinit var recyclerView : RecyclerView
     private lateinit var progressBar  : ProgressBar
     private lateinit var emptyView    : TextView
@@ -111,6 +114,7 @@ class NotePromotionAdminFragment : Fragment() {
 
 
         root.addView(buildHeader(ctx))
+        crypto = CryptoManager(ctx)
 
         val config = ZaifSDKBuilder.load(ctx)
         zaifSDKConfig = config
@@ -379,7 +383,7 @@ class NotePromotionAdminFragment : Fragment() {
     // ─── FCM Notification (HTTP v1 API) ──────────────────────────────────────
 
     private fun sendPublishNotification(note: PromotionNote) {
-        val serviceAccountJson = zaifSDKConfig?.fcmKey.orEmpty()
+        val serviceAccountJson = crypto.decrypt(zaifSDKConfig?.fcmKey.orEmpty())
         if (serviceAccountJson.isBlank()) {
             Toast.makeText(context, "FCM Service Account belum diset", Toast.LENGTH_SHORT).show()
             return
