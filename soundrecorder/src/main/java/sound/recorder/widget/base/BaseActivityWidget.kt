@@ -1272,6 +1272,11 @@ open class BaseActivityWidget : AppCompatActivity() {
             return
         }
 
+        if (!isInternetTrulyAvailable(this)) {
+            setToast(getString(R.string.no_internet_connection))
+            return
+        }
+
         val ad = rewardedAd
         if (ad != null) {
             ad.fullScreenContentCallback = object : FullScreenContentCallback() {
