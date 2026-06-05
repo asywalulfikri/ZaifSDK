@@ -57,7 +57,7 @@ class InstrumentTutorialDialog(
     private val onLearnVisible: (visible: Boolean) -> Unit = {},
     private val onPlaybackStatusChanged: (isPlaying: Boolean) -> Unit = {},
     private val onToast: (message: String) -> Unit = {},
-    private val onRequestAd: (onComplete: () -> Unit) -> Unit = { it() },
+    private val onRequestAd: (onCompletea: () -> Unit) -> Unit = { it() },
     // Host app handles sound playback — padIndex and metadata from the recorded event
     private val onPlayNote: (padIndex: Int, metadata: String) -> Unit = { _, _ -> },
     private val onStopNote: (padIndex: Int, metadata: String) -> Unit = { _, _ -> },
@@ -89,6 +89,7 @@ class InstrumentTutorialDialog(
         private val cache = mutableMapOf<String, CachedResult>()
 
         private fun isCacheValid(key: String): Boolean {
+            if (cache.size > 20) cache.clear() // Bersihkan jika terlalu banyak untuk hemat RAM
             val c = cache[key] ?: return false
             return System.currentTimeMillis() - c.fetchedAt < CACHE_TTL_MS
         }
@@ -216,20 +217,27 @@ class InstrumentTutorialDialog(
         binding.rvSongs.adapter = adapter
         adapter.updateItems(allItems)
 
+        var searchJob: Job? = null
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
             override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                val q = s.toString().lowercase().trim()
-                val filtered: List<SongItem> = if (q.isEmpty()) allItems
-                else allItems.filter { item ->
-                    when (item) {
-                        is SongItem.Local  -> item.song.name.lowercase().contains(q)
-                        is SongItem.Remote -> item.note.recordName.lowercase().contains(q) ||
-                                item.note.senderName.lowercase().contains(q)
+                searchJob?.cancel()
+                searchJob = lifecycleScope?.launch {
+                    delay(300) // Debounce 300ms
+                    val q = s.toString().lowercase().trim()
+                    val filtered = withContext(Dispatchers.Default) {
+                        if (q.isEmpty()) allItems
+                        else allItems.filter { item ->
+                            when (item) {
+                                is SongItem.Local  -> item.song.name.lowercase().contains(q)
+                                is SongItem.Remote -> item.note.recordName.lowercase().contains(q) ||
+                                        item.note.senderName.lowercase().contains(q)
+                            }
+                        }
                     }
+                    adapter.updateItems(filtered)
                 }
-                adapter.updateItems(filtered)
             }
         })
 
@@ -282,6 +290,7 @@ class InstrumentTutorialDialog(
         dialog.setOnDismissListener {
             if (dismissShouldStop) stopAll()
             else dismissShouldStop = true
+            mContext = null // Hindari Memory Leak Activity
         }
 
         binding.btnClose.setOnClickListener { dialog.dismiss() }
@@ -506,6 +515,18 @@ class InstrumentTutorialDialog(
         onTabSelect(key.contains(instrumentType))
         onHighlight(event.padIndex)
         onLearnStepUpdate(learnStep + 1, learnEvents.size)
+    }
+
+    fun startLearnFromSong(song: InstrumentSong) {
+        stopAll()
+        val events = song.notes.map { RecordedTap(it.padIndex, it.timeMs, "") }
+        if (events.isEmpty()) return
+        isLearning   = true
+        learnEvents  = events
+        learnStep    = 0
+        learnTypeKey = instrumentType
+        onLearnVisible(true)
+        showLearnStep()
     }
 
     fun stopAll() {
