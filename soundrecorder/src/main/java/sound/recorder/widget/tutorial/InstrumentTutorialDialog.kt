@@ -1,6 +1,7 @@
 package sound.recorder.widget.tutorial
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -119,6 +120,7 @@ class InstrumentTutorialDialog(
     private var learnEvents = listOf<RecordedTap>()
     private var learnStep = 0
     private var learnTypeKey = ""
+    private var dismissShouldStop = true
 
     // ─── Show LOCAL + FIREBASE notes (merged) ────────────────────
 
@@ -170,7 +172,7 @@ class InstrumentTutorialDialog(
                 when (item) {
                     is SongItem.Local -> {
                         val key    = keyForLocal(item.song)
-                        val doPlay = { dialog.dismiss(); onPlay(item.song) }
+                        val doPlay = { dismissShouldStop = false; dialog.dismiss(); onPlay(item.song) }
                         if (isOpen(key)) doPlay()
                         else showAdConfirmDialog(context) { onRequestAd { markUnlocked(context, key); doPlay() } }
                     }
@@ -178,6 +180,7 @@ class InstrumentTutorialDialog(
                         val note   = item.note
                         val key    = keyForRemote(note)
                         val doPlay = {
+                            dismissShouldStop = false
                             dialog.dismiss()
                             if (playRemoteAsSong) {
                                 val song = remoteNoteToSong(note)
@@ -195,14 +198,14 @@ class InstrumentTutorialDialog(
                 when (item) {
                     is SongItem.Local -> {
                         val key     = keyForLocal(item.song)
-                        val doLearn = { dialog.dismiss(); onLearn(item.song) }
+                        val doLearn = { dismissShouldStop = false; dialog.dismiss(); onLearn(item.song) }
                         if (isOpen(key)) doLearn()
                         else showAdConfirmDialog(context) { onRequestAd { markUnlocked(context, key); doLearn() } }
                     }
                     is SongItem.Remote -> {
                         val note    = item.note
                         val key     = keyForRemote(note)
-                        val doLearn = { dialog.dismiss(); startLearnMode(note.jsonNote) }
+                        val doLearn = { dismissShouldStop = false; dialog.dismiss(); startLearnMode(note.jsonNote) }
                         if (isOpen(key)) doLearn()
                         else showAdConfirmDialog(context) { onRequestAd { markUnlocked(context, key); doLearn() } }
                     }
@@ -276,7 +279,10 @@ class InstrumentTutorialDialog(
 
         // Tidak bisa ditutup dengan sentuhan luar, hanya tombol X atau back device
         dialog.setCanceledOnTouchOutside(false)
-        dialog.setOnDismissListener { stopAll() }
+        dialog.setOnDismissListener {
+            if (dismissShouldStop) stopAll()
+            else dismissShouldStop = true
+        }
 
         binding.btnClose.setOnClickListener { dialog.dismiss() }
 
@@ -431,7 +437,7 @@ class InstrumentTutorialDialog(
             val eventsResult = withContext(Dispatchers.Default) {
                 try { parseEvents(jsonNote) } catch (e: Exception) { null }
             }
-            
+
             val events = eventsResult?.first
             if (events.isNullOrEmpty()) {
                 onToast(mContext?.getString(R.string.invalid_note_format) ?: "Format not tidak valid")
@@ -439,7 +445,7 @@ class InstrumentTutorialDialog(
             }
 
             onPlaybackStatusChanged(true)
-            
+
             var lastTimestamp = 0L
             events.forEach { event ->
                 val wait = event.timestamp - lastTimestamp
@@ -448,7 +454,7 @@ class InstrumentTutorialDialog(
 
                 val isOff = event.metadata == "OFF"
                 val metadata = event.metadata.orEmpty()
-                
+
                 if (isOff) {
                     onStopNote(event.padIndex, metadata)
                     onUnhighlight(event.padIndex)
@@ -471,15 +477,15 @@ class InstrumentTutorialDialog(
             val eventsResult = withContext(Dispatchers.Default) {
                 try { parseEvents(jsonNote) } catch (e: Exception) { null }
             }
-            
+
             val events = eventsResult?.first
             val typeKey = eventsResult?.second ?: instrumentType
-            
+
             if (events.isNullOrEmpty()) {
                 onToast(mContext?.getString(R.string.invalid_note_format) ?: "Format not tidak valid")
                 return@launch
             }
-            
+
             isLearning   = true
             learnEvents  = events
             learnStep    = 0
@@ -516,9 +522,9 @@ class InstrumentTutorialDialog(
 
     // ─── Dialog konfirmasi sebelum iklan ─────────────────────────
 
-    @SuppressLint("UseKtx")
+    @SuppressLint("UseKtx", "SetTextI18n")
     private fun showAdConfirmDialog(context: Context, onConfirm: () -> Unit) {
-        if (context is android.app.Activity && (context.isFinishing || context.isDestroyed)) return
+        if (context is Activity && (context.isFinishing || context.isDestroyed)) return
         val d = AlertDialog.Builder(context).create()
 
         val root = LinearLayout(context).apply {
