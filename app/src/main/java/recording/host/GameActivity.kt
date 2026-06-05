@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import recording.host.SongRepository.loadFromAssets
 import recording.host.cons.Constants
 import recording.host.databinding.ActivityGameBinding
 import sound.recorder.widget.MyApp
