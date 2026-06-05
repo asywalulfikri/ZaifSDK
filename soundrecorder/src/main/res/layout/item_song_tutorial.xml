@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_item_tutorial_song">
+
+    <!-- Icon -->
+    <ImageView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/icon_music"
+        android:contentDescription="@string/song" />
+
+    <!-- Nama + info -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_6sdp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvSongName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/song"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/tvSongInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Best: -"
+            android:visibility="gone"
+            android:textColor="#FFD740"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- Tombol MAINKAN -->
+    <TextView
+        android:id="@+id/btnPlay"
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="@dimen/_28sdp"
+        android:layout_marginEnd="6dp"
+        android:background="@drawable/bg_btn_tutorial_play"
+        android:gravity="center"
+        android:text="@string/play"
+        android:textColor="#FFFFFF"
+        android:textSize="@dimen/_7ssp"
+        android:textStyle="bold" />
+
+    <!-- Tombol BELAJAR -->
+    <TextView
+        android:id="@+id/btnLearn"
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="@dimen/_28sdp"
+        android:background="@drawable/bg_btn_tutorial_learn"
+        android:gravity="center"
+        android:text="@string/learn"
+        android:textColor="#FFFFFF"
+        android:textSize="@dimen/_7ssp"
+        android:textStyle="bold" />
+
+</LinearLayout>

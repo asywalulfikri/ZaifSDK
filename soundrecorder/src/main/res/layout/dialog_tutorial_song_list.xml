@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/bg_dialog_game"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/_5sdp"
+    android:paddingBottom="@dimen/_5sdp">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/_20sdp"
+        android:paddingEnd="@dimen/_8sdp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_song"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
+
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:layout_marginVertical="@dimen/_5sdp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/step_by_step"
+                android:textColor="#6B7A9F"
+                android:textSize="@dimen/_9ssp" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btnClose"
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            app:srcCompat="@drawable/ic_close" />
+
+    </RelativeLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1A2D50" />
+
+    <!-- Search bar (hidden for local songs, visible for Firebase) -->
+    <EditText
+        android:id="@+id/etSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:padding="12dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:hint="@string/search_song"
+        android:textColorHint="#FFFFFF"
+        android:textColor="#F5F5DC"
+        android:textSize="13sp"
+        android:background="@null"
+        android:maxLines="1" />
+
+    <!-- Divider below search (hidden for local songs) -->
+    <View
+        android:id="@+id/dividerSearch"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1A2D50"
+        android:visibility="gone" />
+
+    <!-- Progress bar (for Firebase loading) -->
+    <FrameLayout
+        android:id="@+id/progressContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="16dp" />
+
+    </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSongs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="400dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false" />
+
+</LinearLayout>

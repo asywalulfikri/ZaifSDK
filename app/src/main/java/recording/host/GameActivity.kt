@@ -1,5 +1,6 @@
 package recording.host
 
+import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -24,6 +25,7 @@ import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.music.MusicPlayerManager
+import sound.recorder.widget.tutorial.InstrumentSong
 import sound.recorder.widget.util.NotificationBannerHelper
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -158,6 +160,27 @@ class GameActivity : BaseActivity(),
                 }
             }
         }
+
+
+
+    }
+
+    fun getAllSongsPianika(context: Context): List<InstrumentSong> {
+        val list = mutableListOf<InstrumentSong>()
+
+        val files = listOf(
+            "doraemon.json",
+            "ibu_kita_kartini.json",
+            "indonesia_raya.json",
+            "happy_birthday.json",
+            "mbg.json"
+        )
+
+        for (file in files) {
+            loadFromAssets(context, file)?.let { list.add(it) }
+        }
+
+        return list
     }
 
     /** =====================
