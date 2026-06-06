@@ -812,6 +812,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         adViewContainer.addView(ad)
 
                         Log.d("BannerAd", "✓ Banner loaded successfully")
+                        setDebugToast("Banner sukses dimuat")
                     }
                 } catch (e: Exception) {
                     Log.e("BannerAd", "Add view error: ${e.message}")
@@ -826,6 +827,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 bannerRetryCount++
 
                 Log.e("BannerAd", "Failed: ${error.message}, retry: $bannerRetryCount/$maxBannerRetry")
+                setDebugToast("Banner gagal [${error.code}]: ${error.message} (retry $bannerRetryCount/$maxBannerRetry)")
 
                 // ✅ Check retry limit
                 if (bannerRetryCount >= maxBannerRetry) {
@@ -860,6 +862,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private fun handleBannerTimeout(adViewContainer: FrameLayout) {
         Log.e("BannerAd", "⏱️ Load timeout after 10s")
+        setDebugToast("Banner timeout 10s (retry $bannerRetryCount/$maxBannerRetry)")
 
         bannerRetryCount++
 
@@ -1536,6 +1539,13 @@ open class BaseActivityWidget : AppCompatActivity() {
         val isDebug = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         if(isDebug){
             Log.d(name, "$message - ")
+        }
+    }
+
+    private fun setDebugToast(message: String) {
+        val isDebug = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if (isDebug && !isFinishing && !isDestroyed) {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 

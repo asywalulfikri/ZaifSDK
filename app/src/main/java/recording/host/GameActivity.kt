@@ -1,6 +1,5 @@
 package recording.host
 
-import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -17,17 +16,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import recording.host.SongRepository.loadFromAssets
-import recording.host.cons.Constants
+import recording.host.cons.Constants.SongConstants.rawList
 import recording.host.databinding.ActivityGameBinding
 import sound.recorder.widget.MyApp
-import sound.recorder.widget.encrypt.CryptoManager
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.music.MusicPlayerManager
-import sound.recorder.widget.tutorial.InstrumentSong
-import sound.recorder.widget.util.NotificationBannerHelper
 import java.util.concurrent.atomic.AtomicBoolean
 
 class GameActivity : BaseActivity(),
@@ -57,12 +52,13 @@ class GameActivity : BaseActivity(),
      *  NETWORK CALLBACK
      *  ===================== */
     private lateinit var connectivityManager: ConnectivityManager
-
     private val soundViewModel: SoundViewModel by viewModels()
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) {
-            if (adsFirstLoadIsOff.compareAndSet(true, false)) {
+        override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+            val validated = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            if (validated && adsFirstLoadIsOff.compareAndSet(true, false)) {
                 runOnUiThreadSafe {
                     setToastADS("Internet restored, loading ads…")
                     tryToSetupAds()
@@ -87,8 +83,8 @@ class GameActivity : BaseActivity(),
         MyApp.registerListener(this)
 
         permissionNotification()
+
         setupGDPR()
-        NotificationBannerHelper.showIfNotSeen(this)
 
         if (BuildConfig.hasSong) {
             loadSongsOnce()
@@ -147,7 +143,7 @@ class GameActivity : BaseActivity(),
         if (!songsLoaded.compareAndSet(false, true)) return
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val tracks = Constants.SongConstants.rawList.map { (resId, title) ->
+            val tracks = rawList.map { (resId, title) ->
                 MusicPlayerManager.MusicTrack(
                     title    = title,
                     duration = getRawDurationSafe(resId),
@@ -161,27 +157,6 @@ class GameActivity : BaseActivity(),
                 }
             }
         }
-
-
-
-    }
-
-    fun getAllSongsPianika(context: Context): List<InstrumentSong> {
-        val list = mutableListOf<InstrumentSong>()
-
-        val files = listOf(
-            "doraemon.json",
-            "ibu_kita_kartini.json",
-            "indonesia_raya.json",
-            "happy_birthday.json",
-            "mbg.json"
-        )
-
-        for (file in files) {
-            loadFromAssets(context, file)?.let { list.add(it) }
-        }
-
-        return list
     }
 
     /** =====================
@@ -201,7 +176,7 @@ class GameActivity : BaseActivity(),
             delay(ADS_INITIAL_DELAY_MS)
 
             binding?.let {
-                loadBannerGame(it.bannerGame, BuildConfig.isPotrait)
+                loadBannerGame(it.bannerGame, false)
             }
 
             delay(ADS_SECONDARY_DELAY_MS)
@@ -233,13 +208,13 @@ class GameActivity : BaseActivity(),
             }else{
                 val gameTo = if (show) View.VISIBLE else View.GONE
                 val gameAlpha = if (show) 1f else 0f
-
                 bannerGame.animate().alpha(gameAlpha).withStartAction {
                     bannerGame.visibility = gameTo
                 }
             }
         }
     }
+
 
     override fun loadInterstitial() {
         loadInterstitialIfNeeded(soundViewModel.isPremium)
