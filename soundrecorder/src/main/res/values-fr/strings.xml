@@ -325,4 +325,10 @@
     <string name="nickname_leaderboard">Votre pseudonyme apparaîtra dans le classement</string>
     <string name="failed_get_data">Échec de la récupération des données</string>
     <string name="confirm">Confirmer</string>
+
+    <string name="pitch_desc_minus2">2 demi-tons plus bas</string>
+    <string name="pitch_desc_minus1">1 demi-ton plus bas</string>
+    <string name="pitch_desc_normal">Accordage par défaut</string>
+    <string name="pitch_desc_plus1">1 demi-ton plus haut</string>
+    <string name="pitch_desc_plus2">2 demi-tons plus haut</string>
 </resources>

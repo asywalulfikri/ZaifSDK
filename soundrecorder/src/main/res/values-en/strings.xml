@@ -322,4 +322,10 @@
     <string name="nickname_leaderboard">Your nickname will appear on the leaderboard</string>
     <string name="failed_get_data">Failed to get data</string>
     <string name="confirm">Confirm</string>
+
+    <string name="pitch_desc_minus2">2 semitones lower</string>
+    <string name="pitch_desc_minus1">1 semitone lower</string>
+    <string name="pitch_desc_normal">Default tuning</string>
+    <string name="pitch_desc_plus1">1 semitone higher</string>
+    <string name="pitch_desc_plus2">2 semitones higher</string>
 </resources>

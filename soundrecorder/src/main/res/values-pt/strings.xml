@@ -324,4 +324,10 @@
     <string name="nickname_leaderboard">Seu apelido aparecerá no ranking</string>
     <string name="failed_get_data">Falha ao obter dados</string>
     <string name="confirm">Confirmar</string>
+
+    <string name="pitch_desc_minus2">2 semitons abaixo</string>
+    <string name="pitch_desc_minus1">1 semitom abaixo</string>
+    <string name="pitch_desc_normal">Afinação padrão</string>
+    <string name="pitch_desc_plus1">1 semitom acima</string>
+    <string name="pitch_desc_plus2">2 semitons acima</string>
 </resources>

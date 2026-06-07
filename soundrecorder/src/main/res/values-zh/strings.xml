@@ -323,4 +323,10 @@
     <string name="nickname_leaderboard">你的昵称将显示在排行榜上</string>
     <string name="failed_get_data">获取数据失败</string>
     <string name="confirm">确认</string>
+
+    <string name="pitch_desc_minus2">降低 2 个半音</string>
+    <string name="pitch_desc_minus1">降低 1 个半音</string>
+    <string name="pitch_desc_normal">默认调音</string>
+    <string name="pitch_desc_plus1">升高 1 个半音</string>
+    <string name="pitch_desc_plus2">升高 2 个半音</string>
 </resources>

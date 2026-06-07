@@ -326,4 +326,10 @@
     <string name="nickname_leaderboard">Nama samaran anda akan dipaparkan di papan kedudukan</string>
     <string name="failed_get_data">Gagal mendapatkan data</string>
     <string name="confirm">Sahkan</string>
+
+    <string name="pitch_desc_minus2">Turun 2 semiton</string>
+    <string name="pitch_desc_minus1">Turun 1 semiton</string>
+    <string name="pitch_desc_normal">Penalaan lalai</string>
+    <string name="pitch_desc_plus1">Naik 1 semiton</string>
+    <string name="pitch_desc_plus2">Naik 2 semiton</string>
 </resources>

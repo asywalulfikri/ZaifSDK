@@ -324,4 +324,10 @@
     <string name="nickname_leaderboard">ชื่อเล่นของคุณจะแสดงบนกระดานจัดอันดับ</string>
     <string name="failed_get_data">ไม่สามารถดึงข้อมูลได้</string>
     <string name="confirm">ยืนยัน</string>
+
+    <string name="pitch_desc_minus2">ต่ำลง 2 เซมิโทน</string>
+    <string name="pitch_desc_minus1">ต่ำลง 1 เซมิโทน</string>
+    <string name="pitch_desc_normal">การตั้งสายมาตรฐาน</string>
+    <string name="pitch_desc_plus1">สูงขึ้น 1 เซมิโทน</string>
+    <string name="pitch_desc_plus2">สูงขึ้น 2 เซมิโทน</string>
 </resources>

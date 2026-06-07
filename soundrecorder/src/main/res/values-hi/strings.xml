@@ -322,4 +322,10 @@
     <string name="nickname_leaderboard">आपका उपनाम लीडरबोर्ड पर दिखाई देगा</string>
     <string name="failed_get_data">डेटा प्राप्त करने में विफल</string>
     <string name="confirm">पुष्टि करें</string>
+
+    <string name="pitch_desc_minus2">2 सेमिटोन कम</string>
+    <string name="pitch_desc_minus1">1 सेमिटोन कम</string>
+    <string name="pitch_desc_normal">डिफ़ॉल्ट ट्यूनिंग</string>
+    <string name="pitch_desc_plus1">1 सेमिटोन अधिक</string>
+    <string name="pitch_desc_plus2">2 सेमिटोन अधिक</string>
 </resources>

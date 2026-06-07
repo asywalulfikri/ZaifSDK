@@ -324,4 +324,10 @@
     <string name="nickname_leaderboard">Tu apodo aparecerá en la clasificación</string>
     <string name="failed_get_data">Error al obtener los datos</string>
     <string name="confirm">Confirmar</string>
+
+    <string name="pitch_desc_minus2">2 semitonos más bajo</string>
+    <string name="pitch_desc_minus1">1 semitono más bajo</string>
+    <string name="pitch_desc_normal">Afinación predeterminada</string>
+    <string name="pitch_desc_plus1">1 semitono más alto</string>
+    <string name="pitch_desc_plus2">2 semitonos más alto</string>
 </resources>

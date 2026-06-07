@@ -326,4 +326,10 @@
     <string name="nickname_leaderboard">닉네임이 리더보드에 표시됩니다</string>
     <string name="failed_get_data">데이터를 가져오지 못했습니다</string>
     <string name="confirm">확인</string>
+
+    <string name="pitch_desc_minus2">2반음 낮춤</string>
+    <string name="pitch_desc_minus1">1반음 낮춤</string>
+    <string name="pitch_desc_normal">기본 튜닝</string>
+    <string name="pitch_desc_plus1">1반음 높임</string>
+    <string name="pitch_desc_plus2">2반음 높임</string>
 </resources>

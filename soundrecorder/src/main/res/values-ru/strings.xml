@@ -322,4 +322,10 @@
     <string name="nickname_leaderboard">Ваш никнейм будет отображаться в таблице лидеров</string>
     <string name="failed_get_data">Не удалось получить данные</string>
     <string name="confirm">Подтвердить</string>
+
+    <string name="pitch_desc_minus2">На 2 полутона ниже</string>
+    <string name="pitch_desc_minus1">На 1 полутон ниже</string>
+    <string name="pitch_desc_normal">Стандартная настройка</string>
+    <string name="pitch_desc_plus1">На 1 полутон выше</string>
+    <string name="pitch_desc_plus2">На 2 полутона выше</string>
 </resources>

@@ -325,4 +325,10 @@
     <string name="nickname_leaderboard">Lalabas ang iyong palayaw sa talaan ng ranggo</string>
     <string name="failed_get_data">Nabigong kunin ang data</string>
     <string name="confirm">Kumpirmahin</string>
+
+    <string name="pitch_desc_minus2">2 semitone na mas mababa</string>
+    <string name="pitch_desc_minus1">1 semitone na mas mababa</string>
+    <string name="pitch_desc_normal">Karaniwang tono</string>
+    <string name="pitch_desc_plus1">1 semitone na mas mataas</string>
+    <string name="pitch_desc_plus2">2 semitone na mas mataas</string>
 </resources>

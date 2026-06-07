@@ -322,4 +322,10 @@
     <string name="nickname_leaderboard">Nama panggilan kamu akan muncul di papan peringkat</string>
     <string name="failed_get_data">Gagal mengambil data</string>
     <string name="confirm">Konfirmasi</string>
+
+    <string name="pitch_desc_minus2">Turun 2 semitone</string>
+    <string name="pitch_desc_minus1">Turun 1 semitone</string>
+    <string name="pitch_desc_normal">Tuning standar</string>
+    <string name="pitch_desc_plus1">Naik 1 semitone</string>
+    <string name="pitch_desc_plus2">Naik 2 semitone</string>
 </resources>

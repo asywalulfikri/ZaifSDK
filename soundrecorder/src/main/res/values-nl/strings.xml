@@ -327,4 +327,10 @@
     <string name="nickname_leaderboard">Je bijnaam verschijnt op het scorebord</string>
     <string name="failed_get_data">Gegevens ophalen mislukt</string>
     <string name="confirm">Bevestigen</string>
+
+    <string name="pitch_desc_minus2">2 halve tonen lager</string>
+    <string name="pitch_desc_minus1">1 halve toon lager</string>
+    <string name="pitch_desc_normal">Standaardstemming</string>
+    <string name="pitch_desc_plus1">1 halve toon hoger</string>
+    <string name="pitch_desc_plus2">2 halve tonen hoger</string>
 </resources>

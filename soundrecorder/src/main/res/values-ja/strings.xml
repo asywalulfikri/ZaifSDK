@@ -319,4 +319,10 @@
     <string name="nickname_leaderboard">あなたのニックネームがランキングに表示されます</string>
     <string name="failed_get_data">データの取得に失敗しました</string>
     <string name="confirm">確認</string>
+
+    <string name="pitch_desc_minus2">2半音低い</string>
+    <string name="pitch_desc_minus1">1半音低い</string>
+    <string name="pitch_desc_normal">標準チューニング</string>
+    <string name="pitch_desc_plus1">1半音高い</string>
+    <string name="pitch_desc_plus2">2半音高い</string>
 </resources>

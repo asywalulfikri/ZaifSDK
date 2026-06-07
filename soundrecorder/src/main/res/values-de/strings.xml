@@ -325,4 +325,10 @@
     <string name="nickname_leaderboard">Dein Spitzname wird in der Bestenliste angezeigt</string>
     <string name="failed_get_data">Daten konnten nicht geladen werden</string>
     <string name="confirm">Bestätigen</string>
+
+    <string name="pitch_desc_minus2">2 Halbtöne tiefer</string>
+    <string name="pitch_desc_minus1">1 Halbton tiefer</string>
+    <string name="pitch_desc_normal">Standardstimmung</string>
+    <string name="pitch_desc_plus1">1 Halbton höher</string>
+    <string name="pitch_desc_plus2">2 Halbtöne höher</string>
 </resources>
