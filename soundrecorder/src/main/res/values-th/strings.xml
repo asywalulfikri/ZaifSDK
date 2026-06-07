@@ -320,4 +320,8 @@
     <string name="nickname">ชื่อเล่น</string>
     <string name="name_cannot_empty">ชื่อไม่สามารถเว้นว่างได้</string>
     <string name="forbidden_word">ชื่อมีคำต้องห้าม!</string>
+
+    <string name="nickname_leaderboard">ชื่อเล่นของคุณจะแสดงบนกระดานจัดอันดับ</string>
+    <string name="failed_get_data">ไม่สามารถดึงข้อมูลได้</string>
+    <string name="confirm">ยืนยัน</string>
 </resources>

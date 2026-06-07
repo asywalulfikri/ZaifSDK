@@ -320,4 +320,8 @@
     <string name="nickname">Apodo</string>
     <string name="name_cannot_empty">El nombre no puede estar vacío</string>
     <string name="forbidden_word">¡El nombre contiene palabras prohibidas!</string>
+
+    <string name="nickname_leaderboard">Tu apodo aparecerá en la clasificación</string>
+    <string name="failed_get_data">Error al obtener los datos</string>
+    <string name="confirm">Confirmar</string>
 </resources>

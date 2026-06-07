@@ -321,4 +321,8 @@
     <string name="nickname">Pseudonyme</string>
     <string name="name_cannot_empty">Le nom ne peut pas être vide</string>
     <string name="forbidden_word">Le nom contient des mots interdits !</string>
+
+    <string name="nickname_leaderboard">Votre pseudonyme apparaîtra dans le classement</string>
+    <string name="failed_get_data">Échec de la récupération des données</string>
+    <string name="confirm">Confirmer</string>
 </resources>

@@ -321,4 +321,8 @@
     <string name="nickname">Spitzname</string>
     <string name="name_cannot_empty">Der Name darf nicht leer sein</string>
     <string name="forbidden_word">Der Name enthält verbotene Wörter!</string>
+
+    <string name="nickname_leaderboard">Dein Spitzname wird in der Bestenliste angezeigt</string>
+    <string name="failed_get_data">Daten konnten nicht geladen werden</string>
+    <string name="confirm">Bestätigen</string>
 </resources>

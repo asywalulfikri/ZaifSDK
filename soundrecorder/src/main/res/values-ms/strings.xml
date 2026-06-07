@@ -322,4 +322,8 @@
     <string name="nickname">Nama Samaran</string>
     <string name="name_cannot_empty">Nama tidak boleh kosong</string>
     <string name="forbidden_word">Nama mengandungi perkataan yang dilarang!</string>
+
+    <string name="nickname_leaderboard">Nama samaran anda akan dipaparkan di papan kedudukan</string>
+    <string name="failed_get_data">Gagal mendapatkan data</string>
+    <string name="confirm">Sahkan</string>
 </resources>

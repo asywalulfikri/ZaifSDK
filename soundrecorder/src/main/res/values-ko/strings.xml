@@ -322,4 +322,8 @@
     <string name="nickname">닉네임</string>
     <string name="name_cannot_empty">이름은 비워둘 수 없습니다</string>
     <string name="forbidden_word">이름에 금지된 단어가 포함되어 있습니다!</string>
+
+    <string name="nickname_leaderboard">닉네임이 리더보드에 표시됩니다</string>
+    <string name="failed_get_data">데이터를 가져오지 못했습니다</string>
+    <string name="confirm">확인</string>
 </resources>

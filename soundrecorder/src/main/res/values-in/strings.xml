@@ -318,4 +318,8 @@
     <string name="nickname">Nama Panggilan</string>
     <string name="name_cannot_empty">Nama tidak boleh kosong</string>
     <string name="forbidden_word">Nama mengandung kata-kata yang dilarang!</string>
+
+    <string name="nickname_leaderboard">Nama panggilan kamu akan muncul di papan peringkat</string>
+    <string name="failed_get_data">Gagal mengambil data</string>
+    <string name="confirm">Konfirmasi</string>
 </resources>

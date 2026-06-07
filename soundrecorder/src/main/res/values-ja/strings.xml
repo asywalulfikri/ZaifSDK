@@ -315,4 +315,8 @@
     <string name="nickname">ニックネーム</string>
     <string name="name_cannot_empty">名前を空欄にすることはできません</string>
     <string name="forbidden_word">名前に禁止された単語が含まれています！</string>
+
+    <string name="nickname_leaderboard">あなたのニックネームがランキングに表示されます</string>
+    <string name="failed_get_data">データの取得に失敗しました</string>
+    <string name="confirm">確認</string>
 </resources>

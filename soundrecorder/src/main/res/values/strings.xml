@@ -317,4 +317,8 @@
     <string name="nickname">Nickname</string>
     <string name="name_cannot_empty">Name cannot be empty</string>
     <string name="forbidden_word">The name contains prohibited words!</string>
+
+    <string name="nickname_leaderboard">Your nickname will appear on the leaderboard</string>
+    <string name="failed_get_data">Failed to get data</string>
+    <string name="confirm">Confirm</string>
 </resources>

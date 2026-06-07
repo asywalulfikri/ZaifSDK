@@ -320,4 +320,9 @@
     <string name="nickname">Palayaw</string>
     <string name="name_cannot_empty">Hindi maaaring walang laman ang pangalan</string>
     <string name="forbidden_word">Naglalaman ang pangalan ng mga ipinagbabawal na salita!</string>
+
+
+    <string name="nickname_leaderboard">Lalabas ang iyong palayaw sa talaan ng ranggo</string>
+    <string name="failed_get_data">Nabigong kunin ang data</string>
+    <string name="confirm">Kumpirmahin</string>
 </resources>

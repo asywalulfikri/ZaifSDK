@@ -323,4 +323,8 @@
     <string name="nickname">Bijnaam</string>
     <string name="name_cannot_empty">Naam mag niet leeg zijn</string>
     <string name="forbidden_word">De naam bevat verboden woorden!</string>
+
+    <string name="nickname_leaderboard">Je bijnaam verschijnt op het scorebord</string>
+    <string name="failed_get_data">Gegevens ophalen mislukt</string>
+    <string name="confirm">Bevestigen</string>
 </resources>

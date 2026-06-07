@@ -425,17 +425,47 @@ class InstrumentTutorialDialog(
 
     private fun remoteNoteToSong(note: NoteItem): InstrumentSong? {
         return try {
-            val arr   = JSONObject(note.jsonNote).getJSONArray("events")
-            val notes = (0 until arr.length()).map { i ->
-                val o = arr.getJSONObject(i)
-                InstrumentNote(
-                    padIndex = o.getInt("padIndex"),
-                    timeMs = o.getLong("timestamp"),
-                    durationMs = 400L
-                )
+            val arr = JSONObject(note.jsonNote).getJSONArray("events")
+            val allEvents = (0 until arr.length()).map { arr.getJSONObject(it) }
+            val notes = mutableListOf<InstrumentNote>()
+
+            // Sustain instruments (e.g. pianika, marching bells) have paired ON + "OFF" events.
+            // Tap/percussion instruments (e.g. gendang, demung) have no "OFF" events.
+            val hasSustain = allEvents.any { it.optString("metadata", "") == "OFF" }
+
+            if (hasSustain) {
+                val activeNotes = mutableMapOf<Int, Long>()
+                for (o in allEvents) {
+                    val padIndex = o.getInt("padIndex")
+                    val timestamp = o.getLong("timestamp")
+                    if (o.optString("metadata", "") == "OFF") {
+                        val startTime = activeNotes.remove(padIndex)
+                        if (startTime != null) {
+                            notes.add(InstrumentNote(padIndex, startTime, timestamp - startTime))
+                        }
+                    } else {
+                        activeNotes[padIndex] = timestamp
+                    }
+                }
+                // Sustain notes without a matching OFF get a default duration
+                activeNotes.forEach { (pad, start) ->
+                    notes.add(InstrumentNote(pad, start, 400L))
+                }
+            } else {
+                // Tap/percussion: each event is an independent note
+                for (o in allEvents) {
+                    notes.add(InstrumentNote(
+                        padIndex   = o.getInt("padIndex"),
+                        timeMs     = o.getLong("timestamp"),
+                        durationMs = 400L
+                    ))
+                }
             }
-            InstrumentSong(name = note.recordName, notes = notes)
-        } catch (e: Exception) { null }
+
+            InstrumentSong(name = note.recordName, notes = notes.sortedBy { it.timeMs })
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun parseEvents(jsonNote: String): Pair<List<RecordedTap>, String> {

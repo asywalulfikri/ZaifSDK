@@ -319,4 +319,8 @@
     <string name="nickname">Biệt Danh</string>
     <string name="name_cannot_empty">Tên không được để trống</string>
     <string name="forbidden_word">Tên chứa từ ngữ bị cấm!</string>
+
+    <string name="nickname_leaderboard">Biệt danh của bạn sẽ xuất hiện trên bảng xếp hạng</string>
+    <string name="failed_get_data">Không thể tải dữ liệu</string>
+    <string name="confirm">Xác nhận</string>
 </resources>

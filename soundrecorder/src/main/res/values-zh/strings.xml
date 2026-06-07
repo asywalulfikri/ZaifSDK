@@ -319,4 +319,8 @@
     <string name="nickname">昵称</string>
     <string name="name_cannot_empty">名称不能为空</string>
     <string name="forbidden_word">名称包含禁止使用的词语！</string>
+
+    <string name="nickname_leaderboard">你的昵称将显示在排行榜上</string>
+    <string name="failed_get_data">获取数据失败</string>
+    <string name="confirm">确认</string>
 </resources>

@@ -320,4 +320,8 @@
     <string name="nickname">Apelido</string>
     <string name="name_cannot_empty">O nome não pode estar vazio</string>
     <string name="forbidden_word">O nome contém palavras proibidas!</string>
+
+    <string name="nickname_leaderboard">Seu apelido aparecerá no ranking</string>
+    <string name="failed_get_data">Falha ao obter dados</string>
+    <string name="confirm">Confirmar</string>
 </resources>
