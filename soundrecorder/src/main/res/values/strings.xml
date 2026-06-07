@@ -306,4 +306,15 @@
     <string name="note_locked">Note Locked</string>
     <string name="watch_ad_unlock_note">Watch a short ad to unlock this note for 1 days.</string>
     <string name="watch_ad_label">▶ Watch Ad</string>
+
+    <string name="leaderboard">Leaderboard</string>
+    <string name="ranked">🏆 Ranked</string>
+    <string name="normal">Normal</string>
+    <string name="pitch">Pitch</string>
+    <string name="global_top_10">Global Top 10</string>
+
+    <string name="set_nickname">Set Nickname</string>
+    <string name="nickname">Nickname</string>
+    <string name="name_cannot_empty">Name cannot be empty</string>
+    <string name="forbidden_word">The name contains prohibited words!</string>
 </resources>

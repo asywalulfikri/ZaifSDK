@@ -294,12 +294,13 @@
 
     <string name="not_approve_notification">Anda akan menerima pemberitahuan apabila not yang anda hantar diluluskan.</string>
     <string name="promosikan">Promosikan</string>
-    <string name="promot_info">Adakah anda pasti mahu mempromosikan not ini ke seluruh dunia?</string>
+    <string name="promot_info">Adakah anda pasti mahu mempromosikan nota muzik ini ke seluruh dunia? Nota anda akan disemak terlebih dahulu. Jika ia memenuhi standard kualiti kami, ia akan diterbitkan dan nama anda akan dipaparkan sebagai pencipta.</string>
     <string name="your_name">Nama Anda</string>
     <string name="send_note_success">Not berjaya dihantar.</string>
     <string name="send_note_failed">Not gagal dihantar.</string>
     <string name="promotion_my_note_info">Kini anda boleh mencipta not muzik daripada rakaman anda dan berkongsinya ke seluruh dunia. Not terbaik yang dipilih akan dipaparkan dalam aplikasi bersama nama penciptanya. Anda hanya boleh menghantar satu not setiap hari, jadi pastikan anda menghantar karya terbaik anda!</string>
 
+    <string name="system_notification">⚡ NOTIFIKASI SISTEM ⚡</string>
     <string name="limit_promot">Anda telah mencapai had promosi harian. Sila cuba lagi esok.</string>
     <string name="delete_not_title">Adakah anda mahu memadamkan not ini?</string>
     <string name="not_approved">Not anda telah diluluskan dan diterbitkan. Sila semak.</string>
@@ -310,4 +311,15 @@
     <string name="note_locked">Nota Terkunci</string>
     <string name="watch_ad_unlock_note">Tonton iklan pendek untuk membuka kunci nota ini selama 1 hari.</string>
     <string name="watch_ad_label">▶ Tonton Iklan</string>
+
+    <string name="leaderboard">Papan Kedudukan</string>
+    <string name="ranked">🏆 Berperingkat</string>
+    <string name="normal">Normal</string>
+    <string name="pitch">Nada</string>
+    <string name="global_top_10">10 Teratas Global</string>
+
+    <string name="set_nickname">Tetapkan Nama Samaran</string>
+    <string name="nickname">Nama Samaran</string>
+    <string name="name_cannot_empty">Nama tidak boleh kosong</string>
+    <string name="forbidden_word">Nama mengandungi perkataan yang dilarang!</string>
 </resources>

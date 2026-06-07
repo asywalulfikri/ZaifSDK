@@ -289,11 +289,13 @@
 
     <string name="not_approve_notification">आपके द्वारा भेजे गए नोट के स्वीकृत होने पर आपको एक सूचना प्राप्त होगी।</string>
     <string name="promosikan">प्रचार करें</string>
-    <string name="promot_info">क्या आप वाकई इस नोट को पूरी दुनिया में प्रचारित करना चाहते हैं?</string>
+    <string name="promot_info">क्या आप वाकई इस संगीत नोट को पूरी दुनिया में प्रचारित करना चाहते हैं? आपके नोट की पहले समीक्षा की जाएगी। यदि यह हमारे गुणवत्ता मानकों को पूरा करता है, तो इसे प्रकाशित किया जाएगा और आपका नाम निर्माता के रूप में प्रदर्शित किया जाएगा।</string>
     <string name="your_name">आपका नाम</string>
     <string name="send_note_success">नोट सफलतापूर्वक भेजा गया।</string>
     <string name="send_note_failed">नोट भेजने में विफल।</string>
     <string name="promotion_my_note_info">अब आप अपनी रिकॉर्डिंग से संगीत नोट्स बना सकते हैं और उन्हें पूरी दुनिया के साथ साझा कर सकते हैं। चुने गए सर्वश्रेष्ठ नोट्स निर्माता के नाम के साथ ऐप में प्रदर्शित किए जाएंगे। आप प्रतिदिन केवल एक नोट भेज सकते हैं, इसलिए अपना सर्वश्रेष्ठ कार्य ही भेजें!</string>
+
+    <string name="system_notification">⚡ सिस्टम अधिसूचना ⚡</string>
 
     <string name="limit_promot">आप दैनिक प्रचार सीमा पार कर चुके हैं। कृपया कल पुनः प्रयास करें।</string>
     <string name="delete_not_title">क्या आप इस नोट को हटाना चाहते हैं?</string>
@@ -305,4 +307,15 @@
     <string name="note_locked">नोट लॉक है</string>
     <string name="watch_ad_unlock_note">इस नोट को 1 दिनों के लिए अनलॉक करने के लिए एक छोटा विज्ञापन देखें।</string>
     <string name="watch_ad_label">▶ विज्ञापन देखें</string>
+
+    <string name="leaderboard">लीडरबोर्ड</string>
+    <string name="ranked">🏆 रैंक्ड</string>
+    <string name="normal">सामान्य</string>
+    <string name="pitch">स्वर</string>
+    <string name="global_top_10">वैश्विक शीर्ष 10</string>
+
+    <string name="set_nickname">उपनाम सेट करें</string>
+    <string name="nickname">उपनाम</string>
+    <string name="name_cannot_empty">नाम खाली नहीं हो सकता</string>
+    <string name="forbidden_word">नाम में प्रतिबंधित शब्द शामिल हैं!</string>
 </resources>

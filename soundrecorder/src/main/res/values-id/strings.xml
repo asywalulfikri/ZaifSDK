@@ -298,8 +298,9 @@
     <string name="send_note_failed">Not gagal dikirim.</string>
     <string name="promotion_my_note_info">Sekarang kamu bisa membuat not musik dari rekamanmu dan membagikannya ke seluruh dunia. Not terbaik yang terpilih akan ditampilkan di aplikasi beserta nama pembuatnya. Kamu hanya dapat mengirimkan satu not setiap hari, jadi pastikan kamu mengirimkan karya terbaikmu!</string>
 
-    <string name="limit_promot">Kamu telah melewati limit harian promosi not. silahkan coba besok</string>
-    <string name="promot_info">Apakah kamu yakin ingin mempromosikan not kamu ini ke seluruh dunia? not kamu akan di review dulu. jika not kamu bagus . not akan di publikasikan dan nama kamu akan di tampilkan sebagai pembuat</string>
+    <string name="system_notification">⚡ NOTIFIKASI SISTEM ⚡</string>
+    <string name="limit_promot">Kamu telah mencapai batas promosi harian. Silakan coba lagi besok.</string>
+    <string name="promot_info">Apakah kamu yakin ingin mempromosikan not musik ini ke seluruh dunia? Not kamu akan ditinjau terlebih dahulu. Jika memenuhi standar kualitas, not akan dipublikasikan dan namamu akan ditampilkan sebagai pembuatnya.</string>
     <string name="delete_not_title">Apakah ingin menghapus not ini ?</string>
     <string name="not_approved">Not kamu telah di setujui dan telah di publikasikan, silahkan cek</string>
 
@@ -313,4 +314,15 @@
     <string name="note_locked">Not Terkunci</string>
     <string name="watch_ad_unlock_note">Tonton iklan pendek untuk membuka not ini selama 1 hari.</string>
     <string name="watch_ad_label">▶ Tonton Iklan</string>
+
+    <string name="leaderboard">Papan Peringkat</string>
+    <string name="ranked">🏆 Peringkat</string>
+    <string name="normal">Normal</string>
+    <string name="pitch">Nada</string>
+    <string name="global_top_10">10 Besar Global</string>
+
+    <string name="set_nickname">Atur Nama Panggilan</string>
+    <string name="nickname">Nama Panggilan</string>
+    <string name="name_cannot_empty">Nama tidak boleh kosong</string>
+    <string name="forbidden_word">Nama mengandung kata-kata yang dilarang!</string>
 </resources>

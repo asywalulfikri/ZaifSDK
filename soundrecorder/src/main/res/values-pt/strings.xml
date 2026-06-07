@@ -291,13 +291,14 @@
 
     <string name="not_approve_notification">Você receberá uma notificação quando a partitura enviada for aprovada.</string>
     <string name="promosikan">Promover</string>
-    <string name="promot_info">Tem certeza de que deseja promover esta partitura para o mundo inteiro?</string>
+    <string name="promot_info">Tem certeza de que deseja promover esta partitura para o mundo inteiro? Sua nota será revisada primeiro. Se atender aos nossos padrões de qualidade, será publicada e seu nome será exibido como o criador.</string>
     <string name="your_name">Seu Nome</string>
     <string name="send_note_success">Partitura enviada com sucesso.</string>
     <string name="send_note_failed">Falha ao enviar a partitura.</string>
     <string name="promotion_my_note_info">Agora você pode criar partituras musicais a partir de suas gravações e compartilhá-las com o mundo inteiro. As melhores partituras selecionadas serão exibidas no aplicativo juntamente com o nome do criador. Você pode enviar apenas uma partitura por dia, então certifique-se de enviar seu melhor trabalho!</string>
 
 
+    <string name="system_notification">⚡ NOTIFICAÇÃO DO SISTEMA ⚡</string>
     <string name="limit_promot">Você atingiu o limite diário de promoções. Tente novamente amanhã.</string>
     <string name="delete_not_title">Deseja excluir esta partitura?</string>
     <string name="not_approved">Sua partitura foi aprovada e publicada. Confira.</string>
@@ -308,4 +309,15 @@
     <string name="note_locked">Nota Bloqueada</string>
     <string name="watch_ad_unlock_note">Assista a um pequeno anúncio para desbloquear esta nota por 1 dias.</string>
     <string name="watch_ad_label">▶ Assistir Anúncio</string>
+
+    <string name="leaderboard">Classificação</string>
+    <string name="ranked">🏆 Ranqueado</string>
+    <string name="normal">Normal</string>
+    <string name="pitch">Tom</string>
+    <string name="global_top_10">Top 10 Global</string>
+
+    <string name="set_nickname">Definir Apelido</string>
+    <string name="nickname">Apelido</string>
+    <string name="name_cannot_empty">O nome não pode estar vazio</string>
+    <string name="forbidden_word">O nome contém palavras proibidas!</string>
 </resources>

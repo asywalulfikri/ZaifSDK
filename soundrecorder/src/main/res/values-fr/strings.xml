@@ -62,7 +62,7 @@
 
     <string name="use_note">Usar nota</string>
     <string name="edit_note">Editar nota</string>
-    <string name="delete_not">Borrar nota</string>
+    <string name="delete_not">Supprimer la note</string>
 
     <string name="default_language">Idioma predeterminado</string>
 
@@ -297,6 +297,8 @@
     <string name="send_note_failed">Échec de lenvoi de la partition.</string>
     <string name="promotion_my_note_info">Vous pouvez désormais créer des partitions musicales à partir de vos enregistrements et les partager avec le monde entier. Les meilleures partitions sélectionnées seront affichées dans l application avec le nom de leur créateur. Vous ne pouvez soumettre qu une seule partition par jour, alors assurez-vous d envoyer votre meilleure création !</string>
 
+    <string name="system_notification">⚡ NOTIFICATION SYSTÈME ⚡</string>
+
     <string name="limit_promot">Vous avez atteint la limite quotidienne de promotion. Veuillez réessayer demain.</string>
     <string name="promot_info">Êtes-vous sûr de vouloir promouvoir cette partition dans le monde entier ? Votre partition sera d abord examinée. Si elle répond à nos critères de qualité, elle sera publiée et votre nom sera affiché comme créateur.</string>
     <string name="delete_not_title">Voulez-vous supprimer cette partition ?</string>
@@ -308,4 +310,15 @@
     <string name="note_locked">Note Verrouillée</string>
     <string name="watch_ad_unlock_note">Regardez une courte publicité pour déverrouiller cette note pendant 1 jours.</string>
     <string name="watch_ad_label">▶ Voir la Publicité</string>
+
+    <string name="leaderboard">Classement</string>
+    <string name="ranked">🏆 Classé</string>
+    <string name="normal">Normal</string>
+    <string name="pitch">Hauteur</string>
+    <string name="global_top_10">Top 10 Mondial</string>
+
+    <string name="set_nickname">Définir un pseudonyme</string>
+    <string name="nickname">Pseudonyme</string>
+    <string name="name_cannot_empty">Le nom ne peut pas être vide</string>
+    <string name="forbidden_word">Le nom contient des mots interdits !</string>
 </resources>

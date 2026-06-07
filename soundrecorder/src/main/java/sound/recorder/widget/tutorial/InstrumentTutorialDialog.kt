@@ -18,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -116,6 +117,7 @@ class InstrumentTutorialDialog(
 
     private var playJob: Job? = null
     private val playHandler = Handler(Looper.getMainLooper())
+    private var currentDialog: BottomSheetDialog? = null
     var isLearning = false
         private set
     private var learnEvents = listOf<RecordedTap>()
@@ -280,14 +282,25 @@ class InstrumentTutorialDialog(
             }
     }
 
+    fun dismiss() {
+        currentDialog?.dismiss()
+        currentDialog = null
+    }
+
     private fun createBottomSheet(context: Context): Pair<BottomSheetDialog, DialogTutorialSongListBinding> {
         val dialog  = BottomSheetDialog(context)
+        currentDialog = dialog
         val binding = DialogTutorialSongListBinding.inflate(LayoutInflater.from(context))
         dialog.setContentView(binding.root)
 
         // Tidak bisa ditutup dengan sentuhan luar, hanya tombol X atau back device
         dialog.setCanceledOnTouchOutside(false)
         dialog.setOnDismissListener {
+            // Sembunyikan keyboard secara eksplisit saat dialog ditutup untuk cegah leak IMM
+            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.hideSoftInputFromWindow(binding.root.windowToken, 0)
+
+            currentDialog = null
             if (dismissShouldStop) stopAll()
             else dismissShouldStop = true
             mContext = null // Hindari Memory Leak Activity

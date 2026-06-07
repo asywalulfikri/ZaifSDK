@@ -294,6 +294,8 @@
     <string name="send_note_failed">Failed to send note.</string>
     <string name="promotion_my_note_info">You can now create music notes from your recordings and share them with the world. The best selected notes will be featured in the app along with the creators name. You can only submit one note per day, so make sure you send your best work!</string>
 
+    <string name="system_notification">⚡ SYSTEM NOTIFICATION ⚡</string>
+
     <string name="limit_promot">You have reached the daily promotion limit. Please try again tomorrow.</string>
     <string name="promot_info">Are you sure you want to promote this music note worldwide? Your note will be reviewed first. If it meets our quality standards, it will be published and your name will be displayed as the creator.</string>
     <string name="delete_not_title">Do you want to delete this note?</string>
@@ -305,4 +307,15 @@
     <string name="note_locked">Note Locked</string>
     <string name="watch_ad_unlock_note">Watch a short ad to unlock this note for 1 days.</string>
     <string name="watch_ad_label">▶ Watch Ad</string>
+
+    <string name="leaderboard">Leaderboard</string>
+    <string name="ranked">🏆 Ranked</string>
+    <string name="normal">Normal</string>
+    <string name="pitch">Pitch</string>
+    <string name="global_top_10">Global Top 10</string>
+
+    <string name="set_nickname">Set Nickname</string>
+    <string name="nickname">Nickname</string>
+    <string name="name_cannot_empty">Name cannot be empty</string>
+    <string name="forbidden_word">The name contains prohibited words!</string>
 </resources>

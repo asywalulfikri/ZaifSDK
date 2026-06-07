@@ -291,7 +291,7 @@ object RecordingListDialogHelper {
                 setPadding(0, 0, context.sdp(SdpR.dimen._6sdp), 0)
             })
             addView(TextView(context).apply {
-                text = "Play"
+                text = context.getString(R.string.play)
                 setTextColor(Color.parseColor("#1A0800"))
                 textSize = 12f
                 typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
@@ -307,14 +307,14 @@ object RecordingListDialogHelper {
             row.addView(buildCompactBtn(context, icon, label, colorHex, onClick))
         }
 
-        if (hasMicAudio) addCompact("📤", "Bagikan", COLOR_SHARE) { shareAudioFile(context, rec) }
+        if (hasMicAudio) addCompact("📤", context.getString(R.string.share), COLOR_SHARE) { shareAudioFile(context, rec) }
 
         val isDebug = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         if (isDebug) addCompact("{}", "JSON", COLOR_JSON) { shareJsonFile(context, rec) }
 
-        addCompact("✏", "Edit", COLOR_GOLD) { showRenameDialog(context, rec, nameTv) }
+        addCompact("✏", context.getString(R.string.edit_note), COLOR_GOLD) { showRenameDialog(context, rec, nameTv) }
 
-        addCompact("🗑", "Hapus", COLOR_DANGER) {
+        addCompact("🗑", context.getString(R.string.delete), COLOR_DANGER) {
             CoroutineScope(Dispatchers.Main).launch {
                 withContext(Dispatchers.IO) {
                     rec.audioPath?.let { path -> File(path).takeIf { it.exists() }?.delete() }
@@ -338,13 +338,13 @@ object RecordingListDialogHelper {
         fun applyPromoteState(promoted: Boolean) {
             promoteContainer.removeAllViews()
             if (promoted) {
-                promoteContainer.addView(buildCompactBtn(context, "✓", "Dipromot", "777777") {
-                    Toast.makeText(context, "Not ini sudah pernah dipromot", Toast.LENGTH_SHORT).show()
+                promoteContainer.addView(buildCompactBtn(context, "✓", context.getString(R.string.active), "777777") {
+                    Toast.makeText(context, context.getString(R.string.success_saved), Toast.LENGTH_SHORT).show()
                 })
             } else {
-                promoteContainer.addView(buildCompactBtn(context, "🌟", "Promosi", COLOR_PROMOTE) {
+                promoteContainer.addView(buildCompactBtn(context, "🌟", context.getString(R.string.promosikan), COLOR_PROMOTE) {
                     if (hasPromotedToday(context)) {
-                        Toast.makeText(context, "Kamu hanya bisa promot 1 not per hari", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.limit_promot), Toast.LENGTH_SHORT).show()
                     } else {
                         showPromoteDialog(context, rec) { applyPromoteState(true) }
                     }

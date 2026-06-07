@@ -1,36 +1,34 @@
 <resources>
-    <!--Japan-->
-    <string name="default_notification_channel_id">デフォルト通知チャネルID</string>
+    <string name="default_notification_channel_id">チャンネル ID</string>
 
     <string name="colorpicker_dialog_title">色を選択</string>
     <string name="colorpicker_dialog_cancel">キャンセル</string>
     <string name="colorpicker_dialog_ok">OK</string>
 
-    <string name="please_wait_dialog_default_title" />
-    <string name="please_wait_dialog_default_message" />
+    <string name="please_wait_dialog_default_title">お待ちください</string>
+    <string name="please_wait_dialog_default_message">読み込み中...</string>
 
+    <string name="dialog_maintenance">申し訳ありません。現在メンテナンス中です。しばらくしてからもう一度お試しください。</string>
+    <string name="dialog_msg_update_app_version">新しいバージョンがPlayストアで利用可能です。アップデートをお願いします。</string>
+    <string name="dialog_msg_update_app">アプリをアップデートしてください</string>
 
-    <string name="dialog_maintenance">申し訳ありません... アプリはメンテナンス中です。後でもう一度お試しください</string>
-    <string name="dialog_msg_update_app_version">新しいバージョンがPlay Storeで利用可能です。アプリを更新してください</string>
-    <string name="dialog_msg_update_app">アプリを更新してください</string>
-
-    <string name="lbl_new_note_title">新しい楽曲ノート</string>
-    <string name="lbl_edit_note_title">楽曲ノートの編集</string>
+    <string name="lbl_new_note_title">新しい曲のメモ</string>
+    <string name="lbl_edit_note_title">曲のメモを編集</string>
 
     <string name="cover_song">カバー\nソング</string>
     <string name="record">録音</string>
     <string name="text_continue">続行</string>
-    <string name="record_started">録音開始</string>
-    <string name="record_paused">録音一時停止</string>
-    <string name="record_resumed">録音再開</string>
-    <string name="record_saved">録音が正常に保存されました</string>
-    <string name="record_canceled">録音がキャンセルされました</string>
-    <string name="no_internet_connection">インターネット接続がありません。もう一度お試しください</string>
-    <string name="device_not_support">お使いのデバイスは音声録音をサポートしていません</string>
-    <string name="allow_permission">設定で音声の許可を設定してください</string>
+    <string name="record_started">録音を開始しました</string>
+    <string name="record_paused">録音を一時停止しました</string>
+    <string name="record_resumed">録音を再開しました</string>
+    <string name="record_saved">録音を保存しました</string>
+    <string name="record_canceled">録音をキャンセルしました</string>
+    <string name="no_internet_connection">インターネットに接続されていません。もう一度お試しください</string>
+    <string name="device_not_support">お使いのデバイスは録音をサポートしていません</string>
+    <string name="allow_permission">設定でオーディオの許可をオンにしてください</string>
 
     <string name="choose_language">言語を選択</string>
-    <string name="indonesia">インドネシア</string>
+    <string name="indonesia">インドネシア語</string>
     <string name="choose">選択</string>
     <string name="save">保存</string>
     <string name="information">情報</string>
@@ -42,55 +40,55 @@
     <string name="rate_us">評価する</string>
     <string name="help_suggest">ヘルプと提案</string>
     <string name="share_with_friends">友達と共有</string>
-    <string name="choose_one">選択してください</string>
+    <string name="choose_one">一つ選択</string>
     <string name="text_video">ビデオ</string>
 
     <string name="please_wait">お待ちください</string>
-    <string name="loading_audio">オーディオを読み込んでいます...</string>
+    <string name="loading_audio">オーディオを読み込み中...</string>
 
     <string name="title">タイトル</string>
-    <string name="write_note_here">ここにノートを書いてください</string>
+    <string name="write_note_here">ここにメモを記入</string>
     <string name="search_record">録音を検索</string>
     <string name="delete">削除</string>
     <string name="cancel">キャンセル</string>
-    <string name="recordings">録音</string>
+    <string name="recordings">録音リスト</string>
     <string name="saved_recording_ask">録音を保存しますか？</string>
     <string name="exit">終了</string>
     <string name="send">送信</string>
-    <string name="input_message_here">ここにメッセージを入力してください</string>
-    <string name="message_cannot_empty">メッセージは空白にできません</string>
+    <string name="input_message_here">ここにメッセージを入力</string>
+    <string name="message_cannot_empty">メッセージを入力してください</string>
     <string name="more_apps">他のアプリ</string>
 
-    <string name="use_note">ノートを使用</string>
-    <string name="edit_note">ノートを編集</string>
-    <string name="delete_not">ノートを削除</string>
+    <string name="use_note">メモを使用</string>
+    <string name="edit_note">メモを編集</string>
+    <string name="delete_not">メモを削除</string>
 
     <string name="default_language">デフォルト言語</string>
 
     <string name="background_color">背景色</string>
     <string name="song_volume">曲の音量</string>
-    <string name="note">ノート</string>
 
+    <string name="note">メモ</string>
 
-    <string name="indonesian">Indonesian</string>
-    <string name="english">Ingles</string>
-    <string name="filipino">Pilipino</string>
-    <string name="japanese">Hapones</string>
-    <string name="korean">Koreano</string>
-    <string name="vietnamese">Vietnamita</string>
-    <string name="thai">Taylandes</string>
-    <string name="Portuguese">Portuges</string>
-    <string name="dutch">Olandes</string>
-    <string name="malay">Malayo</string>
-    <string name="spanish">Espanyol</string>
-    <string name="arabic">Arabe</string>
+    <string name="indonesian">インドネシア語</string>
+    <string name="english">英語</string>
+    <string name="filipino">フィリピン語</string>
+    <string name="japanese">日本語</string>
+    <string name="korean">韓国語</string>
+    <string name="vietnamese">ベトナム語</string>
+    <string name="thai">タイ語</string>
+    <string name="Portuguese">ポルトガル語</string>
+    <string name="dutch">オランダ語</string>
+    <string name="malay">マレー語</string>
+    <string name="spanish">スペイン語</string>
+    <string name="arabic">アラビア語</string>
 
-    <string name="download_success">ダウンロード成功、5秒お待ちください</string>
-    <string name="data_empty">データが空です</string>
+    <string name="download_success">ダウンロードが成功しました。5秒ほどお待ちください</string>
+    <string name="data_empty">データがありません</string>
 
 
     <string name="yes">はい</string>
-    <string name="title_recording_dialog">YES を選択すると録音プロセスが開始されます</string>
+    <string name="title_recording_dialog">「はい」を選択すると録音が開始されます</string>
     <string name="title_recording_canceled">録音をキャンセルしますか？</string>
     <string name="title_recording_stop">録音を保存しますか？</string>
     <string name="notification">通知</string>
@@ -101,7 +99,7 @@
     <string name="open">開く</string>
     <string name="close">閉じる</string>
     <string name="play">再生</string>
-    <string name="previously">以前に</string>
+    <string name="previously">前へ</string>
     <string name="version">バージョン</string>
     <string name="share">共有</string>
     <string name="write_note">メモを書く</string>
@@ -111,88 +109,82 @@
     <string name="Master">マスター</string>
     <string name="remove_ads">広告を削除</string>
     <string name="search">検索</string>
-    <string name="recommend_message">このアプリをお勧めします</string>
-    <string name="loading">読み込み中...</string>
+    <string name="recommend_message">このアプリをおすすめします</string>
+    <string name="loading">読み込み中…</string>
 
-    <string name="whatsapp_support">WhatsAppサポート</string>
+    <string name="whatsapp_support">WhatsApp サポート</string>
     <string name="share_via">共有方法</string>
 
-    <string name="note_song">曲のメモ</string>
+    <string name="note_song">曲のノート</string>
     <string name="choose_color">色を選択</string>
     <string name="note_empty">メモがありません</string>
     <string name="enter_note">メモを入力してください！</string>
     <string name="enter_note_title">メモのタイトルを入力してください！</string>
-    <string name="play_music_text">お気に入りの楽器を演奏しよう</string>
+    <string name="play_music_text">お気に入りの楽器を演奏しましょう</string>
     <string name="play_together">一緒に楽器を学びましょう</string>
     <string name="exit_title">本当に終了しますか？</string>
-    <string name="mode_32_tuts_audio1">32キー モード サウンド 1</string>
-    <string name="mode_32_tuts_audio2">32キー モード サウンド 2</string>
-    <string name="mode_basuri">バスリーモード</string>
-    <string name="mode_8_tuts">8キー モード</string>
-
+    <string name="mode_32_tuts_audio1">32鍵モード サウンド1</string>
+    <string name="mode_32_tuts_audio2">32鍵モード サウンド2</string>
+    <string name="mode_basuri">バスリモード</string>
+    <string name="mode_8_tuts">8鍵モード</string>
 
     <string name="volume">音量</string>
-    <string name="text_choose_not">ここにノートが表示されます .... 先に選択してください</string>
+    <string name="text_choose_not">ここにメモが表示されます。まず選択してください</string>
 
 
     <string name="text_guidelines">使用ガイドライン</string>
-    <string name="text_guide_record">この機能を使用して、演奏している楽器の音を録音します</string>
-    <string name="text_guide_song">この機能を使用して、携帯電話の曲リストを取得します</string>
-    <string name="text_guide_list_record">この機能を使用して、録音した楽器のサウンドリストを表示します</string>
-    <string name="text_guide_audio">この機能を使用して、楽器や曲の音量を上げたり下げたりします</string>
-    <string name="text_guide_note">この機能を使用して、自分の曲のノートを作成します</string>
-    <string name="text_guide_color">この機能を使用して、楽器の色を変更します</string>
-    <string name="text_guide_note_firebase">この機能を使用して、アプリで提供されているノートを表示します</string>
+    <string name="text_guide_record">演奏している楽器の音を録音するために使用します</string>
+    <string name="text_guide_song">スマホ内の曲リストを取得するために使用します</string>
+    <string name="text_guide_list_record">録音した楽器音のリストを表示するために使用します</string>
+    <string name="text_guide_audio">楽器や曲の音量を調整するために使用します</string>
+    <string name="text_guide_note">自分だけの楽譜を作成するために使用します</string>
+    <string name="text_guide_color">楽器の色を変更するために使用します</string>
+    <string name="text_guide_note_firebase">アプリが提供する楽譜を表示するために使用します</string>
     <string name="text_done">完了</string>
     <string name="text_next">次へ</string>
     <string name="text_skip">スキップ</string>
 
-
-    <string name="tooltip_note">これは曲のメモを保存するためのものです</string>
-    <string name="tooltip_music">これは再生したい曲を選ぶためのものです</string>
-    <string name="tooltip_record">これは演奏中に録音するためのものです</string>
-    <string name="tooltip_volume">これは音量を調整するためのものです</string>
-    <string name="tooltip_color">これは色を変更するためのものです</string>
-    <string name="text_welcome">こんにちは。楽しく演奏してください :D</string>
+    <string name="tooltip_note">楽譜の保存用です</string>
+    <string name="tooltip_music">演奏したい曲の選択用です</string>
+    <string name="tooltip_record">演奏中の録音用です</string>
+    <string name="tooltip_volume">音量調整用です</string>
+    <string name="tooltip_color">色の変更用です</string>
+    <string name="text_welcome">こんにちは。演奏を楽しんでください :D</string>
 
     <string name="how_to_add_new_song">曲の追加方法</string>
-    <string name="how_add_song1">1. アプリを終了する</string>
-    <string name="how_add_song2">2. ブラウザで手動でmp3形式の曲をダウンロードする</string>
-    <string name="how_add_song3">3. アプリを再度開き、音楽アイコンを選択する</string>
-    <string name="how_add_song4">4. ダウンロードした曲がプレイリストに追加されます</string>
+    <string name="how_add_song1">1. アプリを終了します</string>
+    <string name="how_add_song2">2. ブラウザ等でmp3形式の曲を手動でダウンロードします</string>
+    <string name="how_add_song3">3. アプリを再度開き、ミュージックアイコンを選択します</string>
+    <string name="how_add_song4">4. ダウンロードした曲がプレイリストに表示されます</string>
 
-    <string name="how_to_add_note">曲のメモの追加方法</string>
-    <string name="how_to_add_note1">メモ追加ダイアログの追加アイコンをクリックする</string>
-    <string name="how_to_add_note2">メモのタイトルを入力する</string>
-    <string name="how_to_add_note3">曲の音符や歌詞を入力する</string>
-    <string name="how_to_add_note4">保存ボタンをクリックすると、メモリストに表示されます</string>
+    <string name="how_to_add_note">楽譜の追加方法</string>
+    <string name="how_to_add_note1">メモ追加ダイアログの追加アイコンをクリックします</string>
+    <string name="how_to_add_note2">タイトルを入力します</string>
+    <string name="how_to_add_note3">楽譜の内容または曲名を入力します</string>
+    <string name="how_to_add_note4">保存ボタンをクリックするとリストに表示されます</string>
 
-    <string name="choose_song">曲を選ぶ</string>
-    <string name="tooltip_saved_record">これは録音結果を見るためのものです</string>
-    <string name="recorded_saved">録音が保存されました</string>
-
+    <string name="choose_song">曲を選択</string>
+    <string name="tooltip_saved_record">録音結果を確認するためです</string>
+    <string name="recorded_saved">録音を保存しました</string>
 
     <string name="how_to_add_song_title">曲の追加方法</string>
-    <string name="how_to_add_song_content">
-    曲やイントロ音楽を追加するには、ブラウザで著作権フリーの音源を検索してください。ダウンロードすると、自動的に認識され、このアプリで使用できるようになります。
-</string>
-    <string name="understand">理解しました</string>
+    <string name="how_to_add_song_content">曲や導入音楽を追加するには、ブラウザ等で著作権フリーのオーディオを検索してください。ダウンロードすると、このアプリで自動的に検出され、使用可能になります。</string>
+    <string name="understand">了解</string>
     <string name="download">ダウンロード</string>
-    <string name="process_download">ダウンロード処理中…</string>
-    <string name="change_sound">サウンドを変更</string>
-    <string name="select_sound">サウンドを選択</string>
+    <string name="process_download">ダウンロード中…</string>
+    <string name="change_sound">音色の変更</string>
+    <string name="select_sound">音色を選択</string>
     <string name="select_audio">オーディオを選択</string>
     <string name="save_config">設定を保存</string>
-    <string name="list_audio">オーディオ一覧</string>
-    <string name="list_sound">サウンド一覧</string>
-    <string name="search_sound">サウンドを検索</string>
+    <string name="list_audio">オーディオリスト</string>
+    <string name="list_sound">音色リスト</string>
+    <string name="search_sound">音色を検索</string>
     <string name="search_audio">オーディオを検索</string>
     <string name="search_song">曲を検索</string>
-    <string name="rating_content">
-    あなたの評価は、アプリの改善と成長にとても役立ちます。星をいくつか付けていただけますか？
-</string>
+    <string name="rating_content">あなたの評価は、私たちの成長と改善の助けになります。星をいただけますか？</string>
     <string name="rate">評価する</string>
-    <string name="later">あとで</string>
+
+    <string name="later">後で</string>
 
     <string name="recommend_app">このアプリをおすすめします</string>
     <string name="lesson">レッスン</string>
@@ -200,68 +192,70 @@
     <string name="hi">こんにちは</string>
     <string name="welcome">ようこそ</string>
 
-    <string name="ads_not_ready">広告はまだ準備できていません。しばらくしてからもう一度お試しください。</string>
-    <string name="watch_ads">機能を解除するには広告をご覧ください</string>
-    <string name="reward_get">報酬を正常に獲得しました！</string>
+    <string name="ads_not_ready">広告の準備ができていません。しばらくしてからもう一度お試しください。</string>
+    <string name="watch_ads">広告を見て機能をロック解除</string>
+    <string name="reward_get">報酬を受け取りました！</string>
     <string name="delete_ads">広告を削除</string>
     <string name="are_you_buy_no_ads">広告を永久に削除しますか？</string>
 
     <string name="music_lock">音楽 🔒</string>
     <string name="music_unlock">音楽</string>
-    <string name="list_music">音楽ライブラリ</string>
+    <string name="list_music">ミュージックライブラリ</string>
     <string name="audio_mixer">オーディオミキサー</string>
-    <string name="search_song_accompaniment">伴奏音楽を検索...</string>
+    <string name="search_song_accompaniment">伴奏を検索...</string>
 
-    <string name="list_record_result">録音結果一覧</string>
-    <string name="no_data_record">保存された録音はまだありません</string>
-    <string name="list_record_lock">LIST\nREC 🔒</string>
-    <string name="list_record_unlock">LIST\nREC</string>
+    <string name="list_record_result">録音結果リスト</string>
+    <string name="no_data_record">保存された録音はありません</string>
+    <string name="list_record_lock">リスト\n録音 🔒</string>
+    <string name="list_record_unlock">リスト\n録音</string>
 
     <string name="change_audio">音声を変更</string>
     <string name="search_audio_type">音声タイプを検索...</string>
-    <string name="active">有効</string>
-    <string name="ads_prepared_please_wait">広告を準備中です。しばらくお待ちください...</string>
+    <string name="active">アクティブ</string>
+    <string name="ads_prepared_please_wait">広告を準備しています。お待ちください...</string>
 
     <string name="watch">視聴</string>
     <string name="open_record_list">録音リストを開く</string>
-    <string name="open_list_music">音楽リストを開く</string>
+    <string name="open_list_music">曲リストを開く</string>
 
     <string name="select">選択</string>
-    <string name="select_one">1つ選択</string>
+    <string name="select_one">一つ選択</string>
     <string name="success_saved">保存に成功しました</string>
     <string name="buy">購入</string>
     <string name="unlock">ロック解除</string>
 
+
     <string name="dialog_record_title">録音モード</string>
-    <string name="dialog_record_message">セッションを録音する最適な方法を選択してください：</string>
+    <string name="dialog_record_message">録音方法を選択してください：</string>
     <string name="btn_instrument_only">楽器のみ</string>
-    <string name="desc_instrument_only">バックグラウンドノイズなしでクリアに録音</string>
-    <string name="btn_mic_instrument">マイク + 楽器</string>
-    <string name="desc_mic_instrument">マイクで声や周囲の音を録音</string>
+    <string name="desc_instrument_only">周囲の雑音なしで演奏音のみを録音（内部データ）</string>
+    <string name="btn_mic_instrument">マイク ＋ 楽器</string>
+    <string name="desc_mic_instrument">マイクを通じて声や周囲の音も一緒に録音</string>
     <string name="btn_cancel">キャンセル</string>
 
-    <string name="earphone_hint">エコーなしで録音するにはイヤホンを使用してください。</string>
-    <string name="allow_permission_audio_mic">マイクの音声権限を許可する</string>
+    <string name="earphone_hint">エコーのない録音にはイヤホンを使用してください。</string>
+    <string name="allow_permission_audio_mic">マイクの許可を与えてください</string>
 
     <string name="file_not_found">ファイルが見つかりません</string>
     <string name="share_failed">ファイルの共有に失敗しました</string>
-    <string name="recording">録音</string>
+    <string name="recording">録音中</string>
 
-    <string name="notation">記譜</string>
-    <string name="notation_mode">記譜モード</string>
+
+    <string name="notation">表記</string>
+    <string name="notation_mode">表記モード</string>
     <string name="color">色</string>
     <string name="audio">オーディオ</string>
 
     <string name="number">数字</string>
-    <string name="doremi">DoReMi</string>
-    <string name="letter">文字</string>
+    <string name="doremi">ドレミ</string>
+    <string name="letter">英字</string>
 
-    <string name="blue">青</string>
-    <string name="red">赤</string>
-    <string name="green">緑</string>
-    <string name="purple">紫</string>
+    <string name="blue">ブルー</string>
+    <string name="red">レッド</string>
+    <string name="green">グリーン</string>
+    <string name="purple">パープル</string>
     <string name="orange">オレンジ</string>
-    <string name="yellow">黄色</string>
+    <string name="yellow">イエロー</string>
     <string name="pink">ピンク</string>
     <string name="lavender">ラベンダー</string>
     <string name="sky_blue">スカイブルー</string>
@@ -275,38 +269,50 @@
     <string name="graphite">グラファイト</string>
     <string name="navy">ネイビー</string>
 
-    <string name="try_again">もう一度試す</string>
+    <string name="try_again">もう一度</string>
     <string name="game_over">ゲームオーバー</string>
     <string name="play_again">もう一度プレイ</string>
     <string name="score">スコア</string>
-    <string name="congratulation">おめでとうございます！</string>
+    <string name="congratulation">おめでとうございます</string>
     <string name="miss">ミス</string>
     <string name="best">ベスト</string>
     <string name="start">スタート</string>
-    <string name="speed">速度</string>
+    <string name="speed">スピード</string>
     <string name="song">曲</string>
     <string name="learn">学ぶ</string>
-    <string name="step_by_step">すぐにプレイするか、ステップごとに学ぶ</string>
+    <string name="step_by_step">直接プレイするかステップバイステップで学ぶ</string>
     <string name="play_it">プレイ</string>
     <string name="chord">コード</string>
     <string name="locked">ロック中</string>
 
-    <string name="not_approve_notification">投稿した譜面が承認されると通知が届きます。</string>
+    <string name="not_approve_notification">送信した楽譜が承認されると通知が届きます。</string>
     <string name="promosikan">宣伝する</string>
-    <string name="promot_info">この譜面を世界中に公開して宣伝しますか？</string>
     <string name="your_name">あなたの名前</string>
-    <string name="send_note_success">譜面を送信しました。</string>
-    <string name="send_note_failed">譜面の送信に失敗しました。</string>
-    <string name="promotion_my_note_info">録音した音源から楽譜を作成し、世界中に共有できるようになりました。選ばれた最高の楽譜は、作成者名とともにアプリ内で紹介されます。楽譜は1日に1つしか投稿できないため、最高の作品を投稿してください！</string>
+    <string name="send_note_success">楽譜を送信しました。</string>
+    <string name="send_note_failed">楽譜の送信に失敗しました。</string>
+    <string name="promotion_my_note_info">録音から楽譜を作成し、世界中に共有できるようになりました。選ばれた最高の楽譜は、作者名と共にアプリ内で紹介されます。投稿は1日1回までですので、最高の作品を送ってください！</string>
+    <string name="system_notification">⚡ システム通知 ⚡</string>
 
     <string name="limit_promot">1日の宣伝上限に達しました。明日もう一度お試しください。</string>
+    <string name="promot_info">この楽譜を世界中に公開して宣伝しますか？あなたのノートはまず審査されます。品質基準を満たしている場合、公開され、作成者としてあなたの名前が表示されます。</string>
     <string name="delete_not_title">この楽譜を削除しますか？</string>
     <string name="not_approved">あなたの楽譜は承認され、公開されました。ご確認ください。</string>
-    <string name="user_notes_title">ユーザーノート</string>
-    <string name="user_notes_subtitle">再生または学習するノートを選択してください</string>
-    <string name="invalid_note_format">無効なノート形式</string>
-    <string name="learn_complete">完了しました！すべての音符を演奏しました。</string>
-    <string name="note_locked">ノートがロックされています</string>
-    <string name="watch_ad_unlock_note">短い広告を視聴して、このノートを 1 日間ロック解除します。</string>
-    <string name="watch_ad_label">▶ 広告を視聴</string>
+    <string name="user_notes_title">ユーザー楽譜</string>
+    <string name="user_notes_subtitle">プレイまたは学習する楽譜を選択してください</string>
+    <string name="invalid_note_format">無効な楽譜フォーマットです</string>
+    <string name="learn_complete">完了！すべての音を演奏しました。</string>
+    <string name="note_locked">楽譜ロック中</string>
+    <string name="watch_ad_unlock_note">短い広告を見て、この楽譜を1日間ロック解除します。</string>
+    <string name="watch_ad_label">▶ 広告を見る</string>
+
+    <string name="leaderboard">ランキング</string>
+    <string name="ranked">🏆 ランク戦</string>
+    <string name="normal">ノーマル</string>
+    <string name="pitch">音程</string>
+    <string name="global_top_10">世界トップ10</string>
+
+    <string name="set_nickname">ニックネームを設定</string>
+    <string name="nickname">ニックネーム</string>
+    <string name="name_cannot_empty">名前を空欄にすることはできません</string>
+    <string name="forbidden_word">名前に禁止された単語が含まれています！</string>
 </resources>

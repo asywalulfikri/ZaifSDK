@@ -294,11 +294,13 @@
 
     <string name="not_approve_notification">Je ontvangt een melding wanneer je ingezonden noot is goedgekeurd.</string>
     <string name="promosikan">Promoten</string>
-    <string name="promot_info">Weet je zeker dat je deze noot wereldwijd wilt promoten?</string>
+    <string name="promot_info">Weet je zeker dat je deze muzieknoot wereldwijd wilt promoten? Je noot wordt eerst beoordeeld. Als deze voldoet aan onze kwaliteitsnormen, wordt deze gepubliceerd en wordt je naam weergegeven als maker.</string>
     <string name="your_name">Jouw Naam</string>
     <string name="send_note_success">Noot succesvol verzonden.</string>
     <string name="send_note_failed">Verzenden van de noot mislukt.</string>
     <string name="promotion_my_note_info">Je kunt nu muzieknoten maken van je opnames en deze met de hele wereld delen. De beste geselecteerde noten worden in de app weergegeven samen met de naam van de maker. Je kunt slechts één noot per dag inzenden, dus zorg ervoor dat je je beste werk instuurt!</string>
+
+    <string name="system_notification">⚡ SYSTEEMMELDING ⚡</string>
 
     <string name="limit_promot">Je hebt de dagelijkse promotielimiet bereikt. Probeer het morgen opnieuw.</string>
     <string name="delete_not_title">Wil je deze noot verwijderen?</string>
@@ -310,4 +312,15 @@
     <string name="note_locked">Notitie vergrendeld</string>
     <string name="watch_ad_unlock_note">Bekijk een korte advertentie om deze notitie 1 dagen te ontgrendelen.</string>
     <string name="watch_ad_label">▶ Advertentie bekijken</string>
+
+    <string name="leaderboard">Ranglijst</string>
+    <string name="ranked">🏆 Gerangschikt</string>
+    <string name="normal">Normaal</string>
+    <string name="pitch">Toonhoogte</string>
+    <string name="global_top_10">Wereldwijde Top 10</string>
+
+    <string name="set_nickname">Bijnaam instellen</string>
+    <string name="nickname">Bijnaam</string>
+    <string name="name_cannot_empty">Naam mag niet leeg zijn</string>
+    <string name="forbidden_word">De naam bevat verboden woorden!</string>
 </resources>

@@ -292,12 +292,16 @@
 
     <string name="not_approve_notification">Makakatanggap ka ng abiso kapag naaprubahan ang ipinadala mong nota.</string>
     <string name="promosikan">I-promote</string>
-    <string name="promot_info">Sigurado ka bang nais mong i-promote ang notang ito sa buong mundo?</string>
+    <string name="promot_info">Sigurado ka bang nais mong i-promote ang notang pang-musika na ito sa buong mundo? Susuriin muna ang iyong nota. Kung pumasa ito sa aming pamantayan sa kalidad, ito ay ipa-publish at ang iyong pangalan ay ipapakita bilang lumikha.</string>
     <string name="your_name">Iyong Pangalan</string>
     <string name="send_note_success">Matagumpay na naipadala ang nota.</string>
     <string name="send_note_failed">Hindi naipadala ang nota.</string>
     <string name="promotion_my_note_info">Maaari ka nang gumawa ng mga nota ng musika mula sa iyong mga recording at ibahagi ang mga ito sa buong mundo. Ang pinakamahusay na mapipiling mga nota ay ipapakita sa app kasama ang pangalan ng gumawa. Isang nota lamang ang maaari mong ipadala bawat araw, kaya siguraduhing ang iyong pinakamahusay na gawa ang iyong ipapadala!</string>
+    <string name="system_notification">⚡ NOTIFIKASYON NG SISTEMA ⚡</string>
 
+    <string name="limit_promot">Naabot mo na ang limitasyon sa araw-araw na pag-promote. Pakisubukang muli bukas.</string>
+    <string name="delete_not_title">Gusto mo bang burahin ang notang ito?</string>
+    <string name="not_approved">Ang iyong nota ay naaprubahan na at na-publish na. Pakisuri ito.</string>
     <string name="user_notes_title">Mga Note ng User</string>
     <string name="user_notes_subtitle">Pumili ng note para tugtugin o pag-aralan</string>
     <string name="invalid_note_format">Maling format ng note</string>
@@ -305,4 +309,15 @@
     <string name="note_locked">Naka-lock ang Note</string>
     <string name="watch_ad_unlock_note">Manood ng maikling ad para i-unlock ang note na ito sa loob ng 1 araw.</string>
     <string name="watch_ad_label">▶ Manood ng Ad</string>
+
+    <string name="leaderboard">Talaan ng Ranggo</string>
+    <string name="ranked">🏆 Ranggo</string>
+    <string name="normal">Normal</string>
+    <string name="pitch">Tono</string>
+    <string name="global_top_10">Pandaigdigang Top 10</string>
+
+    <string name="set_nickname">Itakda ang Palayaw</string>
+    <string name="nickname">Palayaw</string>
+    <string name="name_cannot_empty">Hindi maaaring walang laman ang pangalan</string>
+    <string name="forbidden_word">Naglalaman ang pangalan ng mga ipinagbabawal na salita!</string>
 </resources>

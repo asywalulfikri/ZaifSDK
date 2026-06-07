@@ -289,11 +289,13 @@
 
     <string name="not_approve_notification">当你提交的乐谱获得批准时，你将收到通知。</string>
     <string name="promosikan">推广</string>
-    <string name="promot_info">你确定要将这份乐谱推广给全世界吗？</string>
+    <string name="promot_info">你确定要向全球推广这份乐谱吗？您的乐谱将首先经过审核。如果符合我们的质量标准，它将被发布，并且您的名字将作为创作者显示。</string>
     <string name="your_name">你的名字</string>
     <string name="send_note_success">乐谱发送成功。</string>
     <string name="send_note_failed">乐谱发送失败。</string>
     <string name="promotion_my_note_info">现在你可以根据自己的录音创建乐谱，并与全世界分享。被选中的优秀乐谱将会在应用中展示，并附上创作者的名字。你每天只能提交一份乐谱，所以请确保提交你最好的作品！</string>
+
+    <string name="system_notification">⚡ 系统通知 ⚡</string>
 
     <string name="limit_promot">你已达到每日推广上限，请明天再试。</string>
     <string name="delete_not_title">你想删除这份乐谱吗？</string>
@@ -306,4 +308,15 @@
     <string name="note_locked">乐谱已锁定</string>
     <string name="watch_ad_unlock_note">观看短广告即可解锁此乐谱 1 天。</string>
     <string name="watch_ad_label">▶ 观看广告</string>
+
+    <string name="leaderboard">排行榜</string>
+    <string name="ranked">🏆 排位赛</string>
+    <string name="normal">普通</string>
+    <string name="pitch">音高</string>
+    <string name="global_top_10">全球前10名</string>
+
+    <string name="set_nickname">设置昵称</string>
+    <string name="nickname">昵称</string>
+    <string name="name_cannot_empty">名称不能为空</string>
+    <string name="forbidden_word">名称包含禁止使用的词语！</string>
 </resources>

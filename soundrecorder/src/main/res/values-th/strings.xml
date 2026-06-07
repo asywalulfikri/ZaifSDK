@@ -292,12 +292,13 @@
 
     <string name="not_approve_notification">คุณจะได้รับการแจ้งเตือนเมื่อโน้ตเพลงที่คุณส่งได้รับการอนุมัติ</string>
     <string name="promosikan">โปรโมต</string>
-    <string name="promot_info">คุณแน่ใจหรือไม่ว่าต้องการโปรโมตโน้ตเพลงนี้ไปทั่วโลก?</string>
+    <string name="promot_info">คุณแน่ใจหรือไม่ว่าต้องการโปรโมตโน้ตเพลงนี้ไปทั่วโลก? โน้ตของคุณจะได้รับการตรวจสอบก่อน หากเป็นไปตามมาตรฐานคุณภาพของเรา โน้ตจะถูกเผยแพร่และชื่อของคุณจะแสดงในฐานะผู้สร้าง</string>
     <string name="your_name">ชื่อของคุณ</string>
     <string name="send_note_success">ส่งโน้ตเพลงเรียบร้อยแล้ว</string>
     <string name="send_note_failed">ส่งโน้ตเพลงไม่สำเร็จ</string>
     <string name="promotion_my_note_info">ตอนนี้คุณสามารถสร้างโน้ตเพลงจากการบันทึกเสียงของคุณและแบ่งปันให้คนทั่วโลกได้แล้ว โน้ตเพลงที่ได้รับการคัดเลือกจะถูกแสดงในแอปพร้อมชื่อผู้สร้าง คุณสามารถส่งได้เพียงวันละหนึ่งผลงานเท่านั้น ดังนั้นอย่าลืมส่งผลงานที่ดีที่สุดของคุณ!</string>
 
+    <string name="system_notification">⚡ การแจ้งเตือนระบบ ⚡</string>
     <string name="limit_promot">คุณใช้สิทธิ์โปรโมตครบตามจำนวนต่อวันแล้ว กรุณาลองใหม่อีกครั้งในวันพรุ่งนี้</string>
      <string name="delete_not_title">คุณต้องการลบโน้ตเพลงนี้หรือไม่?</string>
     <string name="not_approved">โน้ตเพลงของคุณได้รับการอนุมัติและเผยแพร่แล้ว กรุณาตรวจสอบได้เลย</string>
@@ -308,4 +309,15 @@
     <string name="note_locked">โน้ตถูกล็อค</string>
     <string name="watch_ad_unlock_note">ชมโฆษณาสั้นๆ เพื่อปลดล็อคโน้ตนี้เป็นเวลา 1 วัน</string>
     <string name="watch_ad_label">▶ ชมโฆษณา</string>
+
+    <string name="leaderboard">กระดานจัดอันดับ</string>
+    <string name="ranked">🏆 จัดอันดับ</string>
+    <string name="normal">ปกติ</string>
+    <string name="pitch">ระดับเสียง</string>
+    <string name="global_top_10">10 อันดับแรกของโลก</string>
+
+    <string name="set_nickname">ตั้งชื่อเล่น</string>
+    <string name="nickname">ชื่อเล่น</string>
+    <string name="name_cannot_empty">ชื่อไม่สามารถเว้นว่างได้</string>
+    <string name="forbidden_word">ชื่อมีคำต้องห้าม!</string>
 </resources>

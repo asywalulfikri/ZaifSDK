@@ -290,12 +290,13 @@
 
     <string name="not_approve_notification">Вы получите уведомление, когда отправленная вами нота будет одобрена.</string>
     <string name="promosikan">Продвигать</string>
-    <string name="promot_info">Вы уверены, что хотите продвигать эту ноту по всему миру?</string>
+    <string name="promot_info">Вы уверены, что хотите продвигать эту ноту по всему миру? Ваша заметка сначала будет проверена. Если она соответствует нашим стандартам качества, она будет опубликована, а ваше имя будет указано в качестве создателя.</string>
     <string name="your_name">Ваше имя</string>
     <string name="send_note_success">Нота успешно отправлена.</string>
     <string name="send_note_failed">Не удалось отправить ноту.</string>
     <string name="promotion_my_note_info">Теперь вы можете создавать музыкальные ноты из своих записей и делиться ими со всем миром. Лучшие выбранные ноты будут отображаться в приложении вместе с именем автора. Вы можете отправлять только одну ноту в день, поэтому отправляйте свою лучшую работу!</string>
 
+    <string name="system_notification">⚡ СИСТЕМНОЕ УВЕДОМЛЕНИЕ ⚡</string>
     <string name="limit_promot">Вы достигли дневного лимита продвижения. Пожалуйста, попробуйте снова завтра.</string>
     <string name="delete_not_title">Вы хотите удалить эту ноту?</string>
     <string name="not_approved">Ваша нота была одобрена и опубликована. Пожалуйста, проверьте её.</string>
@@ -306,4 +307,15 @@
     <string name="note_locked">Нота заблокирована</string>
     <string name="watch_ad_unlock_note">Посмотрите короткую рекламу, чтобы разблокировать эту ноту на 1 дней.</string>
     <string name="watch_ad_label">▶ Посмотреть рекламу</string>
+
+    <string name="leaderboard">Таблица лидеров</string>
+    <string name="ranked">🏆 Рейтинговый</string>
+    <string name="normal">Обычный</string>
+    <string name="pitch">Высота тона</string>
+    <string name="global_top_10">Мировой Топ-10</string>
+
+    <string name="set_nickname">Установить никнейм</string>
+    <string name="nickname">Никнейм</string>
+    <string name="name_cannot_empty">Имя не может быть пустым</string>
+    <string name="forbidden_word">Имя содержит запрещённые слова!</string>
 </resources>

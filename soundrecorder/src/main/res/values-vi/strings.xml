@@ -291,12 +291,13 @@
 
     <string name="not_approve_notification">Bạn sẽ nhận được thông báo khi bản nhạc bạn gửi được phê duyệt.</string>
     <string name="promosikan">Quảng bá</string>
-    <string name="promot_info">Bạn có chắc muốn quảng bá bản nhạc này ra toàn thế giới không?</string>
+    <string name="promot_info">Bạn có chắc muốn quảng bá bản nhạc này ra toàn thế giới không? Ghi chú của bạn sẽ được xem xét trước. Nếu đáp ứng các tiêu chuẩn chất lượng của chúng tôi, nó sẽ được xuất bản và tên của bạn sẽ được hiển thị với tư cách là người tạo.</string>
     <string name="your_name">Tên của bạn</string>
     <string name="send_note_success">Gửi bản nhạc thành công.</string>
     <string name="send_note_failed">Gửi bản nhạc thất bại.</string>
     <string name="promotion_my_note_info">Giờ đây bạn có thể tạo bản nhạc từ bản ghi âm của mình và chia sẻ với cả thế giới. Những bản nhạc xuất sắc nhất được chọn sẽ được hiển thị trong ứng dụng cùng với tên tác giả. Bạn chỉ có thể gửi một bản nhạc mỗi ngày, vì vậy hãy chắc chắn gửi tác phẩm tốt nhất của mình!</string>
 
+    <string name="system_notification">⚡ THÔNG BÁO HỆ THỐNG ⚡</string>
     <string name="limit_promot">Bạn đã đạt giới hạn quảng bá hàng ngày. Vui lòng thử lại vào ngày mai.</string>
     <string name="delete_not_title">Bạn có muốn xóa bản nhạc này không?</string>
     <string name="not_approved">Bản nhạc của bạn đã được phê duyệt và xuất bản. Hãy kiểm tra ngay.</string>
@@ -307,4 +308,15 @@
     <string name="note_locked">Ghi chú đã bị khóa</string>
     <string name="watch_ad_unlock_note">Xem quảng cáo ngắn để mở khóa ghi chú này trong 1 ngày.</string>
     <string name="watch_ad_label">▶ Xem quảng cáo</string>
+
+    <string name="leaderboard">Bảng xếp hạng</string>
+    <string name="ranked">🏆 Xếp hạng</string>
+    <string name="normal">Thường</string>
+    <string name="pitch">Cao độ</string>
+    <string name="global_top_10">Top 10 Toàn Cầu</string>
+
+    <string name="set_nickname">Đặt Biệt Danh</string>
+    <string name="nickname">Biệt Danh</string>
+    <string name="name_cannot_empty">Tên không được để trống</string>
+    <string name="forbidden_word">Tên chứa từ ngữ bị cấm!</string>
 </resources>
