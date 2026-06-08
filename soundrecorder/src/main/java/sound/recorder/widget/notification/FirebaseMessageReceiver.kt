@@ -39,7 +39,7 @@ class FirebaseMessageReceiver : FirebaseMessagingService() {
     @SuppressLint("UnspecifiedImmutableFlag")
     fun showNotification(title: String?, message: String?) {
         try {
-            val intent = Intent()
+            val intent = packageManager.getLaunchIntentForPackage(packageName) ?: Intent()
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             val pendingIntent: PendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)

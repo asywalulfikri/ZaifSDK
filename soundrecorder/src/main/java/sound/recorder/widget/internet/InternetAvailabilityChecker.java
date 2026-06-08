@@ -147,7 +147,13 @@ public final class InternetAvailabilityChecker implements NetworkChangeReceiver.
       if (context != null && !mIsNetworkChangeRegistered) {
          mNetworkChangeReceiver = new NetworkChangeReceiver();
          mNetworkChangeReceiver.setNetworkChangeListener(this);
-         context.registerReceiver(mNetworkChangeReceiver, new IntentFilter(CONNECTIVITY_CHANGE_INTENT_ACTION));
+         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            context.registerReceiver(mNetworkChangeReceiver, new IntentFilter(CONNECTIVITY_CHANGE_INTENT_ACTION), Context.RECEIVER_EXPORTED);
+         } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(mNetworkChangeReceiver, new IntentFilter(CONNECTIVITY_CHANGE_INTENT_ACTION), Context.RECEIVER_EXPORTED);
+         } else {
+            context.registerReceiver(mNetworkChangeReceiver, new IntentFilter(CONNECTIVITY_CHANGE_INTENT_ACTION));
+         }
          mIsNetworkChangeRegistered = true;
       }
    }
