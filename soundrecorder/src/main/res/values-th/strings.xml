@@ -330,4 +330,12 @@
     <string name="pitch_desc_normal">การตั้งสายมาตรฐาน</string>
     <string name="pitch_desc_plus1">สูงขึ้น 1 เซมิโทน</string>
     <string name="pitch_desc_plus2">สูงขึ้น 2 เซมิโทน</string>
+
+    <string name="change_pitch">เปลี่ยนระดับเสียง</string>
+    <string name="pitch_rate">ระดับเสียง</string>
+    <string name="reset">รีเซ็ต</string>
+    <string name="tiles_fall_not">เล่นเกมด้วยโน้ตที่ตกลงมา</string>
+    <string name="reward">รางวัล</string>
+    <string name="popular">ยอดนิยม</string>
+    <string name="repeat">เล่นซ้ำ</string>
 </resources>

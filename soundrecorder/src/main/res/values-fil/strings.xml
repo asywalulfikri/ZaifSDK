@@ -331,4 +331,12 @@
     <string name="pitch_desc_normal">Karaniwang tono</string>
     <string name="pitch_desc_plus1">1 semitone na mas mataas</string>
     <string name="pitch_desc_plus2">2 semitone na mas mataas</string>
+
+    <string name="change_pitch">Baguhin ang Tono</string>
+    <string name="pitch_rate">Antas ng Tono</string>
+    <string name="reset">I-reset</string>
+    <string name="tiles_fall_not">Maglaro gamit ang bumabagsak na mga nota</string>
+    <string name="reward">Gantimpala</string>
+    <string name="popular">Sikat</string>
+    <string name="repeat">Ulitin</string>
 </resources>

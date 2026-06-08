@@ -332,4 +332,12 @@
     <string name="pitch_desc_normal">기본 튜닝</string>
     <string name="pitch_desc_plus1">1반음 높임</string>
     <string name="pitch_desc_plus2">2반음 높임</string>
+
+    <string name="change_pitch">음정 변경</string>
+    <string name="pitch_rate">음정 단계</string>
+    <string name="reset">초기화</string>
+    <string name="tiles_fall_not">떨어지는 음표로 게임하기</string>
+    <string name="reward">보상</string>
+    <string name="popular">인기</string>
+    <string name="repeat">반복</string>
 </resources>

@@ -327,4 +327,13 @@
     <string name="pitch_desc_normal">Default tuning</string>
     <string name="pitch_desc_plus1">1 semitone higher</string>
     <string name="pitch_desc_plus2">2 semitones higher</string>
+
+
+    <string name="change_pitch">Change Pitch</string>
+    <string name="pitch_rate">Pitch Rate</string>
+    <string name="reset">Reset</string>
+    <string name="tiles_fall_not">Play the game with falling notes</string>
+    <string name="reward">Reward</string>
+    <string name="popular">Popular</string>
+    <string name="repeat">Repeat</string>
 </resources>

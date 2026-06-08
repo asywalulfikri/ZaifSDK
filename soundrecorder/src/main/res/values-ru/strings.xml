@@ -328,4 +328,12 @@
     <string name="pitch_desc_normal">Стандартная настройка</string>
     <string name="pitch_desc_plus1">На 1 полутон выше</string>
     <string name="pitch_desc_plus2">На 2 полутона выше</string>
+
+    <string name="change_pitch">Изменить высоту тона</string>
+    <string name="pitch_rate">Уровень высоты тона</string>
+    <string name="reset">Сброс</string>
+    <string name="tiles_fall_not">Играть с падающими нотами</string>
+    <string name="reward">Награда</string>
+    <string name="popular">Популярное</string>
+    <string name="repeat">Повторить</string>
 </resources>

@@ -331,4 +331,12 @@
     <string name="pitch_desc_normal">Standardstimmung</string>
     <string name="pitch_desc_plus1">1 Halbton höher</string>
     <string name="pitch_desc_plus2">2 Halbtöne höher</string>
+
+    <string name="change_pitch">Tonhöhe ändern</string>
+    <string name="pitch_rate">Tonhöhenstufe</string>
+    <string name="reset">Zurücksetzen</string>
+    <string name="tiles_fall_not">Spiel mit fallenden Noten spielen</string>
+    <string name="reward">Belohnung</string>
+    <string name="popular">Beliebt</string>
+    <string name="repeat">Wiederholen</string>
 </resources>

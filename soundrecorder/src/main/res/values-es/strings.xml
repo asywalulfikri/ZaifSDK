@@ -330,4 +330,12 @@
     <string name="pitch_desc_normal">Afinación predeterminada</string>
     <string name="pitch_desc_plus1">1 semitono más alto</string>
     <string name="pitch_desc_plus2">2 semitonos más alto</string>
+
+    <string name="change_pitch">Cambiar tono</string>
+    <string name="pitch_rate">Nivel de tono</string>
+    <string name="reset">Restablecer</string>
+    <string name="tiles_fall_not">Jugar con notas que caen</string>
+    <string name="reward">Recompensa</string>
+    <string name="popular">Popular</string>
+    <string name="repeat">Repetir</string>
 </resources>

@@ -329,4 +329,12 @@
     <string name="pitch_desc_normal">默认调音</string>
     <string name="pitch_desc_plus1">升高 1 个半音</string>
     <string name="pitch_desc_plus2">升高 2 个半音</string>
+
+    <string name="change_pitch">调整音高</string>
+    <string name="pitch_rate">音高级别</string>
+    <string name="reset">重置</string>
+    <string name="tiles_fall_not">使用下落音符进行游戏</string>
+    <string name="reward">奖励</string>
+    <string name="popular">热门</string>
+    <string name="repeat">重复</string>
 </resources>

@@ -333,4 +333,12 @@
     <string name="pitch_desc_normal">Standaardstemming</string>
     <string name="pitch_desc_plus1">1 halve toon hoger</string>
     <string name="pitch_desc_plus2">2 halve tonen hoger</string>
+
+    <string name="change_pitch">Toonhoogte wijzigen</string>
+    <string name="pitch_rate">Toonhoogteniveau</string>
+    <string name="reset">Resetten</string>
+    <string name="tiles_fall_not">Speel met vallende noten</string>
+    <string name="reward">Beloning</string>
+    <string name="popular">Populair</string>
+    <string name="repeat">Herhalen</string>
 </resources>

@@ -328,4 +328,12 @@
     <string name="pitch_desc_normal">Tuning standar</string>
     <string name="pitch_desc_plus1">Naik 1 semitone</string>
     <string name="pitch_desc_plus2">Naik 2 semitone</string>
+
+    <string name="change_pitch">Ubah Pitch</string>
+    <string name="pitch_rate">Tingkat Pitch</string>
+    <string name="reset">Reset</string>
+    <string name="tiles_fall_not">Main game dengan not yang jatuh</string>
+    <string name="reward">Hadiah</string>
+    <string name="popular">Populer</string>
+    <string name="repeat">Ulang</string>
 </resources>

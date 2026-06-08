@@ -329,4 +329,12 @@
     <string name="pitch_desc_normal">Chỉnh dây mặc định</string>
     <string name="pitch_desc_plus1">Tăng 1 bán cung</string>
     <string name="pitch_desc_plus2">Tăng 2 bán cung</string>
+
+    <string name="change_pitch">Thay đổi cao độ</string>
+    <string name="pitch_rate">Mức cao độ</string>
+    <string name="reset">Đặt lại</string>
+    <string name="tiles_fall_not">Chơi với các nốt nhạc rơi xuống</string>
+    <string name="reward">Phần thưởng</string>
+    <string name="popular">Phổ biến</string>
+    <string name="repeat">Lặp lại</string>
 </resources>

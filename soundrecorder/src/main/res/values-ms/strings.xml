@@ -332,4 +332,12 @@
     <string name="pitch_desc_normal">Penalaan lalai</string>
     <string name="pitch_desc_plus1">Naik 1 semiton</string>
     <string name="pitch_desc_plus2">Naik 2 semiton</string>
+
+    <string name="change_pitch">Ubah Nada</string>
+    <string name="pitch_rate">Tahap Nada</string>
+    <string name="reset">Tetapkan Semula</string>
+    <string name="tiles_fall_not">Main permainan dengan not yang jatuh</string>
+    <string name="reward">Ganjaran</string>
+    <string name="popular">Popular</string>
+    <string name="repeat">Ulang</string>
 </resources>

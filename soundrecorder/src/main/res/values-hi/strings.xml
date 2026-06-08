@@ -328,4 +328,12 @@
     <string name="pitch_desc_normal">डिफ़ॉल्ट ट्यूनिंग</string>
     <string name="pitch_desc_plus1">1 सेमिटोन अधिक</string>
     <string name="pitch_desc_plus2">2 सेमिटोन अधिक</string>
+
+    <string name="change_pitch">पिच बदलें</string>
+    <string name="pitch_rate">पिच स्तर</string>
+    <string name="reset">रीसेट</string>
+    <string name="tiles_fall_not">गिरते हुए नोट्स के साथ खेलें</string>
+    <string name="reward">इनाम</string>
+    <string name="popular">लोकप्रिय</string>
+    <string name="repeat">दोहराएँ</string>
 </resources>

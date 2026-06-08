@@ -325,4 +325,12 @@
     <string name="pitch_desc_normal">標準チューニング</string>
     <string name="pitch_desc_plus1">1半音高い</string>
     <string name="pitch_desc_plus2">2半音高い</string>
+
+    <string name="change_pitch">音程を変更</string>
+    <string name="pitch_rate">音程レベル</string>
+    <string name="reset">リセット</string>
+    <string name="tiles_fall_not">落ちてくる音符でプレイ</string>
+    <string name="reward">報酬</string>
+    <string name="popular">人気</string>
+    <string name="repeat">繰り返し</string>
 </resources>

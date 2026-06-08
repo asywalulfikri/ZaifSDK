@@ -331,4 +331,12 @@
     <string name="pitch_desc_normal">Accordage par défaut</string>
     <string name="pitch_desc_plus1">1 demi-ton plus haut</string>
     <string name="pitch_desc_plus2">2 demi-tons plus haut</string>
+
+    <string name="change_pitch">Changer la hauteur</string>
+    <string name="pitch_rate">Niveau de hauteur</string>
+    <string name="reset">Réinitialiser</string>
+    <string name="tiles_fall_not">Jouer avec des notes qui tombent</string>
+    <string name="reward">Récompense</string>
+    <string name="popular">Populaire</string>
+    <string name="repeat">Répéter</string>
 </resources>
