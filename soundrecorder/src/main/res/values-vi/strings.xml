@@ -337,4 +337,16 @@
     <string name="reward">Phần thưởng</string>
     <string name="popular">Phổ biến</string>
     <string name="repeat">Lặp lại</string>
+
+    <string name="new_record">🏆 Kỷ lục mới!</string>
+    <string name="finish">Hoàn thành!</string>
+    <string name="select_mode">Chọn chế độ</string>
+    <string name="play_song_until_finish">Chọn bài hát và chơi đến hết</string>
+    <string name="not_more_fast">Các nốt nhạc xuất hiện liên tục và ngày càng nhanh hơn</string>
+    <string name="you">Bạn</string>
+    <string name="endless_leaderboard">∞ BẢNG XẾP HẠNG VÔ TẬN</string>
+    <string name="endless">Vô tận</string>
+    <string name="no_record">🏆 Chưa có kỷ lục</string>
+    <string name="level_up">⚡ LÊN CẤP! LV</string>
+    <string name="level">Cấp độ</string>
 </resources>

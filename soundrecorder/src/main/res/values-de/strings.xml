@@ -339,4 +339,17 @@
     <string name="reward">Belohnung</string>
     <string name="popular">Beliebt</string>
     <string name="repeat">Wiederholen</string>
+
+    <string name="new_record">🏆 Neuer Rekord!</string>
+    <string name="finish">Fertig!</string>
+    <string name="select_mode">Modus auswählen</string>
+    <string name="play_song_until_finish">Wähle ein Lied und spiele bis zum Ende</string>
+    <string name="not_more_fast">Die Noten werden immer schneller</string>
+    <string name="you">Du</string>
+    <string name="endless_leaderboard">∞ ENDLOS-RANGLISTE</string>
+    <string name="endless">Endlos</string>
+    <string name="no_record">🏆 Noch kein Rekord</string>
+    <string name="level_up">⚡ LEVEL AUFSTIEG! LV</string>
+    <string name="level">Level</string>
 </resources>
+

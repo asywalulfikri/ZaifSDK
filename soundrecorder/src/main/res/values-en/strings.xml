@@ -336,4 +336,16 @@
     <string name="reward">Reward</string>
     <string name="popular">Popular</string>
     <string name="repeat">Repeat</string>
+
+    <string name="new_record">🏆 New Record!</string>
+    <string name="finish">Finished!</string>
+    <string name="select_mode">Select Mode</string>
+    <string name="play_song_until_finish">Choose a song &amp; play until the end</string>
+    <string name="not_more_fast">Notes keep coming and get faster over time</string>
+    <string name="you">You</string>
+    <string name="endless_leaderboard">∞ ENDLESS LEADERBOARD</string>
+    <string name="endless">Endless</string>
+    <string name="no_record">🏆 No record yet</string>
+    <string name="level_up">⚡ LEVEL UP! LV</string>
+    <string name="level">Level</string>
 </resources>

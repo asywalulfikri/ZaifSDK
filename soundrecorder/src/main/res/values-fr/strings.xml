@@ -339,4 +339,16 @@
     <string name="reward">Récompense</string>
     <string name="popular">Populaire</string>
     <string name="repeat">Répéter</string>
+
+    <string name="new_record">🏆 Nouveau record !</string>
+    <string name="finish">Terminé !</string>
+    <string name="select_mode">Choisir un mode</string>
+    <string name="play_song_until_finish">Choisissez une chanson et jouez jusqu'à la fin</string>
+    <string name="not_more_fast">Les notes continuent et deviennent de plus en plus rapides</string>
+    <string name="you">Vous</string>
+    <string name="endless_leaderboard">∞ CLASSEMENT SANS FIN</string>
+    <string name="endless">Sans fin</string>
+    <string name="no_record">🏆 Aucun record pour le moment</string>
+    <string name="level_up">⚡ NIVEAU SUPÉRIEUR ! LV</string>
+    <string name="level">Niveau</string>
 </resources>

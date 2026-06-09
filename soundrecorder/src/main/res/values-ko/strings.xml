@@ -340,4 +340,16 @@
     <string name="reward">보상</string>
     <string name="popular">인기</string>
     <string name="repeat">반복</string>
+
+    <string name="new_record">🏆 신기록!</string>
+    <string name="finish">완료!</string>
+    <string name="select_mode">모드 선택</string>
+    <string name="play_song_until_finish">노래를 선택하고 끝까지 플레이하세요</string>
+    <string name="not_more_fast">음표가 계속 나오며 점점 더 빨라집니다</string>
+    <string name="you">당신</string>
+    <string name="endless_leaderboard">∞ 엔드리스 리더보드</string>
+    <string name="endless">엔드리스</string>
+    <string name="no_record">🏆 아직 기록 없음</string>
+    <string name="level_up">⚡ 레벨 업! LV</string>
+    <string name="level">레벨</string>
 </resources>

@@ -338,4 +338,16 @@
     <string name="reward">Recompensa</string>
     <string name="popular">Popular</string>
     <string name="repeat">Repetir</string>
+
+    <string name="new_record">🏆 Novo Recorde!</string>
+    <string name="finish">Concluído!</string>
+    <string name="select_mode">Selecionar Modo</string>
+    <string name="play_song_until_finish">Escolha uma música e toque até o final</string>
+    <string name="not_more_fast">As notas continuam vindo e ficam mais rápidas com o tempo</string>
+    <string name="you">Você</string>
+    <string name="endless_leaderboard">∞ RANKING INFINITO</string>
+    <string name="endless">Infinito</string>
+    <string name="no_record">🏆 Ainda não há recorde</string>
+    <string name="level_up">⚡ SUBIU DE NÍVEL! LV</string>
+    <string name="level">Nível</string>
 </resources>

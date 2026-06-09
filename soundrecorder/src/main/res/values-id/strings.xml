@@ -344,4 +344,16 @@
     <string name="popular">Populer</string>
     <string name="repeat">Ulang</string>
 
+    <string name="new_record">🏆 Rekor Baru!</string>
+    <string name="finish">Selesai!</string>
+    <string name="select_mode">Pilih Mode</string>
+    <string name="play_song_until_finish">Pilih lagu &amp; mainkan sampai selesai</string>
+    <string name="not_more_fast">Not terus muncul dan semakin lama semakin cepat</string>
+    <string name="you">Kamu</string>
+    <string name="endless_leaderboard">∞ LEADERBOARD ENDLESS</string>
+    <string name="endless">Endless</string>
+    <string name="no_record">🏆 Belum ada rekor</string>
+    <string name="level_up">⚡ LEVEL UP! LV</string>
+    <string name="level">Level</string>
+
 </resources>

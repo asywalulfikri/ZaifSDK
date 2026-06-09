@@ -340,4 +340,16 @@
     <string name="reward">Ganjaran</string>
     <string name="popular">Popular</string>
     <string name="repeat">Ulang</string>
+
+    <string name="new_record">🏆 Rekod Baharu!</string>
+    <string name="finish">Selesai!</string>
+    <string name="select_mode">Pilih Mod</string>
+    <string name="play_song_until_finish">Pilih lagu &amp; main sehingga selesai</string>
+    <string name="not_more_fast">Not terus muncul dan semakin lama semakin laju</string>
+    <string name="you">Anda</string>
+    <string name="endless_leaderboard">∞ PAPAN KEDUDUKAN TANPA HENTI</string>
+    <string name="endless">Tanpa Henti</string>
+    <string name="no_record">🏆 Belum ada rekod</string>
+    <string name="level_up">⚡ NAIK LEVEL! LV</string>
+    <string name="level">Level</string>
 </resources>

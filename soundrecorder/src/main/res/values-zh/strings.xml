@@ -337,4 +337,16 @@
     <string name="reward">奖励</string>
     <string name="popular">热门</string>
     <string name="repeat">重复</string>
+
+    <string name="new_record">🏆 新纪录！</string>
+    <string name="finish">完成！</string>
+    <string name="select_mode">选择模式</string>
+    <string name="play_song_until_finish">选择歌曲并演奏至结束</string>
+    <string name="not_more_fast">音符持续出现，并且越来越快</string>
+    <string name="you">你</string>
+    <string name="endless_leaderboard">∞ 无尽排行榜</string>
+    <string name="endless">无尽模式</string>
+    <string name="no_record">🏆 暂无记录</string>
+    <string name="level_up">⚡ 升级！LV</string>
+    <string name="level">等级</string>
 </resources>

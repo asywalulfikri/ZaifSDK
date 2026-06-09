@@ -339,4 +339,16 @@
     <string name="reward">Gantimpala</string>
     <string name="popular">Sikat</string>
     <string name="repeat">Ulitin</string>
+
+    <string name="new_record">🏆 Bagong Rekord!</string>
+    <string name="finish">Tapos na!</string>
+    <string name="select_mode">Pumili ng Mode</string>
+    <string name="play_song_until_finish">Pumili ng kanta at tapusin ito</string>
+    <string name="not_more_fast">Patuloy ang mga nota at lalong bumibilis</string>
+    <string name="you">Ikaw</string>
+    <string name="endless_leaderboard">∞ WALANG HANGGANG RANGGO</string>
+    <string name="endless">Walang Hanggan</string>
+    <string name="no_record">🏆 Wala pang rekord</string>
+    <string name="level_up">⚡ LEVEL UP! LV</string>
+    <string name="level">Antas</string>
 </resources>

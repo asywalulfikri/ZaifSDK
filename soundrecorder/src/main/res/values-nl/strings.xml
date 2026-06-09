@@ -341,4 +341,16 @@
     <string name="reward">Beloning</string>
     <string name="popular">Populair</string>
     <string name="repeat">Herhalen</string>
+
+    <string name="new_record">🏆 Nieuw Record!</string>
+    <string name="finish">Voltooid!</string>
+    <string name="select_mode">Modus Selecteren</string>
+    <string name="play_song_until_finish">Kies een nummer en speel tot het einde</string>
+    <string name="not_more_fast">Noten blijven komen en worden steeds sneller</string>
+    <string name="you">Jij</string>
+    <string name="endless_leaderboard">∞ EINDELOOS KLASSEMENT</string>
+    <string name="endless">Eindeloos</string>
+    <string name="no_record">🏆 Nog geen record</string>
+    <string name="level_up">⚡ LEVEL OMHOOG! LV</string>
+    <string name="level">Niveau</string>
 </resources>

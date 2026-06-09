@@ -333,4 +333,16 @@
     <string name="reward">報酬</string>
     <string name="popular">人気</string>
     <string name="repeat">繰り返し</string>
+
+    <string name="new_record">🏆 新記録！</string>
+    <string name="finish">完了！</string>
+    <string name="select_mode">モード選択</string>
+    <string name="play_song_until_finish">曲を選んで最後までプレイ</string>
+    <string name="not_more_fast">音符は止まらず、どんどん速くなる</string>
+    <string name="you">あなた</string>
+    <string name="endless_leaderboard">∞ エンドレスランキング</string>
+    <string name="endless">エンドレス</string>
+    <string name="no_record">🏆 まだ記録なし</string>
+    <string name="level_up">⚡ レベルアップ！LV</string>
+    <string name="level">レベル</string>
 </resources>

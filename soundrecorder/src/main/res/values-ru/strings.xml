@@ -336,4 +336,16 @@
     <string name="reward">Награда</string>
     <string name="popular">Популярное</string>
     <string name="repeat">Повторить</string>
+
+    <string name="new_record">🏆 Новый рекорд!</string>
+    <string name="finish">Завершено!</string>
+    <string name="select_mode">Выбрать режим</string>
+    <string name="play_song_until_finish">Выберите песню и играйте до конца</string>
+    <string name="not_more_fast">Ноты продолжают появляться и становятся всё быстрее</string>
+    <string name="you">Вы</string>
+    <string name="endless_leaderboard">∞ БЕСКОНЕЧНАЯ ТАБЛИЦА ЛИДЕРОВ</string>
+    <string name="endless">Бесконечный</string>
+    <string name="no_record">🏆 Пока нет рекорда</string>
+    <string name="level_up">⚡ ПОВЫШЕНИЕ УРОВНЯ! LV</string>
+    <string name="level">Уровень</string>
 </resources>

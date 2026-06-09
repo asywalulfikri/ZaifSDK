@@ -338,4 +338,16 @@
     <string name="reward">รางวัล</string>
     <string name="popular">ยอดนิยม</string>
     <string name="repeat">เล่นซ้ำ</string>
+
+    <string name="new_record">🏆 สถิติใหม่!</string>
+    <string name="finish">เสร็จสิ้น!</string>
+    <string name="select_mode">เลือกโหมด</string>
+    <string name="play_song_until_finish">เลือกเพลงและเล่นจนจบ</string>
+    <string name="not_more_fast">โน้ตจะมาอย่างต่อเนื่องและเร็วขึ้นเรื่อย ๆ</string>
+    <string name="you">คุณ</string>
+    <string name="endless_leaderboard">∞ กระดานจัดอันดับไม่สิ้นสุด</string>
+    <string name="endless">ไม่สิ้นสุด</string>
+    <string name="no_record">🏆 ยังไม่มีสถิติ</string>
+    <string name="level_up">⚡ เลเวลอัป! LV</string>
+    <string name="level">เลเวล</string>
 </resources>
