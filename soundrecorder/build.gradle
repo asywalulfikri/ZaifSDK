@@ -84,7 +84,7 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:1.8.9"
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0")
 
-    implementation("com.android.billingclient:billing-ktx:9.0.0")
+    implementation("com.android.billingclient:billing-ktx:7.1.1")
     implementation "androidx.navigation:navigation-fragment-ktx:2.9.8"
     implementation("androidx.navigation:navigation-ui-ktx:2.9.8")
     // build.gradle

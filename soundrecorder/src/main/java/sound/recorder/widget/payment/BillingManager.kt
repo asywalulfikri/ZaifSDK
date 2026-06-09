@@ -72,15 +72,22 @@ class BillingManager(
         })
     }
 
+    private var isProcessing = false
+
     fun makePurchase() {
+        if (isProcessing) return
+        isProcessing = true
+
         val activity = activityRef.get()
         if (activity == null) {
             Log.e(TAG, "Activity is null, cannot launch billing flow")
+            isProcessing = false
             return
         }
 
         if (!billingClient.isReady) {
             Log.e(TAG, "BillingClient not ready")
+            isProcessing = false
             return
         }
 
@@ -95,11 +102,8 @@ class BillingManager(
             .setProductList(productList)
             .build()
 
-        billingClient.queryProductDetailsAsync(params) { result, queryProductDetailsResult ->
-            val productDetailsList = queryProductDetailsResult.productDetailsList
-
+        billingClient.queryProductDetailsAsync(params) { result, productDetailsList ->
             if (result.responseCode == BillingClient.BillingResponseCode.OK && productDetailsList.isNotEmpty()) {
-
                 val productDetails = productDetailsList[0]
 
                 val flowParams = BillingFlowParams.newBuilder()
@@ -112,18 +116,29 @@ class BillingManager(
                     )
                     .build()
 
-                activityRef.get()?.let {
-                    Log.d(TAG, "Launching billing flow")
-                    billingClient.launchBillingFlow(it, flowParams)
+                activityRef.get()?.let { activity ->
+                    if (!activity.isFinishing && !activity.isDestroyed) {
+                        Log.d(TAG, "Launching billing flow")
+                        handler.post {
+                            val billingResult = billingClient.launchBillingFlow(activity, flowParams)
+                            if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                                Log.e(TAG, "Billing flow error: ${billingResult.debugMessage}")
+                                isProcessing = false
+                            }
+                        }
+                    } else {
+                        isProcessing = false
+                    }
                 }
-
             } else {
                 Log.e(TAG, "Product not found: ${result.debugMessage}")
+                isProcessing = false
             }
         }
     }
 
     private fun handlePurchase(purchase: Purchase) {
+        isProcessing = false // Reset processing flag
         if (!purchase.products.contains(PRODUCT_ID)) return
 
         if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
