@@ -351,4 +351,10 @@
     <string name="no_record">🏆 Wala pang rekord</string>
     <string name="level_up">⚡ LEVEL UP! LV</string>
     <string name="level">Antas</string>
+
+    <string name="tap_to_change">✎ Pindutin ang button upang i-edit ang tunog at pangalan</string>
+    <string name="tap_box_name_to_change">✏ Pindutin ang kahon ng pangalan sa itaas upang baguhin ito</string>
+    <string name="name">Pangalan</string>
+    <string name="choose_skin">PUMILI NG SKIN</string>
+    <string name="skin">Skin</string>
 </resources>

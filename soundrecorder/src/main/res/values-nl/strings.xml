@@ -353,4 +353,10 @@
     <string name="no_record">🏆 Nog geen record</string>
     <string name="level_up">⚡ LEVEL OMHOOG! LV</string>
     <string name="level">Niveau</string>
+
+    <string name="tap_to_change">✎ Tik op de knop om het geluid en de naam te bewerken</string>
+    <string name="tap_box_name_to_change">✏ Tik op het naamvak hierboven om het te wijzigen</string>
+    <string name="name">Naam</string>
+    <string name="choose_skin">SKIN KIEZEN</string>
+    <string name="skin">Skin</string>
 </resources>

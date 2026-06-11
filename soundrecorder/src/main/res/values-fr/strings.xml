@@ -351,4 +351,10 @@
     <string name="no_record">🏆 Aucun record pour le moment</string>
     <string name="level_up">⚡ NIVEAU SUPÉRIEUR ! LV</string>
     <string name="level">Niveau</string>
+
+    <string name="tap_to_change">✎ Appuyez sur le bouton pour modifier le son et le nom</string>
+    <string name="tap_box_name_to_change">✏ Touchez la zone du nom ci-dessus pour la modifier</string>
+    <string name="name">Nom</string>
+    <string name="choose_skin">CHOISIR UN SKIN</string>
+    <string name="skin">Apparence</string>
 </resources>

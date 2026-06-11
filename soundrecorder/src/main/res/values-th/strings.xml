@@ -350,4 +350,10 @@
     <string name="no_record">🏆 ยังไม่มีสถิติ</string>
     <string name="level_up">⚡ เลเวลอัป! LV</string>
     <string name="level">เลเวล</string>
+
+    <string name="tap_to_change">✎ แตะปุ่มเพื่อแก้ไขเสียงและชื่อ</string>
+    <string name="tap_box_name_to_change">✏ แตะช่องชื่อด้านบนเพื่อเปลี่ยน</string>
+    <string name="name">ชื่อ</string>
+    <string name="choose_skin">เลือกสกิน</string>
+    <string name="skin">สกิน</string>
 </resources>

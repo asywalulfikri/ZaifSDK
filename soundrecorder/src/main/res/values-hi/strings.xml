@@ -348,4 +348,10 @@
     <string name="no_record">🏆 अभी तक कोई रिकॉर्ड नहीं</string>
     <string name="level_up">⚡ लेवल अप! LV</string>
     <string name="level">स्तर</string>
+
+    <string name="tap_to_change">✎ ध्वनि और नाम संपादित करने के लिए बटन दबाएँ</string>
+    <string name="tap_box_name_to_change">✏ इसे बदलने के लिए ऊपर दिए गए नाम बॉक्स को टैप करें</string>
+    <string name="name">नाम</string>
+    <string name="choose_skin">स्किन चुनें</string>
+    <string name="skin">स्किन</string>
 </resources>

@@ -352,4 +352,10 @@
     <string name="no_record">🏆 Belum ada rekod</string>
     <string name="level_up">⚡ NAIK LEVEL! LV</string>
     <string name="level">Level</string>
+
+    <string name="tap_to_change">✎ Ketik butang untuk mengubah bunyi &amp; nama</string>
+    <string name="tap_box_name_to_change">✏ Ketik kotak nama di atas untuk mengubahnya</string>
+    <string name="name">Nama</string>
+    <string name="choose_skin">PILIH SKIN</string>
+    <string name="skin">Skin</string>
 </resources>

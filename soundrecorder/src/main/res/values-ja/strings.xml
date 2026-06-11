@@ -345,4 +345,11 @@
     <string name="no_record">🏆 まだ記録なし</string>
     <string name="level_up">⚡ レベルアップ！LV</string>
     <string name="level">レベル</string>
+
+    <string name="tap_to_change">✎ ボタンをタップして音と名前を編集</string>
+    <string name="tap_box_name_to_change">✏ 上の名前欄をタップして変更</string>
+    <string name="name">名前</string>
+    <string name="choose_skin">スキンを選択</string>
+    <string name="skin">スキン</string>
+
 </resources>

@@ -348,4 +348,10 @@
     <string name="no_record">🏆 Пока нет рекорда</string>
     <string name="level_up">⚡ ПОВЫШЕНИЕ УРОВНЯ! LV</string>
     <string name="level">Уровень</string>
+
+    <string name="tap_to_change">✎ Нажмите кнопку, чтобы изменить звук и имя</string>
+    <string name="tap_box_name_to_change">✏ Нажмите на поле имени выше, чтобы изменить его</string>
+    <string name="name">Имя</string>
+    <string name="choose_skin">ВЫБРАТЬ СКИН</string>
+    <string name="skin">Скин</string>
 </resources>

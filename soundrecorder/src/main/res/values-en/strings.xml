@@ -348,4 +348,10 @@
     <string name="no_record">🏆 No record yet</string>
     <string name="level_up">⚡ LEVEL UP! LV</string>
     <string name="level">Level</string>
+
+    <string name="tap_to_change">✎ Tap the button to edit the sound &amp; name</string>
+    <string name="tap_box_name_to_change">✏ Tap the name box above to change it</string>
+    <string name="name">Name</string>
+    <string name="choose_skin">CHOOSE SKIN</string>
+    <string name="skin">Skin</string>
 </resources>

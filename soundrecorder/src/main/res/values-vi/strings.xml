@@ -349,4 +349,10 @@
     <string name="no_record">🏆 Chưa có kỷ lục</string>
     <string name="level_up">⚡ LÊN CẤP! LV</string>
     <string name="level">Cấp độ</string>
+
+    <string name="tap_to_change">✎ Nhấn nút để chỉnh sửa âm thanh và tên</string>
+    <string name="tap_box_name_to_change">✏ Chạm vào ô tên phía trên để thay đổi</string>
+    <string name="name">Tên</string>
+    <string name="choose_skin">CHỌN GIAO DIỆN</string>
+    <string name="skin">Giao diện</string>
 </resources>

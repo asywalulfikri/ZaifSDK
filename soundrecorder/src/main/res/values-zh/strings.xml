@@ -349,4 +349,10 @@
     <string name="no_record">🏆 暂无记录</string>
     <string name="level_up">⚡ 升级！LV</string>
     <string name="level">等级</string>
+
+    <string name="tap_to_change">✎ 点击按钮编辑声音和名称</string>
+    <string name="tap_box_name_to_change">✏ 点击上方名称框进行修改</string>
+    <string name="name">名称</string>
+    <string name="choose_skin">选择皮肤</string>
+    <string name="skin">皮肤</string>
 </resources>

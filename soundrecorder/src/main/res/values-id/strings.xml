@@ -356,4 +356,10 @@
     <string name="level_up">⚡ LEVEL UP! LV</string>
     <string name="level">Level</string>
 
+    <string name="tap_to_change">✎ Ketuk tombol untuk mengubah suara &amp; nama</string>
+    <string name="tap_box_name_to_change">✏ Ketuk kotak nama di atas untuk mengubahnya</string>
+    <string name="name">Nama</string>
+    <string name="choose_skin">PILIH SKIN</string>
+    <string name="skin">Skin</string>
+
 </resources>

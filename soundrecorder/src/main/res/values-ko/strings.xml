@@ -352,4 +352,10 @@
     <string name="no_record">🏆 아직 기록 없음</string>
     <string name="level_up">⚡ 레벨 업! LV</string>
     <string name="level">레벨</string>
+
+    <string name="tap_to_change">✎ 버튼을 눌러 소리와 이름을 수정하세요</string>
+    <string name="tap_box_name_to_change">✏ 위의 이름 상자를 눌러 변경하세요</string>
+    <string name="name">이름</string>
+    <string name="choose_skin">스킨 선택</string>
+    <string name="skin">스킨</string>
 </resources>
