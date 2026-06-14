@@ -1308,8 +1308,9 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
 
         } else {
-            // Iklan belum siap → tampilkan pesan dan coba load ulang
+            // Iklan belum siap → reset counter supaya retry bisa jalan lagi, lalu load ulang
             setToast(getString(R.string.ads_prepared_please_wait))
+            retryCountReward = 0
             loadRewardedAd(isPremium)
         }
     }
