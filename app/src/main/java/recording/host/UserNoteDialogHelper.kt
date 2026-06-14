@@ -103,7 +103,14 @@ class UserNoteDialogHelper(
 
     fun show(context: Context, instrumentType: String) {
         this.mContext = context
-        // Menggunakan tema Fullscreen agar tidak ada margin default AlertDialog
+        
+        // 🔥 Pre-cache strings to avoid AssetManager deadlock on Vivo/Oppo/Realme
+        val titleText    = context.getString(sound.recorder.widget.R.string.user_notes_title)
+        val subtitleText = context.getString(sound.recorder.widget.R.string.user_notes_subtitle)
+        val closeText    = context.getString(sound.recorder.widget.R.string.close)
+        val searchHint   = context.getString(sound.recorder.widget.R.string.search_record)
+        val errorMsg     = "Gagal memuat: "
+
         val dialog = AlertDialog.Builder(context, android.R.style.Theme_NoTitleBar_Fullscreen).create()
         val allNotes = mutableListOf<NoteItem>()
 
@@ -131,19 +138,19 @@ class UserNoteDialogHelper(
                 it.gravity = Gravity.CENTER_VERTICAL or Gravity.START
             }
             addView(TextView(context).apply {
-                text = "♪  ${context.getString(sound.recorder.widget.R.string.user_notes_title)}"
+                text = "♪  $titleText"
                 setTextColor(Color.parseColor("#F0B429"))
                 textSize = 16f
                 typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
             })
             addView(TextView(context).apply {
-                text = context.getString(sound.recorder.widget.R.string.user_notes_subtitle)
+                text = subtitleText
                 setTextColor(Color.parseColor("#8A7456"))
                 textSize = 9f
             })
         })
         header.addView(TextView(context).apply {
-            text = context.getString(sound.recorder.widget.R.string.close)
+            text = closeText
             setTextColor(Color.parseColor("#CF6679"))
             textSize = 11f
             typeface = Typeface.DEFAULT_BOLD
@@ -179,7 +186,7 @@ class UserNoteDialogHelper(
             setPadding(0, 0, context.sdp(SdpR.dimen._8sdp), 0)
         })
         val searchField = EditText(context).apply {
-            hint = context.getString(sound.recorder.widget.R.string.search_record)
+            hint = searchHint
             setHintTextColor(Color.parseColor("#4A3020"))
             setTextColor(Color.parseColor("#F5F5DC"))
             textSize = 12f
@@ -189,6 +196,15 @@ class UserNoteDialogHelper(
         }
         searchContainer.addView(searchField)
         root.addView(searchContainer)
+
+        // 🔥 Pre-cache more strings for populateList and dialogs
+        val noDataText     = context.getString(sound.recorder.widget.R.string.no_data_record)
+        val playLabel      = context.getString(sound.recorder.widget.R.string.play)
+        val learnLabel     = context.getString(sound.recorder.widget.R.string.learn)
+        val noteLockedText = context.getString(sound.recorder.widget.R.string.note_locked)
+        val watchAdText    = context.getString(sound.recorder.widget.R.string.watch_ad_unlock_note)
+        val cancelText     = context.getString(sound.recorder.widget.R.string.cancel)
+        val watchAdLabel   = context.getString(sound.recorder.widget.R.string.watch_ad_label)
 
         // ── Divider ──
         root.addView(View(context).apply {
@@ -230,7 +246,10 @@ class UserNoteDialogHelper(
                 else allNotes.filter {
                     it.recordName.lowercase().contains(q) || it.senderName.lowercase().contains(q)
                 }
-                populateList(context, list, dialog, filtered)
+                populateList(
+                    context, list, dialog, filtered,
+                    noDataText, playLabel, learnLabel, noteLockedText, watchAdText, cancelText, watchAdLabel
+                )
             }
         })
 
@@ -259,7 +278,10 @@ class UserNoteDialogHelper(
             progress.visibility = View.GONE
             scroll.visibility = View.VISIBLE
             allNotes.addAll(cache[instrumentType]!!.notes)
-            populateList(context, list, dialog, allNotes)
+            populateList(
+                context, list, dialog, allNotes,
+                noDataText, playLabel, learnLabel, noteLockedText, watchAdText, cancelText, watchAdLabel
+            )
             return
         }
 
@@ -288,7 +310,10 @@ class UserNoteDialogHelper(
                 }
                 cache[instrumentType] = CachedResult(notes, System.currentTimeMillis())
                 allNotes.addAll(notes)
-                populateList(context, list, dialog, allNotes)
+                populateList(
+                    context, list, dialog, allNotes,
+                    noDataText, playLabel, learnLabel, noteLockedText, watchAdText, cancelText, watchAdLabel
+                )
             }
             .addOnFailureListener {
                 progress.visibility = View.GONE
@@ -301,11 +326,18 @@ class UserNoteDialogHelper(
         context: Context,
         list: LinearLayout,
         dialog: AlertDialog,
-        notes: List<NoteItem>
+        notes: List<NoteItem>,
+        noDataText: String,
+        playLabel: String,
+        learnLabel: String,
+        noteLockedText: String,
+        watchAdText: String,
+        cancelText: String,
+        watchAdLabel: String
     ) {
         if (notes.isEmpty()) {
             list.addView(TextView(context).apply {
-                text = context.getString(sound.recorder.widget.R.string.no_data_record)
+                text = noDataText
                 setTextColor(Color.parseColor("#4A3020"))
                 textSize = 13f
                 gravity = Gravity.CENTER
@@ -321,6 +353,7 @@ class UserNoteDialogHelper(
         val spacer = context.sdp(SdpR.dimen._6sdp)
 
         notes.forEach { note ->
+            // ... (keep row logic)
             val row = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
@@ -386,7 +419,7 @@ class UserNoteDialogHelper(
                     action()
                     return
                 }
-                showAdConfirmDialog(context) {
+                showAdConfirmDialog(context, noteLockedText, watchAdText, cancelText, watchAdLabel) {
                     onRequestAd {
                         markNoteUnlocked(context, note)
                         lockTv.visibility = View.GONE
@@ -396,7 +429,7 @@ class UserNoteDialogHelper(
             }
 
             // ── Tombol Play ──
-            row.addView(buildActionBtn(context, "▶", context.getString(sound.recorder.widget.R.string.play), "B8720A", "F0B429") {
+            row.addView(buildActionBtn(context, "▶", playLabel, "B8720A", "F0B429") {
                 runWithAdGate { dialog.dismiss(); playUserNote(note.jsonNote) }
             })
 
@@ -405,7 +438,7 @@ class UserNoteDialogHelper(
             })
 
             // ── Tombol Belajar ──
-            row.addView(buildActionBtn(context, "★", context.getString(sound.recorder.widget.R.string.learn), "1A4A6B", "80DCFF") {
+            row.addView(buildActionBtn(context, "★", learnLabel, "1A4A6B", "80DCFF") {
                 runWithAdGate { dialog.dismiss(); startLearnMode(note.jsonNote) }
             })
 
@@ -504,7 +537,14 @@ class UserNoteDialogHelper(
 
     // ─── Dialog konfirmasi sebelum iklan ─────────────────────────
 
-    private fun showAdConfirmDialog(context: Context, onConfirm: () -> Unit) {
+    private fun showAdConfirmDialog(
+        context: Context,
+        noteLockedText: String,
+        watchAdText: String,
+        cancelText: String,
+        watchAdLabel: String,
+        onConfirm: () -> Unit
+    ) {
         val d = AlertDialog.Builder(context).create()
 
         val root = LinearLayout(context).apply {
@@ -519,7 +559,7 @@ class UserNoteDialogHelper(
         }
 
         root.addView(TextView(context).apply {
-            text = "🔒  ${context.getString(sound.recorder.widget.R.string.note_locked)}"
+            text = "🔒  $noteLockedText"
             setTextColor(Color.parseColor("#F0B429"))
             textSize = 14f
             typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
@@ -530,7 +570,7 @@ class UserNoteDialogHelper(
         })
 
         root.addView(TextView(context).apply {
-            text = context.getString(sound.recorder.widget.R.string.watch_ad_unlock_note)
+            text = watchAdText
             setTextColor(Color.parseColor("#D2B48C"))
             textSize = 11f
             setLineSpacing(0f, 1.4f)
@@ -545,13 +585,13 @@ class UserNoteDialogHelper(
             gravity = Gravity.END
         }
 
-        btnRow.addView(buildDialogBtn(context, context.getString(sound.recorder.widget.R.string.cancel), "777777") { d.dismiss() })
+        btnRow.addView(buildDialogBtn(context, cancelText, "777777") { d.dismiss() })
 
         btnRow.addView(View(context).apply {
             layoutParams = LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1)
         })
 
-        btnRow.addView(buildDialogBtn(context, context.getString(sound.recorder.widget.R.string.watch_ad_label), "F0B429") {
+        btnRow.addView(buildDialogBtn(context, watchAdLabel, "F0B429") {
             d.dismiss()
             onConfirm()
         })

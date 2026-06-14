@@ -155,6 +155,7 @@ class BottomSheetNote : BottomSheetDialogFragment() {
                 val builder = AlertDialog.Builder(activity)
                 builder.setTitle(activity.getString(R.string.choose))
                 builder.setItems(colors) { _, which ->
+                    if (position < 0 || position >= notesList.size) return@setItems
                     when (which) {
                         0 -> {
                             try {

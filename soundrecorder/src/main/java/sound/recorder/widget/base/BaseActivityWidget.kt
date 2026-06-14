@@ -83,6 +83,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.cancellation.CancellationException
 
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 
@@ -518,9 +519,15 @@ open class BaseActivityWidget : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(TAG, "setupGDPR error: ${e.message}")
             } finally {
-                // 4. Inisialisasi MobileAds apapun yang terjadi (jika diizinkan)
+                // 4. Inisialisasi MobileAds hanya jika belum diinisialisasi oleh MyApp
                 if (::consentInformation.isInitialized && consentInformation.canRequestAds()) {
-                    MobileAds.initialize(this@BaseActivityWidget) { }
+                    if (!sound.recorder.widget.MyApp.areEssentialsInitialized) {
+                        // Jalankan di Background untuk menghindari blokir Main Thread (Android 14 fix)
+                        val context = this@BaseActivityWidget.applicationContext
+                        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                            MobileAds.initialize(context) { }
+                        }
+                    }
                 }
             }
         }

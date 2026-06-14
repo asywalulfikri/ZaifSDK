@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.webkit.CookieManager
 import android.webkit.WebView
 import android.widget.Toast
 import com.google.android.gms.ads.MobileAds
@@ -150,6 +151,14 @@ open class MyApp : Application() {
     private suspend fun initializeAdMob() = withContext(Dispatchers.IO) {
         suspendCancellableCoroutine { cont ->
             try {
+                // Khusus Android 9 (API 28), WebView/CookieManager harus disentuh di Main Thread dulu
+                // untuk mencegah native hang saat AdMob inisialisasi di background.
+                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+                    mainHandler.post {
+                        try { CookieManager.getInstance() } catch (e: Exception) {}
+                    }
+                }
+
                 MobileAds.initialize(this@MyApp) { status ->
                     Log.d(TAG, "AdMob initialized: $status")
                     showDebugToast("AdMob berhasil diinisialisasi")
