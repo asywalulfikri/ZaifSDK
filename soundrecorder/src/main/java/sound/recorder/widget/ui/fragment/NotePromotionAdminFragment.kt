@@ -28,6 +28,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.DocumentSnapshot
@@ -60,6 +61,7 @@ class NotePromotionAdminFragment : Fragment() {
         private var COLLECTION           = "note_promotions"
         private const val STATUS_DRAFT   = "draft"
         private const val STATUS_PUBLISH = "published"
+        private const val STATUS_REJECTED = "rejected"
 
         fun newInstance() = NotePromotionAdminFragment()
     }
@@ -199,15 +201,15 @@ class NotePromotionAdminFragment : Fragment() {
             val padH = ctx.sdp(SdpR.dimen._12sdp)
             val padV = ctx.sdp(SdpR.dimen._8sdp)
             setPadding(padH, padV, padH, padV)
-            background = RippleDrawable(
+            ViewCompat.setBackground(this, RippleDrawable(
                 ColorStateList.valueOf(Color.parseColor("#30FFFFFF")),
                 GradientDrawable().apply {
                     setColor(Color.parseColor("#202D1B10"))
                     cornerRadius = ctx.resources.getDimension(SdpR.dimen._10sdp)
                     setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#44D2B48C"))
                 },
-                null
-            )
+                ColorDrawable(Color.WHITE)
+            ))
             layoutParams = FrameLayout.LayoutParams(-2, -2).apply {
                 gravity = Gravity.END or Gravity.CENTER_VERTICAL
                 marginEnd = ctx.sdp(SdpR.dimen._16sdp)
@@ -468,6 +470,154 @@ class NotePromotionAdminFragment : Fragment() {
             }
     }
 
+    private fun showRejectDialog(note: PromotionNote, position: Int) {
+        if (!isAdded) return
+        val ctx = requireContext()
+        val dialog = AlertDialog.Builder(ctx).create()
+
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#1A0F09"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._14sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#22D2B48C"))
+            }
+            val pad = ctx.sdp(SdpR.dimen._16sdp)
+            setPadding(pad, pad, pad, pad)
+        }
+
+        root.addView(TextView(ctx).apply {
+            text = "Tolak Rekaman"
+            setTextColor(Color.parseColor("#F5F5DC"))
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+        })
+
+        root.addView(TextView(ctx).apply {
+            text = "Berikan alasan penolakan untuk dikirim ke pengguna:"
+            setTextColor(Color.parseColor("#8A7456"))
+            textSize = 10f
+            val topPad = ctx.sdp(SdpR.dimen._4sdp)
+            setPadding(0, topPad, 0, ctx.sdp(SdpR.dimen._8sdp))
+        })
+
+        val input = EditText(ctx).apply {
+            hint = "Alasan penolakan..."
+            setTextColor(Color.parseColor("#F5F5DC"))
+            setHintTextColor(Color.parseColor("#4A3020"))
+            textSize = 12f
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#2D1B10"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._8sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#44D2B48C"))
+            }
+            val padH = ctx.sdp(SdpR.dimen._12sdp)
+            val padV = ctx.sdp(SdpR.dimen._10sdp)
+            setPadding(padH, padV, padH, padV)
+            layoutParams = LinearLayout.LayoutParams(-1, ctx.sdp(SdpR.dimen._60sdp)).apply {
+                bottomMargin = ctx.sdp(SdpR.dimen._12sdp)
+            }
+            gravity = Gravity.TOP
+        }
+        root.addView(input)
+
+        val btnRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.END
+        }
+        btnRow.addView(buildActionBtn(ctx, "Batal", "8A7456") { dialog.dismiss() })
+        btnRow.addView(View(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1)
+        })
+        btnRow.addView(buildActionBtn(ctx, "Kirim & Tolak", "CF6679") {
+            val reason = input.text.toString().trim()
+            if (reason.isNotEmpty()) {
+                rejectNote(note, position, reason)
+                dialog.dismiss()
+            } else {
+                Toast.makeText(ctx, "Harap isi alasan", Toast.LENGTH_SHORT).show()
+            }
+        })
+        root.addView(btnRow)
+
+        dialog.setView(root)
+        dialog.show()
+        val dm = ctx.resources.displayMetrics
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((dm.widthPixels * 0.85).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+    }
+
+    private fun rejectNote(note: PromotionNote, position: Int, reason: String) {
+        db.collection(COLLECTION).document(note.docId)
+            .update("status", STATUS_REJECTED)
+            .addOnSuccessListener {
+                if (!isAdded) return@addOnSuccessListener
+                note.status = STATUS_REJECTED
+                adapter.notifyItemChanged(position)
+                if (note.firebaseToken.isNotEmpty()) {
+                    sendRejectNotification(note, reason)
+                }
+            }
+            .addOnFailureListener { e ->
+                if (!isAdded) return@addOnFailureListener
+                Toast.makeText(context, "Gagal update status: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun sendRejectNotification(note: PromotionNote, reason: String) {
+        val encryptedKey = zaifSDKConfig?.fcmKey.orEmpty()
+        val encryptionKey = zaifSDKConfig?.applicationId.orEmpty()
+        if (encryptedKey.isBlank() || encryptionKey.isBlank()) return
+
+        val serviceAccountJson = try {
+            CryptoManager(requireContext(), encryptionKey).decrypt(encryptedKey)
+        } catch (e: Exception) { return }
+
+        val projectId = try {
+            JSONObject(serviceAccountJson).getString("project_id")
+        } catch (e: Exception) { return }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val accessToken = getOAuthToken(serviceAccountJson) ?: return@launch
+
+                val conn = (URL("https://fcm.googleapis.com/v1/projects/$projectId/messages:send")
+                    .openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Authorization", "Bearer $accessToken")
+                    setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+                    doOutput = true
+                }
+
+                val payload = JSONObject().apply {
+                    put("message", JSONObject().apply {
+                        put("token", note.firebaseToken)
+                        put("notification", JSONObject().apply {
+                            put("title", "Rekaman Ditolak")
+                            put("body", "Maaf, rekaman \"${note.recordName}\" ditolak. Alasan: $reason")
+                        })
+                        put("data", JSONObject().apply {
+                            put("type", "note_rejected")
+                            put("reason", reason)
+                        })
+                    })
+                }
+
+                OutputStreamWriter(conn.outputStream).use { it.write(payload.toString()) }
+                val success = conn.responseCode in 200..299
+                withContext(Dispatchers.Main) {
+                    if (isAdded) {
+                        val msg = if (success) "Notifikasi penolakan terkirim" else "Gagal kirim notifikasi"
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) { }
+        }
+    }
+
     // ─── FCM Notification (HTTP v1 API) ──────────────────────────────────────
 
     private fun sendPublishNotification(note: PromotionNote) {
@@ -652,7 +802,12 @@ class NotePromotionAdminFragment : Fragment() {
         inner.removeAllViews()
 
         val isPublished = note.status == STATUS_PUBLISH
-        val statusColor = if (isPublished) "#4CAF50" else "#FFB347"
+        val isRejected  = note.status == STATUS_REJECTED
+        val statusColor = when {
+            isPublished -> "#4CAF50"
+            isRejected  -> "#CF6679"
+            else        -> "#FFB347"
+        }
 
         // ── Row 1: name + status badge ──
         val row1 = LinearLayout(ctx).apply {
@@ -704,6 +859,15 @@ class NotePromotionAdminFragment : Fragment() {
         actionRow.addView(View(ctx).apply {
             layoutParams = LinearLayout.LayoutParams(8.dp(ctx), 1)
         })
+
+        if (note.status != STATUS_PUBLISH && note.status != STATUS_REJECTED) {
+            actionRow.addView(buildActionBtn(ctx, "Tolak", "CF6679") {
+                showRejectDialog(note, position)
+            })
+            actionRow.addView(View(ctx).apply {
+                layoutParams = LinearLayout.LayoutParams(8.dp(ctx), 1)
+            })
+        }
 
         actionRow.addView(buildActionBtn(ctx, "Hapus", "CF6679") {
             showDeleteConfirm(note, position)
@@ -767,18 +931,25 @@ class NotePromotionAdminFragment : Fragment() {
 
     private fun buildStatusBadge(ctx: Context, status: String, colorHex: String) = TextView(ctx).apply {
         val cleanHex = colorHex.removePrefix("#")
-        text = if (status == STATUS_PUBLISH) "PUBLISHED" else "DRAFT"
-        setTextColor(Color.parseColor("#$cleanHex"))
+        text = when (status) {
+            STATUS_PUBLISH -> "PUBLISHED"
+            STATUS_REJECTED -> "REJECTED"
+            else -> "DRAFT"
+        }
+        val displayColor = if (status == STATUS_REJECTED) "#CF6679" else "#$cleanHex"
+        val cleanDisplayHex = displayColor.removePrefix("#")
+
+        setTextColor(Color.parseColor("#$cleanDisplayHex"))
         textSize = 8f
         typeface = Typeface.DEFAULT_BOLD
         val padH = ctx.sdp(SdpR.dimen._6sdp)
         val padV = 3.dp(ctx)
         setPadding(padH, padV, padH, padV)
-        background = GradientDrawable().apply {
-            setColor(Color.parseColor("#20$cleanHex"))
+        ViewCompat.setBackground(this, GradientDrawable().apply {
+            setColor(Color.parseColor("#20$cleanDisplayHex"))
             cornerRadius = ctx.resources.getDimension(SdpR.dimen._8sdp)
-            setStroke(1.dp(ctx), Color.parseColor("#$cleanHex"))
-        }
+            setStroke(1.dp(ctx), Color.parseColor("#$cleanDisplayHex"))
+        })
     }
 
     private fun buildActionBtn(ctx: Context, label: String, colorHex: String, onClick: () -> Unit) =
@@ -792,15 +963,15 @@ class NotePromotionAdminFragment : Fragment() {
             val padH = ctx.sdp(SdpR.dimen._10sdp)
             val padV = ctx.sdp(SdpR.dimen._6sdp)
             setPadding(padH, padV, padH, padV)
-            background = RippleDrawable(
+            ViewCompat.setBackground(this, RippleDrawable(
                 ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
                 GradientDrawable().apply {
                     setColor(Color.parseColor("#20$cleanHex"))
                     cornerRadius = ctx.resources.getDimension(SdpR.dimen._10sdp)
                     setStroke(1.dp(ctx), Color.parseColor("#$cleanHex"))
                 },
-                null
-            )
+                ColorDrawable(Color.WHITE) // Use a mask to be safe
+            ))
             setOnClickListener { onClick() }
         }
 
