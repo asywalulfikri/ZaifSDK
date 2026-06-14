@@ -62,6 +62,8 @@ object RecordingListDialogHelper {
     private const val PREFS_PROMOTED      = "zaif_promoted_notes"
     private const val KEY_PROMOTED_IDS   = "promoted_ids"
     private const val KEY_LAST_PROMO_DATE = "last_promo_date"
+    private const val KEY_PROMO_COUNT_TODAY = "promo_count_today"
+    private const val MAX_DAILY_PROMOS   = 2
 
     // ─── Helper shorthand ───
     private fun Context.sdp(id: Int) = resources.getDimensionPixelSize(id)
@@ -71,16 +73,21 @@ object RecordingListDialogHelper {
 
     private fun hasPromotedToday(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS_PROMOTED, Context.MODE_PRIVATE)
-        return prefs.getString(KEY_LAST_PROMO_DATE, null) == todayString()
+        if (prefs.getString(KEY_LAST_PROMO_DATE, null) != todayString()) return false
+        return prefs.getInt(KEY_PROMO_COUNT_TODAY, 0) >= MAX_DAILY_PROMOS
     }
 
     private fun markAsPromoted(context: Context, recordId: Int) {
         val prefs = context.getSharedPreferences(PREFS_PROMOTED, Context.MODE_PRIVATE)
         val ids   = prefs.getStringSet(KEY_PROMOTED_IDS, mutableSetOf())!!.toMutableSet()
         ids.add(recordId.toString())
+        val today = todayString()
+        val currentCount = if (prefs.getString(KEY_LAST_PROMO_DATE, null) == today)
+            prefs.getInt(KEY_PROMO_COUNT_TODAY, 0) else 0
         prefs.edit()
             .putStringSet(KEY_PROMOTED_IDS, ids)
-            .putString(KEY_LAST_PROMO_DATE, todayString())
+            .putString(KEY_LAST_PROMO_DATE, today)
+            .putInt(KEY_PROMO_COUNT_TODAY, currentCount + 1)
             .apply()
     }
 
