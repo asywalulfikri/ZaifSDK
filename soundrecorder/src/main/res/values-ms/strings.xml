@@ -358,4 +358,8 @@
     <string name="name">Nama</string>
     <string name="choose_skin">PILIH SKIN</string>
     <string name="skin">Skin</string>
+
+    <string name="input_record_title">Masukkan Tajuk Rakaman</string>
+    <string name="title_cannot_be_empty">Tajuk tidak boleh kosong</string>
+    <string name="title_min_five_character">Tajuk rakaman mesti sekurang-kurangnya 5 aksara</string>
 </resources>

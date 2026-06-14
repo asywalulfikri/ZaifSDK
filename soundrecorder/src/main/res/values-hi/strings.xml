@@ -354,4 +354,8 @@
     <string name="name">नाम</string>
     <string name="choose_skin">स्किन चुनें</string>
     <string name="skin">स्किन</string>
+
+    <string name="input_record_title">रिकॉर्डिंग का शीर्षक दर्ज करें</string>
+    <string name="title_cannot_be_empty">शीर्षक खाली नहीं हो सकता</string>
+    <string name="title_min_five_character">रिकॉर्डिंग का शीर्षक कम से कम 5 अक्षरों का होना चाहिए</string>
 </resources>

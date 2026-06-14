@@ -356,4 +356,8 @@
     <string name="name">ชื่อ</string>
     <string name="choose_skin">เลือกสกิน</string>
     <string name="skin">สกิน</string>
+
+    <string name="input_record_title">ป้อนชื่อการบันทึก</string>
+    <string name="title_cannot_be_empty">ชื่อเรื่องต้องไม่ว่างเปล่า</string>
+    <string name="title_min_five_caracter">ชื่อการบันทึกต้องมีอย่างน้อย 5 ตัวอักษร</string>
 </resources>

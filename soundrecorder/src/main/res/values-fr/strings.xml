@@ -357,4 +357,8 @@
     <string name="name">Nom</string>
     <string name="choose_skin">CHOISIR UN SKIN</string>
     <string name="skin">Apparence</string>
+
+    <string name="input_record_title">Saisir le titre de l enregistrement</string>
+    <string name="title_cannot_be_empty">Le titre ne peut pas être vide</string>
+    <string name="title_min_five_character">Le titre de l enregistrement doit contenir au moins 5 caractères</string>
 </resources>

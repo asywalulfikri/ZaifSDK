@@ -352,4 +352,8 @@
     <string name="choose_skin">スキンを選択</string>
     <string name="skin">スキン</string>
 
+    <string name="input_record_title">録音タイトルを入力</string>
+    <string name="title_cannot_be_empty">タイトルは空にできません</string>
+    <string name="title_min_five_character">録音タイトルは5文字以上で入力してください</string>
+
 </resources>

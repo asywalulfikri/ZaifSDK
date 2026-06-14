@@ -357,4 +357,8 @@
     <string name="name">Pangalan</string>
     <string name="choose_skin">PUMILI NG SKIN</string>
     <string name="skin">Skin</string>
+
+    <string name="input_record_title">Ilagay ang Pamagat ng Recording</string>
+    <string name="title_cannot_be_empty">Hindi maaaring walang laman ang pamagat</string>
+    <string name="title_min_five_character">Ang pamagat ng recording ay dapat may hindi bababa sa 5 karakter</string>
 </resources>

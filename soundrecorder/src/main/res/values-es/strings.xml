@@ -356,4 +356,8 @@
     <string name="name">Nombre</string>
     <string name="choose_skin">ELEGIR SKIN</string>
     <string name="skin">Aspecto</string>
+
+    <string name="input_record_title">Ingrese el título de la grabación</string>
+    <string name="title_cannot_be_empty">El título no puede estar vacío</string>
+    <string name="title_min_five_character">El título de la grabación debe tener al menos 5 caracteres</string>
 </resources>

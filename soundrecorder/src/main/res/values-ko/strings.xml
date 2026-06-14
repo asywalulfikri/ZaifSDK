@@ -358,4 +358,8 @@
     <string name="name">이름</string>
     <string name="choose_skin">스킨 선택</string>
     <string name="skin">스킨</string>
+
+    <string name="input_record_title">녹음 제목 입력</string>
+    <string name="title_cannot_be_empty">제목은 비워둘 수 없습니다</string>
+    <string name="title_min_five_character">녹음 제목은 최소 5자 이상이어야 합니다</string>
 </resources>

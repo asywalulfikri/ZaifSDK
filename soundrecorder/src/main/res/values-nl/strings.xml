@@ -359,4 +359,8 @@
     <string name="name">Naam</string>
     <string name="choose_skin">SKIN KIEZEN</string>
     <string name="skin">Skin</string>
+
+    <string name="input_record_title">Voer opnametitel in</string>
+    <string name="title_cannot_be_empty">Titel mag niet leeg zijn</string>
+    <string name="title_min_five_character">De opnametitel moet minimaal 5 tekens bevatten</string>
 </resources>

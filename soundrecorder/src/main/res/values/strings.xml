@@ -354,4 +354,10 @@
     <string name="name">Name</string>
     <string name="choose_skin">CHOOSE SKIN</string>
     <string name="skin">Skin</string>
+    <string name="name_empty">Name cannot be empty</string>
+    <string name="name_min_length">Name must be more than 5 characters</string>
+
+    <string name="input_record_title">Enter Recording Title</string>
+    <string name="title_cannot_be_empty">Title cannot be empty</string>
+    <string name="title_min_five_character">Recording title must be at least 5 characters</string>
 </resources>

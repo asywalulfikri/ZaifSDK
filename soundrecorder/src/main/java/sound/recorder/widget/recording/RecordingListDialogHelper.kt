@@ -486,7 +486,7 @@ object RecordingListDialogHelper {
         val dm = context.resources.displayMetrics
         dialog.window?.apply {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setLayout((dm.widthPixels * 0.88).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+            setLayout((dm.widthPixels * 0.58).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
         }
     }
 

@@ -6,13 +6,12 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.view.Window
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import sound.recorder.widget.R
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 object InstrumentDialogHelper {
 
@@ -95,26 +94,38 @@ object InstrumentDialogHelper {
         val btnSave   = view.findViewById<TextView>(R.id.btnWatch)
         val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
 
-        val defaultName = context.getString(R.string.recording) + " " +
-                SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-
         tvTitle.text   = context.getString(R.string.saved_recording_ask).uppercase()
         btnSave.text   = context.getString(R.string.save).uppercase()
         btnCancel.text = context.getString(R.string.cancel).uppercase()
-        etName.setText(defaultName)
+        etName.setText("")
+        etName.hint = context.getString(R.string.input_record_title)
 
         btnSave.setOnClickListener {
-            val name = etName.text.toString().ifEmpty { defaultName }
-            onSave(name)
-            dialog.dismiss()
+            val name = etName.text.toString().trim()
+            when {
+                name.isEmpty() -> {
+                    etName.error = context.getString(R.string.name_min_length)
+                    Toast.makeText(context, context.getString(R.string.title_cannot_be_empty), Toast.LENGTH_SHORT).show()
+                }
+                name.length <= 5 -> {
+                    etName.error = context.getString(R.string.name_min_length)
+                    Toast.makeText(context, context.getString(R.string.name_min_length), Toast.LENGTH_SHORT).show()
+                }
+                else -> {
+                    onSave(name)
+                    dialog.dismiss()
+                }
+            }
         }
 
         btnCancel.setOnClickListener {
-            onCancel?.invoke()      // ← fire callback cancel
+            onCancel?.invoke()
             dialog.dismiss()
         }
 
         dialog.show()
+        val dm = context.resources.displayMetrics
+        dialog.window?.setLayout((dm.widthPixels * 0.50).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
     @SuppressLint("UseKtx", "SetTextI18n")
