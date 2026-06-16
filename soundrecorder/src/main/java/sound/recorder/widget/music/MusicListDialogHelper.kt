@@ -19,9 +19,12 @@ import android.text.TextWatcher
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.view.ContextThemeWrapper   // ← FIX IMPORT
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -176,17 +179,12 @@ object MusicListDialogHelper {
         mainLayout.addView(searchContainer)
 
         // ─── LIST ───
-        val scrollView = ScrollView(themedContext).apply {
+        val recyclerView = RecyclerView(themedContext).apply {
             layoutParams = LinearLayout.LayoutParams(-1, 0, 1f)
+            layoutManager = LinearLayoutManager(themedContext)
             isVerticalScrollBarEnabled = false
-            overScrollMode = View.OVER_SCROLL_IF_CONTENT_SCROLLS
         }
-        val listLayout = LinearLayout(themedContext).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(0, 0, 0, themedContext.sdp(SdpR.dimen._100sdp))
-        }
-        scrollView.addView(listLayout)
-        mainLayout.addView(scrollView)
+        mainLayout.addView(recyclerView)
         rootContainer.addView(mainLayout)
 
         // ─── FLOATING PLAYER CARD ───
@@ -198,7 +196,6 @@ object MusicListDialogHelper {
             setMargins(playerMargin, 0, playerMargin, playerBottom)
         })
 
-        // ── FIX: Dialog pakai themedContext, bukan raw context ───────────────
         val dialog = AlertDialog.Builder(themedContext, R.style.FullScreenDialogTheme)
             .setView(rootContainer)
             .create()
@@ -211,7 +208,20 @@ object MusicListDialogHelper {
             insets
         }
 
-        // ─── PLAYER LISTENER ───
+        // ─── DATA & ADAPTER ───
+        val allTracks = mutableListOf<MusicPlayerManager.MusicTrack>()
+        val adapter = MusicAdapter { track ->
+            MusicPlayerManager.play(themedContext, track)
+            recyclerView.adapter?.notifyDataSetChanged()
+        }
+        recyclerView.adapter = adapter
+
+        fun renderList(query: String) {
+            val safeQuery = query.orEmpty()
+            val filtered = allTracks.filter { it.title.orEmpty().contains(safeQuery, true) }
+            adapter.updateData(filtered)
+        }
+
         MusicPlayerManager.setListener(object : MusicPlayerManager.PlayerListener {
             override fun onPlay(track: MusicPlayerManager.MusicTrack) {
                 val vol = loadMusicVolume(themedContext)
@@ -244,99 +254,7 @@ object MusicListDialogHelper {
             }
         })
 
-        val allTracks = rawTracks + loadDeviceTracks(themedContext)
-
-        // ── FIX: null-safe renderList ─────────────────────────────────────────
-        fun renderList(query: String) {
-            listLayout.removeAllViews()
-            val safeQuery = query.orEmpty()
-            val filtered = allTracks.filter { it.title.orEmpty().contains(safeQuery, true) }
-
-            filtered.forEach { track ->
-                val isPlaying = MusicPlayerManager.getCurrentTrack()?.title == track.title
-
-                val itemRow = LinearLayout(themedContext).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    setPadding(
-                        themedContext.sdp(SdpR.dimen._16sdp),
-                        themedContext.sdp(SdpR.dimen._10sdp),
-                        themedContext.sdp(SdpR.dimen._16sdp),
-                        themedContext.sdp(SdpR.dimen._10sdp)
-                    )
-                    gravity = Gravity.CENTER_VERTICAL
-                    background = RippleDrawable(
-                        ColorStateList.valueOf(Color.parseColor("#15FFFFFF")), null, null
-                    )
-                }
-
-                val iconBoxSize   = themedContext.sdp(SdpR.dimen._36sdp)
-                val iconBoxCorner = themedContext.sdp(SdpR.dimen._8sdp).toFloat()
-                val iconBox = FrameLayout(themedContext).apply {
-                    layoutParams = LinearLayout.LayoutParams(iconBoxSize, iconBoxSize)
-                    background = GradientDrawable().apply {
-                        setColor(
-                            if (isPlaying) Color.parseColor(COLOR_ACCENT)
-                            else Color.parseColor(COLOR_BG_MEDIUM)
-                        )
-                        cornerRadius = iconBoxCorner
-                    }
-                    addView(TextView(themedContext).apply {
-                        text = "♪"
-                        setTextColor(if (isPlaying) Color.WHITE else Color.parseColor(COLOR_ACCENT))
-                        textSize = themedContext.sspSp(SspR.dimen._12ssp)
-                        gravity = Gravity.CENTER
-                    })
-                }
-
-                val textStack = LinearLayout(themedContext).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(themedContext.sdp(SdpR.dimen._10sdp), 0, 0, 0)
-                    layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
-                }
-
-                textStack.addView(TextView(themedContext).apply {
-                    text = track.title.orEmpty().uppercase()
-                    textSize = themedContext.sspSp(SspR.dimen._12ssp)
-                    setTextColor(
-                        if (isPlaying) Color.parseColor(COLOR_ACCENT)
-                        else Color.parseColor(COLOR_TEXT_BRIGHT)
-                    )
-                    typeface = Typeface.create(
-                        "sans-serif-medium",
-                        if (isPlaying) Typeface.BOLD else Typeface.NORMAL
-                    )
-                    maxLines = 1
-                    ellipsize = TextUtils.TruncateAt.END
-                })
-
-                textStack.addView(TextView(themedContext).apply {
-                    text = if (track.isRaw) "ASSET • ${formatMs(track.duration)}"
-                    else "STORAGE • ${formatMs(track.duration)}"
-                    textSize = themedContext.sspSp(SspR.dimen._9ssp)
-                    setTextColor(Color.parseColor(COLOR_TEXT_DIM))
-                })
-
-                itemRow.addView(iconBox)
-                itemRow.addView(textStack)
-                itemRow.setOnClickListener {
-                    MusicPlayerManager.play(themedContext, track)
-                    // ── FIX: null-safe saat click ─────────────────────────────
-                    renderList(searchField.text?.toString().orEmpty())
-                }
-
-                listLayout.addView(itemRow)
-
-                listLayout.addView(View(themedContext).apply {
-                    layoutParams = LinearLayout.LayoutParams(-1, 1).apply {
-                        setMargins(themedContext.sdp(SdpR.dimen._16sdp), 0, themedContext.sdp(SdpR.dimen._16sdp), 0)
-                    }
-                    setBackgroundColor(Color.parseColor("#156C63FF"))
-                })
-            }
-        }
-
         searchField.addTextChangedListener(object : TextWatcher {
-            // ── FIX: null-safe afterTextChanged ──────────────────────────────
             override fun afterTextChanged(s: Editable?) { renderList(s?.toString().orEmpty()) }
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
             override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
@@ -350,7 +268,140 @@ object MusicListDialogHelper {
         }
 
         dialog.show()
-        renderList("")
+
+        // ── Load tracks in background to avoid UI block/crash ───────────────
+        rootContainer.post {
+            allTracks.clear()
+            allTracks.addAll(rawTracks + loadDeviceTracks(themedContext))
+            renderList("")
+        }
+    }
+
+    private class MusicAdapter(
+        private val onTrackClick: (MusicPlayerManager.MusicTrack) -> Unit
+    ) : RecyclerView.Adapter<MusicAdapter.VH>() {
+
+        private var items = listOf<MusicPlayerManager.MusicTrack>()
+
+        fun updateData(newItems: List<MusicPlayerManager.MusicTrack>) {
+            items = newItems
+            notifyDataSetChanged()
+        }
+
+        class VH(view: View) : RecyclerView.ViewHolder(view)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+            val themedContext = parent.context
+            val itemRow = LinearLayout(themedContext).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(
+                    themedContext.sdp(SdpR.dimen._16sdp),
+                    themedContext.sdp(SdpR.dimen._10sdp),
+                    themedContext.sdp(SdpR.dimen._16sdp),
+                    themedContext.sdp(SdpR.dimen._10sdp)
+                )
+                gravity = Gravity.CENTER_VERTICAL
+                background = RippleDrawable(
+                    ColorStateList.valueOf(Color.parseColor("#15FFFFFF")), null, null
+                )
+                layoutParams = ViewGroup.LayoutParams(-1, -2)
+            }
+
+            val iconBoxSize   = themedContext.sdp(SdpR.dimen._36sdp)
+            val iconBox = FrameLayout(themedContext).apply {
+                id = View.generateViewId()
+                layoutParams = LinearLayout.LayoutParams(iconBoxSize, iconBoxSize)
+            }
+            iconBox.addView(TextView(themedContext).apply {
+                id = View.generateViewId()
+                text = "♪"
+                textSize = themedContext.sspSp(SspR.dimen._12ssp)
+                gravity = Gravity.CENTER
+            })
+
+            val textStack = LinearLayout(themedContext).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(themedContext.sdp(SdpR.dimen._10sdp), 0, 0, 0)
+                layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+            }
+
+            textStack.addView(TextView(themedContext).apply {
+                id = View.generateViewId()
+                textSize = themedContext.sspSp(SspR.dimen._12ssp)
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+            })
+
+            textStack.addView(TextView(themedContext).apply {
+                id = View.generateViewId()
+                textSize = themedContext.sspSp(SspR.dimen._9ssp)
+            })
+
+            itemRow.addView(iconBox)
+            itemRow.addView(textStack)
+
+            // Container for divider
+            val container = LinearLayout(themedContext).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(itemRow)
+                addView(View(themedContext).apply {
+                    layoutParams = LinearLayout.LayoutParams(-1, 1).apply {
+                        setMargins(themedContext.sdp(SdpR.dimen._16sdp), 0, themedContext.sdp(SdpR.dimen._16sdp), 0)
+                    }
+                    setBackgroundColor(Color.parseColor("#156C63FF"))
+                })
+            }
+
+            return VH(container)
+        }
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val track = items[position]
+            val themedContext = holder.itemView.context
+            val isPlaying = MusicPlayerManager.getCurrentTrack()?.title == track.title
+
+            val container = holder.itemView as LinearLayout
+            val itemRow   = container.getChildAt(0) as LinearLayout
+            val iconBox   = itemRow.getChildAt(0) as FrameLayout
+            val iconTv    = iconBox.getChildAt(0) as TextView
+            val textStack = itemRow.getChildAt(1) as LinearLayout
+            val titleTv   = textStack.getChildAt(0) as TextView
+            val metaTv    = textStack.getChildAt(1) as TextView
+
+            iconBox.background = GradientDrawable().apply {
+                setColor(
+                    if (isPlaying) Color.parseColor(COLOR_ACCENT)
+                    else Color.parseColor(COLOR_BG_MEDIUM)
+                )
+                cornerRadius = themedContext.sdp(SdpR.dimen._8sdp).toFloat()
+            }
+            iconTv.setTextColor(if (isPlaying) Color.WHITE else Color.parseColor(COLOR_ACCENT))
+
+            titleTv.apply {
+                text = track.title.orEmpty().uppercase()
+                setTextColor(
+                    if (isPlaying) Color.parseColor(COLOR_ACCENT)
+                    else Color.parseColor(COLOR_TEXT_BRIGHT)
+                )
+                typeface = Typeface.create(
+                    "sans-serif-medium",
+                    if (isPlaying) Typeface.BOLD else Typeface.NORMAL
+                )
+            }
+
+            metaTv.apply {
+                text = if (track.isRaw) "ASSET • ${formatMs(track.duration)}"
+                else "STORAGE • ${formatMs(track.duration)}"
+                setTextColor(Color.parseColor(COLOR_TEXT_DIM))
+            }
+
+            itemRow.setOnClickListener { onTrackClick(track) }
+        }
+
+        override fun getItemCount() = items.size
+
+        private fun Context.sdp(id: Int) = resources.getDimensionPixelSize(id)
+        private fun Context.sspSp(id: Int) = resources.getDimension(id) / resources.displayMetrics.scaledDensity
     }
 
     @SuppressLint("UseKtx", "ClickableViewAccessibility")
