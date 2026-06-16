@@ -1,5 +1,7 @@
 package sound.recorder.widget.ui.fragment
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
@@ -21,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -59,7 +62,7 @@ class NotePromotionAdminFragment : Fragment() {
     companion object {
         private const val PAGE_SIZE      = 20L
         private var COLLECTION           = "note_promotions"
-        private const val STATUS_DRAFT   = "draft"
+        private const val STATUS_DRAFT   = "DRAFT"
         private const val STATUS_PUBLISH = "published"
         private const val STATUS_REJECTED = "rejected"
 
@@ -76,7 +79,8 @@ class NotePromotionAdminFragment : Fragment() {
         val submittedAt: Long,
         val firebaseToken: String,
         var status: String,
-        val jsonNote: String
+        val jsonNote: String,
+        val language: List<String>
     )
 
     // ─── State ───────────────────────────────────────────────────────────────
@@ -86,6 +90,8 @@ class NotePromotionAdminFragment : Fragment() {
     private var lastDoc   : DocumentSnapshot? = null
     private var isLoading = false
     private var isLastPage = false
+    private var currentFilter: String? = null
+    private val filterBtnMap  = mutableMapOf<String?, TextView>()
 
     private lateinit var recyclerView : RecyclerView
     private lateinit var progressBar  : ProgressBar
@@ -170,14 +176,45 @@ class NotePromotionAdminFragment : Fragment() {
             intArrayOf(Color.parseColor("#1A0F09"), Color.parseColor("#2D1B10"))
         )
 
-        val header = FrameLayout(ctx).apply {
+        val outer = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
             background = headerBg
+        }
+
+        // ── Top row: back + title + refresh ──
+        val topRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val padV = ctx.sdp(SdpR.dimen._12sdp)
+            setPadding(ctx.sdp(SdpR.dimen._8sdp), padV, ctx.sdp(SdpR.dimen._8sdp), ctx.sdp(SdpR.dimen._8sdp))
+        }
+
+        val backBtn = TextView(ctx).apply {
+            text = "‹"
+            setTextColor(Color.parseColor("#D2B48C"))
+            textSize = 22f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            val pad = ctx.sdp(SdpR.dimen._8sdp)
+            setPadding(pad, 0, pad, 0)
+            ViewCompat.setBackground(this, RippleDrawable(
+                ColorStateList.valueOf(Color.parseColor("#30FFFFFF")),
+                GradientDrawable().apply {
+                    setColor(Color.TRANSPARENT)
+                    cornerRadius = ctx.resources.getDimension(SdpR.dimen._10sdp)
+                },
+                ColorDrawable(Color.WHITE)
+            ))
+            setOnClickListener {
+                parentFragmentManager.popBackStack()
+            }
         }
 
         val textCol = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
-            val pad = ctx.sdp(SdpR.dimen._16sdp)
-            setPadding(pad, pad, pad, ctx.sdp(SdpR.dimen._12sdp))
+            layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                marginStart = ctx.sdp(SdpR.dimen._4sdp)
+            }
         }
         textCol.addView(TextView(ctx).apply {
             text = "★  NOTE PROMOTIONS"
@@ -189,8 +226,7 @@ class NotePromotionAdminFragment : Fragment() {
             text = "Kelola nota yang dikirim pengguna"
             setTextColor(Color.parseColor("#8A7456"))
             textSize = 10f
-            val topPad = ctx.sdp(SdpR.dimen._4sdp)
-            setPadding(0, topPad, 0, 0)
+            setPadding(0, ctx.sdp(SdpR.dimen._4sdp), 0, 0)
         })
 
         val refreshBtn = TextView(ctx).apply {
@@ -210,16 +246,86 @@ class NotePromotionAdminFragment : Fragment() {
                 },
                 ColorDrawable(Color.WHITE)
             ))
-            layoutParams = FrameLayout.LayoutParams(-2, -2).apply {
-                gravity = Gravity.END or Gravity.CENTER_VERTICAL
-                marginEnd = ctx.sdp(SdpR.dimen._16sdp)
-            }
+            layoutParams = LinearLayout.LayoutParams(-2, -2)
             setOnClickListener { resetAndReload() }
         }
 
-        header.addView(textCol)
-        header.addView(refreshBtn)
-        return header
+        topRow.addView(backBtn)
+        topRow.addView(textCol)
+        topRow.addView(refreshBtn)
+        outer.addView(topRow)
+
+        // ── Filter row ──
+        val filterScroll = HorizontalScrollView(ctx).apply {
+            isHorizontalScrollBarEnabled = false
+            val padH = ctx.sdp(SdpR.dimen._16sdp)
+            val padV = ctx.sdp(SdpR.dimen._8sdp)
+            setPadding(padH, 0, padH, padV)
+        }
+
+        val filterRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        val filterOptions = listOf(
+            null          to "All",
+            STATUS_DRAFT   to "Draft",
+            STATUS_PUBLISH to "Published",
+            STATUS_REJECTED to "Rejected"
+        )
+
+        filterOptions.forEachIndexed { index, (status, label) ->
+            val btn = buildFilterChip(ctx, label, status == currentFilter)
+            btn.setOnClickListener {
+                if (currentFilter != status) {
+                    currentFilter = status
+                    filterBtnMap.forEach { (k, v) -> updateFilterChipState(ctx, v, k == currentFilter) }
+                    resetAndReload()
+                }
+            }
+            filterBtnMap[status] = btn
+            filterRow.addView(btn)
+            if (index < filterOptions.lastIndex) {
+                filterRow.addView(View(ctx).apply {
+                    layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1)
+                })
+            }
+        }
+
+        filterScroll.addView(filterRow)
+        outer.addView(filterScroll)
+
+        return outer
+    }
+
+    private fun buildFilterChip(ctx: Context, label: String, isActive: Boolean): TextView {
+        return TextView(ctx).apply {
+            text = label
+            textSize = 10f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            val padH = ctx.sdp(SdpR.dimen._10sdp)
+            val padV = ctx.sdp(SdpR.dimen._6sdp)
+            setPadding(padH, padV, padH, padV)
+            updateFilterChipState(ctx, this, isActive)
+        }
+    }
+
+    private fun updateFilterChipState(ctx: Context, chip: TextView, isActive: Boolean) {
+        val activeColor = "#D2B48C"
+        val inactiveColor = "#4A3020"
+        val color = if (isActive) activeColor else inactiveColor
+        chip.setTextColor(Color.parseColor(color))
+        ViewCompat.setBackground(chip, RippleDrawable(
+            ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
+            GradientDrawable().apply {
+                setColor(if (isActive) Color.parseColor("#30D2B48C") else Color.TRANSPARENT)
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._10sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor(color))
+            },
+            ColorDrawable(Color.WHITE)
+        ))
     }
 
     // ─── Pagination ──────────────────────────────────────────────────────────
@@ -240,9 +346,15 @@ class NotePromotionAdminFragment : Fragment() {
         progressBar.visibility = View.VISIBLE
 
 
-        var query: Query = db.collection(COLLECTION)
-            .orderBy("submitted_at", Query.Direction.DESCENDING)
-            .limit(PAGE_SIZE)
+        var query: Query = currentFilter
+            ?.let { status ->
+                db.collection(COLLECTION)
+                    .whereEqualTo("status", status)
+                    .limit(PAGE_SIZE)
+            }
+            ?: db.collection(COLLECTION)
+                .orderBy("submitted_at", Query.Direction.DESCENDING)
+                .limit(PAGE_SIZE)
 
         lastDoc?.let { query = query.startAfter(it) }
 
@@ -263,6 +375,7 @@ class NotePromotionAdminFragment : Fragment() {
 
                 val newItems = snapshot.documents.mapNotNull { doc ->
                     val d = doc.data ?: return@mapNotNull null
+                    @Suppress("UNCHECKED_CAST")
                     PromotionNote(
                         docId         = doc.id,
                         recordName    = d["record_name"]    as? String ?: "",
@@ -271,7 +384,8 @@ class NotePromotionAdminFragment : Fragment() {
                         submittedAt   = d["submitted_at"]   as? Long   ?: 0L,
                         firebaseToken = d["firebase_token"] as? String ?: "",
                         status        = d["status"]         as? String ?: STATUS_DRAFT,
-                        jsonNote      = d["json_note"]      as? String ?: ""
+                        jsonNote      = d["json_note"]      as? String ?: "",
+                        language      = (d["language"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
                     )
                 }
 
@@ -436,6 +550,354 @@ class NotePromotionAdminFragment : Fragment() {
             }
     }
 
+    private fun showEditChoiceDialog(note: PromotionNote, position: Int) {
+        if (!isAdded) return
+        val ctx = requireContext()
+        val dialog = AlertDialog.Builder(ctx).create()
+
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#1A0F09"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._14sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#22D2B48C"))
+            }
+            val pad = ctx.sdp(SdpR.dimen._16sdp)
+            setPadding(pad, pad, pad, pad)
+        }
+
+        root.addView(TextView(ctx).apply {
+            text = "Pilih yang ingin diedit"
+            setTextColor(Color.parseColor("#F5F5DC"))
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply {
+                bottomMargin = ctx.sdp(SdpR.dimen._12sdp)
+            }
+        })
+
+        val options = listOf(
+            "Nama Rekaman" to "7BAFD4",
+            "JSON Note"    to "D2B48C",
+            "Language"     to "A8D8A8",
+            "Sender Name"  to "FFB347"
+        )
+
+        options.forEach { (label, color) ->
+            root.addView(TextView(ctx).apply {
+                text = label
+                setTextColor(Color.parseColor("#$color"))
+                textSize = 12f
+                typeface = Typeface.DEFAULT_BOLD
+                gravity = Gravity.CENTER_VERTICAL
+                val padH = ctx.sdp(SdpR.dimen._12sdp)
+                val padV = ctx.sdp(SdpR.dimen._10sdp)
+                setPadding(padH, padV, padH, padV)
+                ViewCompat.setBackground(this, RippleDrawable(
+                    ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
+                    GradientDrawable().apply {
+                        setColor(Color.parseColor("#20$color"))
+                        cornerRadius = ctx.resources.getDimension(SdpR.dimen._8sdp)
+                        setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#$color"))
+                    },
+                    ColorDrawable(Color.WHITE)
+                ))
+                layoutParams = LinearLayout.LayoutParams(-1, -2).apply {
+                    bottomMargin = ctx.sdp(SdpR.dimen._8sdp)
+                }
+                setOnClickListener {
+                    dialog.dismiss()
+                    when (label) {
+                        "Nama Rekaman" -> showEditNameDialog(note, position)
+                        "JSON Note"    -> showEditJsonNoteDialog(note, position)
+                        "Language"     -> showEditLanguageDialog(note, position)
+                        "Sender Name"  -> showEditSenderNameDialog(note, position)
+                    }
+                }
+            })
+        }
+
+        root.addView(buildActionBtn(ctx, "Batal", "8A7456") { dialog.dismiss() }.apply {
+            layoutParams = LinearLayout.LayoutParams(-2, -2).apply {
+                gravity = Gravity.END
+                topMargin = ctx.sdp(SdpR.dimen._4sdp)
+            }
+        })
+
+        dialog.setView(root)
+        dialog.show()
+        val dm = ctx.resources.displayMetrics
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((dm.widthPixels * 0.85).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+    }
+
+    private fun showEditJsonNoteDialog(note: PromotionNote, position: Int) {
+        if (!isAdded) return
+        val ctx = requireContext()
+        val dialog = AlertDialog.Builder(ctx).create()
+
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#1A0F09"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._14sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#22D2B48C"))
+            }
+            val pad = ctx.sdp(SdpR.dimen._16sdp)
+            setPadding(pad, pad, pad, pad)
+        }
+
+        root.addView(TextView(ctx).apply {
+            text = "Edit JSON Note"
+            setTextColor(Color.parseColor("#F5F5DC"))
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+        })
+
+        val input = EditText(ctx).apply {
+            setText(note.jsonNote)
+            setTextColor(Color.parseColor("#F5F5DC"))
+            setHintTextColor(Color.parseColor("#4A3020"))
+            hint = "JSON Note..."
+            textSize = 11f
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#2D1B10"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._8sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#44D2B48C"))
+            }
+            val padH = ctx.sdp(SdpR.dimen._12sdp)
+            val padV = ctx.sdp(SdpR.dimen._10sdp)
+            setPadding(padH, padV, padH, padV)
+            layoutParams = LinearLayout.LayoutParams(-1, ctx.sdp(SdpR.dimen._80sdp)).apply {
+                topMargin = ctx.sdp(SdpR.dimen._12sdp)
+                bottomMargin = ctx.sdp(SdpR.dimen._8sdp)
+            }
+            gravity = Gravity.TOP
+            setSelection(text.length)
+        }
+        root.addView(input)
+
+        val btnRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.END
+            setPadding(0, ctx.sdp(SdpR.dimen._8sdp), 0, 0)
+        }
+        btnRow.addView(buildActionBtn(ctx, "Batal", "8A7456") { dialog.dismiss() })
+        btnRow.addView(View(ctx).apply { layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1) })
+        btnRow.addView(buildActionBtn(ctx, "Simpan", "D2B48C") {
+            val newJson = input.text.toString().trim()
+            updateJsonNote(note, position, newJson)
+            dialog.dismiss()
+        })
+        root.addView(btnRow)
+
+        dialog.setView(root)
+        dialog.show()
+        val dm = ctx.resources.displayMetrics
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((dm.widthPixels * 0.85).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+    }
+
+    private fun showEditLanguageDialog(note: PromotionNote, position: Int) {
+        if (!isAdded) return
+        val ctx = requireContext()
+        val dialog = AlertDialog.Builder(ctx).create()
+
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#1A0F09"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._14sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#22D2B48C"))
+            }
+            val pad = ctx.sdp(SdpR.dimen._16sdp)
+            setPadding(pad, pad, pad, pad)
+        }
+
+        root.addView(TextView(ctx).apply {
+            text = "Edit Language"
+            setTextColor(Color.parseColor("#F5F5DC"))
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+        })
+
+        root.addView(TextView(ctx).apply {
+            text = "Satu bahasa per baris"
+            setTextColor(Color.parseColor("#8A7456"))
+            textSize = 10f
+            setPadding(0, ctx.sdp(SdpR.dimen._4sdp), 0, 0)
+        })
+
+        val input = EditText(ctx).apply {
+            setText(note.language.joinToString("\n"))
+            setTextColor(Color.parseColor("#F5F5DC"))
+            setHintTextColor(Color.parseColor("#4A3020"))
+            hint = "id\nen\n..."
+            textSize = 12f
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#2D1B10"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._8sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#44D2B48C"))
+            }
+            val padH = ctx.sdp(SdpR.dimen._12sdp)
+            val padV = ctx.sdp(SdpR.dimen._10sdp)
+            setPadding(padH, padV, padH, padV)
+            layoutParams = LinearLayout.LayoutParams(-1, ctx.sdp(SdpR.dimen._80sdp)).apply {
+                topMargin = ctx.sdp(SdpR.dimen._12sdp)
+                bottomMargin = ctx.sdp(SdpR.dimen._8sdp)
+            }
+            gravity = Gravity.TOP
+            setSelection(text.length)
+        }
+        root.addView(input)
+
+        val btnRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.END
+            setPadding(0, ctx.sdp(SdpR.dimen._8sdp), 0, 0)
+        }
+        btnRow.addView(buildActionBtn(ctx, "Batal", "8A7456") { dialog.dismiss() })
+        btnRow.addView(View(ctx).apply { layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1) })
+        btnRow.addView(buildActionBtn(ctx, "Simpan", "A8D8A8") {
+            val newLanguages = input.text.toString()
+                .split("\n")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+            updateLanguage(note, position, newLanguages)
+            dialog.dismiss()
+        })
+        root.addView(btnRow)
+
+        dialog.setView(root)
+        dialog.show()
+        val dm = ctx.resources.displayMetrics
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((dm.widthPixels * 0.85).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+    }
+
+    private fun showEditSenderNameDialog(note: PromotionNote, position: Int) {
+        if (!isAdded) return
+        val ctx = requireContext()
+        val dialog = AlertDialog.Builder(ctx).create()
+
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#1A0F09"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._14sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#22D2B48C"))
+            }
+            val pad = ctx.sdp(SdpR.dimen._16sdp)
+            setPadding(pad, pad, pad, pad)
+        }
+
+        root.addView(TextView(ctx).apply {
+            text = "Edit Sender Name"
+            setTextColor(Color.parseColor("#F5F5DC"))
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+        })
+
+        val input = EditText(ctx).apply {
+            setText(note.senderName)
+            setTextColor(Color.parseColor("#F5F5DC"))
+            setHintTextColor(Color.parseColor("#4A3020"))
+            hint = "Nama pengirim"
+            textSize = 12f
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#2D1B10"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._8sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#44D2B48C"))
+            }
+            val padH = ctx.sdp(SdpR.dimen._12sdp)
+            val padV = ctx.sdp(SdpR.dimen._10sdp)
+            setPadding(padH, padV, padH, padV)
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply {
+                topMargin = ctx.sdp(SdpR.dimen._12sdp)
+                bottomMargin = ctx.sdp(SdpR.dimen._8sdp)
+            }
+            setSelection(text.length)
+        }
+        root.addView(input)
+
+        val btnRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.END
+            setPadding(0, ctx.sdp(SdpR.dimen._8sdp), 0, 0)
+        }
+        btnRow.addView(buildActionBtn(ctx, "Batal", "8A7456") { dialog.dismiss() })
+        btnRow.addView(View(ctx).apply { layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1) })
+        btnRow.addView(buildActionBtn(ctx, "Simpan", "FFB347") {
+            val newName = input.text.toString().trim()
+            if (newName.isNotEmpty()) {
+                updateSenderName(note, position, newName)
+                dialog.dismiss()
+            } else {
+                input.error = "Nama tidak boleh kosong"
+            }
+        })
+        root.addView(btnRow)
+
+        dialog.setView(root)
+        dialog.show()
+        val dm = ctx.resources.displayMetrics
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((dm.widthPixels * 0.85).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+    }
+
+    private fun updateJsonNote(note: PromotionNote, position: Int, newJson: String) {
+        db.collection(COLLECTION).document(note.docId)
+            .update("json_note", newJson)
+            .addOnSuccessListener {
+                if (!isAdded) return@addOnSuccessListener
+                notes[position] = note.copy(jsonNote = newJson)
+                adapter.notifyItemChanged(position)
+            }
+            .addOnFailureListener { e ->
+                if (!isAdded) return@addOnFailureListener
+                Toast.makeText(context, "Gagal update json_note: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun updateLanguage(note: PromotionNote, position: Int, newLanguages: List<String>) {
+        db.collection(COLLECTION).document(note.docId)
+            .update("language", newLanguages)
+            .addOnSuccessListener {
+                if (!isAdded) return@addOnSuccessListener
+                notes[position] = note.copy(language = newLanguages)
+                adapter.notifyItemChanged(position)
+            }
+            .addOnFailureListener { e ->
+                if (!isAdded) return@addOnFailureListener
+                Toast.makeText(context, "Gagal update language: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun updateSenderName(note: PromotionNote, position: Int, newName: String) {
+        db.collection(COLLECTION).document(note.docId)
+            .update("sender_name", newName)
+            .addOnSuccessListener {
+                if (!isAdded) return@addOnSuccessListener
+                notes[position] = note.copy(senderName = newName)
+                adapter.notifyItemChanged(position)
+            }
+            .addOnFailureListener { e ->
+                if (!isAdded) return@addOnFailureListener
+                Toast.makeText(context, "Gagal update sender_name: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
     private fun deleteNote(note: PromotionNote, position: Int) {
         db.collection(COLLECTION).document(note.docId)
             .delete()
@@ -453,6 +915,7 @@ class NotePromotionAdminFragment : Fragment() {
     }
 
     private fun toggleStatus(note: PromotionNote, position: Int) {
+       // Toast.makeText(context,note.status, Toast.LENGTH_SHORT).show()
         val newStatus = if (note.status == STATUS_PUBLISH) STATUS_DRAFT else STATUS_PUBLISH
         db.collection(COLLECTION).document(note.docId)
             .update("status", newStatus)
@@ -853,7 +1316,7 @@ class NotePromotionAdminFragment : Fragment() {
         }
 
         actionRow.addView(buildActionBtn(ctx, "Edit", "7BAFD4") {
-            showEditNameDialog(note, position)
+            showEditChoiceDialog(note, position)
         })
 
         actionRow.addView(View(ctx).apply {
@@ -885,6 +1348,14 @@ class NotePromotionAdminFragment : Fragment() {
             layoutParams = LinearLayout.LayoutParams(8.dp(ctx), 1)
         })
 
+        actionRow.addView(buildActionBtn(ctx, "Copy", "25D366") {
+            copyToClipboard(ctx,"Copy Boskuh",note.jsonNote)
+        })
+
+        actionRow.addView(View(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(8.dp(ctx), 1)
+        })
+
         val toggleLabel = if (isPublished) "→ Draft" else "Publish ★"
         actionRow.addView(buildActionBtn(ctx, toggleLabel, statusColor.removePrefix("#")) {
             toggleStatus(note, position)
@@ -893,6 +1364,15 @@ class NotePromotionAdminFragment : Fragment() {
         inner.addView(actionRow)
     }
 
+    fun copyToClipboard(
+        context: Context,
+        label: String = "Copied Text",
+        text: String
+    ) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText(label, text)
+        clipboard.setPrimaryClip(clip)
+    }
     private fun shareJsonViaWhatsApp(note: PromotionNote) {
         if (note.jsonNote.isBlank()) {
             Toast.makeText(context, "json_note kosong", Toast.LENGTH_SHORT).show()
