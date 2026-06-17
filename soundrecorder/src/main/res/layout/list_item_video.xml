@@ -1,84 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#FFE09115"
+    android:id="@+id/cv_video"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_marginHorizontal="@dimen/_6sdp"
+    android:layout_marginVertical="@dimen/_4sdp"
+    app:cardBackgroundColor="#1E1E1E"
+    app:cardCornerRadius="@dimen/_12sdp"
+    app:cardElevation="@dimen/_2sdp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#333333">
 
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cv_video"
-        android:layout_margin="8dp"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_120sdp">
+
+            <ImageView
+                android:id="@+id/iv_thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                tools:src="@tools:sample/backgrounds/scenic" />
+
+            <!-- Dark Overlay for better contrast -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#33000000" />
+
+            <ImageView
+                android:id="@+id/iv_play"
+                android:layout_width="@dimen/_36sdp"
+                android:layout_height="@dimen/_36sdp"
+                android:layout_centerInParent="true"
+                android:alpha="0.9"
+                app:srcCompat="@drawable/ic_play_circle"
+                app:tint="@android:color/white" />
+
+            <TextView
+                android:id="@+id/tv_datepublish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="@dimen/_8sdp"
+                android:background="#CC000000"
+                android:paddingHorizontal="@dimen/_6sdp"
+                android:paddingVertical="@dimen/_2sdp"
+                android:textColor="#E0E0E0"
+                android:textSize="@dimen/_8ssp"
+                tools:text="19 July 2024" />
+
+        </RelativeLayout>
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/_10sdp">
 
-            <RelativeLayout
+            <TextView
+                android:id="@+id/tv_title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/ooredoo"
+                android:maxLines="2"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/_13ssp"
+                android:textStyle="bold"
+                tools:text="Gundul2 Pacul Gembelengan - Cover Gendang" />
 
-                <ImageView
-                    android:scaleType="centerCrop"
-                    android:id="@+id/iv_thumbnail"
-                    android:layout_width="match_parent"
-                    android:layout_height="150dp" />
-
-                <ImageView
-                    android:id="@+id/iv_play"
-                    android:layout_centerInParent="true"
-                    app:srcCompat="@drawable/ic_play_circle"
-                    android:layout_width="@dimen/_40sdp"
-                    android:layout_height="@dimen/_40sdp" />
-
-            </RelativeLayout>
-
-            <LinearLayout
-                android:layout_margin="10dp"
-                android:orientation="vertical"
+            <TextView
+                android:id="@+id/tv_description"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:ellipsize="end"
+                android:fontFamily="@font/campton_medium"
+                android:maxLines="2"
+                android:textColor="#B0B0B0"
+                android:textSize="@dimen/_10ssp"
+                tools:text="Belajar cover lagu daerah dengan gendang pacul yang asik dan mudah diikuti oleh pemula." />
 
-                <TextView
-                    android:textStyle="bold"
-                    android:id="@+id/tv_title"
-                    tools:text="Cover Gendang Koplo"
-                    android:fontFamily="@font/ooredoo"
-                    android:textSize="@dimen/_14ssp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/tv_description"
-                    android:textSize="@dimen/_12ssp"
-                    tools:text="Mari Belajar Cover Gendang"
-                    android:fontFamily="@font/campton_medium"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/tv_url"
-                    tools:text="TITLE"
-                    android:visibility="gone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/tv_datepublish"
-                    tools:text="17 Februari 2019"
-                    android:textSize="@dimen/_12ssp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
+            <TextView
+                android:id="@+id/tv_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -7,4 +7,5 @@ class Video {
     var thumbnail: String? = null
     var title: String? = null
     var url: String? = null
+    var language: List<String>? = null
 }
