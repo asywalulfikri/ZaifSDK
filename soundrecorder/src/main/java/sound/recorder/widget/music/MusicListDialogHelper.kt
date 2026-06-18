@@ -261,7 +261,7 @@ object MusicListDialogHelper {
                 })
 
                 onlineLoadingText = TextView(themedContext).apply {
-                    text = "Memuat lagu..."
+                    text = context.getString(R.string.loading_audio)
                     setTextColor(Color.parseColor(COLOR_TEXT_DIM))
                     textSize = themedContext.sspSp(SspR.dimen._10ssp)
                     setPadding(0, themedContext.sdp(SdpR.dimen._8sdp), 0, 0)
@@ -335,6 +335,7 @@ object MusicListDialogHelper {
             val dm = themedContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
             fun startPoll(position: Int, downloadId: Long, songTitle: String) {
+                val startTime = System.currentTimeMillis()
                 val poll = object : Runnable {
                     override fun run() {
                         val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
@@ -346,6 +347,17 @@ object MusicListDialogHelper {
                         val bytes     = if (bytesIdx  >= 0) cursor.getLong(bytesIdx) else 0L
                         val total     = if (totalIdx  >= 0) cursor.getLong(totalIdx) else 0L
                         cursor.close()
+
+                        // Timeout 30 detik jika tidak ada progress (ga mulai-mulai)
+                        if (System.currentTimeMillis() - startTime > 30000 && bytes <= 0) {
+                            dm.remove(downloadId)
+                            activeDownloadId = -1L
+                            downloadingSongId = ""
+                            onlineAdapter?.clearDownloadState(position)
+                            Toast.makeText(themedContext, context.getString(R.string.download_failed), Toast.LENGTH_SHORT).show()
+                            return
+                        }
+
                         val progress = if (total > 0) ((bytes * 100) / total).toInt() else 0
                         onlineAdapter?.setDownloadState(position, progress)
                         if (status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED) {
