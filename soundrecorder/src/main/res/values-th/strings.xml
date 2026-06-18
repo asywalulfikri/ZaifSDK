@@ -359,5 +359,23 @@
 
     <string name="input_record_title">ป้อนชื่อการบันทึก</string>
     <string name="title_cannot_be_empty">ชื่อเรื่องต้องไม่ว่างเปล่า</string>
-    <string name="title_min_five_caracter">ชื่อการบันทึกต้องมีอย่างน้อย 5 ตัวอักษร</string>
+    <string name="title_min_five_character">ชื่อการบันทึกต้องมีอย่างน้อย 5 ตัวอักษร</string>
+    <string name="name_empty">ชื่อต้องไม่ว่างเปล่า</string>
+    <string name="name_min_length">ชื่อต้องมีมากกว่า 5 ตัวอักษร</string>
+
+    <string name="downloaded">ดาวน์โหลดแล้ว</string>
+    <string name="local_song">เพลงในเครื่อง</string>
+    <string name="online_song">เพลงออนไลน์</string>
+
+    <string name="ear_tarining">ฝึกการฟังเสียง</string>
+    <string name="correct_answer">คำตอบถูกต้อง</string>
+    <string name="wrong_answer">คำตอบผิด!</string>
+    <string name="easy">ง่าย</string>
+    <string name="medium">ปานกลาง</string>
+    <string name="hard">ยาก</string>
+    <string name="listen">ฟัง....</string>
+    <string name="select_the_corrent_answer">เลือกคำตอบที่ถูกต้อง</string>
+
+    <string name="finish_download_first">กรุณาดาวน์โหลดเพลงก่อนหน้าให้เสร็จก่อน</string>
+    <string name="download_failed">ดาวน์โหลดล้มเหลว</string>
 </resources>

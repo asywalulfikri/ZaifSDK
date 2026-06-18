@@ -181,7 +181,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                 .showListSong(BuildConfig.showListSong)
                 .setFcmKey(BuildConfig.FCM_KEY)
                 .isPromotNot(BuildConfig.isPromotNot)
-                .isDownload(BuildConfig.isDownload)
+                .isDownload(false)
                 .build()
 
             Log.d(TAG, "Secondary components initialized")

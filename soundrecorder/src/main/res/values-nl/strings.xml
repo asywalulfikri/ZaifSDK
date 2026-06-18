@@ -363,4 +363,23 @@
     <string name="input_record_title">Voer opnametitel in</string>
     <string name="title_cannot_be_empty">Titel mag niet leeg zijn</string>
     <string name="title_min_five_character">De opnametitel moet minimaal 5 tekens bevatten</string>
+    <string name="name_empty">Naam mag niet leeg zijn</string>
+    <string name="name_min_length">Naam moet meer dan 5 tekens bevatten</string>
+
+    <string name="downloaded">Gedownload</string>
+    <string name="local_song">Lokaal Nummer</string>
+    <string name="online_song">Online Nummer</string>
+
+    <string name="ear_tarining">Gehoortraining</string>
+    <string name="correct_answer">Correct Antwoord</string>
+    <string name="wrong_answer">Verkeerd Antwoord!</string>
+    <string name="easy">Makkelijk</string>
+    <string name="medium">Gemiddeld</string>
+    <string name="hard">Moeilijk</string>
+    <string name="listen">Luister....</string>
+    <string name="select_the_corrent_answer">Selecteer het juiste antwoord</string>
+
+    <string name="finish_download_first">Voltooi eerst het downloaden van het vorige nummer</string>
+    <string name="download_failed">Download mislukt</string>
+
 </resources>

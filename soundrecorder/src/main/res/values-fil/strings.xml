@@ -361,4 +361,25 @@
     <string name="input_record_title">Ilagay ang Pamagat ng Recording</string>
     <string name="title_cannot_be_empty">Hindi maaaring walang laman ang pamagat</string>
     <string name="title_min_five_character">Ang pamagat ng recording ay dapat may hindi bababa sa 5 karakter</string>
+
+    <string name="name_empty">Hindi maaaring walang laman ang pangalan</string>
+    <string name="name_min_length">Ang pangalan ay dapat higit sa 5 karakter</string>
+
+    <string name="downloaded">Na-download</string>
+    <string name="local_song">Lokal na Kanta</string>
+    <string name="online_song">Online na Kanta</string>
+
+    <string name="ear_tarining">Pagsasanay sa Pandinig</string>
+    <string name="correct_answer">Tamang Sagot</string>
+    <string name="wrong_answer">Maling Sagot!</string>
+    <string name="easy">Madali</string>
+    <string name="medium">Katamtaman</string>
+    <string name="hard">Mahirap</string>
+    <string name="listen">Makinig....</string>
+    <string name="select_the_corrent_answer">Piliin ang tamang sagot</string>
+
+    <string name="finish_download_first">Pakikumpleto muna ang pag-download ng naunang kanta</string>
+    <string name="download_failed">Nabigo ang pag-download</string>
+
+
 </resources>

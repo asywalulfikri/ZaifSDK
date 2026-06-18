@@ -1,0 +1,426 @@
+<resources>
+    <string name="default_notification_channel_id">معرف القناة</string>
+
+    <string name="colorpicker_dialog_title">اختر اللون</string>
+    <string name="colorpicker_dialog_cancel">إلغاء</string>
+    <string name="colorpicker_dialog_ok">موافق</string>
+
+    <string name="please_wait_dialog_default_title">يرجى الانتظار</string>
+    <string name="please_wait_dialog_default_message">جارٍ التحميل...</string>
+
+    <string name="dialog_maintenance">عذرًا، التطبيق قيد الصيانة. يرجى المحاولة مرة أخرى لاحقًا</string>
+    <string name="dialog_msg_update_app_version">يتوفر إصدار جديد في متجر Play، يرجى تحديث التطبيق</string>
+    <string name="dialog_msg_update_app">يرجى تحديث التطبيق</string>
+
+    <string name="lbl_new_note_title">ملاحظة أغنية جديدة</string>
+    <string name="lbl_edit_note_title">تعديل ملاحظة الأغنية</string>
+
+    <string name="cover_song">أغنية\nغلاف</string>
+    <string name="record">تسجيل</string>
+    <string name="text_continue">متابعة</string>
+    <string name="record_started">بدأ التسجيل</string>
+    <string name="record_paused">تم إيقاف التسجيل مؤقتًا</string>
+    <string name="record_resumed">تم استئناف التسجيل</string>
+    <string name="record_saved">تم حفظ التسجيل بنجاح</string>
+    <string name="record_canceled">تم إلغاء التسجيل</string>
+    <string name="no_internet_connection">لا يوجد اتصال بالإنترنت، حاول مرة أخرى</string>
+    <string name="device_not_support">جهازك لا يدعم تسجيل الصوت</string>
+    <string name="allow_permission">اسمح بإذن الصوت من الإعدادات</string>
+
+    <string name="choose_language">اختر اللغة</string>
+    <string name="indonesia">إندونيسيا</string>
+    <string name="choose">اختر</string>
+    <string name="save">حفظ</string>
+    <string name="information">معلومات</string>
+    <string name="update">تحديث</string>
+    <string name="no">لا</string>
+
+    <string name="setting">الإعدادات</string>
+    <string name="language">اللغة</string>
+    <string name="rate_us">قيّمنا</string>
+    <string name="help_suggest">المساعدة والاقتراحات</string>
+    <string name="share_with_friends">شارك مع الأصدقاء</string>
+    <string name="choose_one">اختر واحدًا</string>
+    <string name="text_video">فيديو</string>
+
+    <string name="please_wait">يرجى الانتظار</string>
+    <string name="loading_audio">جارٍ تحميل الصوت...</string>
+
+    <string name="title">العنوان</string>
+    <string name="write_note_here">اكتب الملاحظة هنا</string>
+    <string name="search_record">البحث في التسجيلات</string>
+    <string name="delete">حذف</string>
+    <string name="cancel">إلغاء</string>
+    <string name="recordings">التسجيلات</string>
+    <string name="saved_recording_ask">حفظ التسجيل؟</string>
+    <string name="exit">خروج</string>
+    <string name="send">إرسال</string>
+    <string name="input_message_here">اكتب الرسالة هنا</string>
+    <string name="message_cannot_empty">لا يمكن أن تكون الرسالة فارغة</string>
+    <string name="more_apps">المزيد من التطبيقات</string>
+
+    <string name="use_note">استخدام الملاحظة</string>
+    <string name="edit_note">تعديل الملاحظة</string>
+    <string name="delete_not">حذف الملاحظة</string>
+
+    <string name="default_language">اللغة الافتراضية</string>
+
+    <string name="background_color">لون الخلفية</string>
+    <string name="song_volume">مستوى صوت الأغنية</string>
+
+    <string name="note">ملاحظة</string>
+
+    <string name="indonesian">الإندونيسية</string>
+    <string name="english">الإنجليزية</string>
+    <string name="filipino">الفلبينية</string>
+    <string name="japanese">اليابانية</string>
+    <string name="korean">الكورية</string>
+    <string name="vietnamese">الفيتنامية</string>
+    <string name="thai">التايلاندية</string>
+    <string name="Portuguese">البرتغالية</string>
+    <string name="dutch">الهولندية</string>
+    <string name="malay">الملايوية</string>
+    <string name="spanish">الإسبانية</string>
+    <string name="arabic">العربية</string>
+
+    <string name="download_success">تم التنزيل بنجاح، يرجى الانتظار 5 ثوانٍ</string>
+    <string name="data_empty">لا توجد بيانات</string>
+
+    <string name="yes">نعم</string>
+    <string name="title_recording_dialog">ستبدأ عملية التسجيل بعد اختيار نعم</string>
+    <string name="title_recording_canceled">هل تريد إلغاء التسجيل؟</string>
+    <string name="title_recording_stop">هل تريد حفظ التسجيل؟</string>
+    <string name="notification">إشعار</string>
+    <string name="skip">تخطي</string>
+    <string name="next">التالي</string>
+    <string name="stop">إيقاف</string>
+    <string name="pause">إيقاف مؤقت</string>
+    <string name="open">فتح</string>
+    <string name="close">إغلاق</string>
+    <string name="play">تشغيل</string>
+    <string name="previously">السابق</string>
+    <string name="version">الإصدار</string>
+    <string name="share">مشاركة</string>
+    <string name="write_note">كتابة ملاحظات</string>
+    <string name="song_key">مفتاح الأغنية</string>
+    <string name="beginner">مبتدئ</string>
+    <string name="middle">متوسط</string>
+    <string name="Master">محترف</string>
+    <string name="remove_ads">إزالة الإعلانات</string>
+    <string name="search">بحث</string>
+    <string name="recommend_message">دعني أوصي لك بهذا التطبيق</string>
+    <string name="loading">جارٍ التحميل…</string>
+
+    <string name="whatsapp_support">دعم واتساب</string>
+    <string name="share_via">مشاركة عبر</string>
+
+    <string name="note_song">ملاحظات الأغنية</string>
+    <string name="choose_color">اختر اللون</string>
+    <string name="note_empty">لا توجد ملاحظات بعد</string>
+    <string name="enter_note">أدخل ملاحظة!</string>
+    <string name="enter_note_title">أدخل عنوان الملاحظة!</string>
+    <string name="play_music_text">اعزف على آلتك الموسيقية المفضلة</string>
+    <string name="play_together">هيا نتعلم الآلات الموسيقية معًا</string>
+    <string name="exit_title">هل أنت متأكد أنك تريد الخروج؟</string>
+
+    <string name="mode_32_tuts_audio1">وضع 32 مفتاحًا - الصوت 1</string>
+    <string name="mode_32_tuts_audio2">وضع 32 مفتاحًا - الصوت 2</string>
+    <string name="mode_basuri">وضع باسوري</string>
+    <string name="mode_8_tuts">وضع 8 مفاتيح</string>
+
+    <string name="volume">مستوى الصوت</string>
+
+    <string name="text_choose_not">ستظهر الملاحظة هنا... اخترها أولًا</string>
+
+    <string name="text_guidelines">إرشادات الاستخدام</string>
+    <string name="text_guide_record">استخدم هذه الميزة لتسجيل صوت الآلة الموسيقية التي تعزف عليها</string>
+    <string name="text_guide_song">استخدم هذه الميزة لجلب قائمة الأغاني الموجودة على هاتفك</string>
+    <string name="text_guide_list_record">استخدم هذه الميزة لعرض قائمة التسجيلات التي قمت بتسجيلها</string>
+    <string name="text_guide_audio">استخدم هذه الميزة لزيادة أو خفض مستوى صوت الآلة والأغنية</string>
+    <string name="text_guide_note">استخدم هذه الميزة لإنشاء ملاحظات أغانيك الخاصة</string>
+    <string name="text_guide_color">استخدم هذه الميزة لتغيير لون الآلة الموسيقية</string>
+    <string name="text_guide_note_firebase">استخدم هذه الميزة لعرض الملاحظات المتوفرة من التطبيق</string>
+
+    <string name="text_done">تم</string>
+    <string name="text_next">التالي</string>
+    <string name="text_skip">تخطي</string>
+
+    <string name="tooltip_note">هذا لحفظ ملاحظات الأغاني</string>
+    <string name="tooltip_music">هذا لاختيار الأغنية التي تريد تشغيلها</string>
+    <string name="tooltip_record">هذا للتسجيل أثناء العزف</string>
+    <string name="tooltip_volume">هذا لضبط مستوى الصوت</string>
+    <string name="tooltip_color">هذا لتغيير اللون</string>
+
+    <string name="text_welcome">مرحبًا، استمتع بالعزف :D</string>
+
+    <string name="how_to_add_new_song">كيفية إضافة أغنية</string>
+    <string name="how_add_song1">1. أغلق التطبيق</string>
+    <string name="how_add_song2">2. قم بتنزيل الأغنية يدويًا باستخدام المتصفح بصيغة MP3</string>
+    <string name="how_add_song3">3. أعد فتح التطبيق واختر أيقونة الموسيقى</string>
+    <string name="how_add_song4">4. ستظهر الأغنية التي تم تنزيلها في قائمة التشغيل</string>
+
+    <string name="how_to_add_note">كيفية إضافة ملاحظة أغنية</string>
+    <string name="how_to_add_note1">انقر على أيقونة الإضافة في نافذة إضافة الملاحظات</string>
+    <string name="how_to_add_note2">أدخل عنوان الملاحظة</string>
+    <string name="how_to_add_note3">أدخل نوتات الأغنية أو كلماتها</string>
+    <string name="how_to_add_note4" translatable="false">انقر على زر الحفظ وستظهر في قائمة الملاحظات</string>
+
+    <string name="choose_song">اختر أغنية</string>
+    <string name="tooltip_saved_record">هذا لعرض التسجيل المحفوظ</string>
+    <string name="recorded_saved">تم حفظ التسجيل</string>
+
+    <string name="how_to_add_song_title">كيفية إضافة أغنية</string>
+    <string name="how_to_add_song_content">لإضافة أغنية أو موسيقى مرافقة، يمكنك البحث عن ملفات صوتية خالية من حقوق الملكية عبر المتصفح. بعد التنزيل، سيتم اكتشاف الصوت تلقائيًا ويصبح جاهزًا للاستخدام في التطبيق.</string>
+
+    <string name="understand">فهمت</string>
+    <string name="download">تنزيل</string>
+    <string name="process_download">جارٍ التنزيل…</string>
+
+    <string name="change_sound">تغيير الصوت</string>
+    <string name="select_sound">اختيار الصوت</string>
+    <string name="select_audio">اختيار الملف الصوتي</string>
+
+    <string name="save_config">حفظ الإعدادات</string>
+
+    <string name="list_audio">قائمة الملفات الصوتية</string>
+    <string name="list_sound">قائمة الأصوات</string>
+
+    <string name="search_sound">البحث عن صوت</string>
+    <string name="search_audio">البحث عن ملف صوتي</string>
+    <string name="search_song">البحث عن أغنية</string>
+
+    <string name="rating_content">يساعدنا تقييمك على التطور والتحسن. هل ترغب في منحنا بعض النجوم؟</string>
+    <string name="rate">قيّم</string>
+
+    <string name="later">لاحقًا</string>
+
+    <string name="recommend_app">دعني أوصي لك بهذا التطبيق</string>
+    <string name="lesson">درس</string>
+    <string name="tutorial">دليل</string>
+    <string name="hi">مرحبًا</string>
+    <string name="welcome">أهلًا بك</string>
+
+    <string name="ads_not_ready">الإعلانات غير جاهزة بعد، يرجى المحاولة بعد قليل.</string>
+    <string name="watch_ads">شاهد إعلانًا لفتح الميزات</string>
+    <string name="reward_get">تم استلام المكافأة بنجاح!</string>
+    <string name="delete_ads">إزالة الإعلانات</string>
+    <string name="are_you_buy_no_ads">هل تريد إزالة الإعلانات بشكل دائم؟</string>
+
+    <string name="music_lock">الموسيقى 🔒</string>
+    <string name="music_unlock">الموسيقى</string>
+    <string name="list_music">مكتبة الموسيقى</string>
+    <string name="audio_mixer">مُخلِّط الصوت</string>
+    <string name="search_song_accompaniment">ابحث عن موسيقى مرافقة...</string>
+
+    <string name="list_record_result">قائمة التسجيلات</string>
+    <string name="no_data_record">لا توجد تسجيلات محفوظة بعد</string>
+
+    <string name="list_record_lock">قائمة\nالتسجيلات 🔒</string>
+    <string name="list_record_unlock">قائمة\nالتسجيلات</string>
+
+    <string name="change_audio">تغيير الصوت</string>
+    <string name="search_audio_type">البحث عن نوع الصوت...</string>
+    <string name="active">نشط</string>
+    <string name="ads_prepared_please_wait">يتم تجهيز الإعلانات، يرجى الانتظار قليلًا...</string>
+
+    <string name="watch">مشاهدة</string>
+    <string name="open_record_list">فتح قائمة التسجيلات</string>
+    <string name="open_list_music">فتح قائمة الموسيقى</string>
+
+    <string name="select">اختيار</string>
+    <string name="select_one">اختر واحدًا</string>
+    <string name="success_saved">تم الحفظ بنجاح</string>
+    <string name="buy">شراء</string>
+    <string name="unlock">فتح</string>
+
+    <string name="dialog_record_title">وضع التسجيل</string>
+    <string name="dialog_record_message">اختر أفضل طريقة لتسجيل جلستك:</string>
+
+    <string name="btn_instrument_only">الآلة الموسيقية فقط</string>
+    <string name="desc_instrument_only">تسجيل نغمات نقية بدون ضوضاء خلفية (بيانات داخلية)</string>
+
+    <string name="btn_mic_instrument">الميكروفون + الآلة الموسيقية</string>
+    <string name="desc_mic_instrument">سجّل صوتك والأصوات المحيطة عبر الميكروفون</string>
+
+    <string name="btn_cancel">إلغاء</string>
+
+    <string name="earphone_hint">استخدم سماعات الأذن للحصول على تسجيل خالٍ من الصدى.</string>
+    <string name="allow_permission_audio_mic">منح إذن الوصول إلى الميكروفون</string>
+
+    <string name="file_not_found">الملف غير موجود</string>
+    <string name="share_failed">فشل في مشاركة الملف</string>
+    <string name="recording">تسجيل</string>
+
+    <string name="notation">التدوين الموسيقي</string>
+    <string name="notation_mode">وضع التدوين الموسيقي</string>
+    <string name="color">اللون</string>
+    <string name="audio">الصوت</string>
+
+    <string name="number">أرقام</string>
+    <string name="doremi">دو ري مي</string>
+    <string name="letter">حروف</string>
+
+    <string name="blue">أزرق</string>
+    <string name="red">أحمر</string>
+    <string name="green">أخضر</string>
+    <string name="purple">بنفسجي</string>
+    <string name="orange">برتقالي</string>
+    <string name="yellow">أصفر</string>
+    <string name="pink">وردي</string>
+    <string name="lavender">لافندر</string>
+    <string name="sky_blue">أزرق سماوي</string>
+    <string name="peach">خوخي</string>
+    <string name="cream">كريمي</string>
+    <string name="salmon">سلموني</string>
+    <string name="midnight">منتصف الليل</string>
+    <string name="maroon">عنابي</string>
+    <string name="emerald">زمردي</string>
+    <string name="gold">ذهبي</string>
+    <string name="graphite">غرافيتي</string>
+    <string name="navy">كحلي</string>
+
+    <string name="try_again">حاول مرة أخرى</string>
+    <string name="game_over">انتهت اللعبة</string>
+    <string name="play_again">العب مرة أخرى</string>
+    <string name="score">النتيجة</string>
+    <string name="congratulation">تهانينا</string>
+    <string name="miss">خطأ</string>
+    <string name="best">الأفضل</string>
+    <string name="start">ابدأ</string>
+    <string name="speed">السرعة</string>
+    <string name="song">أغنية</string>
+    <string name="learn">تعلّم</string>
+    <string name="step_by_step">اعزف مباشرة أو تعلّم خطوة بخطوة</string>
+    <string name="play_it">اعزف</string>
+    <string name="chord">وتر</string>
+    <string name="locked">مقفل</string>
+
+    <string name="not_approve_notification">ستتلقى إشعارًا عند الموافقة على الملاحظة التي أرسلتها.</string>
+    <string name="promosikan">ترويج</string>
+    <string name="your_name">اسمك</string>
+    <string name="send_note_success">تم إرسال الملاحظة بنجاح.</string>
+    <string name="send_note_failed">فشل في إرسال الملاحظة.</string>
+
+    <string name="promotion_my_note_info">
+يمكنك الآن إنشاء نوتات موسيقية من تسجيلاتك ومشاركتها مع العالم.
+سيتم عرض أفضل النوتات المختارة داخل التطبيق مع اسم منشئها.
+يمكنك إرسال نوتة واحدة فقط يوميًا، لذا احرص على إرسال أفضل أعمالك!
+</string>
+
+    <string name="system_notification">⚡ إشعار النظام ⚡</string>
+
+    <string name="limit_promot">لقد وصلت إلى الحد اليومي للترويج. يرجى المحاولة غدًا.</string>
+
+    <string name="promot_info">
+هل أنت متأكد أنك تريد الترويج لهذه النوتة الموسيقية عالميًا؟
+سيتم مراجعتها أولًا، وإذا استوفت معايير الجودة لدينا فسيتم نشرها مع عرض اسمك كمنشئ لها.
+</string>
+
+    <string name="delete_not_title">هل تريد حذف هذه الملاحظة؟</string>
+
+    <string name="not_approved">تمت الموافقة على ملاحظتك ونشرها. يرجى الاطلاع عليها.</string>
+
+    <string name="user_notes_title">ملاحظات المستخدمين</string>
+    <string name="user_notes_subtitle">اختر ملاحظة للعزف أو التعلّم</string>
+
+    <string name="invalid_note_format">تنسيق الملاحظة غير صالح</string>
+    <string name="learn_complete">اكتمل! لقد عزفت جميع النوتات.</string>
+
+    <string name="note_locked">الملاحظة مقفلة</string>
+
+    <string name="watch_ad_unlock_note">شاهد إعلانًا قصيرًا لفتح هذه الملاحظة لمدة يوم واحد.</string>
+
+    <string name="watch_ad_label">▶ مشاهدة إعلان</string>
+
+    <string name="leaderboard">لوحة المتصدرين</string>
+    <string name="ranked">🏆 التصنيف</string>
+    <string name="normal">عادي</string>
+    <string name="pitch">درجة الصوت</string>
+    <string name="global_top_10">أفضل 10 عالميًا</string>
+
+    <string name="set_nickname">تعيين اسم مستعار</string>
+    <string name="nickname">الاسم المستعار</string>
+    <string name="name_cannot_empty">لا يمكن أن يكون الاسم فارغًا</string>
+    <string name="forbidden_word">يحتوي الاسم على كلمات محظورة!</string>
+
+    <string name="nickname_leaderboard">سيظهر اسمك المستعار في لوحة المتصدرين</string>
+    <string name="failed_get_data">فشل في جلب البيانات</string>
+    <string name="confirm">تأكيد</string>
+
+    <string name="pitch_desc_minus2">أقل بمقدار نصفي نغمة</string>
+    <string name="pitch_desc_minus1">أقل بمقدار نصف نغمة</string>
+    <string name="pitch_desc_normal">الضبط الافتراضي</string>
+    <string name="pitch_desc_plus1">أعلى بمقدار نصف نغمة</string>
+    <string name="pitch_desc_plus2">أعلى بمقدار نصفي نغمة</string>
+
+    <string name="change_pitch">تغيير درجة الصوت</string>
+    <string name="pitch_rate">معدل درجة الصوت</string>
+    <string name="reset">إعادة تعيين</string>
+
+    <string name="tiles_fall_not">العب اللعبة باستخدام النوتات المتساقطة</string>
+
+    <string name="reward">مكافأة</string>
+    <string name="popular">شائع</string>
+    <string name="repeat">تكرار</string>
+
+    <string name="new_record">🏆 رقم قياسي جديد!</string>
+    <string name="finish">اكتمل!</string>
+
+    <string name="select_mode">اختر الوضع</string>
+
+    <string name="play_song_until_finish">اختر أغنية واعزف حتى النهاية</string>
+
+    <string name="not_more_fast">تستمر النوتات بالظهور وتزداد سرعتها مع الوقت</string>
+
+    <string name="you">أنت</string>
+
+    <string name="endless_leaderboard">∞ لوحة المتصدرين اللانهائية</string>
+    <string name="endless">لانهائي</string>
+
+    <string name="no_record">🏆 لا يوجد رقم قياسي بعد</string>
+
+    <string name="level_up">⚡ ارتقاء بالمستوى! المستوى</string>
+    <string name="level">المستوى</string>
+
+    <string name="tap_to_change">✎ اضغط على الزر لتعديل الصوت والاسم</string>
+    <string name="tap_box_name_to_change">✏ اضغط على مربع الاسم أعلاه لتغييره</string>
+
+    <string name="name">الاسم</string>
+
+    <string name="choose_skin">اختر المظهر</string>
+    <string name="skin">المظهر</string>
+
+    <string name="input_record_title">أدخل عنوان التسجيل</string>
+
+    <string name="title_cannot_be_empty">لا يمكن أن يكون العنوان فارغًا</string>
+
+    <string name="title_min_five_character">يجب أن يحتوي عنوان التسجيل على 5 أحرف على الأقل</string>
+
+    <string name="name_empty">لا يمكن أن يكون الاسم فارغًا</string>
+
+    <string name="name_min_length">يجب أن يتجاوز الاسم 5 أحرف</string>
+
+    <string name="downloaded">تم التنزيل</string>
+
+    <string name="local_song">أغنية محلية</string>
+    <string name="online_song">أغنية عبر الإنترنت</string>
+
+    <string name="ear_tarining">تدريب الأذن</string>
+
+    <string name="correct_answer">إجابة صحيحة</string>
+
+    <string name="wrong_answer">إجابة خاطئة!</string>
+
+    <string name="easy">سهل</string>
+    <string name="medium">متوسط</string>
+    <string name="hard">صعب</string>
+
+    <string name="listen">استمع....</string>
+
+    <string name="select_the_corrent_answer">اختر الإجابة الصحيحة</string>
+
+    <string name="finish_download_first">يرجى إكمال تنزيل الأغنية السابقة أولاً</string>
+
+    <string name="download_failed">فشل التنزيل</string>
+</resources>
+

@@ -358,4 +358,23 @@
     <string name="input_record_title">रिकॉर्डिंग का शीर्षक दर्ज करें</string>
     <string name="title_cannot_be_empty">शीर्षक खाली नहीं हो सकता</string>
     <string name="title_min_five_character">रिकॉर्डिंग का शीर्षक कम से कम 5 अक्षरों का होना चाहिए</string>
+
+    <string name="name_empty">नाम खाली नहीं हो सकता</string>
+    <string name="name_min_length">नाम 5 अक्षरों से अधिक होना चाहिए</string>
+
+    <string name="downloaded">डाउनलोड किया गया</string>
+    <string name="local_song">स्थानीय गीत</string>
+    <string name="online_song">ऑनलाइन गीत</string>
+
+    <string name="ear_tarining">कर्ण प्रशिक्षण</string>
+    <string name="correct_answer">सही उत्तर</string>
+    <string name="wrong_answer">गलत उत्तर!</string>
+    <string name="easy">आसान</string>
+    <string name="medium">मध्यम</string>
+    <string name="hard">कठिन</string>
+    <string name="listen">सुनें....</string>
+    <string name="select_the_corrent_answer">सही उत्तर चुनें</string>
+    <string name="finish_download_first">कृपया पहले पिछले गीत का डाउनलोड पूरा करें</string>
+    <string name="download_failed">डाउनलोड विफल</string>
+
 </resources>

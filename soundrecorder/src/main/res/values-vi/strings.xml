@@ -358,5 +358,24 @@
 
     <string name="input_record_title">Nhập tiêu đề bản ghi</string>
     <string name="title_cannot_be_empty">Tiêu đề không được để trống</string>
-    <string name="title_min_five_caracter">Tiêu đề bản ghi phải có ít nhất 5 ký tự</string>
+
+    <string name="title_min_five_character">Tiêu đề bản ghi phải có ít nhất 5 ký tự</string>
+    <string name="name_empty">Tên không được để trống</string>
+    <string name="name_min_length">Tên phải dài hơn 5 ký tự</string>
+
+    <string name="downloaded">Đã tải xuống</string>
+    <string name="local_song">Bài hát cục bộ</string>
+    <string name="online_song">Bài hát trực tuyến</string>
+
+    <string name="ear_tarining">Luyện tai nghe</string>
+    <string name="correct_answer">Câu trả lời đúng</string>
+    <string name="wrong_answer">Câu trả lời sai!</string>
+    <string name="easy">Dễ</string>
+    <string name="medium">Trung bình</string>
+    <string name="hard">Khó</string>
+    <string name="listen">Lắng nghe....</string>
+    <string name="select_the_corrent_answer">Chọn câu trả lời đúng</string>
+
+    <string name="finish_download_first">Vui lòng hoàn tất tải xuống bài hát trước đó trước</string>
+    <string name="download_failed">Tải xuống thất bại</string>
 </resources>

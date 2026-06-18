@@ -356,4 +356,22 @@
     <string name="title_cannot_be_empty">タイトルは空にできません</string>
     <string name="title_min_five_character">録音タイトルは5文字以上で入力してください</string>
 
+    <string name="name_empty">名前を空欄にすることはできません</string>
+    <string name="name_min_length">名前は5文字より長くする必要があります</string>
+    <string name="downloaded">ダウンロード済み</string>
+    <string name="local_song">ローカル曲</string>
+    <string name="online_song">オンライン曲</string>
+
+    <string name="ear_tarining">聴音トレーニング</string>
+    <string name="correct_answer">正解</string>
+    <string name="wrong_answer">不正解！</string>
+    <string name="easy">簡単</string>
+    <string name="medium">普通</string>
+    <string name="hard">難しい</string>
+    <string name="listen">聴いてください....</string>
+    <string name="select_the_corrent_answer">正しい答えを選んでください</string>
+
+    <string name="finish_download_first">先に前の曲のダウンロードを完了してください</string>
+    <string name="download_failed">ダウンロードに失敗しました</string>
+
 </resources>

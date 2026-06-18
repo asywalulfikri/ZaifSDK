@@ -361,5 +361,25 @@
     <string name="input_record_title">Aufnahmetitel eingeben</string>
     <string name="title_cannot_be_empty">Der Titel darf nicht leer sein</string>
     <string name="title_min_five_character">Der Aufnahmetitel muss mindestens 5 Zeichen lang sein</string>
+
+    <string name="name_empty">Der Name darf nicht leer sein</string>
+    <string name="name_min_length">Der Name muss mehr als 5 Zeichen haben</string>
+
+    <string name="downloaded">Heruntergeladen</string>
+    <string name="local_song">Lokales Lied</string>
+    <string name="online_song">Online-Lied</string>
+
+    <string name="ear_tarining">Gehörtraining</string>
+    <string name="correct_answer">Richtige Antwort</string>
+    <string name="wrong_answer">Falsche Antwort!</string>
+    <string name="easy">Einfach</string>
+    <string name="medium">Mittel</string>
+    <string name="hard">Schwer</string>
+    <string name="listen">Anhören....</string>
+    <string name="select_the_corrent_answer">Wähle die richtige Antwort</string>
+
+    <string name="finish_download_first">Bitte schließen Sie zuerst den Download des vorherigen Liedes ab</string>
+    <string name="download_failed">Download fehlgeschlagen</string>
+
 </resources>
 

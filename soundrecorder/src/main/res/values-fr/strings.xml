@@ -361,4 +361,24 @@
     <string name="input_record_title">Saisir le titre de l enregistrement</string>
     <string name="title_cannot_be_empty">Le titre ne peut pas être vide</string>
     <string name="title_min_five_character">Le titre de l enregistrement doit contenir au moins 5 caractères</string>
+
+    <string name="name_empty">Le nom ne peut pas être vide</string>
+    <string name="name_min_length">Le nom doit contenir plus de 5 caractères</string>
+
+    <string name="downloaded">Téléchargé</string>
+    <string name="local_song">Chanson locale</string>
+    <string name="online_song">Chanson en ligne</string>
+
+    <string name="ear_tarining">Entraînement auditif</string>
+    <string name="correct_answer">Bonne réponse</string>
+    <string name="wrong_answer">Mauvaise réponse !</string>
+    <string name="easy">Facile</string>
+    <string name="medium">Moyen</string>
+    <string name="hard">Difficile</string>
+    <string name="listen">Écoutez....</string>
+    <string name="select_the_corrent_answer">Sélectionnez la bonne réponse</string>
+
+    <string name="finish_download_first">Veuillez d abord terminer le téléchargement de la chanson précédente</string>
+    <string name="download_failed">Échec du téléchargement</string>
+
 </resources>

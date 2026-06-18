@@ -366,4 +366,22 @@
     <string name="title_cannot_be_empty">Judul tidak boleh kosong</string>
     <string name="title_min_five_character">Judul rekaman minimal 5 karakter</string>
 
+    <string name="name_empty">Nama tidak boleh kosong</string>
+    <string name="name_min_length">Nama harus lebih dari 5 karakter</string>
+
+    <string name="downloaded">Sudah Diunduh</string>
+    <string name="local_song">Lagu Lokal</string>
+    <string name="online_song">Lagu Online</string>
+
+    <string name="ear_tarining">Latihan Pendengaran</string>
+    <string name="correct_answer">Jawaban Benar</string>
+    <string name="wrong_answer">Jawaban Salah!</string>
+    <string name="easy">Mudah</string>
+    <string name="medium">Sedang</string>
+    <string name="hard">Sulit</string>
+    <string name="listen">Dengarkan....</string>
+    <string name="select_the_corrent_answer">Pilih jawaban yang benar</string>
+
+    <string name="finish_download_first">Selesaikan download lagu sebelumnya terlebih dahulu</string>
+    <string name="download_failed">Download Gagal</string>
 </resources>

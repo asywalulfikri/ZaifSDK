@@ -362,4 +362,23 @@
     <string name="input_record_title">녹음 제목 입력</string>
     <string name="title_cannot_be_empty">제목은 비워둘 수 없습니다</string>
     <string name="title_min_five_character">녹음 제목은 최소 5자 이상이어야 합니다</string>
+
+    <string name="name_empty">이름은 비워둘 수 없습니다</string>
+    <string name="name_min_length">이름은 5자 이상이어야 합니다</string>
+    <string name="downloaded">다운로드됨</string>
+    <string name="local_song">로컬 노래</string>
+    <string name="online_song">온라인 노래</string>
+
+    <string name="ear_tarining">청음 훈련</string>
+    <string name="correct_answer">정답</string>
+    <string name="wrong_answer">오답!</string>
+    <string name="easy">쉬움</string>
+    <string name="medium">보통</string>
+    <string name="hard">어려움</string>
+    <string name="listen">들어보세요....</string>
+    <string name="select_the_corrent_answer">정답을 선택하세요</string>
+
+    <string name="finish_download_first">먼저 이전 노래의 다운로드를 완료하세요</string>
+    <string name="download_failed">다운로드 실패</string>
+
 </resources>

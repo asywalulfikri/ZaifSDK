@@ -360,4 +360,24 @@
     <string name="input_record_title">Digite o título da gravação</string>
     <string name="title_cannot_be_empty">O título não pode estar vazio</string>
     <string name="title_min_five_character">O título da gravação deve ter pelo menos 5 caracteres</string>
+
+     <string name="name_empty">O nome não pode estar vazio</string>
+    <string name="name_min_length">O nome deve ter mais de 5 caracteres</string>
+
+    <string name="downloaded">Baixado</string>
+    <string name="local_song">Música Local</string>
+    <string name="online_song">Música Online</string>
+
+    <string name="ear_tarining">Treinamento Auditivo</string>
+    <string name="correct_answer">Resposta Correta</string>
+    <string name="wrong_answer">Resposta Errada!</string>
+    <string name="easy">Fácil</string>
+    <string name="medium">Médio</string>
+    <string name="hard">Difícil</string>
+    <string name="listen">Ouça....</string>
+    <string name="select_the_corrent_answer">Selecione a resposta correta</string>
+
+    <string name="finish_download_first">Conclua primeiro o download da música anterior</string>
+    <string name="download_failed">Falha no download</string>
+
 </resources>

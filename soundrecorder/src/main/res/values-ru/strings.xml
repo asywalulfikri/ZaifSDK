@@ -357,5 +357,24 @@
 
     <string name="input_record_title">Введите название записи</string>
     <string name="title_cannot_be_empty">Название не может быть пустым</string>
-    <string name="title_min_five_caracter">Название записи должно содержать не менее 5 символов</string>
+    <string name="title_min_five_character">Название записи должно содержать не менее 5 символов</string>
+    <string name="name_empty">Имя не может быть пустым</string>
+    <string name="name_min_length">Имя должно содержать более 5 символов</string>
+
+    <string name="downloaded">Загружено</string>
+    <string name="local_song">Локальная песня</string>
+    <string name="online_song">Онлайн-песня</string>
+
+    <string name="ear_tarining">Тренировка слуха</string>
+    <string name="correct_answer">Правильный ответ</string>
+    <string name="wrong_answer">Неправильный ответ!</string>
+    <string name="easy">Легко</string>
+    <string name="medium">Средне</string>
+    <string name="hard">Сложно</string>
+    <string name="listen">Слушайте....</string>
+    <string name="select_the_corrent_answer">Выберите правильный ответ</string>
+
+    <string name="finish_download_first">Сначала завершите загрузку предыдущей песни</string>
+    <string name="download_failed">Ошибка загрузки</string>
+
 </resources>

@@ -362,4 +362,23 @@
     <string name="input_record_title">Masukkan Tajuk Rakaman</string>
     <string name="title_cannot_be_empty">Tajuk tidak boleh kosong</string>
     <string name="title_min_five_character">Tajuk rakaman mesti sekurang-kurangnya 5 aksara</string>
+    <string name="name_empty">Nama tidak boleh kosong</string>
+    <string name="name_min_length">Nama mesti lebih daripada 5 aksara</string>
+
+    <string name="downloaded">Dimuat Turun</string>
+    <string name="local_song">Lagu Tempatan</string>
+    <string name="online_song">Lagu Dalam Talian</string>
+
+    <string name="ear_tarining">Latihan Pendengaran</string>
+    <string name="correct_answer">Jawapan Betul</string>
+    <string name="wrong_answer">Jawapan Salah!</string>
+    <string name="easy">Mudah</string>
+    <string name="medium">Sederhana</string>
+    <string name="hard">Sukar</string>
+    <string name="listen">Dengar....</string>
+    <string name="select_the_corrent_answer">Pilih jawapan yang betul</string>
+
+    <string name="finish_download_first">Sila selesaikan muat turun lagu sebelumnya terlebih dahulu</string>
+    <string name="download_failed">Muat Turun Gagal</string>
+
 </resources>
