@@ -428,7 +428,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         else Manifest.permission.READ_EXTERNAL_STORAGE
         if (ContextCompat.checkSelfPermission(context, perm) != PackageManager.PERMISSION_GRANTED)
             onRequestAudioPermissionAudio?.invoke()
-        else MusicListDialogHelper.show(context)
+        else MusicListDialogHelper.show(context, isDownload = true)
     }
 
     private fun loadCustomFont() {

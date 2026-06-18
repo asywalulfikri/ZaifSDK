@@ -307,7 +307,7 @@ open class BaseFragmentWidget : Fragment() {
     val requestPermissionMusic =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                activity?.let { MusicListDialogHelper.show(it) }
+                activity?.let { MusicListDialogHelper.show(it, isDownload = true) }
             } else {
                 showAllowPermission()
             }

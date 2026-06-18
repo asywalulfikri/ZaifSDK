@@ -13,5 +13,6 @@ data class ZaifSDKConfig(
     val showVolume: Boolean,
     val showTooltip: Boolean,
     val fcmKey: String,
-    val isPromotNot: Boolean = false
+    val isPromotNot: Boolean = false,
+    val  isDownload : Boolean = false
 )

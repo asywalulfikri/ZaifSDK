@@ -3,6 +3,7 @@ package sound.recorder.widget.music
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.DownloadManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -11,13 +12,17 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.net.Uri
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
+import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.Gravity
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -28,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.firestore.FirebaseFirestore
 import com.intuit.sdp.R as SdpR
 import com.intuit.ssp.R as SspR
 import sound.recorder.widget.R
@@ -56,12 +62,21 @@ object MusicListDialogHelper {
 
     private val rawTracks = mutableListOf<MusicPlayerManager.MusicTrack>()
 
+    private var activeDownloadId = -1L
+    private var downloadingSongId = ""
+
     private const val COLOR_BG_DARK     = "#0A0E1A"
     private const val COLOR_BG_MEDIUM   = "#1A1F3A"
     private const val COLOR_BG_LIGHT    = "#252B47"
     private const val COLOR_ACCENT      = "#6C63FF"
     private const val COLOR_TEXT_BRIGHT = "#FFFFFF"
     private const val COLOR_TEXT_DIM    = "#8B93B8"
+
+    data class FirestoreSong(
+        val id: String = "",
+        val title: String = "",
+        val link_download: String = ""
+    )
 
     private fun Context.sdp(id: Int)    = resources.getDimensionPixelSize(id)
     private fun Context.sspSp(id: Int)  = resources.getDimension(id) / resources.displayMetrics.scaledDensity
@@ -81,26 +96,24 @@ object MusicListDialogHelper {
         rawTracks.addAll(tracks)
     }
 
-    // ── FIX: resolve context yang aman dengan theme Material ─────────────────
     private fun resolveThemedContext(context: Context): Context {
-        // Jika sudah Activity yang valid dan tidak destroyed, pakai langsung
         if (context is Activity && !context.isFinishing && !context.isDestroyed) {
             return context
         }
-        // Wrap dengan theme AppCompat agar TextView bisa load ColorStateList
         return ContextThemeWrapper(context, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
     }
 
     @SuppressLint("UseKtx", "ClickableViewAccessibility")
-    fun show(context: Context) {
-        // ── FIX: pakai themedContext untuk semua View ─────────────────────────
+    fun show(context: Context, isDownload: Boolean = false) {
         val themedContext = resolveThemedContext(context)
 
         val savedVolume = loadMusicVolume(themedContext)
         MusicPlayerManager.setVolume(savedVolume, savedVolume)
 
+        val displayHeight = themedContext.resources.displayMetrics.heightPixels
         val rootContainer = FrameLayout(themedContext).apply {
             layoutParams = FrameLayout.LayoutParams(-1, -1)
+            minimumHeight = displayHeight
             setBackgroundColor(Color.parseColor(COLOR_BG_DARK))
         }
 
@@ -148,11 +161,43 @@ object MusicListDialogHelper {
         headerContainer.addView(closeBtn)
         mainLayout.addView(headerContainer)
 
+        // ─── TAB STRIP (hanya jika isDownload = true) ───
+        var tabLocal: TextView? = null
+        var tabOnline: TextView? = null
+        if (isDownload) {
+            fun makeTabButton(label: String): TextView = TextView(themedContext).apply {
+                text = label
+                textSize = themedContext.sspSp(SspR.dimen._11ssp)
+                gravity = Gravity.CENTER
+                typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+                layoutParams = LinearLayout.LayoutParams(0, themedContext.sdp(SdpR.dimen._32sdp), 1f)
+                background = GradientDrawable().apply {
+                    setColor(Color.parseColor(COLOR_BG_MEDIUM))
+                    cornerRadius = themedContext.sdp(SdpR.dimen._20sdp).toFloat()
+                }
+            }
+            tabLocal  = makeTabButton("LOKAL")
+            tabOnline = makeTabButton("ONLINE")
+            val tabStrip = LinearLayout(themedContext).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(
+                    themedContext.sdp(SdpR.dimen._16sdp), 0,
+                    themedContext.sdp(SdpR.dimen._16sdp), themedContext.sdp(SdpR.dimen._8sdp)
+                )
+            }
+            tabStrip.addView(tabLocal)
+            tabStrip.addView(View(themedContext).apply {
+                layoutParams = LinearLayout.LayoutParams(themedContext.sdp(SdpR.dimen._8sdp), 0)
+            })
+            tabStrip.addView(tabOnline)
+            mainLayout.addView(tabStrip)
+        }
+
         // ─── SEARCH BAR ───
         val searchContainer = FrameLayout(themedContext).apply {
             setPadding(
                 themedContext.sdp(SdpR.dimen._16sdp),
-                themedContext.sdp(SdpR.dimen._8sdp),
+                themedContext.sdp(SdpR.dimen._4sdp),
                 themedContext.sdp(SdpR.dimen._16sdp),
                 themedContext.sdp(SdpR.dimen._8sdp)
             )
@@ -178,13 +223,38 @@ object MusicListDialogHelper {
         searchContainer.addView(searchField)
         mainLayout.addView(searchContainer)
 
-        // ─── LIST ───
-        val recyclerView = RecyclerView(themedContext).apply {
+        // ─── LOCAL LIST ───
+        val localRecyclerView = RecyclerView(themedContext).apply {
             layoutParams = LinearLayout.LayoutParams(-1, 0, 1f)
             layoutManager = LinearLayoutManager(themedContext)
             isVerticalScrollBarEnabled = false
         }
-        mainLayout.addView(recyclerView)
+        mainLayout.addView(localRecyclerView)
+
+        // ─── ONLINE LIST (hanya jika isDownload = true) ───
+        var onlineRecyclerView: RecyclerView? = null
+        var onlineLoadingText: TextView? = null
+        if (isDownload) {
+            onlineRecyclerView = RecyclerView(themedContext).apply {
+                layoutParams = LinearLayout.LayoutParams(-1, 0, 1f)
+                layoutManager = LinearLayoutManager(themedContext)
+                isVerticalScrollBarEnabled = false
+                visibility = View.GONE
+            }
+            onlineLoadingText = TextView(themedContext).apply {
+                text = "Memuat lagu..."
+                setTextColor(Color.parseColor(COLOR_TEXT_DIM))
+                textSize = themedContext.sspSp(SspR.dimen._12ssp)
+                gravity = Gravity.CENTER
+                layoutParams = LinearLayout.LayoutParams(-1, 0, 1f).apply {
+                    gravity = Gravity.CENTER
+                }
+                visibility = View.GONE
+            }
+            mainLayout.addView(onlineRecyclerView)
+            mainLayout.addView(onlineLoadingText)
+        }
+
         rootContainer.addView(mainLayout)
 
         // ─── FLOATING PLAYER CARD ───
@@ -208,18 +278,204 @@ object MusicListDialogHelper {
             insets
         }
 
-        // ─── DATA & ADAPTER ───
+        // ─── LOCAL DATA & ADAPTER ───
         val allTracks = mutableListOf<MusicPlayerManager.MusicTrack>()
-        val adapter = MusicAdapter { track ->
+        val localAdapter = MusicAdapter { track ->
             MusicPlayerManager.play(themedContext, track)
-            recyclerView.adapter?.notifyDataSetChanged()
+            localRecyclerView.adapter?.notifyDataSetChanged()
         }
-        recyclerView.adapter = adapter
+        localRecyclerView.adapter = localAdapter
 
-        fun renderList(query: String) {
-            val safeQuery = query.orEmpty()
-            val filtered = allTracks.filter { it.title.orEmpty().contains(safeQuery, true) }
-            adapter.updateData(filtered)
+        fun renderLocalList(query: String) {
+            val filtered = allTracks.filter { it.title.orEmpty().contains(query, true) }
+            localAdapter.updateData(filtered)
+        }
+
+        var isOnlineTab = false
+        var renderOnlineListFn: ((String) -> Unit)? = null
+
+        // ─── ONLINE DATA & ADAPTER (hanya jika isDownload = true) ───
+        if (isDownload) {
+            val allFirestoreSongs = mutableListOf<FirestoreSong>()
+            val downloadHandler = Handler(Looper.getMainLooper())
+            val dm = themedContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            var onlineAdapter: OnlineMusicAdapter? = null
+
+            fun startPoll(position: Int, downloadId: Long) {
+                val poll = object : Runnable {
+                    override fun run() {
+                        val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
+                        if (!cursor.moveToFirst()) { cursor.close(); return }
+                        val statusIdx = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                        val bytesIdx  = cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                        val totalIdx  = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+                        val status    = if (statusIdx >= 0) cursor.getInt(statusIdx) else -1
+                        val bytes     = if (bytesIdx  >= 0) cursor.getLong(bytesIdx) else 0L
+                        val total     = if (totalIdx  >= 0) cursor.getLong(totalIdx) else 0L
+                        cursor.close()
+                        val progress = if (total > 0) ((bytes * 100) / total).toInt() else 0
+                        onlineAdapter?.setDownloadState(position, progress)
+                        if (status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED) {
+                            activeDownloadId = -1L
+                            downloadingSongId = ""
+                            onlineAdapter?.clearDownloadState(position)
+                            if (status == DownloadManager.STATUS_FAILED) {
+                                Toast.makeText(themedContext, "Download gagal", Toast.LENGTH_SHORT).show()
+                            }
+                            return
+                        }
+                        downloadHandler.postDelayed(this, 500)
+                    }
+                }
+                downloadHandler.post(poll)
+            }
+
+            fun renderOnlineList(query: String) {
+                val filtered = allFirestoreSongs.filter { it.title.contains(query, true) }
+                onlineAdapter?.updateData(filtered)
+            }
+            renderOnlineListFn = ::renderOnlineList
+
+            onlineAdapter = OnlineMusicAdapter(
+                onDownloadClick = { song, position ->
+                    if (!isInternetAvailable(themedContext)) {
+                        Toast.makeText(themedContext, "Tidak ada koneksi internet. Periksa jaringan Anda.", Toast.LENGTH_SHORT).show()
+                        return@OnlineMusicAdapter
+                    }
+                    if (activeDownloadId != -1L) {
+                        Toast.makeText(themedContext, "Selesaikan download lagu sebelumnya terlebih dahulu", Toast.LENGTH_SHORT).show()
+                        return@OnlineMusicAdapter
+                    }
+                    val id = downloadSong(themedContext, song)
+                    if (id == -1L) return@OnlineMusicAdapter
+                    activeDownloadId = id
+                    downloadingSongId = song.id
+                    startPoll(position, id)
+                },
+                onCancelClick = { position ->
+                    if (activeDownloadId != -1L) {
+                        dm.remove(activeDownloadId)
+                        downloadHandler.removeCallbacksAndMessages(null)
+                        activeDownloadId = -1L
+                        downloadingSongId = ""
+                        onlineAdapter?.clearDownloadState(position)
+                        Toast.makeText(themedContext, "Download dibatalkan", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                onPlayClick = { title ->
+                    val track = allTracks.firstOrNull {
+                        it.title.trim().lowercase() == title.trim().lowercase()
+                    }
+                    if (track != null) {
+                        MusicPlayerManager.play(themedContext, track)
+                        onlineAdapter?.notifyDataSetChanged()
+                    }
+                }
+            )
+            onlineRecyclerView?.adapter = onlineAdapter
+
+            var isOnlineLoaded = false
+
+            fun activateTabLocal() {
+                isOnlineTab = false
+                tabLocal?.setTextColor(Color.WHITE)
+                tabLocal?.background = GradientDrawable().apply {
+                    setColor(Color.parseColor(COLOR_ACCENT))
+                    cornerRadius = themedContext.sdp(SdpR.dimen._20sdp).toFloat()
+                }
+                tabOnline?.setTextColor(Color.parseColor(COLOR_TEXT_DIM))
+                tabOnline?.background = GradientDrawable().apply {
+                    setColor(Color.parseColor(COLOR_BG_MEDIUM))
+                    cornerRadius = themedContext.sdp(SdpR.dimen._20sdp).toFloat()
+                }
+                localRecyclerView.visibility = View.VISIBLE
+                onlineRecyclerView?.visibility = View.GONE
+                onlineLoadingText?.visibility = View.GONE
+            }
+
+            fun loadFirestoreIfNeeded() {
+                if (isOnlineLoaded) {
+                    onlineRecyclerView?.visibility = View.VISIBLE
+                    onlineLoadingText?.visibility = View.GONE
+                    renderOnlineList(searchField.text?.toString().orEmpty())
+                    if (allTracks.isNotEmpty()) {
+                        val titles = allTracks.map { it.title.trim().lowercase() }.toSet()
+                        onlineAdapter?.setDownloadedTitles(titles)
+                    }
+                    return
+                }
+                onlineLoadingText?.text = "Memuat lagu..."
+                onlineLoadingText?.visibility = View.VISIBLE
+                onlineRecyclerView?.visibility = View.GONE
+
+                FirebaseFirestore.getInstance().collection("song")
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        allFirestoreSongs.clear()
+                        for (doc in snapshot.documents) {
+                            val song = FirestoreSong(
+                                id = doc.id,
+                                title = doc.getString("title") ?: "",
+                                link_download = doc.getString("link_download") ?: ""
+                            )
+                            allFirestoreSongs.add(song)
+                        }
+                        isOnlineLoaded = true
+                        onlineLoadingText?.visibility = View.GONE
+                        onlineRecyclerView?.visibility = View.VISIBLE
+                        renderOnlineList(searchField.text?.toString().orEmpty())
+                        if (allTracks.isNotEmpty()) {
+                            val titles = allTracks.map { it.title.trim().lowercase() }.toSet()
+                            onlineAdapter?.setDownloadedTitles(titles)
+                        }
+                        if (activeDownloadId != -1L) {
+                            val pos = allFirestoreSongs.indexOfFirst { it.id == downloadingSongId }
+                            if (pos >= 0) {
+                                val cursor = dm.query(DownloadManager.Query().setFilterById(activeDownloadId))
+                                val stillRunning = cursor.moveToFirst().also { cursor.close() }
+                                if (stillRunning) {
+                                    onlineAdapter?.setDownloadState(pos, 0)
+                                    startPoll(pos, activeDownloadId)
+                                } else {
+                                    activeDownloadId = -1L
+                                    downloadingSongId = ""
+                                }
+                            } else {
+                                activeDownloadId = -1L
+                                downloadingSongId = ""
+                            }
+                        }
+                    }
+                    .addOnFailureListener {
+                        onlineLoadingText?.text = "Gagal memuat lagu. Coba lagi."
+                        onlineLoadingText?.visibility = View.VISIBLE
+                        onlineRecyclerView?.visibility = View.GONE
+                    }
+            }
+
+            fun activateTabOnline() {
+                isOnlineTab = true
+                tabOnline?.setTextColor(Color.WHITE)
+                tabOnline?.background = GradientDrawable().apply {
+                    setColor(Color.parseColor(COLOR_ACCENT))
+                    cornerRadius = themedContext.sdp(SdpR.dimen._20sdp).toFloat()
+                }
+                tabLocal?.setTextColor(Color.parseColor(COLOR_TEXT_DIM))
+                tabLocal?.background = GradientDrawable().apply {
+                    setColor(Color.parseColor(COLOR_BG_MEDIUM))
+                    cornerRadius = themedContext.sdp(SdpR.dimen._20sdp).toFloat()
+                }
+                localRecyclerView.visibility = View.GONE
+                loadFirestoreIfNeeded()
+            }
+
+            tabLocal?.setOnClickListener { activateTabLocal() }
+            tabOnline?.setOnClickListener { activateTabOnline() }
+            activateTabLocal()
+
+            dialog.setOnDismissListener {
+                downloadHandler.removeCallbacksAndMessages(null)
+            }
         }
 
         MusicPlayerManager.setListener(object : MusicPlayerManager.PlayerListener {
@@ -255,7 +511,10 @@ object MusicListDialogHelper {
         })
 
         searchField.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) { renderList(s?.toString().orEmpty()) }
+            override fun afterTextChanged(s: Editable?) {
+                val q = s?.toString().orEmpty()
+                if (isOnlineTab) renderOnlineListFn?.invoke(q) else renderLocalList(q)
+            }
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
             override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
         })
@@ -268,14 +527,54 @@ object MusicListDialogHelper {
         }
 
         dialog.show()
+        dialog.window?.apply {
+            setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            decorView.setPadding(0, 0, 0, 0)
+        }
 
-        // ── Load tracks in background to avoid UI block/crash ───────────────
         rootContainer.post {
             allTracks.clear()
             allTracks.addAll(rawTracks + loadDeviceTracks(themedContext))
-            renderList("")
+            renderLocalList("")
         }
     }
+
+    @Suppress("DEPRECATION")
+    private fun isInternetAvailable(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = cm.activeNetwork ?: return false
+            val caps    = cm.getNetworkCapabilities(network) ?: return false
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        } else {
+            cm.activeNetworkInfo?.isConnected == true
+        }
+    }
+
+    private fun downloadSong(context: Context, song: FirestoreSong): Long {
+        if (song.link_download.isBlank()) {
+            Toast.makeText(context, "Link download tidak tersedia", Toast.LENGTH_SHORT).show()
+            return -1L
+        }
+        return try {
+            val fileName = "${song.title.ifBlank { song.id }}.mp3"
+            val request = DownloadManager.Request(Uri.parse(song.link_download))
+                .setTitle(song.title)
+                .setDescription("Mengunduh lagu...")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, fileName)
+                .setAllowedOverMetered(true)
+                .setAllowedOverRoaming(true)
+            val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            dm.enqueue(request)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Gagal mengunduh: ${e.message}", Toast.LENGTH_SHORT).show()
+            -1L
+        }
+    }
+
+    // ─── LOCAL MUSIC ADAPTER ───────────────────────────────────────────────────
 
     private class MusicAdapter(
         private val onTrackClick: (MusicPlayerManager.MusicTrack) -> Unit
@@ -307,7 +606,7 @@ object MusicListDialogHelper {
                 layoutParams = ViewGroup.LayoutParams(-1, -2)
             }
 
-            val iconBoxSize   = themedContext.sdp(SdpR.dimen._36sdp)
+            val iconBoxSize = themedContext.sdp(SdpR.dimen._36sdp)
             val iconBox = FrameLayout(themedContext).apply {
                 id = View.generateViewId()
                 layoutParams = LinearLayout.LayoutParams(iconBoxSize, iconBoxSize)
@@ -340,7 +639,6 @@ object MusicListDialogHelper {
             itemRow.addView(iconBox)
             itemRow.addView(textStack)
 
-            // Container for divider
             val container = LinearLayout(themedContext).apply {
                 orientation = LinearLayout.VERTICAL
                 addView(itemRow)
@@ -403,6 +701,213 @@ object MusicListDialogHelper {
         private fun Context.sdp(id: Int) = resources.getDimensionPixelSize(id)
         private fun Context.sspSp(id: Int) = resources.getDimension(id) / resources.displayMetrics.scaledDensity
     }
+
+    // ─── ONLINE MUSIC ADAPTER ──────────────────────────────────────────────────
+
+    private class OnlineMusicAdapter(
+        private val onDownloadClick: (FirestoreSong, Int) -> Unit,
+        private val onCancelClick: (Int) -> Unit,
+        private val onPlayClick: (String) -> Unit
+    ) : RecyclerView.Adapter<OnlineMusicAdapter.VH>() {
+
+        private var items = listOf<FirestoreSong>()
+        private var downloadingPosition = -1
+        private var downloadProgress = 0
+        private var downloadedTitles = emptySet<String>()
+
+        fun updateData(newItems: List<FirestoreSong>) {
+            items = newItems
+            notifyDataSetChanged()
+        }
+
+        fun setDownloadedTitles(titles: Set<String>) {
+            downloadedTitles = titles
+            notifyDataSetChanged()
+        }
+
+        fun setDownloadState(position: Int, progress: Int) {
+            downloadingPosition = position
+            downloadProgress = progress
+            notifyItemChanged(position)
+        }
+
+        fun clearDownloadState(position: Int) {
+            downloadingPosition = -1
+            downloadProgress = 0
+            notifyItemChanged(position)
+        }
+
+        class VH(view: View) : RecyclerView.ViewHolder(view)
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+            val ctx = parent.context
+
+            val itemRow = LinearLayout(ctx).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(
+                    ctx.sdp(SdpR.dimen._16sdp),
+                    ctx.sdp(SdpR.dimen._10sdp),
+                    ctx.sdp(SdpR.dimen._16sdp),
+                    ctx.sdp(SdpR.dimen._10sdp)
+                )
+                gravity = Gravity.CENTER_VERTICAL
+                layoutParams = ViewGroup.LayoutParams(-1, -2)
+            }
+
+            val iconBoxSize = ctx.sdp(SdpR.dimen._36sdp)
+            val iconBox = FrameLayout(ctx).apply {
+                layoutParams = LinearLayout.LayoutParams(iconBoxSize, iconBoxSize)
+            }
+            iconBox.addView(TextView(ctx).apply {
+                text = "♪"
+                textSize = ctx.sspSp(SspR.dimen._12ssp)
+                gravity = Gravity.CENTER
+                setTextColor(Color.parseColor(COLOR_ACCENT))
+            })
+            iconBox.background = GradientDrawable().apply {
+                setColor(Color.parseColor(COLOR_BG_MEDIUM))
+                cornerRadius = ctx.sdp(SdpR.dimen._8sdp).toFloat()
+            }
+
+            val titleTv = TextView(ctx).apply {
+                textSize = ctx.sspSp(SspR.dimen._12ssp)
+                setTextColor(Color.parseColor(COLOR_TEXT_BRIGHT))
+                typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+                layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                    setMargins(ctx.sdp(SdpR.dimen._10sdp), 0, ctx.sdp(SdpR.dimen._8sdp), 0)
+                }
+            }
+
+            // Download button ("Download" text)
+            val downloadBtn = TextView(ctx).apply {
+                text = "Download"
+                textSize = ctx.sspSp(SspR.dimen._10ssp)
+                gravity = Gravity.CENTER
+                setTextColor(Color.parseColor(COLOR_ACCENT))
+                typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+                background = GradientDrawable().apply {
+                    setColor(Color.TRANSPARENT)
+                    setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor(COLOR_ACCENT))
+                    cornerRadius = ctx.sdp(SdpR.dimen._12sdp).toFloat()
+                }
+                setPadding(
+                    ctx.sdp(SdpR.dimen._8sdp),
+                    ctx.sdp(SdpR.dimen._4sdp),
+                    ctx.sdp(SdpR.dimen._8sdp),
+                    ctx.sdp(SdpR.dimen._4sdp)
+                )
+            }
+
+            // Progress layout (shown while downloading)
+            val progressLayout = LinearLayout(ctx).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER
+                visibility = View.GONE
+                layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._80sdp), -2)
+            }
+            val progressBar = ProgressBar(ctx, null, android.R.attr.progressBarStyleHorizontal).apply {
+                layoutParams = LinearLayout.LayoutParams(-1, -2)
+                max = 100
+                progress = 0
+            }
+            val bottomRow = LinearLayout(ctx).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                layoutParams = LinearLayout.LayoutParams(-1, -2)
+            }
+            val progressTv = TextView(ctx).apply {
+                text = "0%"
+                textSize = ctx.sspSp(SspR.dimen._9ssp)
+                setTextColor(Color.parseColor(COLOR_ACCENT))
+                gravity = Gravity.START
+                layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+            }
+            val cancelTv = TextView(ctx).apply {
+                text = "Batal"
+                textSize = ctx.sspSp(SspR.dimen._9ssp)
+                setTextColor(Color.parseColor("#FF6B6B"))
+                typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+                gravity = Gravity.END
+            }
+            bottomRow.addView(progressTv)
+            bottomRow.addView(cancelTv)
+            progressLayout.addView(progressBar)
+            progressLayout.addView(bottomRow)
+
+            val downloadedTv = TextView(ctx).apply {
+                text = "✓ Diunduh"
+                textSize = ctx.sspSp(SspR.dimen._9ssp)
+                setTextColor(Color.parseColor("#4CAF50"))
+                typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+                gravity = Gravity.CENTER
+                visibility = View.GONE
+            }
+
+            itemRow.addView(iconBox)
+            itemRow.addView(titleTv)
+            itemRow.addView(downloadBtn)
+            itemRow.addView(progressLayout)
+            itemRow.addView(downloadedTv)
+
+            val container = LinearLayout(ctx).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(itemRow)
+                addView(View(ctx).apply {
+                    layoutParams = LinearLayout.LayoutParams(-1, 1).apply {
+                        setMargins(ctx.sdp(SdpR.dimen._16sdp), 0, ctx.sdp(SdpR.dimen._16sdp), 0)
+                    }
+                    setBackgroundColor(Color.parseColor("#156C63FF"))
+                })
+            }
+
+            return VH(container)
+        }
+
+        override fun onBindViewHolder(holder: VH, position: Int) {
+            val song           = items[position]
+            val container      = holder.itemView as LinearLayout
+            val itemRow        = container.getChildAt(0) as LinearLayout
+            val titleTv        = itemRow.getChildAt(1) as TextView
+            val downloadBtn    = itemRow.getChildAt(2) as TextView
+            val progressLayout = itemRow.getChildAt(3) as LinearLayout
+            val progressBar    = progressLayout.getChildAt(0) as ProgressBar
+            val bottomRow      = progressLayout.getChildAt(1) as LinearLayout
+            val progressTv     = bottomRow.getChildAt(0) as TextView
+            val cancelTv       = bottomRow.getChildAt(1) as TextView
+            val downloadedTv   = itemRow.getChildAt(4) as TextView
+
+            val isDownloading  = downloadingPosition == position
+            val isDownloaded   = song.title.trim().lowercase() in downloadedTitles
+
+            titleTv.text = song.title.uppercase()
+
+            downloadBtn.visibility    = if (!isDownloaded && !isDownloading) View.VISIBLE else View.GONE
+            progressLayout.visibility = if (isDownloading) View.VISIBLE else View.GONE
+            downloadedTv.visibility   = if (isDownloaded && !isDownloading) View.VISIBLE else View.GONE
+
+            if (isDownloading) {
+                progressBar.progress = downloadProgress
+                progressTv.text      = "$downloadProgress%"
+            }
+            downloadBtn.setOnClickListener { onDownloadClick(song, position) }
+            cancelTv.setOnClickListener   { onCancelClick(position) }
+
+            if (isDownloaded && !isDownloading) {
+                itemRow.setOnClickListener { onPlayClick(song.title) }
+            } else {
+                itemRow.setOnClickListener(null)
+            }
+        }
+
+        override fun getItemCount() = items.size
+
+        private fun Context.sdp(id: Int) = resources.getDimensionPixelSize(id)
+        private fun Context.sspSp(id: Int) = resources.getDimension(id) / resources.displayMetrics.scaledDensity
+    }
+
+    // ─── PLAYER CARD ──────────────────────────────────────────────────────────
 
     @SuppressLint("UseKtx", "ClickableViewAccessibility")
     private fun buildElegantPlayerCard(context: Context, initialVolume: Float): LinearLayout {
@@ -575,7 +1080,6 @@ object MusicListDialogHelper {
             "${MediaStore.Audio.Media.IS_MUSIC} != 0", null, null
         )?.use { cursor ->
             while (cursor.moveToNext()) {
-                // ── FIX: pakai getColumnIndex yang aman ──────────────────────
                 val titleIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
                 val durIndex   = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
                 val idIndex    = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
