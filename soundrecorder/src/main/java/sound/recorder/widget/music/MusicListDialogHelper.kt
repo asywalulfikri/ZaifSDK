@@ -231,6 +231,7 @@ object MusicListDialogHelper {
             layoutParams = LinearLayout.LayoutParams(-1, 0, 1f)
             layoutManager = LinearLayoutManager(themedContext)
             isVerticalScrollBarEnabled = false
+            clipToPadding = false
         }
         mainLayout.addView(localRecyclerView)
 
@@ -244,6 +245,7 @@ object MusicListDialogHelper {
                 layoutManager = LinearLayoutManager(themedContext)
                 isVerticalScrollBarEnabled = false
                 visibility = View.GONE
+                clipToPadding = false
             }
 
             onlineLoadingLayout = LinearLayout(themedContext).apply {
@@ -600,6 +602,16 @@ object MusicListDialogHelper {
         dialog.window?.apply {
             setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             decorView.setPadding(0, 0, 0, 0)
+        }
+
+        playerCard.viewTreeObserver.addOnGlobalLayoutListener {
+            val bottomPad = if (playerCard.visibility == View.VISIBLE) {
+                playerCard.height + playerBottom
+            } else {
+                0
+            }
+            localRecyclerView.setPadding(0, 0, 0, bottomPad)
+            onlineRecyclerView?.setPadding(0, 0, 0, bottomPad)
         }
 
         rootContainer.post {
