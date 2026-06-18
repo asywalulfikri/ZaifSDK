@@ -308,6 +308,23 @@ object MusicListDialogHelper {
             localAdapter.updateData(filtered)
         }
 
+        var onlineAdapter: OnlineMusicAdapter? = null
+
+        fun refreshLocalTracks() {
+            appScope.launch {
+                val deviceTracks = withContext(Dispatchers.IO) {
+                    loadDeviceTracks(themedContext)
+                }
+                allTracks.clear()
+                allTracks.addAll(rawTracks + deviceTracks)
+                withContext(Dispatchers.Main) {
+                    renderLocalList(searchField.text?.toString().orEmpty())
+                    val titles = allTracks.map { it.title.trim().lowercase() }.toSet()
+                    onlineAdapter?.setDownloadedTitles(titles)
+                }
+            }
+        }
+
         var isOnlineTab = false
         var renderOnlineListFn: ((String) -> Unit)? = null
 
@@ -316,9 +333,8 @@ object MusicListDialogHelper {
             val allFirestoreSongs = mutableListOf<FirestoreSong>()
             val downloadHandler = Handler(Looper.getMainLooper())
             val dm = themedContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            var onlineAdapter: OnlineMusicAdapter? = null
 
-            fun startPoll(position: Int, downloadId: Long) {
+            fun startPoll(position: Int, downloadId: Long, songTitle: String) {
                 val poll = object : Runnable {
                     override fun run() {
                         val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
@@ -336,7 +352,10 @@ object MusicListDialogHelper {
                             activeDownloadId = -1L
                             downloadingSongId = ""
                             onlineAdapter?.clearDownloadState(position)
-                            if (status == DownloadManager.STATUS_FAILED) {
+                            if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                                onlineAdapter?.addDownloadedTitle(songTitle)
+                                refreshLocalTracks()
+                            } else {
                                 Toast.makeText(themedContext, context.getString(R.string.download_failed), Toast.LENGTH_SHORT).show()
                             }
                             return
@@ -367,7 +386,7 @@ object MusicListDialogHelper {
                     if (id == -1L) return@OnlineMusicAdapter
                     activeDownloadId = id
                     downloadingSongId = song.id
-                    startPoll(position, id)
+                    startPoll(position, id, song.title)
                 },
                 onCancelClick = { position ->
                     if (activeDownloadId != -1L) {
@@ -453,7 +472,7 @@ object MusicListDialogHelper {
                                 val stillRunning = cursor.moveToFirst().also { cursor.close() }
                                 if (stillRunning) {
                                     onlineAdapter?.setDownloadState(pos, 0)
-                                    startPoll(pos, activeDownloadId)
+                                    startPoll(pos, activeDownloadId, allFirestoreSongs[pos].title)
                                 } else {
                                     activeDownloadId = -1L
                                     downloadingSongId = ""
@@ -559,14 +578,7 @@ object MusicListDialogHelper {
         }
 
         rootContainer.post {
-            appScope.launch {
-                val deviceTracks = withContext(Dispatchers.IO) {
-                    loadDeviceTracks(themedContext)
-                }
-                allTracks.clear()
-                allTracks.addAll(rawTracks + deviceTracks)
-                renderLocalList("")
-            }
+            refreshLocalTracks()
         }
     }
 
@@ -744,7 +756,7 @@ object MusicListDialogHelper {
         private var items = listOf<FirestoreSong>()
         private var downloadingPosition = -1
         private var downloadProgress = 0
-        private var downloadedTitles = emptySet<String>()
+        private var downloadedTitles = mutableSetOf<String>()
 
         fun updateData(newItems: List<FirestoreSong>) {
             items = newItems
@@ -752,7 +764,12 @@ object MusicListDialogHelper {
         }
 
         fun setDownloadedTitles(titles: Set<String>) {
-            downloadedTitles = titles
+            downloadedTitles = titles.toMutableSet()
+            notifyDataSetChanged()
+        }
+
+        fun addDownloadedTitle(title: String) {
+            downloadedTitles.add(title.trim().lowercase())
             notifyDataSetChanged()
         }
 
