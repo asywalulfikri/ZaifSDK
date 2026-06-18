@@ -613,8 +613,23 @@ object MusicListDialogHelper {
             return -1L
         }
         return try {
+            var downloadUrl = song.link_download
+            
+            // Konversi link Google Drive "view/share" ke link "direct download"
+            if (downloadUrl.contains("drive.google.com")) {
+                val fileId = when {
+                    downloadUrl.contains("/file/d/") -> downloadUrl.substringAfter("/file/d/").substringBefore("/")
+                    downloadUrl.contains("id=") -> downloadUrl.substringAfter("id=").substringBefore("&")
+                    else -> null
+                }
+                if (fileId != null) {
+                    // Gunakan format export=download agar DownloadManager bisa langsung mengambil file
+                    downloadUrl = "https://drive.google.com/uc?export=download&id=$fileId"
+                }
+            }
+
             val fileName = "${song.title.ifBlank { song.id }}.mp3"
-            val request = DownloadManager.Request(Uri.parse(song.link_download))
+            val request = DownloadManager.Request(Uri.parse(downloadUrl))
                 .setTitle(song.title)
                 .setDescription(context.getString(R.string.process_download))
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
