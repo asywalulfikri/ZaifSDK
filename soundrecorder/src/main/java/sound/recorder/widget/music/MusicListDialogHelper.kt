@@ -368,7 +368,20 @@ object MusicListDialogHelper {
                                 onlineAdapter?.addDownloadedTitle(songTitle)
                                 refreshLocalTracks()
                             } else {
-                                Toast.makeText(themedContext, context.getString(R.string.download_failed), Toast.LENGTH_SHORT).show()
+                                val reasonIdx = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
+                                val reason = if (reasonIdx >= 0) cursor.getInt(reasonIdx) else -1
+                                val errorMsg = when (reason) {
+                                    DownloadManager.ERROR_CANNOT_RESUME -> "Cannot resume"
+                                    DownloadManager.ERROR_DEVICE_NOT_FOUND -> "Storage not found"
+                                    DownloadManager.ERROR_FILE_ALREADY_EXISTS -> "File already exists"
+                                    DownloadManager.ERROR_FILE_ERROR -> "Storage error"
+                                    DownloadManager.ERROR_HTTP_DATA_ERROR -> "Network data error"
+                                    DownloadManager.ERROR_INSUFFICIENT_SPACE -> "Storage full"
+                                    DownloadManager.ERROR_TOO_MANY_REDIRECTS -> "Too many redirects"
+                                    DownloadManager.ERROR_UNHANDLED_HTTP_CODE -> "HTTP Error $reason"
+                                    else -> "Error code: $reason"
+                                }
+                                Toast.makeText(themedContext, "${context.getString(R.string.download_failed)}: $errorMsg", Toast.LENGTH_SHORT).show()
                             }
                             return
                         }
@@ -613,7 +626,7 @@ object MusicListDialogHelper {
             return -1L
         }
         return try {
-            var downloadUrl = song.link_download
+            var downloadUrl = song.link_download.trim()
             
             // Konversi link Google Drive "view/share" ke link "direct download"
             if (downloadUrl.contains("drive.google.com")) {
@@ -623,12 +636,15 @@ object MusicListDialogHelper {
                     else -> null
                 }
                 if (fileId != null) {
-                    // Gunakan format export=download agar DownloadManager bisa langsung mengambil file
                     downloadUrl = "https://drive.google.com/uc?export=download&id=$fileId"
                 }
             }
 
-            val fileName = "${song.title.ifBlank { song.id }}.mp3"
+            // Sanitasi nama file dari karakter ilegal
+            val sanitizedTitle = song.title.ifBlank { song.id }
+                .replace(Regex("[\\\\/:*?\"<>|]"), "_")
+            val fileName = "$sanitizedTitle.mp3"
+
             val request = DownloadManager.Request(Uri.parse(downloadUrl))
                 .setTitle(song.title)
                 .setDescription(context.getString(R.string.process_download))
@@ -636,6 +652,11 @@ object MusicListDialogHelper {
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC, fileName)
                 .setAllowedOverMetered(true)
                 .setAllowedOverRoaming(true)
+                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+                .addRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+                .addRequestHeader("Accept", "*/*")
+                .addRequestHeader("Connection", "keep-alive")
+
             val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             dm.enqueue(request)
         } catch (e: Exception) {
