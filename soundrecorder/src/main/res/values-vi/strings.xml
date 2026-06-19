@@ -386,4 +386,9 @@
     <string name="request_song_success">Gửi yêu cầu bài hát thành công</string>
     <string name="request_song_failed">Gửi yêu cầu bài hát thất bại</string>
     <string name="song_title_cannot_empty">Tên bài hát không được để trống</string>
+
+    <string name="unlock_music">Mở khóa bài hát 🔒</string>
+    <string name="point_get">Nhận được 3 điểm</string>
+    <string name="your_coin">Xu của bạn</string>
+    <string name="coin_not_enougt">Không đủ xu</string>
 </resources>

@@ -389,5 +389,10 @@
     <string name="request_song_failed">Nabigong maipadala ang kahilingan sa kanta</string>
     <string name="song_title_cannot_empty">Hindi maaaring walang laman ang pamagat ng kanta</string>
 
+    <string name="unlock_music">I-unlock ang Kanta 🔒</string>
+    <string name="point_get">Nakakuha ng 3 Puntos</string>
+    <string name="your_coin">Iyong mga Barya</string>
+    <string name="coin_not_enougt">Hindi sapat ang mga barya</string>
+
 
 </resources>

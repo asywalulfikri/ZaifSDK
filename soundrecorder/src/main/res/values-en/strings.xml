@@ -385,4 +385,9 @@
     <string name="request_song_success">Song request submitted successfully</string>
     <string name="request_song_failed">Failed to submit song request</string>
     <string name="song_title_cannot_empty">Song title cannot be empty</string>
+
+    <string name="unlock_music">Unlock Song 🔒</string>
+    <string name="point_get">3 Points Earned</string>
+    <string name="your_coin">Your Coins</string>
+    <string name="coin_not_enougt">Not enough coins</string>
 </resources>

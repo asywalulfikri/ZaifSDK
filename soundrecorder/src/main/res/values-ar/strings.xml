@@ -431,5 +431,10 @@
     <string name="request_song_success">تم إرسال طلب الأغنية بنجاح</string>
     <string name="request_song_failed">فشل في إرسال طلب الأغنية</string>
     <string name="song_title_cannot_empty">لا يمكن أن يكون عنوان الأغنية فارغًا</string>
+
+    <string name="unlock_music">فتح الأغنية 🔒</string>
+    <string name="point_get">تم الحصول على 3 نقاط</string>
+    <string name="your_coin">عملاتك</string>
+    <string name="coin_not_enougt">العملات غير كافية</string>
 </resources>
 

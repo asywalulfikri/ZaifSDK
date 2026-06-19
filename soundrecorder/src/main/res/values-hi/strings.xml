@@ -385,4 +385,9 @@
     <string name="request_song_success">गीत अनुरोध सफलतापूर्वक भेजा गया</string>
     <string name="request_song_failed">गीत अनुरोध भेजने में विफल</string>
     <string name="song_title_cannot_empty">गीत का शीर्षक खाली नहीं हो सकता</string>
+
+    <string name="unlock_music">गीत अनलॉक करें 🔒</string>
+    <string name="point_get">3 अंक प्राप्त हुए</string>
+    <string name="your_coin">आपके सिक्के</string>
+    <string name="coin_not_enougt">सिक्के पर्याप्त नहीं हैं</string>
 </resources>

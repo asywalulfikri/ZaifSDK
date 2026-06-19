@@ -389,4 +389,9 @@
     <string name="request_song_failed">노래 요청 전송에 실패했습니다</string>
     <string name="song_title_cannot_empty">노래 제목은 비워둘 수 없습니다</string>
 
+    <string name="unlock_music">노래 잠금 해제 🔒</string>
+    <string name="point_get">3포인트 획득</string>
+    <string name="your_coin">내 코인</string>
+    <string name="coin_not_enougt">코인이 부족합니다</string>
+
 </resources>

@@ -382,4 +382,9 @@
     <string name="request_song_failed">曲のリクエスト送信に失敗しました</string>
     <string name="song_title_cannot_empty">曲名を空にすることはできません</string>
 
+    <string name="unlock_music">曲をアンロック 🔒</string>
+    <string name="point_get">3ポイント獲得</string>
+    <string name="your_coin">あなたのコイン</string>
+    <string name="coin_not_enougt">コインが足りません</string>
+
 </resources>

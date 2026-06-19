@@ -386,4 +386,9 @@
     <string name="request_song_success">ส่งคำขอเพลงสำเร็จ</string>
     <string name="request_song_failed">ส่งคำขอเพลงไม่สำเร็จ</string>
     <string name="song_title_cannot_empty">ชื่อเพลงต้องไม่ว่างเปล่า</string>
+
+    <string name="unlock_music">ปลดล็อกเพลง 🔒</string>
+    <string name="point_get">ได้รับ 3 คะแนน</string>
+    <string name="your_coin">เหรียญของคุณ</string>
+    <string name="coin_not_enougt">เหรียญไม่เพียงพอ</string>
 </resources>

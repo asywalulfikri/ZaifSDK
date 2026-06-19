@@ -389,4 +389,9 @@
     <string name="request_song_failed">Échec de l’envoi de la demande de chanson</string>
     <string name="song_title_cannot_empty">Le titre de la chanson ne peut pas être vide</string>
 
+    <string name="unlock_music">Déverrouiller la chanson 🔒</string>
+    <string name="point_get">3 points obtenus</string>
+    <string name="your_coin">Vos pièces</string>
+    <string name="coin_not_enougt">Pièces insuffisantes</string>
+
 </resources>

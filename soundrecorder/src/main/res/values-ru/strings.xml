@@ -385,4 +385,9 @@
     <string name="request_song_failed">Не удалось отправить запрос песни</string>
     <string name="song_title_cannot_empty">Название песни не может быть пустым</string>
 
+    <string name="unlock_music">Разблокировать песню 🔒</string>
+    <string name="point_get">Получено 3 очка</string>
+    <string name="your_coin">Ваши монеты</string>
+    <string name="coin_not_enougt">Недостаточно монет</string>
+
 </resources>
