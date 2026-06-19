@@ -247,7 +247,7 @@ class UserNoteDialogHelper(
                     it.recordName.lowercase().contains(q) || it.senderName.lowercase().contains(q)
                 }
                 populateList(
-                    context, list, dialog, filtered,
+                    context, list, dialog, filtered.take(20), // Batasi 20 item pertama untuk performa
                     noDataText, playLabel, learnLabel, noteLockedText, watchAdText, cancelText, watchAdLabel
                 )
             }
@@ -279,7 +279,7 @@ class UserNoteDialogHelper(
             scroll.visibility = View.VISIBLE
             allNotes.addAll(cache[instrumentType]!!.notes)
             populateList(
-                context, list, dialog, allNotes,
+                context, list, dialog, allNotes.take(30), // Batasi awal 30 item
                 noDataText, playLabel, learnLabel, noteLockedText, watchAdText, cancelText, watchAdLabel
             )
             return
@@ -311,7 +311,7 @@ class UserNoteDialogHelper(
                 cache[instrumentType] = CachedResult(notes, System.currentTimeMillis())
                 allNotes.addAll(notes)
                 populateList(
-                    context, list, dialog, allNotes,
+                    context, list, dialog, allNotes.take(30), // Batasi awal 30 item
                     noDataText, playLabel, learnLabel, noteLockedText, watchAdText, cancelText, watchAdLabel
                 )
             }

@@ -107,7 +107,8 @@ object MusicListDialogHelper {
         if (context is Activity && !context.isFinishing && !context.isDestroyed) {
             return context
         }
-        return ContextThemeWrapper(context, androidx.appcompat.R.style.Theme_AppCompat_DayNight)
+        // Pastikan menggunakan theme yang valid untuk mencegah crash nativeApplyStyle
+        return ContextThemeWrapper(context, androidx.appcompat.R.style.Theme_AppCompat_DayNight_NoActionBar)
     }
 
     @SuppressLint("UseKtx", "ClickableViewAccessibility")
@@ -677,8 +678,9 @@ object MusicListDialogHelper {
                 .setAllowedOverMetered(true)
                 .setAllowedOverRoaming(true)
                 .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-                .addRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-                .addRequestHeader("Accept", "*/*")
+                .addRequestHeader("User-Agent", "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36")
+                .addRequestHeader("Accept", "audio/*, */*")
+                .addRequestHeader("Referer", downloadUrl)
                 .addRequestHeader("Connection", "keep-alive")
 
             val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager

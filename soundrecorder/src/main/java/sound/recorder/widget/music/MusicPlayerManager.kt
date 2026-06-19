@@ -157,14 +157,21 @@ object MusicPlayerManager {
         progressJob?.cancel()
         progressJob = null
 
-        mediaPlayer?.apply {
+        // Pindahkan operasi MediaPlayer yang berat ke background thread
+        val playerToRelease = mediaPlayer
+        mediaPlayer = null // Langsung null-kan agar UI tidak menunggu
+
+        CoroutineScope(Dispatchers.IO).launch {
             try {
-                if (isPlaying) stop()
-            } catch (e: Exception) {}
-            release()
+                playerToRelease?.let {
+                    if (it.isPlaying) it.stop()
+                    it.release()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
-        mediaPlayer = null
         _isPlaying = false
         _isPaused = false
         currentTrack = null

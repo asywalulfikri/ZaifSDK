@@ -80,7 +80,8 @@ class NotePromotionAdminFragment : Fragment() {
         val firebaseToken: String,
         var status: String,
         val jsonNote: String,
-        val language: List<String>
+        val language: List<String>,
+        val isFree: Boolean
     )
 
     // ─── State ───────────────────────────────────────────────────────────────
@@ -385,7 +386,8 @@ class NotePromotionAdminFragment : Fragment() {
                         firebaseToken = d["firebase_token"] as? String ?: "",
                         status        = d["status"]         as? String ?: STATUS_DRAFT,
                         jsonNote      = d["json_note"]      as? String ?: "",
-                        language      = (d["language"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                        language      = (d["language"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+                        isFree        = d["is_free"]        as? Boolean ?: false
                     )
                 }
 
@@ -580,7 +582,8 @@ class NotePromotionAdminFragment : Fragment() {
             "Nama Rekaman" to "7BAFD4",
             "JSON Note"    to "D2B48C",
             "Language"     to "A8D8A8",
-            "Sender Name"  to "FFB347"
+            "Sender Name"  to "FFB347",
+            "isFree"       to "C792EA"
         )
 
         options.forEach { (label, color) ->
@@ -612,6 +615,7 @@ class NotePromotionAdminFragment : Fragment() {
                         "JSON Note"    -> showEditJsonNoteDialog(note, position)
                         "Language"     -> showEditLanguageDialog(note, position)
                         "Sender Name"  -> showEditSenderNameDialog(note, position)
+                        "isFree"       -> showEditIsFreeDialog(note, position)
                     }
                 }
             })
@@ -854,6 +858,84 @@ class NotePromotionAdminFragment : Fragment() {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setLayout((dm.widthPixels * 0.85).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
         }
+    }
+
+    private fun showEditIsFreeDialog(note: PromotionNote, position: Int) {
+        if (!isAdded) return
+        val ctx = requireContext()
+        val dialog = AlertDialog.Builder(ctx).create()
+
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#1A0F09"))
+                cornerRadius = ctx.resources.getDimension(SdpR.dimen._14sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#22D2B48C"))
+            }
+            val pad = ctx.sdp(SdpR.dimen._16sdp)
+            setPadding(pad, pad, pad, pad)
+        }
+
+        root.addView(TextView(ctx).apply {
+            text = "Edit isFree"
+            setTextColor(Color.parseColor("#F5F5DC"))
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+        })
+
+        root.addView(TextView(ctx).apply {
+            text = "Nilai saat ini: ${if (note.isFree) "true" else "false"}"
+            setTextColor(Color.parseColor("#8A7456"))
+            textSize = 10f
+            val topPad = ctx.sdp(SdpR.dimen._4sdp)
+            setPadding(0, topPad, 0, ctx.sdp(SdpR.dimen._12sdp))
+        })
+
+        val btnRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            val topPad = ctx.sdp(SdpR.dimen._8sdp)
+            setPadding(0, topPad, 0, 0)
+        }
+
+        btnRow.addView(buildActionBtn(ctx, "True", "4CAF50") {
+            updateIsFree(note, position, true)
+            dialog.dismiss()
+        })
+        btnRow.addView(View(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._12sdp), 1)
+        })
+        btnRow.addView(buildActionBtn(ctx, "False", "CF6679") {
+            updateIsFree(note, position, false)
+            dialog.dismiss()
+        })
+        btnRow.addView(View(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._12sdp), 1)
+        })
+        btnRow.addView(buildActionBtn(ctx, "Batal", "8A7456") { dialog.dismiss() })
+        root.addView(btnRow)
+
+        dialog.setView(root)
+        dialog.show()
+        val dm = ctx.resources.displayMetrics
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((dm.widthPixels * 0.85).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+    }
+
+    private fun updateIsFree(note: PromotionNote, position: Int, value: Boolean) {
+        db.collection(COLLECTION).document(note.docId)
+            .update("is_free", value)
+            .addOnSuccessListener {
+                if (!isAdded) return@addOnSuccessListener
+                notes[position] = note.copy(isFree = value)
+                adapter.notifyItemChanged(position)
+            }
+            .addOnFailureListener { e ->
+                if (!isAdded) return@addOnFailureListener
+                Toast.makeText(context, "Gagal update isFree: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun updateJsonNote(note: PromotionNote, position: Int, newJson: String) {

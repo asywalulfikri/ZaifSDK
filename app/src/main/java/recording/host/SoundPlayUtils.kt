@@ -125,25 +125,55 @@ object SoundPlayUtils {
      * Memainkan musik/track panjang dari MediaPlayer.
      */
     fun playAudioTrack(context: Context, resId: Int) {
-        try {
-            mediaPlayer?.release() // Hentikan yang lama jika ada
-            mediaPlayer = MediaPlayer.create(context, resId)?.apply {
-                start()
+        // Jalankan di background agar tidak ANR saat release/create (terutama di HP low-end)
+        Thread {
+            try {
+                mediaPlayer?.let {
+                    if (it.isPlaying) it.stop()
+                    it.release()
+                }
+                mediaPlayer = MediaPlayer.create(context, resId)?.apply {
+                    start()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            // Tangani error
-        }
+        }.start()
+    }
+
+    /**
+     * Menghentikan audio track yang sedang berjalan.
+     */
+    fun stopSound() {
+        Thread {
+            try {
+                mediaPlayer?.let {
+                    if (it.isPlaying) it.stop()
+                    it.release()
+                }
+                mediaPlayer = null
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }.start()
     }
 
     fun setVolume(newVolume: Float) {
         this.volume = newVolume
+        mediaPlayer?.setVolume(newVolume, newVolume)
     }
 
     fun release() {
-        soundPool?.release()
-        mediaPlayer?.release()
-        soundPool = null
-        mediaPlayer = null
-        isInitialized = false
+        Thread {
+            try {
+                soundPool?.release()
+                mediaPlayer?.release()
+                soundPool = null
+                mediaPlayer = null
+                isInitialized = false
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }.start()
     }
 }
