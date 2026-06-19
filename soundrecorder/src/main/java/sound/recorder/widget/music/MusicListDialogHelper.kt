@@ -38,6 +38,9 @@ import kotlinx.coroutines.*
 import com.intuit.sdp.R as SdpR
 import com.intuit.ssp.R as SspR
 import sound.recorder.widget.R
+import sound.recorder.widget.builder.ZaifSDKBuilder
+import sound.recorder.widget.builder.ZaifSDKConfig
+import sound.recorder.widget.recording.RecordingListDialogHelper
 import java.util.concurrent.TimeUnit
 
 object MusicListDialogHelper {
@@ -45,6 +48,7 @@ object MusicListDialogHelper {
     private const val PREFS_NAME       = "music_player_prefs"
     private const val KEY_MUSIC_VOLUME = "music_volume"
     private const val DEFAULT_VOLUME   = 0.7f
+    var zaifSDKConfig : ZaifSDKConfig? =null
 
     interface MusicStatusListener {
         fun onMusicPlay(track: MusicPlayerManager.MusicTrack)
@@ -109,6 +113,8 @@ object MusicListDialogHelper {
     @SuppressLint("UseKtx", "ClickableViewAccessibility")
     fun show(context: Context, isDownload: Boolean = false) {
         val themedContext = resolveThemedContext(context)
+
+        zaifSDKConfig = ZaifSDKBuilder.load(context)
 
         val savedVolume = loadMusicVolume(themedContext)
         MusicPlayerManager.setVolume(savedVolume, savedVolume)
@@ -472,7 +478,13 @@ object MusicListDialogHelper {
                 onlineLoadingLayout?.getChildAt(0)?.visibility = View.VISIBLE
                 onlineRecyclerView?.visibility = View.GONE
 
-                FirebaseFirestore.getInstance().collection("song")
+                var collection = "song_"+zaifSDKConfig?.applicationId
+
+                if(zaifSDKConfig?.applicationId=="gendang.elektronik.beat"){
+                    collection = "song"
+                }
+
+                FirebaseFirestore.getInstance().collection(collection)
                     .get()
                     .addOnSuccessListener { snapshot ->
                         allFirestoreSongs.clear()

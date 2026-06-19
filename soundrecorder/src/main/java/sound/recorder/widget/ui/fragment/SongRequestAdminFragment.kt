@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import sound.recorder.widget.R
+import sound.recorder.widget.builder.ZaifSDKBuilder
+import sound.recorder.widget.builder.ZaifSDKConfig
 import sound.recorder.widget.databinding.FragmentSongRequestAdminBinding
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -33,6 +35,7 @@ class SongRequestAdminFragment : Fragment() {
     private val allRequests = mutableListOf<SongRequest>()
     private var currentFilter = "all"
     private lateinit var adapter: SongRequestAdapter
+    var zaifSDKConfig : ZaifSDKConfig? =null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -57,6 +60,8 @@ class SongRequestAdminFragment : Fragment() {
         binding?.btnFilterPending?.setOnClickListener { applyFilter("pending") }
         binding?.btnFilterDone?.setOnClickListener    { applyFilter("done") }
 
+        val config = ZaifSDKBuilder.load(requireContext())
+
         loadRequests()
     }
 
@@ -67,6 +72,7 @@ class SongRequestAdminFragment : Fragment() {
         FirebaseFirestore.getInstance()
             .collection("song_request")
             .orderBy("requested_at", Query.Direction.DESCENDING)
+            .whereEqualTo("app_id",zaifSDKConfig?.applicationId)
             .limit(100)
             .get()
             .addOnSuccessListener { snapshot ->
