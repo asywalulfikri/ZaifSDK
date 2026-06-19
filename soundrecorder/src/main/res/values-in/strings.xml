@@ -391,5 +391,8 @@
     <string name="your_coin">Koin Kamu</string>
     <string name="coin_not_enougt">Koin tidak cukup</string>
 
+    <string name="coin">Koin</string>
+    <string name="claim">Klaim!</string>
+
 
 </resources>

@@ -387,4 +387,7 @@
     <string name="your_coin">あなたのコイン</string>
     <string name="coin_not_enougt">コインが足りません</string>
 
+    <string name="coin">コイン</string>
+    <string name="claim">受け取る！</string>
+
 </resources>

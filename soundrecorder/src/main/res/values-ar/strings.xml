@@ -436,5 +436,8 @@
     <string name="point_get">تم الحصول على 3 نقاط</string>
     <string name="your_coin">عملاتك</string>
     <string name="coin_not_enougt">العملات غير كافية</string>
+
+    <string name="coin">عملة</string>
+    <string name="claim">احصل عليها!</string>
 </resources>
 

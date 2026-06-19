@@ -394,5 +394,8 @@
     <string name="your_coin">Iyong mga Barya</string>
     <string name="coin_not_enougt">Hindi sapat ang mga barya</string>
 
+    <string name="coin">Barya</string>
+    <string name="claim">Kunin!</string>
+
 
 </resources>

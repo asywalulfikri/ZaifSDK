@@ -395,4 +395,7 @@
     <string name="point_get">3 punten verdiend</string>
     <string name="your_coin">Jouw munten</string>
     <string name="coin_not_enougt">Niet genoeg munten</string>
+
+    <string name="coin">Munt</string>
+    <string name="claim">Claim!</string>
 </resources>

@@ -391,4 +391,7 @@
     <string name="point_get">ได้รับ 3 คะแนน</string>
     <string name="your_coin">เหรียญของคุณ</string>
     <string name="coin_not_enougt">เหรียญไม่เพียงพอ</string>
+
+    <string name="coin">เหรียญ</string>
+    <string name="claim">รับเลย!</string>
 </resources>

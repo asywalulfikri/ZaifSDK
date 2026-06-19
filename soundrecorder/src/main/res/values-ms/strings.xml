@@ -394,4 +394,7 @@
     <string name="your_coin">Syiling Anda</string>
     <string name="coin_not_enougt">Syiling tidak mencukupi</string>
 
+    <string name="coin">Syiling</string>
+    <string name="claim">Tuntut!</string>
+
 </resources>

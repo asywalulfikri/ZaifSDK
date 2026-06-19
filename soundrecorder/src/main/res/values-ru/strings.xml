@@ -390,4 +390,7 @@
     <string name="your_coin">Ваши монеты</string>
     <string name="coin_not_enougt">Недостаточно монет</string>
 
+    <string name="coin">Монета</string>
+    <string name="claim">Получить!</string>
+
 </resources>

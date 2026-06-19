@@ -391,4 +391,7 @@
     <string name="point_get">3 Points Earned</string>
     <string name="your_coin">Your Coins</string>
     <string name="coin_not_enougt">Not enough coins</string>
+
+    <string name="coin">Coin</string>
+    <string name="claim">Claim!</string>
 </resources>

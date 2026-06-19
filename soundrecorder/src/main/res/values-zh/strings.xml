@@ -392,4 +392,7 @@
     <string name="your_coin">你的金币</string>
     <string name="coin_not_enougt">金币不足</string>
 
+    <string name="coin">金币</string>
+    <string name="claim">领取！</string>
+
 </resources>
