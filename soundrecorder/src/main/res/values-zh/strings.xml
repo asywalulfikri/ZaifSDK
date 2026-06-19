@@ -379,4 +379,12 @@
     <string name="finish_download_first">请先完成上一首歌曲的下载</string>
     <string name="download_failed">下载失败</string>
 
+    <string name="request_song">🎵 请求歌曲</string>
+    <string name="song_title">🎵 歌曲标题</string>
+    <string name="what_song_you_wanna_play">你想在这个应用中演奏哪首歌曲？</string>
+    <string name="song_in_music">审核通过后，你请求的歌曲将显示在音乐功能中。请打开在线音乐标签查看。</string>
+    <string name="request_song_success">歌曲请求发送成功</string>
+    <string name="request_song_failed">歌曲请求发送失败</string>
+    <string name="song_title_cannot_empty">歌曲标题不能为空</string>
+
 </resources>

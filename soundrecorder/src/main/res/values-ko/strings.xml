@@ -381,4 +381,12 @@
     <string name="finish_download_first">먼저 이전 노래의 다운로드를 완료하세요</string>
     <string name="download_failed">다운로드 실패</string>
 
+    <string name="request_song">🎵 노래 요청</string>
+    <string name="song_title">🎵 노래 제목</string>
+    <string name="what_song_you_wanna_play">이 앱에서 어떤 노래를 연주하고 싶나요?</string>
+    <string name="song_in_music">승인되면 요청한 노래가 음악 기능에 표시됩니다. 온라인 음악 탭에서 확인하세요.</string>
+    <string name="request_song_success">노래 요청이 성공적으로 전송되었습니다</string>
+    <string name="request_song_failed">노래 요청 전송에 실패했습니다</string>
+    <string name="song_title_cannot_empty">노래 제목은 비워둘 수 없습니다</string>
+
 </resources>

@@ -381,5 +381,13 @@
     <string name="finish_download_first">Bitte schließen Sie zuerst den Download des vorherigen Liedes ab</string>
     <string name="download_failed">Download fehlgeschlagen</string>
 
+    <string name="request_song">🎵 Lied anfordern</string>
+    <string name="song_title">🎵 Liedtitel</string>
+    <string name="what_song_you_wanna_play">Welches Lied möchtest du in dieser App spielen?</string>
+    <string name="song_in_music">Nach der Genehmigung wird dein angefordertes Lied im Musikbereich angezeigt. Öffne den Tab „Online-Musik“, um es zu finden.</string>
+    <string name="request_song_success">Liedanfrage erfolgreich gesendet</string>
+    <string name="request_song_failed">Liedanfrage konnte nicht gesendet werden</string>
+    <string name="song_title_cannot_empty">Der Liedtitel darf nicht leer sein</string>
+
 </resources>
 

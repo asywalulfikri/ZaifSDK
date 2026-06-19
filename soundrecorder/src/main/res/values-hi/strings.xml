@@ -377,4 +377,12 @@
     <string name="finish_download_first">कृपया पहले पिछले गीत का डाउनलोड पूरा करें</string>
     <string name="download_failed">डाउनलोड विफल</string>
 
+
+    <string name="request_song">🎵 गीत अनुरोध</string>
+    <string name="song_title">🎵 गीत का शीर्षक</string>
+    <string name="what_song_you_wanna_play">आप इस ऐप में कौन सा गीत बजाना चाहते हैं?</string>
+    <string name="song_in_music">स्वीकृति के बाद, आपका अनुरोधित गीत संगीत सुविधा में दिखाई देगा। उसे देखने के लिए ऑनलाइन संगीत टैब खोलें।</string>
+    <string name="request_song_success">गीत अनुरोध सफलतापूर्वक भेजा गया</string>
+    <string name="request_song_failed">गीत अनुरोध भेजने में विफल</string>
+    <string name="song_title_cannot_empty">गीत का शीर्षक खाली नहीं हो सकता</string>
 </resources>

@@ -377,4 +377,12 @@
     <string name="finish_download_first">Сначала завершите загрузку предыдущей песни</string>
     <string name="download_failed">Ошибка загрузки</string>
 
+    <string name="request_song">🎵 Запросить песню</string>
+    <string name="song_title">🎵 Название песни</string>
+    <string name="what_song_you_wanna_play">Какую песню вы хотите сыграть в этом приложении?</string>
+    <string name="song_in_music">После одобрения запрошенная вами песня появится в разделе Музыка. Откройте вкладку Онлайн-музыка, чтобы найти её.</string>
+    <string name="request_song_success">Запрос песни успешно отправлен</string>
+    <string name="request_song_failed">Не удалось отправить запрос песни</string>
+    <string name="song_title_cannot_empty">Название песни не может быть пустым</string>
+
 </resources>

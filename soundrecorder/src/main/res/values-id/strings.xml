@@ -384,4 +384,12 @@
 
     <string name="finish_download_first">Selesaikan download lagu sebelumnya terlebih dahulu</string>
     <string name="download_failed">Download Gagal</string>
+
+    <string name="request_song">🎵 Request Lagu</string>
+    <string name="song_title">🎵 Judul Lagu</string>
+    <string name="what_song_you_wanna_play">Lagu apa yang ingin kamu mainkan di aplikasi ini?</string>
+    <string name="song_in_music">Setelah disetujui, lagu request kamu akan tampil di fitur Musik. Buka tab Musik Online untuk menemukannya.</string>
+    <string name="request_song_success">Request lagu berhasil dikirim</string>
+    <string name="request_song_failed">Request lagu gagal dikirim</string>
+    <string name="song_title_cannot_empty">Judul lagu tidak boleh kosong</string>
 </resources>

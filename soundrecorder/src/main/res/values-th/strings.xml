@@ -378,4 +378,12 @@
 
     <string name="finish_download_first">กรุณาดาวน์โหลดเพลงก่อนหน้าให้เสร็จก่อน</string>
     <string name="download_failed">ดาวน์โหลดล้มเหลว</string>
+
+    <string name="request_song">🎵 ขอเพลง</string>
+    <string name="song_title">🎵 ชื่อเพลง</string>
+    <string name="what_song_you_wanna_play">คุณอยากเล่นเพลงอะไรในแอปนี้?</string>
+    <string name="song_in_music">หลังจากได้รับการอนุมัติ เพลงที่คุณขอจะปรากฏในฟีเจอร์เพลง เปิดแท็บเพลงออนไลน์เพื่อดูเพลงนั้น</string>
+    <string name="request_song_success">ส่งคำขอเพลงสำเร็จ</string>
+    <string name="request_song_failed">ส่งคำขอเพลงไม่สำเร็จ</string>
+    <string name="song_title_cannot_empty">ชื่อเพลงต้องไม่ว่างเปล่า</string>
 </resources>

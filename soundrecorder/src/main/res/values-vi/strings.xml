@@ -378,4 +378,12 @@
 
     <string name="finish_download_first">Vui lòng hoàn tất tải xuống bài hát trước đó trước</string>
     <string name="download_failed">Tải xuống thất bại</string>
+
+    <string name="request_song">🎵 Yêu cầu bài hát</string>
+    <string name="song_title">🎵 Tên bài hát</string>
+    <string name="what_song_you_wanna_play">Bạn muốn chơi bài hát nào trong ứng dụng này?</string>
+    <string name="song_in_music">Sau khi được phê duyệt, bài hát bạn yêu cầu sẽ xuất hiện trong tính năng Âm nhạc. Mở tab Nhạc Trực Tuyến để tìm bài hát đó.</string>
+    <string name="request_song_success">Gửi yêu cầu bài hát thành công</string>
+    <string name="request_song_failed">Gửi yêu cầu bài hát thất bại</string>
+    <string name="song_title_cannot_empty">Tên bài hát không được để trống</string>
 </resources>

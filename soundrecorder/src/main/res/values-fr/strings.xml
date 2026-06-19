@@ -381,4 +381,12 @@
     <string name="finish_download_first">Veuillez d abord terminer le téléchargement de la chanson précédente</string>
     <string name="download_failed">Échec du téléchargement</string>
 
+    <string name="request_song">🎵 Demander une chanson</string>
+    <string name="song_title">🎵 Titre de la chanson</string>
+    <string name="what_song_you_wanna_play">Quelle chanson souhaitez-vous jouer dans cette application ?</string>
+    <string name="song_in_music">Après approbation, votre chanson demandée apparaîtra dans la section Musique. Ouvrez l’onglet Musique en ligne pour la trouver.</string>
+    <string name="request_song_success">Demande de chanson envoyée avec succès</string>
+    <string name="request_song_failed">Échec de l’envoi de la demande de chanson</string>
+    <string name="song_title_cannot_empty">Le titre de la chanson ne peut pas être vide</string>
+
 </resources>

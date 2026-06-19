@@ -377,4 +377,12 @@
 
     <string name="finish_download_first">Please finish downloading the previous song first</string>
     <string name="download_failed">Download Failed</string>
+
+    <string name="request_song">🎵 Request Song</string>
+    <string name="song_title">🎵 Song Title</string>
+    <string name="what_song_you_wanna_play">What song would you like to play in this app?</string>
+    <string name="song_in_music">After approval, your requested song will appear in the Music feature. Open the Online Music tab to find it.</string>
+    <string name="request_song_success">Song request submitted successfully</string>
+    <string name="request_song_failed">Failed to submit song request</string>
+    <string name="song_title_cannot_empty">Song title cannot be empty</string>
 </resources>

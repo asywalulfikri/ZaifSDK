@@ -374,4 +374,12 @@
     <string name="finish_download_first">先に前の曲のダウンロードを完了してください</string>
     <string name="download_failed">ダウンロードに失敗しました</string>
 
+    <string name="request_song">🎵 曲をリクエスト</string>
+    <string name="song_title">🎵 曲名</string>
+    <string name="what_song_you_wanna_play">このアプリでどの曲を演奏したいですか？</string>
+    <string name="song_in_music">承認されると、リクエストした曲が音楽機能に表示されます。オンライン音楽タブを開いて確認してください。</string>
+    <string name="request_song_success">曲のリクエストが送信されました</string>
+    <string name="request_song_failed">曲のリクエスト送信に失敗しました</string>
+    <string name="song_title_cannot_empty">曲名を空にすることはできません</string>
+
 </resources>

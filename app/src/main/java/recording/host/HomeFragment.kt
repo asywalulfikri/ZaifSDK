@@ -16,6 +16,7 @@ import recording.host.databinding.FragmentHomeBinding
 import sound.recorder.widget.base.BaseFragmentWidget
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.music.MusicListDialogHelper
+import sound.recorder.widget.music.RequestSongDialog
 import sound.recorder.widget.music.MusicPlayerManager
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.NetworkUtils
@@ -117,6 +118,9 @@ class HomeFragment : BaseFragmentWidget() {
             }
         }
 
+        binding?.btnRequestSong?.setOnClickListener {
+            RequestSongDialog().show(requireContext())
+        }
 
     }
 

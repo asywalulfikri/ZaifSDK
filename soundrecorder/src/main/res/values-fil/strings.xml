@@ -381,5 +381,13 @@
     <string name="finish_download_first">Pakikumpleto muna ang pag-download ng naunang kanta</string>
     <string name="download_failed">Nabigo ang pag-download</string>
 
+    <string name="request_song">🎵 Humiling ng Kanta</string>
+    <string name="song_title">🎵 Pamagat ng Kanta</string>
+    <string name="what_song_you_wanna_play">Anong kanta ang gusto mong tugtugin sa app na ito?</string>
+    <string name="song_in_music">Kapag naaprubahan, lalabas ang iyong hiniling na kanta sa Music feature. Buksan ang Online Music tab upang makita ito.</string>
+    <string name="request_song_success">Matagumpay na naipadala ang kahilingan sa kanta</string>
+    <string name="request_song_failed">Nabigong maipadala ang kahilingan sa kanta</string>
+    <string name="song_title_cannot_empty">Hindi maaaring walang laman ang pamagat ng kanta</string>
+
 
 </resources>
