@@ -6,9 +6,9 @@ object CoinManager {
     private const val PREFS_NAME        = "zaif_coins"
     private const val KEY_BALANCE       = "balance"
     private const val KEY_LAST_DAILY    = "last_daily"
-    const val DAILY_COINS               = 3
+    const val DAILY_COINS               = 2
     const val UNLOCK_COST               = 1
-    private const val DAILY_INTERVAL_MS = 24 * 60 * 60 * 1000L
+    private const val DAILY_INTERVAL_MS = 4 * 60 * 60 * 1000L
 
     fun prefs(context: Context) =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
