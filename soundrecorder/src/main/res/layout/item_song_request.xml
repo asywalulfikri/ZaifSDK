@@ -14,13 +14,24 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/tvSongTitle"
+            android:id="@+id/tvTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@+id/tvStatus"
             android:textColor="#FFFFFF"
             android:textSize="@dimen/_14sdp"
             android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_below="@+id/tvTitle"
+            android:layout_marginTop="@dimen/_3sdp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/tvStatus"
+            android:textColor="#FFFFFF"
+            android:visibility="gone"
+            android:textSize="@dimen/_14sdp"/>
 
         <TextView
             android:id="@+id/tvStatus"

@@ -169,7 +169,7 @@ class SongRequestAdminFragment : Fragment() {
         private val items = mutableListOf<SongRequest>()
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-            val tvSongTitle: TextView = view.findViewById(R.id.tvSongTitle)
+            val tvSongTitle: TextView = view.findViewById(R.id.tvTitle)
             val tvStatus: TextView    = view.findViewById(R.id.tvStatus)
             val tvDate: TextView      = view.findViewById(R.id.tvDate)
             val btnMarkDone: TextView = view.findViewById(R.id.btnMarkDone)

@@ -394,4 +394,13 @@
 
     <string name="coin">Coin</string>
     <string name="claim">Claim!</string>
+
+    <string name="bug_name">Bug Name</string>
+    <string name="bug_name_cannot_empty">Nama Bug Tidak Boleh Kosong</string>
+    <string name="desc_bug_cannot_empty">Nama Bug Tidak Boleh Kosong</string>
+    <string name="bug_description">Deskripsi Bug</string>
+    <string name="bug_info">Jelaskan Bagimana terjadinya Bug</string>
+    <string name="report_bug">Report Bug / Error App</string>
+    <string name="report_bug_sent">Terimakasih, Laporan Telah Kami terima dan akan di investigasi secepatnya</string>
+    <string name="report_bug_failed">Laporan Bug Gagal Dikirim</string>
 </resources>

@@ -18,6 +18,7 @@ import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.music.RequestSongDialog
 import sound.recorder.widget.music.MusicPlayerManager
+import sound.recorder.widget.ui.dialog.ReportBugDialog
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.NetworkUtils
 import sound.recorder.widget.util.Toastic
@@ -118,8 +119,27 @@ class HomeFragment : BaseFragmentWidget() {
             }
         }
 
+        binding?.btnListBug?.setOnClickListener {
+            NetworkUtils.isInternetConnected(requireContext()) { isConnected ->
+                if (isConnected) {
+                    try {
+                        MyAdsListener.setBanner(false)
+                        findNavController().navigate(R.id.action_home_fragment_to_list_bug_fragment)
+                    } catch (e: Exception) {
+                        setToastTic(Toastic.ERROR,e.message.toString())
+                    }
+                } else {
+                    setToastTic(Toastic.WARNING,getString(sound.recorder.widget.R.string.no_internet_connection))
+                }
+            }
+        }
+
         binding?.btnRequestSong?.setOnClickListener {
             RequestSongDialog().show(requireContext())
+        }
+
+        binding?.btnBugReport?.setOnClickListener {
+            ReportBugDialog().show(requireContext())
         }
 
     }

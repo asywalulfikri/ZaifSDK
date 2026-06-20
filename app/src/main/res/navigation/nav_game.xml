@@ -27,12 +27,22 @@
             android:id="@+id/action_home_fragment_to_setting_fragment"
             app:destination="@id/FragmentSetting" />
 
+        <action
+            android:id="@+id/action_home_fragment_to_list_bug_fragment"
+            app:destination="@id/FragmentListBug" />
+
 
     </fragment>
 
     <fragment
         android:id="@+id/FragmentSetting"
         android:name="sound.recorder.widget.ui.fragment.NotePromotionAdminFragment"
+        android:label=""
+        tools:layout="@layout/fragment_setting"/>
+
+    <fragment
+        android:id="@+id/FragmentListBug"
+        android:name="sound.recorder.widget.ui.fragment.BugReportAdminFragment"
         android:label=""
         tools:layout="@layout/fragment_setting"/>
 
