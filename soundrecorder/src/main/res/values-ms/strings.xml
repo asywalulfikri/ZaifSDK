@@ -392,9 +392,19 @@
     <string name="unlock_music">Buka Kunci Lagu 🔒</string>
     <string name="point_get">3 Mata Diperoleh</string>
     <string name="your_coin">Syiling Anda</string>
-    <string name="coin_not_enougt">Syiling tidak mencukupi</string>
+    <string name="coin_not_enough">Syiling tidak mencukupi</string>
 
     <string name="coin">Syiling</string>
     <string name="claim">Tuntut!</string>
+
+    <string name="bug_name">Nama Pepijat</string>
+    <string name="report">Laporkan Pepijat</string>
+    <string name="bug_name_cannot_empty">Nama pepijat tidak boleh kosong</string>
+    <string name="desc_bug_cannot_empty">Penerangan pepijat tidak boleh kosong</string>
+    <string name="bug_description">Penerangan Pepijat</string>
+    <string name="bug_info">Jelaskan bagaimana pepijat berlaku</string>
+    <string name="report_bug_error">Laporkan Pepijat / Ralat Aplikasi</string>
+    <string name="report_bug_sent">Terima kasih. Laporan anda telah diterima dan akan disiasat secepat mungkin.</string>
+    <string name="report_bug_failed">Gagal menghantar laporan pepijat</string>
 
 </resources>

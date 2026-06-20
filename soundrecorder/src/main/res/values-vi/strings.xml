@@ -390,8 +390,18 @@
     <string name="unlock_music">Mở khóa bài hát 🔒</string>
     <string name="point_get">Nhận được 3 điểm</string>
     <string name="your_coin">Xu của bạn</string>
-    <string name="coin_not_enougt">Không đủ xu</string>
+    <string name="coin_not_enough">Không đủ xu</string>
 
     <string name="coin">金币</string>
     <string name="claim">领取！</string>
+
+    <string name="bug_name">Tên lỗi</string>
+    <string name="report">Báo cáo lỗi</string>
+    <string name="bug_name_cannot_empty">Tên lỗi không được để trống</string>
+    <string name="desc_bug_cannot_empty">Mô tả lỗi không được để trống</string>
+    <string name="bug_description">Mô tả lỗi</string>
+    <string name="bug_info">Giải thích lỗi đã xảy ra như thế nào</string>
+    <string name="report_bug_error">Báo cáo lỗi / Lỗi ứng dụng</string>
+    <string name="report_bug_sent">Cảm ơn bạn. Chúng tôi đã nhận được báo cáo và sẽ điều tra sớm nhất có thể.</string>
+    <string name="report_bug_failed">Gửi báo cáo lỗi thất bại</string>
 </resources>

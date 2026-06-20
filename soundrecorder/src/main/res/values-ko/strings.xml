@@ -392,9 +392,19 @@
     <string name="unlock_music">노래 잠금 해제 🔒</string>
     <string name="point_get">3포인트 획득</string>
     <string name="your_coin">내 코인</string>
-    <string name="coin_not_enougt">코인이 부족합니다</string>
+    <string name="coin_not_enough">코인이 부족합니다</string>
 
     <string name="coin">코인</string>
     <string name="claim">받기!</string>
+
+    <string name="bug_name">버그 이름</string>
+    <string name="report">버그 신고</string>
+    <string name="bug_name_cannot_empty">버그 이름은 비워둘 수 없습니다</string>
+    <string name="desc_bug_cannot_empty">버그 설명은 비워둘 수 없습니다</string>
+    <string name="bug_description">버그 설명</string>
+    <string name="bug_info">버그가 어떻게 발생했는지 설명해 주세요</string>
+    <string name="report_bug_error">버그 / 앱 오류 신고</string>
+    <string name="report_bug_sent">감사합니다. 신고가 접수되었으며 가능한 한 빨리 조사하겠습니다.</string>
+    <string name="report_bug_failed">버그 신고 전송 실패</string>
 
 </resources>

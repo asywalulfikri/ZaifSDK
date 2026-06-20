@@ -391,8 +391,18 @@
     <string name="unlock_music">Desbloquear Música 🔒</string>
     <string name="point_get">3 Pontos Obtidos</string>
     <string name="your_coin">Suas Moedas</string>
-    <string name="coin_not_enougt">Moedas insuficientes</string>
+    <string name="coin_not_enough">Moedas insuficientes</string>
 
     <string name="coin">Moeda</string>
     <string name="claim">Resgatar!</string>
+
+    <string name="bug_name">Nome do Bug</string>
+    <string name="report">Reportar Bug</string>
+    <string name="bug_name_cannot_empty">O nome do bug não pode estar vazio</string>
+    <string name="desc_bug_cannot_empty">A descrição do bug não pode estar vazia</string>
+    <string name="bug_description">Descrição do Bug</string>
+    <string name="bug_info">Explique como o bug ocorreu</string>
+    <string name="report_bug_error">Reportar Bug / Erro do Aplicativo</string>
+    <string name="report_bug_sent">Obrigado. Recebemos seu relatório e iremos investigá-lo o mais rápido possível.</string>
+    <string name="report_bug_failed">Falha ao enviar relatório de bug</string>
 </resources>

@@ -435,9 +435,19 @@
     <string name="unlock_music">فتح الأغنية 🔒</string>
     <string name="point_get">تم الحصول على 3 نقاط</string>
     <string name="your_coin">عملاتك</string>
-    <string name="coin_not_enougt">العملات غير كافية</string>
+    <string name="coin_not_enough">العملات غير كافية</string>
 
     <string name="coin">عملة</string>
     <string name="claim">احصل عليها!</string>
+
+    <string name="bug_name">اسم الخطأ</string>
+    <string name="report">الإبلاغ عن خطأ</string>
+    <string name="bug_name_cannot_empty">لا يمكن أن يكون اسم الخطأ فارغًا</string>
+    <string name="desc_bug_cannot_empty">لا يمكن أن يكون وصف الخطأ فارغًا</string>
+    <string name="bug_description">وصف الخطأ</string>
+    <string name="bug_info">اشرح كيف حدث الخطأ</string>
+    <string name="report_bug_error">الإبلاغ عن خطأ / مشكلة في التطبيق</string>
+    <string name="report_bug_sent">شكرًا لك. لقد استلمنا بلاغك وسنقوم بالتحقيق فيه في أقرب وقت ممكن.</string>
+    <string name="report_bug_failed">فشل في إرسال بلاغ الخطأ</string>
 </resources>
 

@@ -49,7 +49,7 @@ class ReportBugDialog {
         }
 
         root.addView(TextView(context).apply {
-            text = context.getString(R.string.report_bug)
+            text = context.getString(R.string.report)
             setTextColor(Color.parseColor("#FF6B35"))
             textSize = 16f
             typeface = Typeface.create("sans-serif", Typeface.BOLD)

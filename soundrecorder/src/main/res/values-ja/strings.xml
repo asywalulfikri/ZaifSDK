@@ -385,9 +385,19 @@
     <string name="unlock_music">曲をアンロック 🔒</string>
     <string name="point_get">3ポイント獲得</string>
     <string name="your_coin">あなたのコイン</string>
-    <string name="coin_not_enougt">コインが足りません</string>
+    <string name="coin_not_enough">コインが足りません</string>
 
     <string name="coin">コイン</string>
     <string name="claim">受け取る！</string>
+
+    <string name="bug_name">バグ名</string>
+    <string name="report">バグを報告</string>
+    <string name="bug_name_cannot_empty">バグ名は空にできません</string>
+    <string name="desc_bug_cannot_empty">バグの説明は空にできません</string>
+    <string name="bug_description">バグの説明</string>
+    <string name="bug_info">バグがどのように発生したか説明してください</string>
+    <string name="report_bug_error">バグ / アプリエラーを報告</string>
+    <string name="report_bug_sent">ありがとうございます。報告を受け取りました。できるだけ早く調査します。</string>
+    <string name="report_bug_failed">バグ報告の送信に失敗しました</string>
 
 </resources>

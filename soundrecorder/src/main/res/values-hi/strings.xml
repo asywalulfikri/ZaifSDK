@@ -389,8 +389,18 @@
     <string name="unlock_music">गीत अनलॉक करें 🔒</string>
     <string name="point_get">3 अंक प्राप्त हुए</string>
     <string name="your_coin">आपके सिक्के</string>
-    <string name="coin_not_enougt">सिक्के पर्याप्त नहीं हैं</string>
+    <string name="coin_not_enough">सिक्के पर्याप्त नहीं हैं</string>
 
     <string name="coin">सिक्का</string>
     <string name="claim">प्राप्त करें!</string>
+
+    <string name="bug_name">बग का नाम</string>
+    <string name="report">बग रिपोर्ट करें</string>
+    <string name="bug_name_cannot_empty">बग का नाम खाली नहीं हो सकता</string>
+    <string name="desc_bug_cannot_empty">बग का विवरण खाली नहीं हो सकता</string>
+    <string name="bug_description">बग का विवरण</string>
+    <string name="bug_info">बताएं कि बग कैसे हुआ</string>
+    <string name="report_bug_error">बग / ऐप त्रुटि रिपोर्ट करें</string>
+    <string name="report_bug_sent">धन्यवाद। हमें आपकी रिपोर्ट प्राप्त हो गई है और हम जल्द से जल्द इसकी जांच करेंगे।</string>
+    <string name="report_bug_failed">बग रिपोर्ट भेजने में विफल</string>
 </resources>

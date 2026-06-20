@@ -394,8 +394,18 @@
     <string name="unlock_music">Nummer ontgrendelen 🔒</string>
     <string name="point_get">3 punten verdiend</string>
     <string name="your_coin">Jouw munten</string>
-    <string name="coin_not_enougt">Niet genoeg munten</string>
+    <string name="coin_not_enough">Niet genoeg munten</string>
 
     <string name="coin">Munt</string>
     <string name="claim">Claim!</string>
+
+    <string name="bug_name">Bugnaam</string>
+    <string name="report">Bug melden</string>
+    <string name="bug_name_cannot_empty">Bugnaam mag niet leeg zijn</string>
+    <string name="desc_bug_cannot_empty">Bugbeschrijving mag niet leeg zijn</string>
+    <string name="bug_description">Bugbeschrijving</string>
+    <string name="bug_info">Leg uit hoe de bug is ontstaan</string>
+    <string name="report_bug_error">Bug / App-fout melden</string>
+    <string name="report_bug_sent">Bedankt. We hebben uw melding ontvangen en zullen deze zo snel mogelijk onderzoeken.</string>
+    <string name="report_bug_failed">Verzenden van bugrapport mislukt</string>
 </resources>

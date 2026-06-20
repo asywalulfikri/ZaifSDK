@@ -396,8 +396,18 @@
     <string name="unlock_music">Buka Lagu 🔒</string>
     <string name="point_get">Mendapatkan 3 Poin</string>
     <string name="your_coin">Koin Kamu</string>
-    <string name="coin_not_enougt">Koin tidak cukup</string>
+    <string name="coin_not_enough">Koin tidak cukup</string>
 
     <string name="coin">Koin</string>
     <string name="claim">Klaim!</string>
+
+    <string name="bug_name">Nama Bug</string>
+    <string name="report">Laporkan Bug</string>
+    <string name="bug_name_cannot_empty">Nama Bug Tidak Boleh Kosong</string>
+    <string name="desc_bug_cannot_empty">Deskripsi Bug Tidak Boleh Kosong</string>
+    <string name="bug_description">Deskripsi Bug</string>
+    <string name="bug_info">Jelaskan bagaimana terjadinya bug</string>
+    <string name="report_bug_error">Laporkan Bug / Error Aplikasi</string>
+    <string name="report_bug_sent">Terima kasih. Laporan telah kami terima dan akan kami investigasi secepatnya.</string>
+    <string name="report_bug_failed">Laporan bug gagal dikirim</string>
 </resources>

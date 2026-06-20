@@ -389,8 +389,18 @@
     <string name="unlock_music">Unlock Song 🔒</string>
     <string name="point_get">3 Points Earned</string>
     <string name="your_coin">Your Coins</string>
-    <string name="coin_not_enougt">Not enough coins</string>
+    <string name="coin_not_enough">Not enough coins</string>
 
     <string name="coin">Coin</string>
     <string name="claim">Claim!</string>
+
+    <string name="bug_name">Bug Name</string>
+    <string name="report">Report Bug</string>
+    <string name="bug_name_cannot_empty">Bug name cannot be empty</string>
+    <string name="desc_bug_cannot_empty">Bug description cannot be empty</string>
+    <string name="bug_description">Bug Description</string>
+    <string name="bug_info">Explain how the bug occurred</string>
+    <string name="report_bug_error">Report Bug / App Error</string>
+    <string name="report_bug_sent">Thank you. We have received your report and will investigate it as soon as possible.</string>
+    <string name="report_bug_failed">Failed to send bug report</string>
 </resources>

@@ -388,9 +388,19 @@
     <string name="unlock_music">Разблокировать песню 🔒</string>
     <string name="point_get">Получено 3 очка</string>
     <string name="your_coin">Ваши монеты</string>
-    <string name="coin_not_enougt">Недостаточно монет</string>
+    <string name="coin_not_enough">Недостаточно монет</string>
 
     <string name="coin">Монета</string>
     <string name="claim">Получить!</string>
+
+    <string name="bug_name">Название ошибки</string>
+    <string name="report">Сообщить об ошибке</string>
+    <string name="bug_name_cannot_empty">Название ошибки не может быть пустым</string>
+    <string name="desc_bug_cannot_empty">Описание ошибки не может быть пустым</string>
+    <string name="bug_description">Описание ошибки</string>
+    <string name="bug_info">Опишите, как произошла ошибка</string>
+    <string name="report_bug_error">Сообщить об ошибке / сбое приложения</string>
+    <string name="report_bug_sent">Спасибо. Мы получили ваш отчёт и рассмотрим его как можно скорее.</string>
+    <string name="report_bug_failed">Не удалось отправить отчёт об ошибке</string>
 
 </resources>

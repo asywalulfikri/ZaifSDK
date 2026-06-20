@@ -390,8 +390,18 @@
     <string name="unlock_music">ปลดล็อกเพลง 🔒</string>
     <string name="point_get">ได้รับ 3 คะแนน</string>
     <string name="your_coin">เหรียญของคุณ</string>
-    <string name="coin_not_enougt">เหรียญไม่เพียงพอ</string>
+    <string name="coin_not_enough">เหรียญไม่เพียงพอ</string>
 
     <string name="coin">เหรียญ</string>
     <string name="claim">รับเลย!</string>
+
+    <string name="bug_name">ชื่อบั๊ก</string>
+    <string name="report">รายงานบั๊ก</string>
+    <string name="bug_name_cannot_empty">ชื่อบั๊กต้องไม่ว่างเปล่า</string>
+    <string name="desc_bug_cannot_empty">รายละเอียดบั๊กต้องไม่ว่างเปล่า</string>
+    <string name="bug_description">รายละเอียดบั๊ก</string>
+    <string name="bug_info">อธิบายว่าบั๊กเกิดขึ้นได้อย่างไร</string>
+    <string name="report_bug_error">รายงานบั๊ก / ข้อผิดพลาดของแอป</string>
+    <string name="report_bug_sent">ขอบคุณ เราได้รับรายงานของคุณแล้วและจะตรวจสอบโดยเร็วที่สุด</string>
+    <string name="report_bug_failed">ส่งรายงานบั๊กล้มเหลว</string>
 </resources>

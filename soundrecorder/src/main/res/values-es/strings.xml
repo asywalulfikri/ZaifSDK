@@ -391,8 +391,19 @@
     <string name="unlock_music">Desbloquear canción 🔒</string>
     <string name="point_get">3 puntos obtenidos</string>
     <string name="your_coin">Tus monedas</string>
-    <string name="coin_not_enougt">Monedas insuficientes</string>
+    <string name="coin_not_enough">Monedas insuficientes</string>
 
     <string name="coin">Moneda</string>
     <string name="claim">¡Reclamar!</string>
+
+    <string name="bug_name">Nombre del error</string>
+    <string name="report">Reportar error</string>
+    <string name="bug_name_cannot_empty">El nombre del error no puede estar vacío</string>
+    <string name="desc_bug_cannot_empty">La descripción del error no puede estar vacía</string>
+    <string name="bug_description">Descripción del error</string>
+    <string name="bug_info">Explique cómo ocurrió el error</string>
+    <string name="report_bug_error">Reportar error / fallo de la aplicación</string>
+    <string name="report_bug_sent">Gracias. Hemos recibido su informe y lo investigaremos lo antes posible.</string>
+    <string name="report_bug_failed">No se pudo enviar el informe de error</string>
+
 </resources>

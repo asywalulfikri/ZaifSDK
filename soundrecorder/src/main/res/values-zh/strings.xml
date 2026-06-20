@@ -390,9 +390,19 @@
     <string name="unlock_music">解锁歌曲 🔒</string>
     <string name="point_get">获得 3 积分</string>
     <string name="your_coin">你的金币</string>
-    <string name="coin_not_enougt">金币不足</string>
+    <string name="coin_not_enough">金币不足</string>
 
     <string name="coin">金币</string>
     <string name="claim">领取！</string>
+
+    <string name="bug_name">错误名称</string>
+    <string name="report">报告错误</string>
+    <string name="bug_name_cannot_empty">错误名称不能为空</string>
+    <string name="desc_bug_cannot_empty">错误描述不能为空</string>
+    <string name="bug_description">错误描述</string>
+    <string name="bug_info">请说明错误是如何发生的</string>
+    <string name="report_bug_error">报告错误 / 应用程序错误</string>
+    <string name="report_bug_sent">感谢您的反馈。我们已收到您的报告，并将尽快进行调查。</string>
+    <string name="report_bug_failed">发送错误报告失败</string>
 
 </resources>

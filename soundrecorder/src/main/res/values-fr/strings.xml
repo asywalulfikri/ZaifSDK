@@ -392,9 +392,19 @@
     <string name="unlock_music">Déverrouiller la chanson 🔒</string>
     <string name="point_get">3 points obtenus</string>
     <string name="your_coin">Vos pièces</string>
-    <string name="coin_not_enougt">Pièces insuffisantes</string>
+    <string name="coin_not_enough">Pièces insuffisantes</string>
 
     <string name="coin">Pièce</string>
     <string name="claim">Réclamer !</string>
+
+    <string name="bug_name">Nom du bug</string>
+    <string name="report">Signaler un bug</string>
+    <string name="bug_name_cannot_empty">Le nom du bug ne peut pas être vide</string>
+    <string name="desc_bug_cannot_empty">La description du bug ne peut pas être vide</string>
+    <string name="bug_description">Description du bug</string>
+    <string name="bug_info">Expliquez comment le bug s est produit</string>
+    <string name="report_bug_error">Signaler un bug / une erreur de l application</string>
+    <string name="report_bug_sent">Merci. Nous avons reçu votre signalement et l examinerons dès que possible.</string>
+    <string name="report_bug_failed">Échec de l envoi du signalement</string>
 
 </resources>

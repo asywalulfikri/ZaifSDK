@@ -392,10 +392,20 @@
     <string name="unlock_music">I-unlock ang Kanta 🔒</string>
     <string name="point_get">Nakakuha ng 3 Puntos</string>
     <string name="your_coin">Iyong mga Barya</string>
-    <string name="coin_not_enougt">Hindi sapat ang mga barya</string>
+    <string name="coin_not_enough">Hindi sapat ang mga barya</string>
 
     <string name="coin">Barya</string>
     <string name="claim">Kunin!</string>
+
+    <string name="bug_name">Pangalan ng Bug</string>
+    <string name="report">Iulat ang Bug</string>
+    <string name="bug_name_cannot_empty">Hindi maaaring walang laman ang pangalan ng bug</string>
+    <string name="desc_bug_cannot_empty">Hindi maaaring walang laman ang paglalarawan ng bug</string>
+    <string name="bug_description">Paglalarawan ng Bug</string>
+    <string name="bug_info">Ipaliwanag kung paano nangyari ang bug</string>
+    <string name="report_bug_error">Iulat ang Bug / Error ng App</string>
+    <string name="report_bug_sent">Salamat. Natanggap namin ang iyong ulat at sisiyasatin ito sa lalong madaling panahon.</string>
+    <string name="report_bug_failed">Nabigong maipadala ang ulat ng bug</string>
 
 
 </resources>

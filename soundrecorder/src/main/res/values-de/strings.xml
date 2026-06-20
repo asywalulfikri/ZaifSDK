@@ -392,10 +392,21 @@
     <string name="unlock_music">Lied freischalten 🔒</string>
     <string name="point_get">3 Punkte erhalten</string>
     <string name="your_coin">Deine Münzen</string>
-    <string name="coin_not_enougt">Nicht genügend Münzen</string>
+    <string name="coin_not_enough">Nicht genügend Münzen</string>
 
     <string name="coin">Münze</string>
     <string name="claim">Beanspruchen!</string>
+
+
+    <string name="bug_name">Fehlername</string>
+    <string name="report">Fehler melden</string>
+    <string name="bug_name_cannot_empty">Der Fehlername darf nicht leer sein</string>
+    <string name="desc_bug_cannot_empty">Die Fehlerbeschreibung darf nicht leer sein</string>
+    <string name="bug_description">Fehlerbeschreibung</string>
+    <string name="bug_info">Beschreiben Sie, wie der Fehler aufgetreten ist</string>
+    <string name="report_bug_error">Fehler / App-Problem melden</string>
+    <string name="report_bug_sent">Vielen Dank. Wir haben Ihren Bericht erhalten und werden ihn so schnell wie möglich untersuchen.</string>
+    <string name="report_bug_failed">Fehlerbericht konnte nicht gesendet werden</string>
 
 </resources>
 
