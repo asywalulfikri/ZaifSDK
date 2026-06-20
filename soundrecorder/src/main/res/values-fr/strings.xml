@@ -407,4 +407,6 @@
     <string name="report_bug_sent">Merci. Nous avons reçu votre signalement et l examinerons dès que possible.</string>
     <string name="report_bug_failed">Échec de l envoi du signalement</string>
 
+    <string name="claim_daily_reward">Votre pièce quotidienne est prête à être réclamée ! 🪙</string>
+
 </resources>

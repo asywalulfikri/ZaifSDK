@@ -8,7 +8,7 @@ object CoinManager {
     private const val KEY_LAST_DAILY    = "last_daily"
     const val DAILY_COINS               = 2
     const val UNLOCK_COST               = 1
-    private const val DAILY_INTERVAL_MS = 4 * 60 * 60 * 1000L
+    private const val DAILY_INTERVAL_MS = 5 * 60 * 60 * 1000L
 
     fun prefs(context: Context) =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

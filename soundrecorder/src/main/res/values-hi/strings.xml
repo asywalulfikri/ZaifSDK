@@ -403,4 +403,5 @@
     <string name="report_bug_error">बग / ऐप त्रुटि रिपोर्ट करें</string>
     <string name="report_bug_sent">धन्यवाद। हमें आपकी रिपोर्ट प्राप्त हो गई है और हम जल्द से जल्द इसकी जांच करेंगे।</string>
     <string name="report_bug_failed">बग रिपोर्ट भेजने में विफल</string>
+    <string name="claim_daily_reward">आपका दैनिक सिक्का प्राप्त करने के लिए तैयार है! 🪙</string>
 </resources>

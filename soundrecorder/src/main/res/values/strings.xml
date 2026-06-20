@@ -404,4 +404,6 @@
     <string name="report_bug_error">Report Bug / App Error</string>
     <string name="report_bug_sent">Thank you. We have received your report and will investigate it as soon as possible.</string>
     <string name="report_bug_failed">Failed to send bug report</string>
+
+    <string name="claim_daily_reward">Your daily coin is ready to claim! 🪙</string>
 </resources>

@@ -74,15 +74,16 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.8.4'
     implementation 'androidx.room:room-ktx:2.8.4'
   //  implementation("com.github.skydoves:balloon:1.7.1")
-    implementation "com.google.android.gms:play-services-ads:25.3.0"// support android stable
+    implementation "com.google.android.gms:play-services-ads:25.4.0"// support android stable
     implementation 'com.google.android.gms:play-services-base:18.10.0'
+    implementation("androidx.work:work-runtime-ktx:2.11.2")
 
 
     //use version 18 if min sdk  26
     implementation 'com.google.android.gms:play-services-ads-identifier:18.3.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation "androidx.fragment:fragment-ktx:1.8.9"
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.11.0")
 
     implementation("com.android.billingclient:billing-ktx:7.1.1")
     implementation "androidx.navigation:navigation-fragment-ktx:2.9.8"

@@ -403,4 +403,6 @@
     <string name="report_bug_sent">Спасибо. Мы получили ваш отчёт и рассмотрим его как можно скорее.</string>
     <string name="report_bug_failed">Не удалось отправить отчёт об ошибке</string>
 
+    <string name="claim_daily_reward">Ваша ежедневная монета готова к получению! 🪙</string>
+
 </resources>

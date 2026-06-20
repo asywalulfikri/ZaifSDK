@@ -405,4 +405,6 @@
     <string name="report_bug_error">Reportar Bug / Erro do Aplicativo</string>
     <string name="report_bug_sent">Obrigado. Recebemos seu relatório e iremos investigá-lo o mais rápido possível.</string>
     <string name="report_bug_failed">Falha ao enviar relatório de bug</string>
+
+    <string name="claim_daily_reward">Sua moeda diária está pronta para ser resgatada! 🪙</string>
 </resources>

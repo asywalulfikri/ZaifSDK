@@ -408,4 +408,6 @@
     <string name="report_bug_error">Bug / App-fout melden</string>
     <string name="report_bug_sent">Bedankt. We hebben uw melding ontvangen en zullen deze zo snel mogelijk onderzoeken.</string>
     <string name="report_bug_failed">Verzenden van bugrapport mislukt</string>
+
+    <string name="claim_daily_reward">Je dagelijkse munt staat klaar om te claimen! 🪙</string>
 </resources>

@@ -404,5 +404,7 @@
     <string name="report_bug_sent">Terima kasih. Laporan telah kami terima dan akan kami investigasi secepatnya.</string>
     <string name="report_bug_failed">Laporan bug gagal dikirim</string>
 
+    <string name="claim_daily_reward">Koin harianmu siap untuk diklaim! 🪙</string>
+
 
 </resources>

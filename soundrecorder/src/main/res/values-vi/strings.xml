@@ -404,4 +404,6 @@
     <string name="report_bug_error">Báo cáo lỗi / Lỗi ứng dụng</string>
     <string name="report_bug_sent">Cảm ơn bạn. Chúng tôi đã nhận được báo cáo và sẽ điều tra sớm nhất có thể.</string>
     <string name="report_bug_failed">Gửi báo cáo lỗi thất bại</string>
+
+    <string name="claim_daily_reward">Xu hằng ngày của bạn đã sẵn sàng để nhận! 🪙</string>
 </resources>

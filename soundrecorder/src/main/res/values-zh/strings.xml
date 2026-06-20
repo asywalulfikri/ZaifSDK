@@ -405,4 +405,6 @@
     <string name="report_bug_sent">感谢您的反馈。我们已收到您的报告，并将尽快进行调查。</string>
     <string name="report_bug_failed">发送错误报告失败</string>
 
+    <string name="claim_daily_reward">你的每日金币已可领取！🪙</string>
+
 </resources>

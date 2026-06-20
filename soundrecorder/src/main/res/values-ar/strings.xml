@@ -449,5 +449,7 @@
     <string name="report_bug_error">الإبلاغ عن خطأ / مشكلة في التطبيق</string>
     <string name="report_bug_sent">شكرًا لك. لقد استلمنا بلاغك وسنقوم بالتحقيق فيه في أقرب وقت ممكن.</string>
     <string name="report_bug_failed">فشل في إرسال بلاغ الخطأ</string>
+
+    <string name="claim_daily_reward">عملتك اليومية جاهزة للاستلام! 🪙</string>
 </resources>
 

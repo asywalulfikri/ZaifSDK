@@ -400,4 +400,6 @@
     <string name="report_bug_sent">ありがとうございます。報告を受け取りました。できるだけ早く調査します。</string>
     <string name="report_bug_failed">バグ報告の送信に失敗しました</string>
 
+    <string name="claim_daily_reward">デイリーコインを受け取れます！🪙</string>
+
 </resources>

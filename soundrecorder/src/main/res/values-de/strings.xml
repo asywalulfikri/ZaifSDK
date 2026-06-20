@@ -408,5 +408,7 @@
     <string name="report_bug_sent">Vielen Dank. Wir haben Ihren Bericht erhalten und werden ihn so schnell wie möglich untersuchen.</string>
     <string name="report_bug_failed">Fehlerbericht konnte nicht gesendet werden</string>
 
+    <string name="claim_daily_reward">Deine tägliche Münze kann jetzt eingesammelt werden! 🪙</string>
+
 </resources>
 

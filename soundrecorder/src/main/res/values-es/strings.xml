@@ -406,4 +406,6 @@
     <string name="report_bug_sent">Gracias. Hemos recibido su informe y lo investigaremos lo antes posible.</string>
     <string name="report_bug_failed">No se pudo enviar el informe de error</string>
 
+    <string name="claim_daily_reward">¡Tu moneda diaria está lista para reclamar! 🪙</string>
+
 </resources>

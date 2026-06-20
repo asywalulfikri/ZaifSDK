@@ -404,4 +404,6 @@
     <string name="report_bug_error">รายงานบั๊ก / ข้อผิดพลาดของแอป</string>
     <string name="report_bug_sent">ขอบคุณ เราได้รับรายงานของคุณแล้วและจะตรวจสอบโดยเร็วที่สุด</string>
     <string name="report_bug_failed">ส่งรายงานบั๊กล้มเหลว</string>
+
+    <string name="claim_daily_reward">เหรียญรายวันของคุณพร้อมให้รับแล้ว! 🪙</string>
 </resources>

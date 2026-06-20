@@ -407,4 +407,6 @@
     <string name="report_bug_sent">감사합니다. 신고가 접수되었으며 가능한 한 빨리 조사하겠습니다.</string>
     <string name="report_bug_failed">버그 신고 전송 실패</string>
 
+    <string name="claim_daily_reward">일일 코인을 받을 준비가 되었습니다! 🪙</string>
+
 </resources>

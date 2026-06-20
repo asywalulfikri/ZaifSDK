@@ -407,4 +407,6 @@
     <string name="report_bug_sent">Terima kasih. Laporan anda telah diterima dan akan disiasat secepat mungkin.</string>
     <string name="report_bug_failed">Gagal menghantar laporan pepijat</string>
 
+    <string name="claim_daily_reward">Syiling harian anda sedia untuk dituntut! 🪙</string>
+
 </resources>
