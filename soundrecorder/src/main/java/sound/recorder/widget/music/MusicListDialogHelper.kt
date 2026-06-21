@@ -82,7 +82,8 @@ object MusicListDialogHelper {
     data class FirestoreSong(
         val id: String = "",
         val title: String = "",
-        val link_download: String = ""
+        val link_download: String = "",
+        val appId: List<String> = emptyList()
     )
 
     private fun Context.sdp(id: Int)    = resources.getDimensionPixelSize(id)
@@ -413,7 +414,7 @@ object MusicListDialogHelper {
                         return@OnlineMusicAdapter
                     }
                     if (activeDownloadId != -1L) {
-                        Toast.makeText(themedContext, "Selesaikan download lagu sebelumnya terlebih dahulu", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(themedContext, context.getString(R.string.finish_download_first), Toast.LENGTH_SHORT).show()
                         return@OnlineMusicAdapter
                     }
                     val id = downloadSong(themedContext, song)
@@ -486,6 +487,7 @@ object MusicListDialogHelper {
                 }
 
                 FirebaseFirestore.getInstance().collection(collection)
+                    .whereArrayContains("appId", zaifSDKConfig?.applicationId ?: "")
                     .get()
                     .addOnSuccessListener { snapshot ->
                         allFirestoreSongs.clear()
@@ -493,7 +495,8 @@ object MusicListDialogHelper {
                             val song = FirestoreSong(
                                 id = doc.id,
                                 title = doc.getString("title") ?: "",
-                                link_download = doc.getString("link_download") ?: ""
+                                link_download = doc.getString("link_download") ?: "",
+                                appId = doc.get("appId") as? List<String> ?: emptyList()
                             )
                             allFirestoreSongs.add(song)
                         }
