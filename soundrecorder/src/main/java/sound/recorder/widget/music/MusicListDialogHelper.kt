@@ -504,7 +504,7 @@ object MusicListDialogHelper {
                 }
 
 
-                Toast.makeText(context,"execute", Toast.LENGTH_SHORT).show()
+               // Toast.makeText(context,"execute", Toast.LENGTH_SHORT).show()
                 FirebaseFirestore.getInstance().collection(collection)
                     .whereArrayContains("appId", zaifSDKConfig?.applicationId ?: "")
                     .get()
