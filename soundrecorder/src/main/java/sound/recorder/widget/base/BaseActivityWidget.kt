@@ -1182,6 +1182,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     private var retryCountReward = 0
+    private var failedShowAttemptCount = 0
 
     /*fun loadRewardedAd(isPremium: Boolean) {
         if (isPremium) return
@@ -1295,6 +1296,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     // Null-kan callback agar tidak menahan referensi
                     ad.fullScreenContentCallback = null
                     rewardedAd = null
+                    failedShowAttemptCount = 0 // Reset counter sukses show
                     // Jalankan aksi unlock setelah iklan ditutup
                     onComplete()
                     // Load ulang untuk penayangan berikutnya
@@ -1304,6 +1306,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     ad.fullScreenContentCallback = null
                     rewardedAd = null
+                    failedShowAttemptCount = 0 // Reset counter karena kita anggap gagal show sudah dihandle
                     // Tetap jalankan aksi agar user tidak stuck
                     onComplete()
                     loadRewardedAd(isPremium)
@@ -1315,10 +1318,18 @@ open class BaseActivityWidget : AppCompatActivity() {
             }
 
         } else {
-            // Iklan belum siap → reset counter supaya retry bisa jalan lagi, lalu load ulang
-            setToast(getString(R.string.ads_prepared_please_wait))
-            retryCountReward = 0
-            loadRewardedAd(isPremium)
+            // Iklan belum siap
+            failedShowAttemptCount++
+
+            if (failedShowAttemptCount >= 3 && isInternetTrulyAvailable(this)) {
+                failedShowAttemptCount = 0
+                setToast(getString(R.string.reward_get))
+                onComplete()
+            } else {
+                setToast(getString(R.string.ads_prepared_please_wait) + " ($failedShowAttemptCount/3)")
+                retryCountReward = 0
+                loadRewardedAd(isPremium)
+            }
         }
     }
 
