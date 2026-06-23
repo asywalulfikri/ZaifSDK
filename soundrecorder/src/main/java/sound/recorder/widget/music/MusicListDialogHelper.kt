@@ -349,14 +349,33 @@ object MusicListDialogHelper {
                 val poll = object : Runnable {
                     override fun run() {
                         val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
-                        if (!cursor.moveToFirst()) { cursor.close(); return }
-                        val statusIdx = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
-                        val bytesIdx  = cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
-                        val totalIdx  = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
-                        val status    = if (statusIdx >= 0) cursor.getInt(statusIdx) else -1
-                        val bytes     = if (bytesIdx  >= 0) cursor.getLong(bytesIdx) else 0L
-                        val total     = if (totalIdx  >= 0) cursor.getLong(totalIdx) else 0L
-                        cursor.close()
+                        if (cursor == null) return
+
+                        var status = -1
+                        var bytes = 0L
+                        var total = 0L
+                        var reason = -1
+
+                        val hasData = try {
+                            cursor.use { c ->
+                                if (c.moveToFirst()) {
+                                    val statusIdx = c.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                                    val bytesIdx = c.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                                    val totalIdx = c.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+                                    val reasonIdx = c.getColumnIndex(DownloadManager.COLUMN_REASON)
+
+                                    status = if (statusIdx >= 0) c.getInt(statusIdx) else -1
+                                    bytes = if (bytesIdx >= 0) c.getLong(bytesIdx) else 0L
+                                    total = if (totalIdx >= 0) c.getLong(totalIdx) else 0L
+                                    reason = if (reasonIdx >= 0) c.getInt(reasonIdx) else -1
+                                    true
+                                } else false
+                            }
+                        } catch (_: Exception) {
+                            false
+                        }
+
+                        if (!hasData) return
 
                         // Timeout 30 detik jika tidak ada progress (ga mulai-mulai)
                         if (System.currentTimeMillis() - startTime > 30000 && bytes <= 0) {
@@ -378,8 +397,6 @@ object MusicListDialogHelper {
                                 onlineAdapter?.addDownloadedTitle(songTitle)
                                 refreshLocalTracks()
                             } else {
-                                val reasonIdx = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
-                                val reason = if (reasonIdx >= 0) cursor.getInt(reasonIdx) else -1
                                 val errorMsg = when (reason) {
                                     DownloadManager.ERROR_CANNOT_RESUME -> "Cannot resume"
                                     DownloadManager.ERROR_DEVICE_NOT_FOUND -> "Storage not found"
@@ -514,7 +531,7 @@ object MusicListDialogHelper {
                             val pos = allFirestoreSongs.indexOfFirst { it.id == downloadingSongId }
                             if (pos >= 0) {
                                 val cursor = dm.query(DownloadManager.Query().setFilterById(activeDownloadId))
-                                val stillRunning = cursor.moveToFirst().also { cursor.close() }
+                                val stillRunning = cursor?.use { it.moveToFirst() } ?: false
                                 if (stillRunning) {
                                     onlineAdapter?.setDownloadState(pos, 0)
                                     startPoll(pos, activeDownloadId, allFirestoreSongs[pos].title)
