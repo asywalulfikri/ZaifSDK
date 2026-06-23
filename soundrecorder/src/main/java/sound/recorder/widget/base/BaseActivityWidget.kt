@@ -1321,12 +1321,12 @@ open class BaseActivityWidget : AppCompatActivity() {
             // Iklan belum siap
             failedShowAttemptCount++
 
-            if (failedShowAttemptCount >= 3 && isInternetTrulyAvailable(this)) {
+            if (failedShowAttemptCount >= 2 && isInternetTrulyAvailable(this)) {
                 failedShowAttemptCount = 0
                 setToast(getString(R.string.reward_get))
                 onComplete()
             } else {
-                setToast(getString(R.string.ads_prepared_please_wait) + " ($failedShowAttemptCount/3)")
+                setToast(getString(R.string.ads_prepared_please_wait))
                 retryCountReward = 0
                 loadRewardedAd(isPremium)
             }
