@@ -35,6 +35,7 @@ android {
         buildConfigField("Boolean", "isPromotNot", "true")
         buildConfigField("String", "unityGameId", "\"5278177\"")
         buildConfigField("Boolean", "isDownload", "true")
+        buildConfigField("Boolean", "isLockRec","false")
         buildConfigField("String", "developerName", "\"sayunara+dev\"")
         buildConfigField("String", "FCM_KEY", "\"${localProps.getProperty('FCM_KEY', '')}\"")
 

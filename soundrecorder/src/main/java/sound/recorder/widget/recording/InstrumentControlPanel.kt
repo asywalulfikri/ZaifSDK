@@ -23,6 +23,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import sound.recorder.widget.R
+import sound.recorder.widget.builder.ZaifSDKBuilder
+import sound.recorder.widget.builder.ZaifSDKConfig
 import sound.recorder.widget.music.InstrumentDialogHelper
 import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.recording.database.AppDatabase
@@ -112,6 +114,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private lateinit var btnNote: Button
     private lateinit var btnVolume: Button
 
+    var zaifSDKConfig : ZaifSDKConfig? =null
+
     private fun sdp(id: Int) = resources.getDimensionPixelSize(id)
 
     init {
@@ -126,6 +130,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     private fun initHelpers() {
         loadCustomFont()
+        zaifSDKConfig = ZaifSDKBuilder.load(context)
         audioEngine = AudioEngine(context)
         btnFactory  = ControlButtonFactory(context, config, globalTypeface)
         blinkManager = BlinkManager(
@@ -154,7 +159,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     fun setUnlockedStatus(isPremium: Boolean, musicUnlocked: Boolean, listRecordUnlocked: Boolean) {
         isMusicUnlocked = isPremium || musicUnlocked
-        isListRecordUnlocked = isPremium || listRecordUnlocked
+        isListRecordUnlocked = isPremium || listRecordUnlocked || zaifSDKConfig?.isLockRec == false
         refreshStatusLabels()
     }
 
@@ -240,6 +245,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private fun setupClickListeners() {
+
         btnMusic.setOnClickListener {
             if (!isMusicUnlocked) {
                 if (!isNetworkAvailable()) { setToast(context.getString(R.string.no_internet_connection)); return@setOnClickListener }
@@ -248,6 +254,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 }
             } else handleMusicOpen()
         }
+
 
         btnRecord.setOnClickListener { if (isRecording) stopRecording() else showStartRecordConfirmation() }
 
