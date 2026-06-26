@@ -25,6 +25,8 @@ class ZaifSDKBuilder private constructor(
 
     var isLockMusic = false
 
+    var isCoin = false
+
     fun setAppName(value: String) = apply { appName = value }
     fun setVersionCode(value: Int) = apply { versionCode = value }
     fun setVersionName(value: String) = apply { versionName = value }
@@ -43,6 +45,8 @@ class ZaifSDKBuilder private constructor(
     fun isLockRec(value: Boolean) = apply { isLockRec = value }
     fun isLockMusic(value: Boolean) = apply { isLockMusic = value }
 
+    fun isCoin(value: Boolean) = apply { isLockMusic = value }
+
     fun build(): ZaifSDKConfig {
         val config = ZaifSDKConfig(
             appName = appName,
@@ -60,7 +64,8 @@ class ZaifSDKBuilder private constructor(
             isPromotNot = isPromotNot,
             isDownload = isDownload,
             isLockRec = isLockRec,
-            isLockMusic = isLockMusic
+            isLockMusic = isLockMusic,
+            isCoin = isCoin
         )
         instance = config // ✅ langsung simpan di memory
         ZaifSDKStorage.save(context, config)

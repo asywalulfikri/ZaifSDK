@@ -182,6 +182,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                 .setFcmKey(BuildConfig.FCM_KEY)
                 .isPromotNot(BuildConfig.isPromotNot)
                 .isLockRec(BuildConfig.isLockRec)
+                .isCoin(true)
                 .build()
 
             Log.d(TAG, "Secondary components initialized")

@@ -37,11 +37,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
 import sound.recorder.widget.databinding.DialogTutorialSongListBinding
 import sound.recorder.widget.recording.database.RecordedTap
+import sound.recorder.widget.util.CoinManager
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -49,7 +51,7 @@ import com.intuit.sdp.R as SdpR
 
 class InstrumentTutorialDialog(
     private val lifecycleScope: LifecycleCoroutineScope? = null,
-    private val onTabSelect: (slendro: Boolean) -> Unit = {},
+    private val onTabSelect: (metadata: String) -> Unit = {},
     private val onTriggerAnim: (padIndex: Int) -> Unit = {},
     private val onHighlight: (padIndex: Int) -> Unit = {},
     private val onUnhighlight: (padIndex: Int) -> Unit = {},
@@ -66,6 +68,8 @@ class InstrumentTutorialDialog(
 
     private var mContext: Context? = null
     private var instrumentType: String = ""
+    private var instrumentPrefix: String = ""
+    private var isSustained: Boolean = true
 
     var zaifSDKConfig : ZaifSDKConfig? =null
 
@@ -73,7 +77,9 @@ class InstrumentTutorialDialog(
         val recordName: String,
         val senderName: String,
         val submittedAt: Long,
-        val jsonNote: String
+        val status : String,
+        val jsonNote: String,
+        val isFree: Boolean = false
     )
 
     sealed class SongItem {
@@ -82,7 +88,7 @@ class InstrumentTutorialDialog(
     }
 
     companion object {
-        private const val CACHE_TTL_MS   = 15 * 60 * 1000L
+        private const val CACHE_TTL_MS   = 5 * 60 * 1000L
         private const val UNLOCK_TTL_MS  = 24 * 60 * 60 * 1000L   // 1 hari
         private const val PREFS_UNLOCKED = "zaif_note_unlocks"
 
@@ -90,6 +96,7 @@ class InstrumentTutorialDialog(
         private val cache = mutableMapOf<String, CachedResult>()
 
         private fun isCacheValid(key: String): Boolean {
+            if (BuildConfig.DEBUG) return false
             if (cache.size > 20) cache.clear() // Bersihkan jika terlalu banyak untuk hemat RAM
             val c = cache[key] ?: return false
             return System.currentTimeMillis() - c.fetchedAt < CACHE_TTL_MS
@@ -127,18 +134,24 @@ class InstrumentTutorialDialog(
 
     // ─── Show LOCAL + FIREBASE notes (merged) ────────────────────
 
+    @SuppressLint("SetTextI18n")
     fun showLocal(
         context: Context,
         instrumentType: String,
+        instrumentPrefix: String = "",
+        isSustained: Boolean = true,
         isPremium: Boolean = false,
         showLearn: Boolean = true,
         playRemoteAsSong: Boolean = false,
+        freeSongKeys: Set<String> = setOf("local_DORAEMON INTRO", "local_HAPPY BIRTHDAY"),
         localSongsProvider: (Context) -> List<InstrumentSong>,
         onPlay: (InstrumentSong) -> Unit,
         onLearn: (InstrumentSong) -> Unit = {}
     ) {
         this.mContext = context
         this.instrumentType = instrumentType
+        this.instrumentPrefix = if (instrumentPrefix.isNotBlank()) instrumentPrefix else instrumentType.uppercase()
+        this.isSustained = isSustained
         val (dialog, binding) = createBottomSheet(context)
 
         val config = ZaifSDKBuilder.load(context)
@@ -153,13 +166,20 @@ class InstrumentTutorialDialog(
         binding.etSearch.visibility      = View.VISIBLE
         binding.dividerSearch.visibility = View.VISIBLE
         binding.progressContainer.visibility = View.VISIBLE
+        
+        if (zaifSDKConfig?.isCoin == true) {
+            binding.tvSubtitle.visibility = View.VISIBLE
+            binding.tvSubtitle.text = "🪙 ${CoinManager.getBalance(context)} " + context.getString(R.string.coin)
+        } else {
+            binding.tvSubtitle.visibility = View.GONE
+        }
 
         val localSongs = localSongsProvider(context)
         val scores     = localSongs.associate { it.name to HighScoreManager.getHighScore(context, it.name) }
         val allItems   = mutableListOf<SongItem>()
         allItems.addAll(localSongs.map { SongItem.Local(it, scores[it.name] ?: 0) })
 
-        fun isOpen(key: String) = isPremium || isUnlockedByKey(context, key)
+        fun isOpen(key: String) = isPremium || key in freeSongKeys || isUnlockedByKey(context, key)
 
         val adapter = SongListAdapter(
             items = allItems.toMutableList(),
@@ -168,7 +188,7 @@ class InstrumentTutorialDialog(
             isUnlocked = { item ->
                 when (item) {
                     is SongItem.Local  -> isOpen(keyForLocal(item.song))
-                    is SongItem.Remote -> isOpen(keyForRemote(item.note))
+                    is SongItem.Remote -> item.note.isFree || isOpen(keyForRemote(item.note))
                 }
             },
             onPlay = { item ->
@@ -177,7 +197,7 @@ class InstrumentTutorialDialog(
                         val key    = keyForLocal(item.song)
                         val doPlay = { dismissShouldStop = false; dialog.dismiss(); onPlay(item.song) }
                         if (isOpen(key)) doPlay()
-                        else showAdConfirmDialog(context) { onRequestAd { markUnlocked(context, key); doPlay() } }
+                        else showUnlockDialog(context, key, onCoinUnlock = { doPlay() }) { onRequestAd { markUnlocked(context, key); doPlay() } }
                     }
                     is SongItem.Remote -> {
                         val note   = item.note
@@ -192,8 +212,8 @@ class InstrumentTutorialDialog(
                                 playUserNote(note.jsonNote)
                             }
                         }
-                        if (isOpen(key)) doPlay()
-                        else showAdConfirmDialog(context) { onRequestAd { markUnlocked(context, key); doPlay() } }
+                        if (note.isFree || isOpen(key)) doPlay()
+                        else showUnlockDialog(context, key, onCoinUnlock = { doPlay() }) { onRequestAd { markUnlocked(context, key); doPlay() } }
                     }
                 }
             },
@@ -203,14 +223,14 @@ class InstrumentTutorialDialog(
                         val key     = keyForLocal(item.song)
                         val doLearn = { dismissShouldStop = false; dialog.dismiss(); onLearn(item.song) }
                         if (isOpen(key)) doLearn()
-                        else showAdConfirmDialog(context) { onRequestAd { markUnlocked(context, key); doLearn() } }
+                        else showUnlockDialog(context, key, onCoinUnlock = { doLearn() }) { onRequestAd { markUnlocked(context, key); doLearn() } }
                     }
                     is SongItem.Remote -> {
                         val note    = item.note
                         val key     = keyForRemote(note)
                         val doLearn = { dismissShouldStop = false; dialog.dismiss(); startLearnMode(note.jsonNote) }
-                        if (isOpen(key)) doLearn()
-                        else showAdConfirmDialog(context) { onRequestAd { markUnlocked(context, key); doLearn() } }
+                        if (note.isFree || isOpen(key)) doLearn()
+                        else showUnlockDialog(context, key, onCoinUnlock = { doLearn() }) { onRequestAd { markUnlocked(context, key); doLearn() } }
                     }
                 }
             }
@@ -243,7 +263,10 @@ class InstrumentTutorialDialog(
             }
         })
 
-        if (isCacheValid(instrumentType)) {
+        if (isCacheValid(
+                instrumentType
+            )
+        ) {
             binding.progressContainer.visibility = View.GONE
             allItems.addAll(cache[instrumentType]!!.notes.map { SongItem.Remote(it) })
             adapter.updateItems(allItems)
@@ -251,11 +274,14 @@ class InstrumentTutorialDialog(
         }
 
         val languageCode = Locale.getDefault().language
-        FirebaseFirestore.getInstance()
+        var query = FirebaseFirestore.getInstance()
             .collection(appId)
-            .whereEqualTo("status", "published")
             .whereEqualTo("category", instrumentType)
-            .whereArrayContainsAny("language", listOf("en", languageCode))
+        if (!BuildConfig.DEBUG) {
+            query = query.whereEqualTo("status", "published")
+                .whereArrayContainsAny("language", listOf("en", languageCode))
+        }
+        query
             .orderBy("submitted_at", Query.Direction.DESCENDING)
             .limit(50)
             .get()
@@ -266,10 +292,12 @@ class InstrumentTutorialDialog(
                     val jsonNote = d["json_note"] as? String ?: ""
                     if (jsonNote.isBlank()) return@mapNotNull null
                     NoteItem(
-                        recordName  = d["record_name"]  as? String ?: "-",
-                        senderName  = d["sender_name"]  as? String ?: "-",
-                        submittedAt = d["submitted_at"] as? Long   ?: 0L,
-                        jsonNote    = jsonNote
+                        recordName  = d["record_name"]  as? String  ?: "-",
+                        senderName  = d["sender_name"]  as? String  ?: "-",
+                        submittedAt = d["submitted_at"] as? Long    ?: 0L,
+                        status      = d["status"]       as? String  ?: "-",
+                        jsonNote    = jsonNote,
+                        isFree      = d["is_free"]      as? Boolean ?: false
                     )
                 }
                 cache[instrumentType] = CachedResult(notes, System.currentTimeMillis())
@@ -278,7 +306,9 @@ class InstrumentTutorialDialog(
             }
             .addOnFailureListener {
                 binding.progressContainer.visibility = View.GONE
-                Toast.makeText(context, "Gagal memuat: ${it.message}", Toast.LENGTH_SHORT).show()
+                if (localSongs.isEmpty()) {
+                    Toast.makeText(context, context.getString(R.string.failed_get_data)+" ${it.message}", Toast.LENGTH_SHORT).show()
+                }
             }
     }
 
@@ -390,7 +420,13 @@ class InstrumentTutorialDialog(
                 }
                 is SongItem.Remote -> {
                     val sdf = SimpleDateFormat("dd/MM  HH:mm", Locale.getDefault())
-                    holder.tvName.text      = item.note.recordName.uppercase()
+
+                    if (!BuildConfig.DEBUG) {
+                        holder.tvName.text      = item.note.recordName.uppercase()
+                    }else{
+                        holder.tvName.text      = item.note.recordName.uppercase()+ "---"+item.note.status
+                    }
+
                     holder.tvInfo.visibility = View.VISIBLE
                     holder.tvInfo.text = "👤 ${item.note.senderName}  ·  🕐 ${sdf.format(Date(item.note.submittedAt))}"
                     holder.btnPlay.text  = "${context.getString(R.string.play).uppercase()}$lockSuffix"
@@ -426,39 +462,42 @@ class InstrumentTutorialDialog(
     private fun remoteNoteToSong(note: NoteItem): InstrumentSong? {
         return try {
             val arr = JSONObject(note.jsonNote).getJSONArray("events")
-            val allEvents = (0 until arr.length()).map { arr.getJSONObject(it) }
             val notes = mutableListOf<InstrumentNote>()
+            val activeNotes = mutableMapOf<Int, Long>()
 
-            // Sustain instruments (e.g. pianika, marching bells) have paired ON + "OFF" events.
-            // Tap/percussion instruments (e.g. gendang, demung) have no "OFF" events.
-            val hasSustain = allEvents.any { it.optString("metadata", "") == "OFF" }
+            for (i in 0 until arr.length()) {
+                val o = arr.getJSONObject(i)
+                val padIndex = if (o.has("padIndex")) o.getInt("padIndex") else o.optInt("a", -1)
+                val timestamp = if (o.has("timestamp")) o.getLong("timestamp") else o.optLong("b", 0L)
+                val metadata = when {
+                    o.has("metadata") -> o.optString("metadata", "")
+                    o.has("c") -> o.optString("c", "")
+                    else -> ""
+                }
 
-            if (hasSustain) {
-                val activeNotes = mutableMapOf<Int, Long>()
-                for (o in allEvents) {
-                    val padIndex = o.getInt("padIndex")
-                    val timestamp = o.getLong("timestamp")
-                    if (o.optString("metadata", "") == "OFF") {
+                if (padIndex == -1) continue
+
+                if (metadata.startsWith(instrumentPrefix)) {
+                    if (isSustained) {
+                        activeNotes[padIndex] = timestamp
+                    } else {
+                        notes.add(InstrumentNote(padIndex, timestamp, 400L))
+                    }
+                } else if (metadata == "OFF") {
+                    if (isSustained) {
                         val startTime = activeNotes.remove(padIndex)
                         if (startTime != null) {
-                            notes.add(InstrumentNote(padIndex, startTime, timestamp - startTime))
+                            val duration = timestamp - startTime
+                            notes.add(InstrumentNote(padIndex, startTime, duration))
                         }
-                    } else {
-                        activeNotes[padIndex] = timestamp
                     }
                 }
-                // Sustain notes without a matching OFF get a default duration
+            }
+
+            // Fallback for notes without OFF events
+            if (isSustained) {
                 activeNotes.forEach { (pad, start) ->
                     notes.add(InstrumentNote(pad, start, 400L))
-                }
-            } else {
-                // Tap/percussion: each event is an independent note
-                for (o in allEvents) {
-                    notes.add(InstrumentNote(
-                        padIndex   = o.getInt("padIndex"),
-                        timeMs     = o.getLong("timestamp"),
-                        durationMs = 400L
-                    ))
                 }
             }
 
@@ -473,10 +512,20 @@ class InstrumentTutorialDialog(
         val events = mutableListOf<RecordedTap>()
         for (i in 0 until arr.length()) {
             val o = arr.getJSONObject(i)
+            val padIndex = if (o.has("padIndex")) o.getInt("padIndex") else o.optInt("a", -1)
+            val timestamp = if (o.has("timestamp")) o.getLong("timestamp") else o.optLong("b", 0L)
+            val metadata = when {
+                o.has("metadata") -> o.optString("metadata", "")
+                o.has("c") -> o.optString("c", "")
+                else -> ""
+            }
+
+            if (padIndex == -1) continue
+
             events.add(RecordedTap(
-                padIndex  = o.getInt("padIndex"),
-                timestamp = o.getLong("timestamp"),
-                metadata  = o.optString("metadata", "")
+                padIndex  = padIndex,
+                timestamp = timestamp,
+                metadata  = metadata
             ))
         }
         return Pair(events, instrumentType)
@@ -555,7 +604,7 @@ class InstrumentTutorialDialog(
         }
         val event = learnEvents[learnStep]
         val key   = event.metadata?.takeIf { it.isNotBlank() } ?: learnTypeKey
-        onTabSelect(key.contains(instrumentType))
+        onTabSelect(key)
         onHighlight(event.padIndex)
         onLearnStepUpdate(learnStep + 1, learnEvents.size)
     }
@@ -587,9 +636,15 @@ class InstrumentTutorialDialog(
     // ─── Dialog konfirmasi sebelum iklan ─────────────────────────
 
     @SuppressLint("UseKtx", "SetTextI18n")
-    private fun showAdConfirmDialog(context: Context, onConfirm: () -> Unit) {
+    private fun showUnlockDialog(
+        context: Context,
+        key: String,
+        onCoinUnlock: () -> Unit,
+        onAdConfirm: () -> Unit
+    ) {
         if (context is Activity && (context.isFinishing || context.isDestroyed)) return
         val d = AlertDialog.Builder(context).create()
+        val balance = CoinManager.getBalance(context)
 
         val root = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -609,21 +664,24 @@ class InstrumentTutorialDialog(
             typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
         })
 
-        root.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, context.sdp(
-                SdpR.dimen._8sdp))
-        })
+        if (zaifSDKConfig?.isCoin == true) {
+            root.addView(View(context).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    context.sdp(SdpR.dimen._8sdp)
+                )
+            })
 
-        root.addView(TextView(context).apply {
-            text = context.getString(R.string.watch_ad_unlock_note)
-            setTextColor(Color.parseColor("#D2B48C"))
-            textSize = 11f
-            setLineSpacing(0f, 1.4f)
-        })
+            root.addView(TextView(context).apply {
+                text = "🪙 " + context.getString(R.string.your_coin) + ": $balance"
+                setTextColor(Color.parseColor("#D2B48C"))
+                textSize = 11f
+                setLineSpacing(0f, 1.4f)
+            })
+        }
 
         root.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, context.sdp(
-                SdpR.dimen._12sdp))
+            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, context.sdp(SdpR.dimen._12sdp))
         })
 
         val btnRow = LinearLayout(context).apply {
@@ -639,8 +697,23 @@ class InstrumentTutorialDialog(
 
         btnRow.addView(buildDialogBtn(context, context.getString(R.string.watch_ad_label), "F0B429") {
             d.dismiss()
-            onConfirm()
+            onAdConfirm()
         })
+
+        if (zaifSDKConfig?.isCoin == true && balance > 0) {
+            btnRow.addView(View(context).apply {
+                layoutParams = LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1)
+            })
+            btnRow.addView(buildDialogBtn(context, "🪙 ${CoinManager.UNLOCK_COST} "+context.getString(R.string.coin), "4CAF50") {
+                d.dismiss()
+                if (CoinManager.spendCoin(context)) {
+                    markUnlocked(context, key)
+                    onCoinUnlock()
+                } else {
+                    Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
 
         root.addView(btnRow)
         d.setView(root)

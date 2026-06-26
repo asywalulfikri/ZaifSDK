@@ -16,5 +16,6 @@ data class ZaifSDKConfig(
     val isPromotNot: Boolean = false,
     val isDownload: Boolean = false,
     val isLockRec: Boolean = false,
-    val isLockMusic: Boolean = false
+    val isLockMusic: Boolean = false,
+    val isCoin: Boolean = false
 )
