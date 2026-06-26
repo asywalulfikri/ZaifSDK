@@ -171,13 +171,12 @@ class BugReportAdminFragment : Fragment() {
         private val items = mutableListOf<BugRequest>()
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-            val tvSongTitle: TextView = view.findViewById(R.id.tvTitle)
-            val tvStatus: TextView    = view.findViewById(R.id.tvStatus)
-
-            val tvDescription: TextView    = view.findViewById(R.id.tvDescription)
-            val tvDate: TextView      = view.findViewById(R.id.tvDate)
-            val btnMarkDone: TextView = view.findViewById(R.id.btnMarkDone)
-            val btnDelete: TextView   = view.findViewById(R.id.btnDelete)
+            val tvSongTitle: TextView? = view.findViewById(R.id.tvTitle)
+            val tvStatus: TextView?    = view.findViewById(R.id.tvStatus)
+            val tvDescription: TextView? = view.findViewById(R.id.tvDescription)
+            val tvDate: TextView?      = view.findViewById(R.id.tvDate)
+            val btnMarkDone: TextView? = view.findViewById(R.id.btnMarkDone)
+            val btnDelete: TextView?   = view.findViewById(R.id.btnDelete)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -191,23 +190,23 @@ class BugReportAdminFragment : Fragment() {
             val item = items[position]
             val sdf  = SimpleDateFormat("dd MMM yyyy  HH:mm", Locale.getDefault())
 
-            holder.tvSongTitle.text = item.bugTitle
-            holder.tvDescription.text = item.bugDescription
-            holder.tvDescription.visibility = View.VISIBLE
-            holder.tvDate.text      = sdf.format(Date(item.requestedAt))
+            holder.tvSongTitle?.text = item.bugTitle
+            holder.tvDescription?.text = item.bugDescription
+            holder.tvDescription?.visibility = View.VISIBLE
+            holder.tvDate?.text      = sdf.format(Date(item.requestedAt))
 
             if (item.status == "done") {
-                holder.tvStatus.text = "Done"
-                holder.tvStatus.setTextColor(0xFF00C853.toInt())
-                holder.btnMarkDone.visibility = View.GONE
+                holder.tvStatus?.text = "Done"
+                holder.tvStatus?.setTextColor(0xFF00C853.toInt())
+                holder.btnMarkDone?.visibility = View.GONE
             } else {
-                holder.tvStatus.text = "Pending"
-                holder.tvStatus.setTextColor(0xFFFFAA00.toInt())
-                holder.btnMarkDone.visibility = View.VISIBLE
+                holder.tvStatus?.text = "Pending"
+                holder.tvStatus?.setTextColor(0xFFFFAA00.toInt())
+                holder.btnMarkDone?.visibility = View.VISIBLE
             }
 
-            holder.btnMarkDone.setOnClickListener { onMarkDone(item) }
-            holder.btnDelete.setOnClickListener   { onDelete(item) }
+            holder.btnMarkDone?.setOnClickListener { onMarkDone(item) }
+            holder.btnDelete?.setOnClickListener   { onDelete(item) }
         }
 
         override fun getItemCount() = items.size

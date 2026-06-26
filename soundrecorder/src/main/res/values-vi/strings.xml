@@ -406,4 +406,11 @@
     <string name="report_bug_failed">Gửi báo cáo lỗi thất bại</string>
 
     <string name="claim_daily_reward">Xu hằng ngày của bạn đã sẵn sàng để nhận! 🪙</string>
+
+    <string name="help_us_to_improve">Hãy giúp chúng tôi cải thiện ứng dụng bằng cách chia sẻ góp ý hoặc đề xuất tính năng mới. Xin cảm ơn! :)</string>
+    <string name="input_your_suggest">Nhập góp ý của bạn tại đây</string>
+    <string name="thankyou">Cảm ơn</string>
+    <string name="suggest_success_send">Gửi góp ý thành công</string>
+    <string name="suggest_failed_send">Gửi góp ý thất bại</string>
+    <string name="description_cannot_empty">Mô tả không được để trống</string>
 </resources>

@@ -409,4 +409,11 @@
 
     <string name="claim_daily_reward">Syiling harian anda sedia untuk dituntut! 🪙</string>
 
+    <string name="help_us_to_improve">Bantu kami menambah baik aplikasi ini dengan berkongsi maklum balas atau cadangan ciri baharu. Terima kasih! :)</string>
+    <string name="input_your_suggest">Masukkan cadangan anda di sini</string>
+    <string name="thankyou">Terima Kasih</string>
+    <string name="suggest_success_send">Cadangan berjaya dihantar</string>
+    <string name="suggest_failed_send">Gagal menghantar cadangan</string>
+    <string name="description_cannot_empty">Penerangan tidak boleh kosong</string>
+
 </resources>

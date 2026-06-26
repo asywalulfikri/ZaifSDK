@@ -405,4 +405,11 @@
 
     <string name="claim_daily_reward">Ваша ежедневная монета готова к получению! 🪙</string>
 
+    <string name="help_us_to_improve">Помогите нам улучшить это приложение, поделившись своими отзывами или предложениями по новым функциям. Спасибо! :)</string>
+    <string name="input_your_suggest">Введите ваше предложение здесь</string>
+    <string name="thankyou">Спасибо</string>
+    <string name="suggest_success_send">Предложение успешно отправлено</string>
+    <string name="suggest_failed_send">Не удалось отправить предложение</string>
+    <string name="description_cannot_empty">Описание не может быть пустым</string>
+
 </resources>

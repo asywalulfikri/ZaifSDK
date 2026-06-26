@@ -408,4 +408,11 @@
     <string name="report_bug_failed">Nabigong maipadala ang ulat ng bug</string>
 
     <string name="claim_daily_reward">Handa nang kunin ang iyong pang-araw-araw na barya! 🪙</string>
+
+    <string name="help_us_to_improve">Tulungan kaming pagbutihin ang app na ito sa pamamagitan ng pagbibigay ng iyong mga mungkahi o feedback. Salamat! :)</string>
+    <string name="input_your_suggest">Ilagay ang iyong mungkahi dito</string>
+    <string name="thankyou">Salamat</string>
+    <string name="suggest_success_send">Matagumpay na naipadala ang mungkahi</string>
+    <string name="suggest_failed_send">Nabigong maipadala ang mungkahi</string>
+    <string name="description_cannot_empty">Hindi maaaring walang laman ang paglalarawan</string>
 </resources>

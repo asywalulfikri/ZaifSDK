@@ -18,6 +18,7 @@ import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.music.RequestSongDialog
 import sound.recorder.widget.music.MusicPlayerManager
+import sound.recorder.widget.ui.dialog.KritikSaranDialog
 import sound.recorder.widget.ui.dialog.ReportBugDialog
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.NetworkUtils
@@ -139,9 +140,37 @@ class HomeFragment : BaseFragmentWidget() {
         }
 
         binding?.btnBugReport?.setOnClickListener {
-            ReportBugDialog().show(requireContext())
+            KritikSaranDialog().show(requireContext())
         }
 
+        binding?.btnAdminView?.setOnClickListener {
+            showAdminViewDialog()
+        }
+
+    }
+
+    private fun showAdminViewDialog() {
+        val options = arrayOf("Bug Reports", "Song Request", "Note Promotion","Kritik Saran")
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Admin Panel")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> navigateSafe(R.id.action_home_fragment_to_list_bug_fragment)
+                    1 -> navigateSafe(R.id.action_home_fragment_to_song_request_admin)
+                    2 -> navigateSafe(R.id.action_home_fragment_to_setting_fragment)
+                    3 -> navigateSafe(R.id.action_home_fragment_to_kritiksaran_admin)
+                }
+            }
+            .show()
+    }
+
+    private fun navigateSafe(actionId: Int) {
+        try {
+            MyAdsListener.setBanner(false)
+            findNavController().navigate(actionId)
+        } catch (e: Exception) {
+            setToastTic(Toastic.ERROR, e.message.toString())
+        }
     }
 
     fun onViewAds(show : Boolean){

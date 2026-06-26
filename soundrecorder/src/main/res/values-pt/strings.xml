@@ -407,4 +407,11 @@
     <string name="report_bug_failed">Falha ao enviar relatório de bug</string>
 
     <string name="claim_daily_reward">Sua moeda diária está pronta para ser resgatada! 🪙</string>
+
+    <string name="help_us_to_improve">Ajude-nos a melhorar este aplicativo compartilhando suas sugestões ou ideias para novos recursos. Obrigado! :)</string>
+    <string name="input_your_suggest">Digite sua sugestão aqui</string>
+    <string name="thankyou">Obrigado</string>
+    <string name="suggest_success_send">Sugestão enviada com sucesso</string>
+    <string name="suggest_failed_send">Falha ao enviar sugestão</string>
+    <string name="description_cannot_empty">A descrição não pode estar vazia</string>
 </resources>

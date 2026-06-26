@@ -410,5 +410,12 @@
 
     <string name="claim_daily_reward">Deine tägliche Münze kann jetzt eingesammelt werden! 🪙</string>
 
+    <string name="help_us_to_improve">Hilf uns, diese App zu verbessern, indem du Feedback oder Vorschläge für neue Funktionen gibst. Vielen Dank! :)</string>
+    <string name="input_your_suggest">Gib hier deinen Vorschlag ein</string>
+    <string name="thankyou">Danke</string>
+    <string name="suggest_success_send">Vorschlag erfolgreich gesendet</string>
+    <string name="suggest_failed_send">Vorschlag konnte nicht gesendet werden</string>
+    <string name="description_cannot_empty">Die Beschreibung darf nicht leer sein</string>
+
 </resources>
 

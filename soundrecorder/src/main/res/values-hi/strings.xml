@@ -404,4 +404,11 @@
     <string name="report_bug_sent">धन्यवाद। हमें आपकी रिपोर्ट प्राप्त हो गई है और हम जल्द से जल्द इसकी जांच करेंगे।</string>
     <string name="report_bug_failed">बग रिपोर्ट भेजने में विफल</string>
     <string name="claim_daily_reward">आपका दैनिक सिक्का प्राप्त करने के लिए तैयार है! 🪙</string>
+
+    <string name="help_us_to_improve">इस ऐप को बेहतर बनाने में हमारी मदद करें। अपने सुझाव या नए फीचर्स के बारे में अपनी राय यहाँ साझा करें। धन्यवाद! :)</string>
+    <string name="input_your_suggest">अपना सुझाव यहाँ लिखें</string>
+    <string name="thankyou">धन्यवाद</string>
+    <string name="suggest_success_send">सुझाव सफलतापूर्वक भेजा गया</string>
+    <string name="suggest_failed_send">सुझाव भेजने में विफल</string>
+    <string name="description_cannot_empty">विवरण खाली नहीं हो सकता</string>
 </resources>

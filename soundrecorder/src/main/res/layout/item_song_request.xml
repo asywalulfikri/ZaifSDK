@@ -3,11 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_marginStart="@dimen/_12sdp"
-    android:layout_marginEnd="@dimen/_12sdp"
-    android:layout_marginTop="@dimen/_6sdp"
+    android:layout_margin="@dimen/_4sdp"
     android:background="@drawable/bg_dialog_game"
-    android:padding="@dimen/_12sdp">
+    android:padding="@dimen/_10sdp"
+    android:elevation="@dimen/_2sdp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -18,20 +17,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@+id/tvStatus"
-            android:textColor="#FFFFFF"
-            android:textSize="@dimen/_14sdp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/tvDescription"
-            android:layout_below="@+id/tvTitle"
-            android:layout_marginTop="@dimen/_3sdp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@+id/tvStatus"
-            android:textColor="#FFFFFF"
-            android:visibility="gone"
-            android:textSize="@dimen/_14sdp"/>
+            android:textColor="#FFB347"
+            android:textSize="@dimen/_12sdp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end" />
 
         <TextView
             android:id="@+id/tvStatus"
@@ -39,12 +29,25 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:textSize="@dimen/_10sdp"
-            android:paddingStart="@dimen/_8sdp"
-            android:paddingEnd="@dimen/_8sdp"
-            android:paddingTop="@dimen/_3sdp"
-            android:paddingBottom="@dimen/_3sdp"
+            android:textSize="@dimen/_8sdp"
+            android:paddingStart="@dimen/_6sdp"
+            android:paddingEnd="@dimen/_6sdp"
+            android:paddingTop="@dimen/_2sdp"
+            android:paddingBottom="@dimen/_2sdp"
             android:background="@drawable/bg_btn_tutorial_learn"/>
+
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvTitle"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:textColor="#F5F5DC"
+            android:textSize="@dimen/_10sdp"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:minLines="2" />
+
     </RelativeLayout>
 
     <TextView
@@ -53,7 +56,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_4sdp"
         android:textColor="#80FFFFFF"
-        android:textSize="@dimen/_10sdp"/>
+        android:textSize="@dimen/_8sdp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:background="#20FFFFFF" />
 
     <!-- Action buttons (admin only) -->
     <LinearLayout
@@ -68,27 +77,29 @@
             android:id="@+id/btnMarkDone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tandai Done"
+            android:text="Done"
             android:textColor="#00C853"
-            android:textSize="@dimen/_11sdp"
-            android:paddingStart="@dimen/_10sdp"
-            android:paddingEnd="@dimen/_10sdp"
-            android:paddingTop="@dimen/_5sdp"
-            android:paddingBottom="@dimen/_5sdp"
+            android:textSize="@dimen/_9sdp"
+            android:textStyle="bold"
+            android:paddingStart="@dimen/_8sdp"
+            android:paddingEnd="@dimen/_8sdp"
+            android:paddingTop="@dimen/_4sdp"
+            android:paddingBottom="@dimen/_4sdp"
             android:background="@drawable/bg_btn_tutorial_learn"
-            android:layout_marginEnd="@dimen/_8sdp"/>
+            android:layout_marginEnd="@dimen/_6sdp"/>
 
         <TextView
             android:id="@+id/btnDelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Hapus"
-            android:textColor="#FF4444"
-            android:textSize="@dimen/_11sdp"
-            android:paddingStart="@dimen/_10sdp"
-            android:paddingEnd="@dimen/_10sdp"
-            android:paddingTop="@dimen/_5sdp"
-            android:paddingBottom="@dimen/_5sdp"
+            android:textColor="#FF6B6B"
+            android:textSize="@dimen/_9sdp"
+            android:textStyle="bold"
+            android:paddingStart="@dimen/_8sdp"
+            android:paddingEnd="@dimen/_8sdp"
+            android:paddingTop="@dimen/_4sdp"
+            android:paddingBottom="@dimen/_4sdp"
             android:background="@drawable/bg_btn_tutorial_play"/>
     </LinearLayout>
 

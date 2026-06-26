@@ -70,6 +70,14 @@ object MusicListDialogHelper {
     private var activeDownloadId = -1L
     private var downloadingSongId = ""
 
+    // Firestore Pagination & Caching
+    private var lastVisibleDoc: com.google.firebase.firestore.DocumentSnapshot? = null
+    private var isLoadingOnline = false
+    private var isLastPageOnline = false
+    private var lastLoadTime = 0L
+    private val onlineCache = mutableListOf<FirestoreSong>()
+    private const val CACHE_DURATION = 5 * 60 * 1000L // 5 minutes
+
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private const val COLOR_BG_DARK     = "#0A0E1A"
@@ -340,7 +348,6 @@ object MusicListDialogHelper {
 
         // ─── ONLINE DATA & ADAPTER (hanya jika isDownload = true) ───
         if (isDownload) {
-            val allFirestoreSongs = mutableListOf<FirestoreSong>()
             val downloadHandler = Handler(Looper.getMainLooper())
             val dm = themedContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
@@ -419,7 +426,7 @@ object MusicListDialogHelper {
             }
 
             fun renderOnlineList(query: String) {
-                val filtered = allFirestoreSongs.filter { it.title.contains(query, true) }
+                val filtered = onlineCache.filter { it.title.contains(query, true) }
                 onlineAdapter?.updateData(filtered)
             }
             renderOnlineListFn = ::renderOnlineList
@@ -462,8 +469,6 @@ object MusicListDialogHelper {
             )
             onlineRecyclerView?.adapter = onlineAdapter
 
-            var isOnlineLoaded = false
-
             fun activateTabLocal() {
                 isOnlineTab = false
                 tabLocal?.setTextColor(Color.WHITE)
@@ -481,8 +486,11 @@ object MusicListDialogHelper {
                 onlineLoadingLayout?.visibility = View.GONE
             }
 
-            fun loadFirestoreIfNeeded() {
-                if (isOnlineLoaded) {
+            fun loadFirestoreIfNeeded(isLoadMore: Boolean = false) {
+                val now = System.currentTimeMillis()
+                val isCacheValid = (now - lastLoadTime) < CACHE_DURATION
+
+                if (!isLoadMore && isCacheValid && onlineCache.isNotEmpty()) {
                     onlineRecyclerView?.visibility = View.VISIBLE
                     onlineLoadingLayout?.visibility = View.GONE
                     renderOnlineList(searchField.text?.toString().orEmpty())
@@ -492,49 +500,81 @@ object MusicListDialogHelper {
                     }
                     return
                 }
-                onlineLoadingText?.text = context.getString(R.string.loading_audio)
-                onlineLoadingLayout?.visibility = View.VISIBLE
-                onlineLoadingLayout?.getChildAt(0)?.visibility = View.VISIBLE
-                onlineRecyclerView?.visibility = View.GONE
 
-                var collection = "song_"+zaifSDKConfig?.applicationId
+                if (isLoadingOnline || (isLastPageOnline && isLoadMore)) return
+                isLoadingOnline = true
 
-                if(zaifSDKConfig?.applicationId=="gendang.elektronik.beat"){
+                if (!isLoadMore) {
+                    onlineLoadingText?.text = context.getString(R.string.loading_audio)
+                    onlineLoadingLayout?.visibility = View.VISIBLE
+                    onlineLoadingLayout?.getChildAt(0)?.visibility = View.VISIBLE
+                    onlineRecyclerView?.visibility = View.GONE
+                }
+
+                var collection = "song_" + zaifSDKConfig?.applicationId
+                if (zaifSDKConfig?.applicationId == "gendang.elektronik.beat") {
                     collection = "song"
                 }
 
-
-               // Toast.makeText(context,"execute", Toast.LENGTH_SHORT).show()
-                FirebaseFirestore.getInstance().collection(collection)
+                var query = FirebaseFirestore.getInstance().collection(collection)
                     .whereArrayContains("appId", zaifSDKConfig?.applicationId ?: "")
-                    .get()
+                    .limit(100)
+
+                lastVisibleDoc?.let {
+                    query = query.startAfter(it)
+                }
+
+                query.get()
                     .addOnSuccessListener { snapshot ->
-                        allFirestoreSongs.clear()
-                        for (doc in snapshot.documents) {
-                            val song = FirestoreSong(
+                        isLoadingOnline = false
+                        if (snapshot.isEmpty) {
+                            isLastPageOnline = true
+                            if (!isLoadMore) {
+                                onlineLoadingLayout?.visibility = View.GONE
+                                onlineRecyclerView?.visibility = View.VISIBLE
+                            }
+                            return@addOnSuccessListener
+                        }
+
+                        if (!isLoadMore) {
+                            onlineCache.clear()
+                            lastLoadTime = System.currentTimeMillis()
+                            isLastPageOnline = false
+                            lastVisibleDoc = null
+                        }
+
+                        val newSongs = snapshot.documents.mapNotNull { doc ->
+                            FirestoreSong(
                                 id = doc.id,
                                 title = doc.getString("title") ?: "",
                                 link_download = doc.getString("link_download") ?: "",
                                 appId = doc.get("appId") as? List<String> ?: emptyList()
                             )
-                            allFirestoreSongs.add(song)
                         }
-                        isOnlineLoaded = true
+                        onlineCache.addAll(newSongs)
+                        lastVisibleDoc = snapshot.documents[snapshot.size() - 1]
+
+                        if (snapshot.size() < 100) {
+                            isLastPageOnline = true
+                        }
+
                         onlineLoadingLayout?.visibility = View.GONE
                         onlineRecyclerView?.visibility = View.VISIBLE
                         renderOnlineList(searchField.text?.toString().orEmpty())
+                        
                         if (allTracks.isNotEmpty()) {
                             val titles = allTracks.map { it.title.trim().lowercase() }.toSet()
                             onlineAdapter?.setDownloadedTitles(titles)
                         }
+
                         if (activeDownloadId != -1L) {
-                            val pos = allFirestoreSongs.indexOfFirst { it.id == downloadingSongId }
+                            val pos = onlineCache.indexOfFirst { it.id == downloadingSongId }
                             if (pos >= 0) {
                                 val cursor = dm.query(DownloadManager.Query().setFilterById(activeDownloadId))
                                 val stillRunning = cursor?.use { it.moveToFirst() } ?: false
                                 if (stillRunning) {
                                     onlineAdapter?.setDownloadState(pos, 0)
-                                    startPoll(pos, activeDownloadId, allFirestoreSongs[pos].title)
+                                    startPoll(pos, activeDownloadId, onlineCache[pos].title)
                                 } else {
                                     activeDownloadId = -1L
                                     downloadingSongId = ""
@@ -546,12 +586,32 @@ object MusicListDialogHelper {
                         }
                     }
                     .addOnFailureListener {
+                        isLoadingOnline = false
                         onlineLoadingText?.text = context.getString(R.string.try_again)
                         onlineLoadingLayout?.visibility = View.VISIBLE
                         onlineLoadingLayout?.getChildAt(0)?.visibility = View.GONE
                         onlineRecyclerView?.visibility = View.GONE
                     }
             }
+
+            onlineRecyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val visibleItemCount = layoutManager.childCount
+                    val totalItemCount = layoutManager.itemCount
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                    if (!isLoadingOnline && !isLastPageOnline) {
+                        if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0
+                            && totalItemCount >= 100
+                        ) {
+                            loadFirestoreIfNeeded(true)
+                        }
+                    }
+                }
+            })
 
             fun activateTabOnline() {
                 isOnlineTab = true

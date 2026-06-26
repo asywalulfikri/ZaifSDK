@@ -409,4 +409,11 @@
 
     <string name="claim_daily_reward">일일 코인을 받을 준비가 되었습니다! 🪙</string>
 
+    <string name="help_us_to_improve">의견이나 새로운 기능 제안을 보내 앱 개선에 도움을 주세요. 감사합니다! :)</string>
+    <string name="input_your_suggest">여기에 의견을 입력하세요</string>
+    <string name="thankyou">감사합니다</string>
+    <string name="suggest_success_send">의견이 성공적으로 전송되었습니다</string>
+    <string name="suggest_failed_send">의견 전송에 실패했습니다</string>
+    <string name="description_cannot_empty">설명은 비워둘 수 없습니다</string>
+
 </resources>

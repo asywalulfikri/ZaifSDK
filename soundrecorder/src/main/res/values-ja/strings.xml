@@ -402,4 +402,11 @@
 
     <string name="claim_daily_reward">デイリーコインを受け取れます！🪙</string>
 
+    <string name="help_us_to_improve">ご意見や新機能の提案をお寄せいただき、このアプリの改善にご協力ください。ありがとうございます！ :)</string>
+    <string name="input_your_suggest">ご意見・ご提案を入力してください</string>
+    <string name="thankyou">ありがとうございます</string>
+    <string name="suggest_success_send">提案が送信されました</string>
+    <string name="suggest_failed_send">提案の送信に失敗しました</string>
+    <string name="description_cannot_empty">説明は空にできません</string>
+
 </resources>

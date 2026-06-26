@@ -451,5 +451,12 @@
     <string name="report_bug_failed">فشل في إرسال بلاغ الخطأ</string>
 
     <string name="claim_daily_reward">عملتك اليومية جاهزة للاستلام! 🪙</string>
+
+    <string name="help_us_to_improve">ساعدنا في تطوير هذا التطبيق من خلال إرسال ملاحظاتك أو اقتراحاتك للميزات الجديدة. شكرًا لك! :)</string>
+    <string name="input_your_suggest">أدخل اقتراحك هنا</string>
+    <string name="thankyou">شكرًا لك</string>
+    <string name="suggest_success_send">تم إرسال الاقتراح بنجاح</string>
+    <string name="suggest_failed_send">فشل في إرسال الاقتراح</string>
+    <string name="description_cannot_empty">لا يمكن أن يكون الوصف فارغًا</string>
 </resources>
 

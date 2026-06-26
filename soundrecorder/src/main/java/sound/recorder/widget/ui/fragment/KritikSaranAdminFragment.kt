@@ -7,9 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -17,25 +18,26 @@ import com.google.firebase.firestore.Query
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
+import sound.recorder.widget.databinding.FragmentKritiksaranAdminBinding
 import sound.recorder.widget.databinding.FragmentSongRequestAdminBinding
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class SongRequestAdminFragment : Fragment() {
+class KritikSaranAdminFragment : Fragment() {
 
-    private var binding: FragmentSongRequestAdminBinding? = null
+    private var binding: FragmentKritiksaranAdminBinding? = null
 
-    data class SongRequest(
+    data class KritikSaranRequest(
         val docId: String,
-        val songTitle: String,
-        val requestedAt: Long,
-        val status: String
+        val name: String,
+        val description : String,
+        val requestedAt: Long
     )
 
-    private val allRequests = mutableListOf<SongRequest>()
-    private var currentFilter = "all"
-    private lateinit var adapter: SongRequestAdapter
+    private val allRequests = mutableListOf<KritikSaranRequest>()
+
+    private lateinit var adapter: KritikSaranAdapter
     var zaifSDKConfig : ZaifSDKConfig? =null
 
     private var lastVisible: DocumentSnapshot? = null
@@ -46,25 +48,25 @@ class SongRequestAdminFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSongRequestAdminBinding.inflate(inflater, container, false)
+        binding = FragmentKritiksaranAdminBinding.inflate(inflater, container, false)
         return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = SongRequestAdapter(
-            onMarkDone = { req -> updateStatus(req, "done") },
-            onDelete   = { req -> deleteRequest(req) }
+        adapter = KritikSaranAdapter(
+            onDelete   = { req -> deleteRequest(req) },
+            onClick = { req -> showDetailDialog(req) }
         )
 
-        binding?.rvRequests?.layoutManager = GridLayoutManager(requireContext(), 2)
+        binding?.rvRequests?.layoutManager = androidx.recyclerview.widget.GridLayoutManager(requireContext(), 2)
         binding?.rvRequests?.adapter = adapter
 
         binding?.rvRequests?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                val layoutManager = recyclerView.layoutManager as GridLayoutManager
+                val layoutManager = recyclerView.layoutManager as androidx.recyclerview.widget.GridLayoutManager
                 val visibleItemCount = layoutManager.childCount
                 val totalItemCount = layoutManager.itemCount
                 val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
@@ -81,9 +83,6 @@ class SongRequestAdminFragment : Fragment() {
         })
 
         binding?.btnBack?.setOnClickListener { findNavController().navigateUp() }
-        binding?.btnFilterAll?.setOnClickListener     { applyFilter("all") }
-        binding?.btnFilterPending?.setOnClickListener { applyFilter("pending") }
-        binding?.btnFilterDone?.setOnClickListener    { applyFilter("done") }
 
         zaifSDKConfig = ZaifSDKBuilder.load(requireContext())
 
@@ -100,15 +99,10 @@ class SongRequestAdminFragment : Fragment() {
         }
 
         var query = FirebaseFirestore.getInstance()
-            .collection("song_request")
+            .collection("suggest")
             .orderBy("requested_at", Query.Direction.DESCENDING)
             .whereEqualTo("app_id", zaifSDKConfig?.applicationId)
-
-        if (currentFilter != "all") {
-            query = query.whereEqualTo("status", currentFilter)
-        }
-
-        query = query.limit(PAGE_SIZE)
+            .limit(PAGE_SIZE)
 
         lastVisible?.let {
             query = query.startAfter(it)
@@ -133,24 +127,23 @@ class SongRequestAdminFragment : Fragment() {
 
                 val newItems = snapshot.documents.mapNotNull { doc ->
                     val d = doc.data ?: return@mapNotNull null
-                    SongRequest(
-                        docId      = doc.id,
-                        songTitle  = d["song_title"]   as? String ?: "-",
-                        requestedAt = d["requested_at"] as? Long   ?: 0L,
-                        status     = d["status"]       as? String ?: "pending"
+                    KritikSaranRequest(
+                        docId = doc.id,
+                        name = d["name"] as? String ?: "-",
+                        description = d["description"] as? String ?: "",
+                        requestedAt = d["requested_at"] as? Long ?: 0L,
                     )
                 }
 
                 allRequests.addAll(newItems)
                 lastVisible = snapshot.documents[snapshot.size() - 1]
-
+                
                 if (snapshot.size() < PAGE_SIZE) {
                     isLastPage = true
                 }
 
-                adapter.updateItems(allRequests)
-                binding?.tvCount?.text = "${allRequests.size} requests"
-                binding?.tvEmpty?.visibility = if (allRequests.isEmpty()) View.VISIBLE else View.GONE
+                adapter.updateData(allRequests)
+                binding?.tvCount?.text = "${allRequests.size} items"
             }
             .addOnFailureListener {
                 isLoading = false
@@ -159,73 +152,24 @@ class SongRequestAdminFragment : Fragment() {
             }
     }
 
-    private fun applyFilter(filter: String) {
-        if (currentFilter == filter) return
-        currentFilter = filter
-        updateFilterUI(filter)
-        
-        // Reset pagination
-        lastVisible = null
-        isLastPage = false
-        allRequests.clear()
-        adapter.updateItems(allRequests)
-        
-        loadRequests()
+    private fun showDetailDialog(req: KritikSaranRequest) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(req.name)
+            .setMessage(req.description)
+            .setPositiveButton("Tutup", null)
+            .show()
     }
 
-    private fun updateFilterUI(active: String) {
-        val b = binding ?: return
-        listOf(
-            "all"     to b.btnFilterAll,
-            "pending" to b.btnFilterPending,
-            "done"    to b.btnFilterDone
-        ).forEach { (key, btn) ->
-            if (key == active) {
-                btn.setTextColor(0xFFFFFFFF.toInt())
-                btn.setBackgroundResource(R.drawable.bg_btn_tutorial_learn)
-            } else {
-                btn.setTextColor(0xFFCCCCCC.toInt())
-                btn.setBackgroundResource(R.drawable.bg_dialog_game)
-            }
-        }
-    }
-
-    private fun updateStatus(req: SongRequest, newStatus: String) {
+    private fun deleteRequest(req: KritikSaranRequest) {
         FirebaseFirestore.getInstance()
-            .collection("song_request")
-            .document(req.docId)
-            .update("status", newStatus)
-            .addOnSuccessListener {
-                val idx = allRequests.indexOfFirst { it.docId == req.docId }
-                if (idx >= 0) {
-                    if (currentFilter == "all") {
-                        allRequests[idx] = allRequests[idx].copy(status = newStatus)
-                    } else {
-                        allRequests.removeAt(idx)
-                    }
-                    adapter.updateItems(allRequests)
-                    binding?.tvCount?.text = "${allRequests.size} requests"
-                    binding?.tvEmpty?.visibility = if (allRequests.isEmpty()) View.VISIBLE else View.GONE
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Gagal update: ${it.message}", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun deleteRequest(req: SongRequest) {
-        FirebaseFirestore.getInstance()
-            .collection("song_request")
+            .collection("suggest")
             .document(req.docId)
             .delete()
             .addOnSuccessListener {
-                val idx = allRequests.indexOfFirst { it.docId == req.docId }
-                if (idx >= 0) {
-                    allRequests.removeAt(idx)
-                    adapter.updateItems(allRequests)
-                    binding?.tvCount?.text = "${allRequests.size} requests"
-                    binding?.tvEmpty?.visibility = if (allRequests.isEmpty()) View.VISIBLE else View.GONE
-                }
+                allRequests.removeAll { it.docId == req.docId }
+                adapter.updateData(allRequests)
+                binding?.tvEmpty?.visibility = if (allRequests.isEmpty()) View.VISIBLE else View.GONE
+                binding?.tvCount?.text = "${allRequests.size} items"
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Gagal hapus: ${it.message}", Toast.LENGTH_SHORT).show()
@@ -239,24 +183,30 @@ class SongRequestAdminFragment : Fragment() {
 
     // ─── Adapter ──────────────────────────────────────────────────
 
-    private inner class SongRequestAdapter(
-        private val onMarkDone: (SongRequest) -> Unit,
-        private val onDelete: (SongRequest) -> Unit
-    ) : RecyclerView.Adapter<SongRequestAdapter.VH>() {
+    private inner class KritikSaranAdapter(
+        private val onDelete: (KritikSaranRequest) -> Unit,
+        private val onClick: (KritikSaranRequest) -> Unit
+    ) : RecyclerView.Adapter<KritikSaranAdapter.VH>() {
 
-        private val items = mutableListOf<SongRequest>()
+        private val items = mutableListOf<KritikSaranRequest>()
+
+        @SuppressLint("NotifyDataSetChanged")
+        fun updateData(newItems: List<KritikSaranRequest>) {
+            items.clear()
+            items.addAll(newItems)
+            notifyDataSetChanged()
+        }
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-            val tvSongTitle: TextView = view.findViewById(R.id.tvTitle)
-            val tvStatus: TextView    = view.findViewById(R.id.tvStatus)
+            val tvName: TextView = view.findViewById(R.id.tvName)
+            val tvDescription: TextView    = view.findViewById(R.id.tvDescription)
             val tvDate: TextView      = view.findViewById(R.id.tvDate)
-            val btnMarkDone: TextView = view.findViewById(R.id.btnMarkDone)
             val btnDelete: TextView   = view.findViewById(R.id.btnDelete)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val v = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_song_request, parent, false)
+                .inflate(R.layout.item_kritik_saran, parent, false)
             return VH(v)
         }
 
@@ -265,30 +215,13 @@ class SongRequestAdminFragment : Fragment() {
             val item = items[position]
             val sdf  = SimpleDateFormat("dd MMM yyyy  HH:mm", Locale.getDefault())
 
-            holder.tvSongTitle.text = item.songTitle
+            holder.tvName.text = item.name
+            holder.tvDescription.text = item.description
             holder.tvDate.text      = sdf.format(Date(item.requestedAt))
-
-            if (item.status == "done") {
-                holder.tvStatus.text = "Done"
-                holder.tvStatus.setTextColor(0xFF00C853.toInt())
-                holder.btnMarkDone.visibility = View.GONE
-            } else {
-                holder.tvStatus.text = "Pending"
-                holder.tvStatus.setTextColor(0xFFFFAA00.toInt())
-                holder.btnMarkDone.visibility = View.VISIBLE
-            }
-
-            holder.btnMarkDone.setOnClickListener { onMarkDone(item) }
             holder.btnDelete.setOnClickListener   { onDelete(item) }
+            holder.itemView.setOnClickListener { onClick(item) }
         }
 
         override fun getItemCount() = items.size
-
-        @SuppressLint("NotifyDataSetChanged")
-        fun updateItems(newItems: List<SongRequest>) {
-            items.clear()
-            items.addAll(newItems)
-            notifyDataSetChanged()
-        }
     }
 }

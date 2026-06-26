@@ -406,4 +406,11 @@
     <string name="report_bug_failed">ส่งรายงานบั๊กล้มเหลว</string>
 
     <string name="claim_daily_reward">เหรียญรายวันของคุณพร้อมให้รับแล้ว! 🪙</string>
+
+    <string name="help_us_to_improve">ช่วยเราพัฒนาแอปนี้ให้ดียิ่งขึ้นด้วยการส่งคำติชมหรือข้อเสนอแนะเกี่ยวกับฟีเจอร์ใหม่ ๆ ขอบคุณ! :)</string>
+    <string name="input_your_suggest">กรอกข้อเสนอแนะของคุณที่นี่</string>
+    <string name="thankyou">ขอบคุณ</string>
+    <string name="suggest_success_send">ส่งข้อเสนอแนะสำเร็จ</string>
+    <string name="suggest_failed_send">ส่งข้อเสนอแนะไม่สำเร็จ</string>
+    <string name="description_cannot_empty">รายละเอียดต้องไม่ว่างเปล่า</string>
 </resources>

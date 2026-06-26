@@ -1103,35 +1103,39 @@ open class BaseActivityWidget : AppCompatActivity() {
 
         val adId = admobSDKBuilder?.interstitialId ?: return
 
-        // WeakReference agar Activity bisa di-GC meski callback belum dipanggil
-        val weakActivity = WeakReference(this)
+        try {
+            // WeakReference agar Activity bisa di-GC meski callback belum dipanggil
+            val weakActivity = WeakReference(this)
 
-        InterstitialAd.load(
-            applicationContext,
-            adId,
-            AdRequest.Builder().build(),
-            object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(ad: InterstitialAd) {
-                    val activity = weakActivity.get()
-                    // Activity sudah mati → buang iklan, tidak update state
-                    if (activity == null || activity.isDestroyed || activity.isFinishing) {
-                        ad.fullScreenContentCallback = null
-                        return
+            InterstitialAd.load(
+                applicationContext,
+                adId,
+                AdRequest.Builder().build(),
+                object : InterstitialAdLoadCallback() {
+                    override fun onAdLoaded(ad: InterstitialAd) {
+                        val activity = weakActivity.get()
+                        // Activity sudah mati → buang iklan, tidak update state
+                        if (activity == null || activity.isDestroyed || activity.isFinishing) {
+                            ad.fullScreenContentCallback = null
+                            return
+                        }
+                        activity.retryJob?.cancel()
+                        activity.retryCount = 0
+                        activity.mInterstitialAd = ad
+                        Log.d("ADS", "Interstitial loaded")
                     }
-                    activity.retryJob?.cancel()
-                    activity.retryCount = 0
-                    activity.mInterstitialAd = ad
-                    Log.d("ADS", "Interstitial loaded")
-                }
 
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    val activity = weakActivity.get()
-                    if (activity == null || activity.isDestroyed || activity.isFinishing) return
-                    activity.mInterstitialAd = null
-                    activity.scheduleRetry(isPremium)
+                    override fun onAdFailedToLoad(error: LoadAdError) {
+                        val activity = weakActivity.get()
+                        if (activity == null || activity.isDestroyed || activity.isFinishing) return
+                        activity.mInterstitialAd = null
+                        activity.scheduleRetry(isPremium)
+                    }
                 }
-            }
-        )
+            )
+        } catch (e: Throwable) {
+            Log.e("AdMobFix", "WebView error on loadInterstitial: ${e.message}")
+        }
     }
 
     fun showInterstitialIfAllowed(isPremium: Boolean, onFinished: () -> Unit) {
@@ -1225,52 +1229,56 @@ open class BaseActivityWidget : AppCompatActivity() {
 
         val adRequest = AdRequest.Builder().build()
 
-        // WeakReference agar Activity bisa di-GC meski callback belum terpanggil
-        val weakActivity = WeakReference(this)
+        try {
+            // WeakReference agar Activity bisa di-GC meski callback belum terpanggil
+            val weakActivity = WeakReference(this)
 
-        RewardedAd.load(
-            applicationContext, // pakai applicationContext bukan this
-            adId,
-            adRequest,
-            object : RewardedAdLoadCallback() {
+            RewardedAd.load(
+                applicationContext, // pakai applicationContext bukan this
+                adId,
+                adRequest,
+                object : RewardedAdLoadCallback() {
 
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    val activity = weakActivity.get()
-                    // Activity sudah mati → tidak perlu lakukan apapun
-                    if (activity == null || activity.isDestroyed || activity.isFinishing) return
+                    override fun onAdFailedToLoad(adError: LoadAdError) {
+                        val activity = weakActivity.get()
+                        // Activity sudah mati → tidak perlu lakukan apapun
+                        if (activity == null || activity.isDestroyed || activity.isFinishing) return
 
-                    activity.rewardedAd = null
+                        activity.rewardedAd = null
 
-                    if (activity.retryCountReward < 3) {
-                        activity.retryCountReward++
+                        if (activity.retryCountReward < 3) {
+                            activity.retryCountReward++
 
-                        // Simpan Runnable ke property agar bisa di-cancel di onDestroy
-                        // Gunakan WeakReference di dalam Runnable untuk cegah leak selama 5 detik delay
-                        val weakRef = WeakReference(activity)
-                        activity.retryRewardRunnable = Runnable {
-                            val act = weakRef.get()
-                            if (act != null && !act.isDestroyed && !act.isFinishing) {
-                                act.retryRewardRunnable = null
-                                act.loadRewardedAd(isPremium)
+                            // Simpan Runnable ke property agar bisa di-cancel di onDestroy
+                            // Gunakan WeakReference di dalam Runnable untuk cegah leak selama 5 detik delay
+                            val weakRef = WeakReference(activity)
+                            activity.retryRewardRunnable = Runnable {
+                                val act = weakRef.get()
+                                if (act != null && !act.isDestroyed && !act.isFinishing) {
+                                    act.retryRewardRunnable = null
+                                    act.loadRewardedAd(isPremium)
+                                }
                             }
+                            activity.retryHandler.postDelayed(activity.retryRewardRunnable!!, 5000)
                         }
-                        activity.retryHandler.postDelayed(activity.retryRewardRunnable!!, 5000)
                     }
-                }
 
-                override fun onAdLoaded(ad: RewardedAd) {
-                    val activity = weakActivity.get()
-                    // Activity sudah mati saat iklan baru selesai load → buang iklan
-                    if (activity == null || activity.isDestroyed || activity.isFinishing) {
-                        ad.fullScreenContentCallback = null
-                        return
+                    override fun onAdLoaded(ad: RewardedAd) {
+                        val activity = weakActivity.get()
+                        // Activity sudah mati saat iklan baru selesai load → buang iklan
+                        if (activity == null || activity.isDestroyed || activity.isFinishing) {
+                            ad.fullScreenContentCallback = null
+                            return
+                        }
+                        activity.rewardedAd = ad
+                        activity.retryCountReward = 0
+                        Log.d("ADS", "Rewarded ad loaded")
                     }
-                    activity.rewardedAd = ad
-                    activity.retryCountReward = 0
-                    Log.d("ADS", "Rewarded ad loaded")
                 }
-            }
-        )
+            )
+        } catch (e: Throwable) {
+            Log.e("AdMobFix", "WebView error on loadRewardedAd: ${e.message}")
+        }
     }
 
     // ─── SHOW ─────────────────────────────────────────────────────────────────
@@ -1477,8 +1485,8 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
                 })
 
-        }catch (e : Exception){
-            setLog(e.message.toString())
+        } catch (e : Throwable) {
+            setLog("AdMobFix", "WebView error on setupRewardInterstitial: ${e.message}")
         }
     }
 

@@ -31,6 +31,14 @@
             android:id="@+id/action_home_fragment_to_list_bug_fragment"
             app:destination="@id/FragmentListBug" />
 
+        <action
+            android:id="@+id/action_home_fragment_to_song_request_admin"
+            app:destination="@id/FragmentSongRequestAdmin" />
+
+        <action
+            android:id="@+id/action_home_fragment_to_kritiksaran_admin"
+            app:destination="@id/FragmentKritikSaranAdmin" />
+
 
     </fragment>
 
@@ -45,6 +53,18 @@
         android:name="sound.recorder.widget.ui.fragment.BugReportAdminFragment"
         android:label=""
         tools:layout="@layout/fragment_setting"/>
+
+    <fragment
+        android:id="@+id/FragmentSongRequestAdmin"
+        android:name="sound.recorder.widget.ui.fragment.SongRequestAdminFragment"
+        android:label=""
+        tools:layout="@layout/fragment_song_request_admin"/>
+
+    <fragment
+        android:id="@+id/FragmentKritikSaranAdmin"
+        android:name="sound.recorder.widget.ui.fragment.KritikSaranAdminFragment"
+        android:label=""
+        tools:layout="@layout/fragment_song_request_admin"/>
 
     <fragment
         android:id="@+id/FragmentDholak"

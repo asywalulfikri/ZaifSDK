@@ -136,6 +136,21 @@
             android:textColor="@android:color/white"
             tools:targetApi="lollipop" />
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:layout_margin="5dp"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:id="@+id/btn_admin_view"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            android:textSize="20sp"
+            android:text="Admin Panel"
+            android:fontFamily="@font/rimouski"
+            android:textAllCaps="false"
+            android:backgroundTint="#FF5722"
+            android:textColor="@android:color/white"
+            tools:targetApi="lollipop" />
+
     </LinearLayout>
 
 

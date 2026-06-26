@@ -151,11 +151,13 @@ open class MyApp : Application() {
     private suspend fun initializeAdMob() = withContext(Dispatchers.IO) {
         suspendCancellableCoroutine { cont ->
             try {
-                // Khusus Android 9 (API 28), WebView/CookieManager harus disentuh di Main Thread dulu
-                // untuk mencegah native hang saat AdMob inisialisasi di background.
-                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
-                    mainHandler.post {
-                        try { CookieManager.getInstance() } catch (e: Exception) {}
+                // Sentuh WebView/CookieManager di Main Thread secepat mungkin.
+                // Ini memaksa inisialisasi Chromium Engine secara aman di UI Thread sebelum SDK AdMob memanggilnya di background.
+                mainHandler.post {
+                    try {
+                        CookieManager.getInstance()
+                    } catch (e: Throwable) {
+                        Log.e(TAG, "Pre-touch WebView error: ${e.message}")
                     }
                 }
 
@@ -164,7 +166,7 @@ open class MyApp : Application() {
                     showDebugToast("AdMob berhasil diinisialisasi")
                     if (cont.isActive) cont.resume(Unit)
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.e(TAG, "AdMob init error: ${e.message}")
                 showDebugToast("AdMob gagal: ${e.message}")
                 if (cont.isActive) cont.resume(Unit)

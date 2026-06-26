@@ -408,4 +408,11 @@
 
     <string name="claim_daily_reward">¡Tu moneda diaria está lista para reclamar! 🪙</string>
 
+    <string name="help_us_to_improve">Ayúdanos a mejorar esta aplicación compartiendo tus comentarios o sugerencias para nuevas funciones. ¡Gracias! :)</string>
+    <string name="input_your_suggest">Escribe tu sugerencia aquí</string>
+    <string name="thankyou">Gracias</string>
+    <string name="suggest_success_send">Sugerencia enviada con éxito</string>
+    <string name="suggest_failed_send">No se pudo enviar la sugerencia</string>
+    <string name="description_cannot_empty">La descripción no puede estar vacía</string>
+
 </resources>

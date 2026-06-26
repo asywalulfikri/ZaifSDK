@@ -409,4 +409,11 @@
 
     <string name="claim_daily_reward">Votre pièce quotidienne est prête à être réclamée ! 🪙</string>
 
+    <string name="help_us_to_improve">Aidez-nous à améliorer cette application en partageant vos commentaires ou suggestions de nouvelles fonctionnalités. Merci ! :)</string>
+    <string name="input_your_suggest">Saisissez votre suggestion ici</string>
+    <string name="thankyou">Merci</string>
+    <string name="suggest_success_send">Suggestion envoyée avec succès</string>
+    <string name="suggest_failed_send">Échec de l envoi de la suggestion</string>
+    <string name="description_cannot_empty">La description ne peut pas être vide</string>
+
 </resources>
