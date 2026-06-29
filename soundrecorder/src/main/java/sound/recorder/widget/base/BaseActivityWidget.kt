@@ -446,11 +446,11 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        if (adView != null) {
+        try {
             adView?.pause()
-        }
-        if(adView2!=null){
             adView2?.pause()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error pausing adView: ${e.message}")
         }
     }
 
@@ -460,11 +460,11 @@ open class BaseActivityWidget : AppCompatActivity() {
         if (enableInAppUpdate()) {
             updateHelper.onResume()
         }
-        if (adView != null) {
+        try {
             adView?.resume()
-        }
-        if(adView2!=null){
             adView2?.resume()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error resuming adView: ${e.message}")
         }
     }
     
@@ -911,30 +911,34 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     private fun cleanBannerHome(){
-        // 1. Hentikan timeout runnable dari adView
-        loadTimeoutRunnable?.let {
-            adView?.removeCallbacks(it)
+        try {
+            // 1. Hentikan timeout runnable dari adView
+            loadTimeoutRunnable?.let {
+                adView?.removeCallbacks(it)
+            }
+
+            // 2. Hentikan load runnable dari container
+            // Ambil container dari WeakRef secara lokal agar konsisten
+            val container = bannerContainerRef?.get()
+            loadBannerRunnable?.let {
+                container?.removeCallbacks(it)
+            }
+
+            // 3. Bersihkan listener (Mencegah callback masuk ke activity yang sedang destroy)
+            adView?.adListener = object : AdListener() {} // Dummy listener
+
+            // 4. Hentikan animasi dan hancurkan AdView
+            adView?.animate()?.cancel()
+            adView?.destroy()
+
+            // 5. Nullified semua property
+            adView = null
+            bannerContainerRef = null
+            loadBannerRunnable = null
+            loadTimeoutRunnable = null
+        } catch (e: Exception) {
+            Log.e(TAG, "Error cleaning banner home: ${e.message}")
         }
-
-        // 2. Hentikan load runnable dari container
-        // Ambil container dari WeakRef secara lokal agar konsisten
-        val container = bannerContainerRef?.get()
-        loadBannerRunnable?.let {
-            container?.removeCallbacks(it)
-        }
-
-        // 3. Bersihkan listener (Mencegah callback masuk ke activity yang sedang destroy)
-        adView?.adListener = object : AdListener() {} // Dummy listener
-
-        // 4. Hentikan animasi dan hancurkan AdView
-        adView?.animate()?.cancel()
-        adView?.destroy()
-
-        // 5. Nullified semua property
-        adView = null
-        bannerContainerRef = null
-        loadBannerRunnable = null
-        loadTimeoutRunnable = null
     }
 
 
@@ -1165,10 +1169,11 @@ open class BaseActivityWidget : AppCompatActivity() {
                 // Jalankan onFinished hanya jika Activity masih ada
                 if (!isFinishing && !isDestroyed) {
                     runOnUiThread { onFinished() }
-                } else {
-                    // Jika activity sudah mati, onFinished mungkin tidak perlu dijalankan
-                    // atau jalankan tanpa menyentuh UI
                 }
+
+                // IMPROVEMENT: Reload immediately after show to ensure next ad is ready
+                // This significantly increases Impression Rate
+                loadInterstitialIfNeeded(isPremium)
             }
 
             override fun onAdDismissedFullScreenContent() {

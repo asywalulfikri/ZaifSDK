@@ -434,15 +434,19 @@ open class BaseFragmentWidget : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        if(adView!=null){
+        try {
             adView?.pause()
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Error pausing adView: ${e.message}")
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if(adView!=null){
+        try {
             adView?.resume()
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Error resuming adView: ${e.message}")
         }
     }
 
@@ -453,15 +457,15 @@ open class BaseFragmentWidget : Fragment() {
     }
 
     fun pauseAds(){
-        if(adView!=null){
+        try {
             adView?.pause()
-        }
+        } catch (e: Exception) { }
     }
 
     fun resumeAds(){
-        if(adView!=null){
+        try {
             adView?.resume()
-        }
+        } catch (e: Exception) { }
     }
 
 

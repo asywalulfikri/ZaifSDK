@@ -40,7 +40,6 @@ import com.intuit.ssp.R as SspR
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
-import sound.recorder.widget.recording.RecordingListDialogHelper
 import java.util.concurrent.TimeUnit
 
 object MusicListDialogHelper {
@@ -530,8 +529,14 @@ object MusicListDialogHelper {
                         if (snapshot.isEmpty) {
                             isLastPageOnline = true
                             if (!isLoadMore) {
-                                onlineLoadingLayout?.visibility = View.GONE
-                                onlineRecyclerView?.visibility = View.VISIBLE
+                                if (onlineCache.isEmpty()) {
+                                    onlineLoadingLayout?.visibility = View.VISIBLE
+                                    onlineLoadingLayout?.getChildAt(0)?.visibility = View.GONE
+                                    onlineLoadingText?.text = context.getString(R.string.data_empty)
+                                } else {
+                                    onlineLoadingLayout?.visibility = View.GONE
+                                    onlineRecyclerView?.visibility = View.VISIBLE
+                                }
                             }
                             return@addOnSuccessListener
                         }
@@ -663,6 +668,8 @@ object MusicListDialogHelper {
             override fun onStop() {
                 if (MusicPlayerManager.getCurrentTrack() == null) playerCard.visibility = View.GONE
                 statusListener?.onMusicStop()
+                localRecyclerView.adapter?.notifyDataSetChanged()
+                onlineRecyclerView?.adapter?.notifyDataSetChanged()
             }
             override fun onProgress(current: Int, max: Int) {
                 playerCard.findViewById<MusicSeekBar>(103)?.apply {
@@ -674,6 +681,8 @@ object MusicListDialogHelper {
             override fun onComplete() {
                 playerCard.visibility = View.GONE
                 statusListener?.onMusicComplete()
+                localRecyclerView.adapter?.notifyDataSetChanged()
+                onlineRecyclerView?.adapter?.notifyDataSetChanged()
             }
         })
 
@@ -1148,6 +1157,22 @@ object MusicListDialogHelper {
 
             val btnSize = context.sdp(SdpR.dimen._28sdp)
             val btnPad  = context.sdp(SdpR.dimen._4sdp)
+            
+            val stopBtn = ImageButton(context).apply {
+                id = 105
+                background = null
+                setImageResource(R.drawable.ic_baseline_stop_24)
+                setColorFilter(Color.parseColor("#FF6B6B"))
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                layoutParams = LinearLayout.LayoutParams(btnSize, btnSize).apply {
+                    setMargins(0, 0, context.sdp(SdpR.dimen._4sdp), 0)
+                }
+                setPadding(btnPad, btnPad, btnPad, btnPad)
+                setOnClickListener {
+                     MusicPlayerManager.stop()
+                }
+            }
+
             val playBtn = ImageButton(context).apply {
                 id = 102
                 background = null
@@ -1167,6 +1192,7 @@ object MusicListDialogHelper {
             }
 
             topRow.addView(titleTv)
+            topRow.addView(stopBtn)
             topRow.addView(playBtn)
             addView(topRow)
 
