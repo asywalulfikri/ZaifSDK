@@ -416,4 +416,8 @@
     <string name="suggest_failed_send">Gagal menghantar cadangan</string>
     <string name="description_cannot_empty">Penerangan tidak boleh kosong</string>
 
+    <string name="buy_premium">Beli Mod Premium untuk mendapatkan ciri ini</string>
+    <string name="social_media">Media Sosial</string>
+    <string name="call_us">Hubungi Kami</string>
+
 </resources>

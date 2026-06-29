@@ -412,4 +412,8 @@
     <string name="suggest_failed_send">Не удалось отправить предложение</string>
     <string name="description_cannot_empty">Описание не может быть пустым</string>
 
+    <string name="buy_premium">Купите премиум-режим, чтобы получить доступ к этой функции</string>
+    <string name="social_media">Социальные сети</string>
+    <string name="call_us">Связаться с нами</string>
+
 </resources>

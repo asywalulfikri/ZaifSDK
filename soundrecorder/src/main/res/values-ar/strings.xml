@@ -458,5 +458,9 @@
     <string name="suggest_success_send">تم إرسال الاقتراح بنجاح</string>
     <string name="suggest_failed_send">فشل في إرسال الاقتراح</string>
     <string name="description_cannot_empty">لا يمكن أن يكون الوصف فارغًا</string>
+
+    <string name="buy_premium">اشترِ الوضع المميز للحصول على هذه الميزة</string>
+    <string name="social_media">وسائل التواصل الاجتماعي</string>
+    <string name="call_us">اتصل بنا</string>
 </resources>
 

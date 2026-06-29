@@ -411,4 +411,8 @@
     <string name="suggest_success_send">सुझाव सफलतापूर्वक भेजा गया</string>
     <string name="suggest_failed_send">सुझाव भेजने में विफल</string>
     <string name="description_cannot_empty">विवरण खाली नहीं हो सकता</string>
+
+    <string name="buy_premium">इस सुविधा का उपयोग करने के लिए प्रीमियम मोड खरीदें</string>
+    <string name="social_media">सोशल मीडिया</string>
+    <string name="call_us">हमसे संपर्क करें</string>
 </resources>

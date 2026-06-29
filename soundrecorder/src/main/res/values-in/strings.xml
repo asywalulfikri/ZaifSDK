@@ -413,5 +413,9 @@
     <string name="suggest_failed_send">Saran gagal dikirim</string>
     <string name="description_cannot_empty">Deskripsi tidak boleh kosong</string>
 
+    <string name="buy_premium">Beli Mode Premium untuk mendapatkan fitur ini</string>
+    <string name="social_media">Sosial Media</string>
+    <string name="call_us">Hubungi Kami</string>
+
 
 </resources>

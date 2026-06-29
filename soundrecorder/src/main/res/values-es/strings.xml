@@ -415,4 +415,8 @@
     <string name="suggest_failed_send">No se pudo enviar la sugerencia</string>
     <string name="description_cannot_empty">La descripción no puede estar vacía</string>
 
+    <string name="buy_premium">Compra el modo Premium para acceder a esta función</string>
+    <string name="social_media">Redes Sociales</string>
+    <string name="call_us">Contáctanos</string>
+
 </resources>

@@ -414,4 +414,8 @@
     <string name="suggest_failed_send">建议发送失败</string>
     <string name="description_cannot_empty">描述不能为空</string>
 
+    <string name="buy_premium">购买高级模式以使用此功能</string>
+    <string name="social_media">社交媒体</string>
+    <string name="call_us">联系我们</string>
+
 </resources>

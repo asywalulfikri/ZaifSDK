@@ -414,4 +414,8 @@
     <string name="suggest_success_send">Sugestão enviada com sucesso</string>
     <string name="suggest_failed_send">Falha ao enviar sugestão</string>
     <string name="description_cannot_empty">A descrição não pode estar vazia</string>
+
+    <string name="buy_premium">Compre o Modo Premium para acessar este recurso</string>
+    <string name="social_media">Redes Sociais</string>
+    <string name="call_us">Fale Conosco</string>
 </resources>

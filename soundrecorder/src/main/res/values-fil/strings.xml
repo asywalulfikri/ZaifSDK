@@ -415,4 +415,8 @@
     <string name="suggest_success_send">Matagumpay na naipadala ang mungkahi</string>
     <string name="suggest_failed_send">Nabigong maipadala ang mungkahi</string>
     <string name="description_cannot_empty">Hindi maaaring walang laman ang paglalarawan</string>
+
+    <string name="buy_premium">Bilhin ang Premium Mode upang magamit ang tampok na ito</string>
+    <string name="social_media">Social Media</string>
+    <string name="call_us">Makipag-ugnayan sa Amin</string>
 </resources>

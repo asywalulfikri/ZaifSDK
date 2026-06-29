@@ -417,4 +417,8 @@
     <string name="suggest_success_send">Suggestie succesvol verzonden</string>
     <string name="suggest_failed_send">Verzenden van suggestie mislukt</string>
     <string name="description_cannot_empty">Beschrijving mag niet leeg zijn</string>
+
+    <string name="buy_premium">Koop de Premium-modus om toegang te krijgen tot deze functie</string>
+    <string name="social_media">Sociale Media</string>
+    <string name="call_us">Neem Contact Met Ons Op</string>
 </resources>

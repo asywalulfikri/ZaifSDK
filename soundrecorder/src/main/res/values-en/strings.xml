@@ -412,4 +412,8 @@
     <string name="suggest_success_send">Suggestion sent successfully</string>
     <string name="suggest_failed_send">Failed to send suggestion</string>
     <string name="description_cannot_empty">Description cannot be empty</string>
+
+    <string name="buy_premium">Buy Premium Mode to access this feature</string>
+    <string name="social_media">Social Media</string>
+    <string name="call_us">Contact Us</string>
 </resources>

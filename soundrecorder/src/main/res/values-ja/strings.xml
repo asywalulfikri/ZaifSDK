@@ -409,4 +409,8 @@
     <string name="suggest_failed_send">提案の送信に失敗しました</string>
     <string name="description_cannot_empty">説明は空にできません</string>
 
+    <string name="buy_premium">この機能を利用するにはプレミアムモードを購入してください</string>
+    <string name="social_media">ソーシャルメディア</string>
+    <string name="call_us">お問い合わせ</string>
+
 </resources>

@@ -416,4 +416,8 @@
     <string name="suggest_failed_send">의견 전송에 실패했습니다</string>
     <string name="description_cannot_empty">설명은 비워둘 수 없습니다</string>
 
+    <string name="buy_premium">이 기능을 사용하려면 프리미엄 모드를 구매하세요</string>
+    <string name="social_media">소셜 미디어</string>
+    <string name="call_us">문의하기</string>
+
 </resources>

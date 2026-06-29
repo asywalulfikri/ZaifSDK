@@ -413,4 +413,8 @@
     <string name="suggest_success_send">Gửi góp ý thành công</string>
     <string name="suggest_failed_send">Gửi góp ý thất bại</string>
     <string name="description_cannot_empty">Mô tả không được để trống</string>
+
+    <string name="buy_premium">Mua chế độ Premium để sử dụng tính năng này</string>
+    <string name="social_media">Mạng Xã Hội</string>
+    <string name="call_us">Liên Hệ Chúng Tôi</string>
 </resources>

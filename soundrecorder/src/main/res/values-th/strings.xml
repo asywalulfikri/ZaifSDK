@@ -413,4 +413,8 @@
     <string name="suggest_success_send">ส่งข้อเสนอแนะสำเร็จ</string>
     <string name="suggest_failed_send">ส่งข้อเสนอแนะไม่สำเร็จ</string>
     <string name="description_cannot_empty">รายละเอียดต้องไม่ว่างเปล่า</string>
+
+    <string name="buy_premium">ซื้อโหมดพรีเมียมเพื่อใช้งานฟีเจอร์นี้</string>
+    <string name="social_media">โซเชียลมีเดีย</string>
+    <string name="call_us">ติดต่อเรา</string>
 </resources>

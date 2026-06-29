@@ -416,4 +416,8 @@
     <string name="suggest_failed_send">Échec de l envoi de la suggestion</string>
     <string name="description_cannot_empty">La description ne peut pas être vide</string>
 
+    <string name="buy_premium">Achetez le mode Premium pour accéder à cette fonctionnalité</string>
+    <string name="social_media">Réseaux Sociaux</string>
+    <string name="call_us">Contactez-nous</string>
+
 </resources>

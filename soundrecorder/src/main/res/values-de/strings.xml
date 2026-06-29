@@ -417,5 +417,9 @@
     <string name="suggest_failed_send">Vorschlag konnte nicht gesendet werden</string>
     <string name="description_cannot_empty">Die Beschreibung darf nicht leer sein</string>
 
+    <string name="buy_premium">Kaufen Sie den Premium-Modus, um diese Funktion zu nutzen</string>
+    <string name="social_media">Soziale Medien</string>
+    <string name="call_us">Kontaktieren Sie uns</string>
+
 </resources>
 
