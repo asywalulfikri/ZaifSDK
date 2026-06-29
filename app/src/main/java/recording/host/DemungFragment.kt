@@ -371,8 +371,6 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
     }
 
     private fun initListener() {
-        MyAdsListener.loadInterstitial()
-        MyAdsListener.loadReward()
         MyNoteListener.setMyListener(this)
         MyMusicListener.setMyListener(this)
     }

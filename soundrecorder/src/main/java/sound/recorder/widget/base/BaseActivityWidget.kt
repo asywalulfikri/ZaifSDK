@@ -1099,9 +1099,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     fun loadInterstitialIfNeeded(isPremium: Boolean) {
         if (isPremium) return
 
-        val now = System.currentTimeMillis()
         if (mInterstitialAd != null) return
-        if (lastShowTime > 0 && now - lastShowTime < LOAD_INTERVAL) return
         if (isFinishing || isDestroyed) return
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return
 

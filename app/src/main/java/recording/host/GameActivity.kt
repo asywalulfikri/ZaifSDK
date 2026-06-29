@@ -94,6 +94,12 @@ class GameActivity : BaseActivity(),
     override fun onStart() {
         super.onStart()
         registerNetworkCallbackSafe()
+
+        // Ensure ads are loaded when returning from background
+        if (areBuildersReady && areEssentialAdsReady) {
+            loadInterstitial()
+            loadReward()
+        }
     }
 
     override fun onStop() {
@@ -198,6 +204,13 @@ class GameActivity : BaseActivity(),
     override fun onInitializationComplete() {
         areBuildersReady = true
         tryToSetupAds()
+
+        // Pre-load ads early only ONCE at app startup
+        // This significantly improves Impression Rate by reducing redundant requests
+        if (!soundViewModel.isPremium) {
+            loadInterstitial()
+            loadReward()
+        }
     }
 
     override fun onViewBanner(show: Boolean) {
