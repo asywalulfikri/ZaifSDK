@@ -1,76 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
+    android:paddingLeft="@dimen/_12sdp"
+    android:paddingRight="@dimen/_12sdp"
+    android:paddingTop="@dimen/_8sdp"
+    android:paddingBottom="@dimen/_8sdp"
     android:gravity="center_vertical"
     android:background="@drawable/bg_item_tutorial_song">
 
     <!-- Icon -->
     <ImageView
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:id="@+id/ivSongIcon"
+        android:layout_width="@dimen/_32sdp"
+        android:layout_height="@dimen/_32sdp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
         android:src="@drawable/icon_music"
         android:contentDescription="@string/song" />
 
-    <!-- Nama + info -->
+    <!-- Tombol MAINKAN & BELAJAR (Aligned to End) -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:id="@+id/layoutActions"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnPlay"
+            android:layout_width="wrap_content"
+            android:minWidth="@dimen/_55sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_marginEnd="@dimen/_4sdp"
+            android:paddingStart="@dimen/_4sdp"
+            android:paddingEnd="@dimen/_4sdp"
+            android:background="@drawable/bg_btn_tutorial_play"
+            android:gravity="center"
+            android:text="@string/play"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/_8ssp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnLearn"
+            android:layout_width="wrap_content"
+            android:minWidth="@dimen/_55sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:paddingStart="@dimen/_4sdp"
+            android:paddingEnd="@dimen/_4sdp"
+            android:background="@drawable/bg_btn_tutorial_learn"
+            android:gravity="center"
+            android:text="@string/learn"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/_8ssp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Nama + info (Middle - Flexible) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/ivSongIcon"
+        android:layout_toStartOf="@id/layoutActions"
         android:layout_marginStart="@dimen/_10sdp"
         android:layout_marginEnd="@dimen/_6sdp"
+        android:layout_centerVertical="true"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvSongName"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/song"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textSize="@dimen/_11ssp"
             android:textStyle="bold"
-            android:maxLines="1"
+            android:maxLines="2"
             android:ellipsize="end" />
 
         <TextView
             android:id="@+id/tvSongInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="@dimen/_2sdp"
             android:text="Best: -"
             android:visibility="gone"
             android:textColor="#FFD740"
-            android:textSize="11sp" />
+            android:textSize="@dimen/_9ssp" />
     </LinearLayout>
 
-    <!-- Tombol MAINKAN -->
-    <TextView
-        android:id="@+id/btnPlay"
-        android:layout_width="@dimen/_60sdp"
-        android:layout_height="@dimen/_28sdp"
-        android:layout_marginEnd="6dp"
-        android:background="@drawable/bg_btn_tutorial_play"
-        android:gravity="center"
-        android:text="@string/play"
-        android:textColor="#FFFFFF"
-        android:textSize="@dimen/_7ssp"
-        android:textStyle="bold" />
-
-    <!-- Tombol BELAJAR -->
-    <TextView
-        android:id="@+id/btnLearn"
-        android:layout_width="@dimen/_60sdp"
-        android:layout_height="@dimen/_28sdp"
-        android:background="@drawable/bg_btn_tutorial_learn"
-        android:gravity="center"
-        android:text="@string/learn"
-        android:textColor="#FFFFFF"
-        android:textSize="@dimen/_7ssp"
-        android:textStyle="bold" />
-
-</LinearLayout>
+</RelativeLayout>

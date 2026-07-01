@@ -201,10 +201,13 @@ object RecordingListDialogHelper {
         }
 
         dialog.show()
+        val isPortrait = context.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+        val widthPercent = if (isPortrait) 0.94 else 0.75
+
         dialog.window?.apply {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setLayout(
-                (displayMetrics.widthPixels * 0.92).toInt(),
+                (displayMetrics.widthPixels * widthPercent).toInt(),
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
         }
@@ -225,10 +228,9 @@ object RecordingListDialogHelper {
             setCardBackgroundColor(Color.parseColor("#$COLOR_WOOD_MED"))
         }
 
-        // Single horizontal row — hemat tinggi untuk landscape
-        val row = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
+        // Main layout of the card: Vertical
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
             val pH = context.sdp(SdpR.dimen._10sdp)
             val pV = context.sdp(SdpR.dimen._8sdp)
             setPadding(pH, pV, pH, pV)
@@ -238,7 +240,12 @@ object RecordingListDialogHelper {
         val sdf         = SimpleDateFormat("dd/MM  HH:mm", Locale.getDefault())
         val iconType    = if (hasMicAudio) "🎙" else "⏺"
 
-        // ── Info: ikon + nama + tanggal ──────────────────────────
+        // ── TOP ROW: Info & Play ─────────────────────────────────
+        val topRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
         val nameTv = TextView(context).apply {
             text = rec.name.uppercase()
             setTextColor(Color.parseColor("#$COLOR_IVORY"))
@@ -248,13 +255,13 @@ object RecordingListDialogHelper {
             ellipsize = TextUtils.TruncateAt.END
         }
 
-        row.addView(TextView(context).apply {
+        topRow.addView(TextView(context).apply {
             text = iconType
             textSize = 16f
             setPadding(0, 0, context.sdp(SdpR.dimen._8sdp), 0)
         })
 
-        row.addView(LinearLayout(context).apply {
+        topRow.addView(LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
             addView(nameTv)
@@ -265,21 +272,11 @@ object RecordingListDialogHelper {
             })
         })
 
-        // ── Divider vertikal ─────────────────────────────────────
-        row.addView(View(context).apply {
-            val h = context.sdp(SdpR.dimen._28sdp)
-            layoutParams = LinearLayout.LayoutParams(1, h).also {
-                it.marginStart = context.sdp(SdpR.dimen._8sdp)
-                it.marginEnd   = context.sdp(SdpR.dimen._8sdp)
-            }
-            setBackgroundColor(Color.parseColor("#33D2B48C"))
-        })
-
-        // ── Tombol PLAY — menonjol ───────────────────────────────
-        row.addView(LinearLayout(context).apply {
+        // ── Tombol PLAY ──
+        topRow.addView(LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
-            val btnH = context.sdp(SdpR.dimen._32sdp)
+            val btnH = context.sdp(SdpR.dimen._30sdp)
             layoutParams = LinearLayout.LayoutParams(-2, btnH)
             val pH = context.sdp(SdpR.dimen._12sdp)
             setPadding(pH, 0, pH, 0)
@@ -293,35 +290,51 @@ object RecordingListDialogHelper {
             )
             addView(TextView(context).apply {
                 text = "▶"
-                textSize = 13f
+                textSize = 12f
                 setTextColor(Color.parseColor("#1A0800"))
-                setPadding(0, 0, context.sdp(SdpR.dimen._6sdp), 0)
+                setPadding(0, 0, context.sdp(SdpR.dimen._4sdp), 0)
             })
             addView(TextView(context).apply {
                 text = context.getString(R.string.play)
                 setTextColor(Color.parseColor("#1A0800"))
-                textSize = 12f
+                textSize = 11f
                 typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
             })
             setOnClickListener { dialog.dismiss(); onPlay(rec) }
         })
 
-        // ── Tombol sekunder kecil ────────────────────────────────
-        val gap = context.sdp(SdpR.dimen._6sdp)
+        container.addView(topRow)
 
-        fun addCompact(icon: String, label: String, colorHex: String, onClick: () -> Unit) {
-            row.addView(spacer(context, gap))
-            row.addView(buildCompactBtn(context, icon, label, colorHex, onClick))
+        // ── Divider horizontal tipis ──
+        container.addView(View(context).apply {
+            layoutParams = LinearLayout.LayoutParams(-1, 1).also {
+                it.topMargin = context.sdp(SdpR.dimen._6sdp)
+                it.bottomMargin = context.sdp(SdpR.dimen._6sdp)
+            }
+            setBackgroundColor(Color.parseColor("#1AD2B48C"))
+        })
+
+        // ── BOTTOM ROW: Action Buttons ───────────────────────────
+        val bottomRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
         }
 
-        if (hasMicAudio) addCompact("📤", context.getString(R.string.share), COLOR_SHARE) { shareAudioFile(context, rec) }
+        val gap = context.sdp(SdpR.dimen._6sdp)
+
+        fun addAction(icon: String, label: String, colorHex: String, onClick: () -> Unit) {
+            if (bottomRow.childCount > 0) bottomRow.addView(spacer(context, gap))
+            bottomRow.addView(buildCompactBtn(context, icon, label, colorHex, onClick))
+        }
+
+        if (hasMicAudio) addAction("📤", context.getString(R.string.share), COLOR_SHARE) { shareAudioFile(context, rec) }
 
         val isDebug = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        if (isDebug) addCompact("{}", "JSON", COLOR_JSON) { shareJsonFile(context, rec) }
+        if (isDebug) addAction("{}", "JSON", COLOR_JSON) { shareJsonFile(context, rec) }
 
-        addCompact("✏", context.getString(R.string.edit_note), COLOR_GOLD) { showRenameDialog(context, rec, nameTv) }
+        addAction("✏", context.getString(R.string.edit_note), COLOR_GOLD) { showRenameDialog(context, rec, nameTv) }
 
-        addCompact("🗑", context.getString(R.string.delete), COLOR_DANGER) {
+        addAction("🗑", context.getString(R.string.delete), COLOR_DANGER) {
             CoroutineScope(Dispatchers.Main).launch {
                 withContext(Dispatchers.IO) {
                     rec.audioPath?.let { path -> File(path).takeIf { it.exists() }?.delete() }
@@ -330,6 +343,7 @@ object RecordingListDialogHelper {
                 val idx = listLayout.indexOfChild(card)
                 if (idx != -1) {
                     listLayout.removeViewAt(idx)
+                    // Hapus juga spacer setelahnya
                     if (idx < listLayout.childCount) listLayout.removeViewAt(idx)
                 }
                 allRecs.remove(rec)
@@ -337,10 +351,8 @@ object RecordingListDialogHelper {
             }
         }
 
-        // ── Promosi: container yang bisa di-swap tanpa rebuild card ──
-        val promoteContainer = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-        }
+        // Promosi Container
+        val promoteContainer = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
 
         fun applyPromoteState(promoted: Boolean) {
             promoteContainer.removeAllViews()
@@ -360,12 +372,13 @@ object RecordingListDialogHelper {
         }
 
         if (zaifSDKConfig?.isPromotNot == true && showPromot) {
-            row.addView(spacer(context, gap))
-            row.addView(promoteContainer)
+            if (bottomRow.childCount > 0) bottomRow.addView(spacer(context, gap))
+            bottomRow.addView(promoteContainer)
             applyPromoteState(isPromoted(context, rec.id))
         }
 
-        card.addView(row)
+        container.addView(bottomRow)
+        card.addView(container)
         return card
     }
 
@@ -491,9 +504,12 @@ object RecordingListDialogHelper {
         dialog.setView(root)
         dialog.show()
         val dm = context.resources.displayMetrics
+        val isPortrait = context.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+        val widthPercent = if (isPortrait) 0.90 else 0.60
+        
         dialog.window?.apply {
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setLayout((dm.widthPixels * 0.58).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+            setLayout((dm.widthPixels * widthPercent).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
         }
     }
 
