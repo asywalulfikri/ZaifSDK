@@ -148,17 +148,16 @@ open class MyApp : Application() {
         }
     }
 
-    private suspend fun initializeAdMob() = withContext(Dispatchers.IO) {
+    private suspend fun initializeAdMob() = withContext(Dispatchers.Main) {
         suspendCancellableCoroutine { cont ->
             try {
-                // Sentuh WebView/CookieManager di Main Thread secepat mungkin.
-                // Ini memaksa inisialisasi Chromium Engine secara aman di UI Thread sebelum SDK AdMob memanggilnya di background.
-                mainHandler.post {
-                    try {
-                        CookieManager.getInstance()
-                    } catch (e: Throwable) {
-                        Log.e(TAG, "Pre-touch WebView error: ${e.message}")
-                    }
+                // Sentuh WebView/CookieManager di Main Thread secara sinkron sebelum AdMob.
+                // Ini memastikan engine Chromium diinisialisasi di thread UI, mencegah deadlock 
+                // saat AdMob mencoba menyentuh WebView di background thread.
+                try {
+                    CookieManager.getInstance()
+                } catch (e: Throwable) {
+                    Log.e(TAG, "Pre-touch WebView error: ${e.message}")
                 }
 
                 MobileAds.initialize(this@MyApp) { status ->
