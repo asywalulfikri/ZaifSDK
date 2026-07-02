@@ -335,18 +335,24 @@ class InstrumentControlPanel @JvmOverloads constructor(
                     val audioPath = if (isMicMode) audioEngine.currentAudioFile?.absolutePath else null
                     val earphoneUsed = isEarphoneWhenRecording
                     CoroutineScope(Dispatchers.IO).launch {
-                        AppDatabase.getInstance(context.applicationContext).recordingDao().insert(
-                            RecordingEntity(
-                                name = name,
-                                setName = instrumentType,
-                                eventsJson = json,
-                                durationMs = events.last().timestamp,
-                                audioPath = audioPath,
-                                isEarphoneRecording = earphoneUsed
+                        try {
+                            AppDatabase.getInstance(context.applicationContext).recordingDao().insert(
+                                RecordingEntity(
+                                    name = name,
+                                    setName = instrumentType,
+                                    eventsJson = json,
+                                    durationMs = events.last().timestamp,
+                                    audioPath = audioPath,
+                                    isEarphoneRecording = earphoneUsed
+                                )
                             )
-                        )
-                        withContext(Dispatchers.Main) {
-                            setToast(context.getString(R.string.record_saved))
+                            withContext(Dispatchers.Main) {
+                                setToast(context.getString(R.string.record_saved))
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                setToast("Error saving: ${e.message}")
+                            }
                         }
                     }
                 },
@@ -423,7 +429,10 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     // ─── HELPERS ───
-    fun setToast(message: String) = Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    fun setToast(message: String) {
+        val toastContext = context.applicationContext ?: context
+        Toast.makeText(toastContext, message, Toast.LENGTH_SHORT).show()
+    }
 
     private fun refreshStatusLabels() {
         if (::btnMusic.isInitialized) btnMusic.text =
