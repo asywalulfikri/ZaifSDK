@@ -39,7 +39,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
@@ -97,12 +96,18 @@ class InstrumentTutorialDialog(
         private data class CachedResult(val notes: List<NoteItem>, val fetchedAt: Long)
         private val cache = mutableMapOf<String, CachedResult>()
 
-        private fun isCacheValid(key: String): Boolean {
-            if (BuildConfig.DEBUG) return false
-            if (cache.size > 20) cache.clear() // Bersihkan jika terlalu banyak untuk hemat RAM
-            val c = cache[key] ?: return false
-            return System.currentTimeMillis() - c.fetchedAt < CACHE_TTL_MS
-        }
+    private fun isAppDebuggable(context: Context?): Boolean {
+        return context?.applicationInfo?.let {
+            (it.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        } ?: false
+    }
+
+    private fun isCacheValid(context: Context?, key: String): Boolean {
+        if (isAppDebuggable(context)) return false
+        if (cache.size > 20) cache.clear()
+        val c = cache[key] ?: return false
+        return System.currentTimeMillis() - c.fetchedAt < CACHE_TTL_MS
+    }
 
         private fun unlockKey(key: String) = "unlock_$key"
 
@@ -289,7 +294,7 @@ class InstrumentTutorialDialog(
                 }
             })
 
-            if (isCacheValid(instrumentType)) {
+            if (isCacheValid(context, instrumentType)) {
                 binding.progressContainer.visibility = View.GONE
                 val cachedNotes = cache[instrumentType]!!.notes
                 allItems.addAll(cachedNotes.map { SongItem.Remote(it) })
@@ -309,7 +314,7 @@ class InstrumentTutorialDialog(
         var query = FirebaseFirestore.getInstance()
             .collection(appId)
             .whereEqualTo("category", instrumentType)
-        if (!BuildConfig.DEBUG) {
+        if (!isAppDebuggable(mContext)) {
             query = query.whereEqualTo("status", "published")
                 .whereArrayContainsAny("language", listOf("en", languageCode))
         }
@@ -371,7 +376,7 @@ class InstrumentTutorialDialog(
         var query = FirebaseFirestore.getInstance()
             .collection(appId)
             .whereEqualTo("category", instrumentType)
-        if (!BuildConfig.DEBUG) {
+        if (!isAppDebuggable(mContext)) {
             query = query.whereEqualTo("status", "published")
                 .whereArrayContainsAny("language", listOf("en", languageCode))
         }
@@ -494,7 +499,11 @@ class InstrumentTutorialDialog(
                 }
                 is SongItem.Remote -> {
                     val sdf = SimpleDateFormat("dd/MM  HH:mm", Locale.getDefault())
-                    holder.tvName.text = item.note.recordName.uppercase()
+                    if (!isAppDebuggable(context)) {
+                        holder.tvName.text = item.note.recordName.uppercase()
+                    } else {
+                        holder.tvName.text = item.note.recordName.uppercase() + "---" + item.note.status
+                    }
                     holder.tvInfo.visibility = View.VISIBLE
                     holder.tvInfo.text = "👤 ${item.note.senderName}  ·  🕐 ${sdf.format(Date(item.note.submittedAt))}"
                     holder.btnPlay.text = "${context.getString(R.string.play).uppercase()}$lockSuffix"

@@ -21,6 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import sound.recorder.widget.recording.ControlConfig
+import sound.recorder.widget.tutorial.InstrumentTutorialDialog
+import recording.host.cons.SongRepository
 import recording.host.databinding.FragmentDemungBinding
 import sound.recorder.widget.R
 import sound.recorder.widget.listener.CompleteMarqueeListener
@@ -51,6 +53,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
     private var volumeAudio: Float = 1.0f
 
     private lateinit var userNoteHelper: UserNoteDialogHelper
+    private lateinit var tutorialDialog: InstrumentTutorialDialog
 
     private val instrumentType = "demung"
     private val typePelog = "_pelog"
@@ -116,8 +119,62 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
                     }
                 }
             )
+
+            tutorialDialog = InstrumentTutorialDialog(
+                lifecycleScope = viewLifecycleOwner.lifecycleScope,
+                onTabSelect = { metadata ->
+                    val isSlendro = metadata.contains(typeSlendro)
+                    binding?.instrumentView?.setSelectedTab(if (isSlendro) 1 else 0)
+                },
+                onTriggerAnim = { padIndex -> binding?.instrumentView?.triggerHitAnimation(padIndex) },
+                onHighlight = { padIndex -> binding?.instrumentView?.highlightBilah(padIndex) },
+                onUnhighlight = { _ -> binding?.instrumentView?.clearHighlight() },
+                onClearHighlight = { binding?.instrumentView?.clearHighlight() },
+                onLearnStepUpdate = { step, total ->
+                    binding?.tvLearnStep?.text = "Step $step / $total"
+                },
+                onLearnVisible = { visible ->
+                    binding?.learnIndicator?.visibility = if (visible) View.VISIBLE else View.GONE
+                },
+                onPlaybackStatusChanged = { isPlaying ->
+                    binding?.controlPanel?.setPlaybackStatus(isPlaying)
+                },
+                onToast = { msg -> Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show() },
+                onRequestAd = { onComplete ->
+                    val act = activity as? GameActivity
+                    if (act != null && isAdded) {
+                        act.showRewardedAd(soundViewModel.isPremium) {
+                            if (isAdded) onComplete()
+                        }
+                    }
+                },
+                onPlayNote = { padIndex, metadata ->
+                    val typeKey = metadata.ifEmpty { instrumentType + typePelog }
+                    SoundPlayUtils.playSound(typeKey, "type${padIndex + 1}")
+                }
+            )
+
             binding?.btnNotFromUser?.setOnClickListener { userNoteHelper.show(requireContext(), instrumentType) }
-            binding?.btnStopLearn?.setOnClickListener { userNoteHelper.stopAll() }
+            binding?.btnStopLearn?.setOnClickListener { 
+                userNoteHelper.stopAll()
+                tutorialDialog.stopAll()
+            }
+            binding?.btnTutorial?.setOnClickListener {
+                tutorialDialog.showLocal(
+                    context = requireContext(),
+                    instrumentType = instrumentType,
+                    instrumentPrefix = instrumentType.uppercase(),
+                    isSustained = false, // Demung is hit-based
+                    isPremium = soundViewModel.isPremium,
+                    localSongsProvider = { ctx -> SongRepository.getAllSongsPianika(ctx) },
+                    onPlay = { _ ->
+                        // Optional: extra logic when song starts
+                    },
+                    onLearn = { song ->
+                        tutorialDialog.startLearnFromSong(song)
+                    }
+                )
+            }
 
             activity?.volumeControlStream = AudioManager.STREAM_MUSIC
         }
@@ -245,6 +302,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
         soundViewModel.setVolume(volumeAudio)
         MusicPlayerManager.stop()
         if (::userNoteHelper.isInitialized) userNoteHelper.stopAll()
+        if (::tutorialDialog.isInitialized) tutorialDialog.stopAll()
     }
 
     override fun onPlaybackEvent(event: RecordedTap) {
@@ -276,6 +334,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
     private fun setupTouchListener() {
         binding?.instrumentView?.onBilahHitListener = { index, metadata ->
             userNoteHelper.onBilahHit(index)
+            tutorialDialog.onBilahHit(index)
             binding?.controlPanel?.recordEvent(index, metadata)
         }
     }
@@ -341,6 +400,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
         }
 
         if (::userNoteHelper.isInitialized) userNoteHelper.stopAll()
+        if (::tutorialDialog.isInitialized) tutorialDialog.stopAll()
         MusicListDialogHelper.statusListener = null
         viewLifecycleOwner.lifecycleScope.coroutineContext.cancelChildren()
         sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)

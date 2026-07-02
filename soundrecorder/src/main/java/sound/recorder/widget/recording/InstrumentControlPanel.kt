@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
@@ -344,6 +345,9 @@ class InstrumentControlPanel @JvmOverloads constructor(
                                 isEarphoneRecording = earphoneUsed
                             )
                         )
+                        withContext(Dispatchers.Main) {
+                            setToast(context.getString(R.string.record_saved))
+                        }
                     }
                 },
                 onCancel = {

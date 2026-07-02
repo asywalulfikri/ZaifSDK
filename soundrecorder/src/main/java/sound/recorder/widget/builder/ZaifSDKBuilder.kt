@@ -45,7 +45,7 @@ class ZaifSDKBuilder private constructor(
     fun isLockRec(value: Boolean) = apply { isLockRec = value }
     fun isLockMusic(value: Boolean) = apply { isLockMusic = value }
 
-    fun isCoin(value: Boolean) = apply { isLockMusic = value }
+    fun isCoin(value: Boolean) = apply { isCoin = value }
 
     fun build(): ZaifSDKConfig {
         val config = ZaifSDKConfig(

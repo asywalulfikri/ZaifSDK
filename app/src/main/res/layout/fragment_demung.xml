@@ -126,13 +126,35 @@
             android:clickable="true"
             android:focusable="true" /></LinearLayout>
 
-    <sound.recorder.widget.recording.InstrumentControlPanel
-        android:id="@+id/controlPanel"
-        android:layout_below="@+id/rr"
+    <LinearLayout
         android:layout_alignParentBottom="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/btnTutorial"
+            android:layout_marginStart="@dimen/_4sdp"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:background="@drawable/bg_btn_tutorial_learn"
+            android:gravity="center"
+            android:backgroundTint="@color/red_900"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:text="@string/tutorial"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/_7ssp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <sound.recorder.widget.recording.InstrumentControlPanel
+            android:id="@+id/controlPanel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/tvTimer"
