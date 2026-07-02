@@ -29,7 +29,7 @@
 
     <RelativeLayout
         android:layout_below="@+id/rr"
-        android:layout_toEndOf="@+id/controlPanel"
+        android:layout_toEndOf="@+id/xx"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -127,6 +127,7 @@
             android:focusable="true" /></LinearLayout>
 
     <LinearLayout
+        android:id="@+id/xx"
         android:layout_alignParentBottom="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
