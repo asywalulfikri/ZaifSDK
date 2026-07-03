@@ -36,6 +36,7 @@ import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.music.MusicPlayerManager
 import sound.recorder.widget.music.VolumeDialogHelper
 import sound.recorder.widget.recording.InstrumentControlPanel
+import sound.recorder.widget.recording.InstrumentControlPanelNewDesign
 import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.Constant
@@ -45,7 +46,7 @@ import sound.recorder.widget.util.SpeedMarquee
 
 class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChangeListener,
     NoteListener, MusicListener, CompleteMarqueeListener,
-    InstrumentControlPanel.InstrumentControlListener {
+    InstrumentControlPanelNewDesign.InstrumentControlListener {
 
     private var binding: FragmentDemungBinding? = null
     private val viewModel: MusicViewModel by activityViewModels()
@@ -55,11 +56,11 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
     private lateinit var userNoteHelper: UserNoteDialogHelper
     private lateinit var tutorialDialog: InstrumentTutorialDialog
 
-    private val instrumentType = "demung"
+    private val instrumentType = "belira"
     private val typePelog = "_pelog"
     private val typeSlendro = "_slendro"
 
-    private var rewardedAdListener: InstrumentControlPanel.AdRequestListener? = null
+    private var rewardedAdListener: InstrumentControlPanelNewDesign.AdRequestListener? = null
 
     // ─── 1. REGISTER PERMISSION MIC ───
     private val requestPermissionMic = registerForActivityResult(
@@ -243,10 +244,10 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
         )
 
 
-        b.controlPanel.setup(instrumentType, LinearLayout.VERTICAL, style, this)
+        b.controlPanel.setup(instrumentType, LinearLayout.HORIZONTAL, style, this)
         b.controlPanel.setVolumeButtonVisible(true)
 
-        rewardedAdListener = object : InstrumentControlPanel.AdRequestListener {
+        rewardedAdListener = object : InstrumentControlPanelNewDesign.AdRequestListener {
             override fun onShowRewardedAd(type: String, onComplete: () -> Unit) {
                 val act = activity as? GameActivity
                 if (act == null || !isAdded) return

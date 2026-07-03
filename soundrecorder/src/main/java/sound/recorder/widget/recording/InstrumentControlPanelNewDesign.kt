@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -34,7 +35,7 @@ import sound.recorder.widget.recording.database.RecordingEntity
 import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
 import com.intuit.sdp.R as SdpR
 
-class InstrumentControlPanel @JvmOverloads constructor(
+class InstrumentControlPanelNewDesign @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -120,10 +121,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private fun sdp(id: Int) = resources.getDimensionPixelSize(id)
 
     init {
-        val orientationAttr = attrs?.getAttributeIntValue(
-            "http://schemas.android.com/apk/res/android", "orientation", HORIZONTAL
-        ) ?: HORIZONTAL
-        this.orientation = orientationAttr
+        this.orientation = HORIZONTAL
         this.setBackgroundColor(Color.TRANSPARENT)
         initHelpers()
         renderUI()
@@ -140,7 +138,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
             getRecordBtn = { if (::btnRecord.isInitialized) btnRecord else null },
             getStopBtn   = { if (::btnStop.isInitialized) btnStop else null },
             getRecordLabel = { try { context.getString(R.string.stop) } catch (e: Exception) { "STOP" } },
-            isGameStyle = false
+            isGameStyle = true
         )
     }
 
@@ -185,7 +183,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 } catch (e: Exception) {
                     "STOP"
                 }
-            }
+            },
+            isGameStyle = true
         )
 
         // Update tiap button tanpa rebuild layout (state recording aman)
@@ -218,33 +217,41 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private fun renderUI() {
         removeAllViews()
         gravity = Gravity.CENTER
-        val pad = sdp(SdpR.dimen._2sdp)
+        
+        // Main Bar Style (Blue with Yellowish border)
+        background = GradientDrawable().apply {
+            setColor(Color.parseColor("#4FC3F7")) 
+            cornerRadius = sdpF(SdpR.dimen._25sdp)
+            setStroke(sdp(SdpR.dimen._2sdp), Color.parseColor("#FFF176"))
+        }
+
+        val pad = sdp(SdpR.dimen._6sdp)
         setPadding(pad, pad, pad, pad)
 
-        btnMusic  = btnFactory.createBtn(context.getString(R.string.music_unlock).uppercase() + "\uD83C\uDFB5")
-        btnRecord = btnFactory.createBtn("REC ●")
-        btnList   = btnFactory.createBtn(context.getString(R.string.list_record_unlock).uppercase())
-        btnNote   = btnFactory.createBtn(context.getString(R.string.note).uppercase())
-        btnStop   = btnFactory.createBtn(context.getString(R.string.stop).uppercase(), isRed = true)
-        btnVolume = btnFactory.createBtn(context.getString(R.string.volume).uppercase())
+        // Buttons based on Image colors
+        btnMusic  = btnFactory.createGameBtn(context.getString(R.string.music_unlock), "FFB347", R.drawable.icon_music)
+        btnRecord = btnFactory.createGameBtn("REC", "8BC34A", R.drawable.ic_record)
+        btnList   = btnFactory.createGameBtn("LIST REC", "9C27B0", R.drawable.ic_list)
+        btnNote   = btnFactory.createGameBtn("CATATAN", "E91E63", R.drawable.notes)
+        btnVolume = btnFactory.createGameBtn("VOLUME", "2196F3", R.drawable.baseline_volume_up_24)
+        btnStop   = btnFactory.createGameBtn(context.getString(R.string.stop), "F44336", R.drawable.ic_baseline_stop_24)
+        
         btnStop.visibility = GONE
 
-        val btnH   = config.btnHeightDimenRes?.let { sdp(it) } ?: sdp(SdpR.dimen._32sdp)
-        val btnW   = config.btnWidthDimenRes?.let { sdp(it) }  ?: sdp(SdpR.dimen._50sdp)
-        val margin = sdp(SdpR.dimen._2sdp)
+        val btnH   = sdp(SdpR.dimen._40sdp)
+        val btnW   = sdp(SdpR.dimen._72sdp)
+        val margin = sdp(SdpR.dimen._4sdp)
 
         val lp = LayoutParams(btnW, btnH).apply {
-            setMargins(
-                margin,
-                margin,
-                margin,
-                margin
-            )
+            setMargins(margin, 0, margin, 0)
         }
+        
         arrayOf(btnMusic, btnRecord, btnList, btnNote, btnStop, btnVolume).forEach { addView(it, lp) }
 
         setupClickListeners()
     }
+
+    private fun sdpF(id: Int) = resources.getDimension(id)
 
     private fun setupClickListeners() {
 
@@ -436,12 +443,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     private fun refreshStatusLabels() {
-        if (::btnMusic.isInitialized) btnMusic.text =
-            if (isMusicUnlocked) context.getString(R.string.music_unlock).uppercase() + "\uD83C\uDFB5"
-            else context.getString(R.string.music_lock).uppercase()
-        if (::btnList.isInitialized) btnList.text =
-            if (isListRecordUnlocked) context.getString(R.string.list_record_unlock).uppercase()
-            else context.getString(R.string.list_record_lock).uppercase()
+        if (::btnMusic.isInitialized) btnMusic.text = context.getString(if (isMusicUnlocked) R.string.music_unlock else R.string.music_lock)
+        if (::btnList.isInitialized) btnList.text = context.getString(if (isListRecordUnlocked) R.string.list_record_unlock else R.string.list_record_lock)
     }
 
     private fun handleMusicOpen() {
