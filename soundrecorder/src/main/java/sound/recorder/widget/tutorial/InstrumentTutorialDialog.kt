@@ -172,10 +172,10 @@ class InstrumentTutorialDialog(
         val config = ZaifSDKBuilder.load(context)
         zaifSDKConfig = config
 
-        val appId = config?.applicationId
+        val appId = config?.applicationId?.takeIf { it.isNotEmpty() } ?: zaifSDKConfig?.applicationId
         if (appId.isNullOrEmpty()) {
             binding.progressContainer.visibility = View.GONE
-            return
+            // If appId is null, we can still show local songs
         }
 
         binding.etSearch.visibility = View.VISIBLE
@@ -215,7 +215,12 @@ class InstrumentTutorialDialog(
                             dialog.dismiss()
                             if (playRemoteAsSong) {
                                 val song = remoteNoteToSong(note)
-                                if (song != null) onPlay(song)
+                                if (song != null) {
+                                    val endMs = song.notes.maxOfOrNull { it.timeMs + it.durationMs } ?: 0L
+                                    onPlaybackStatusChanged(true)
+                                    onPlay(song)
+                                    playHandler.postDelayed({ onPlaybackStatusChanged(false) }, endMs + 300L)
+                                }
                             } else {
                                 playUserNote(note.jsonNote)
                             }
@@ -265,7 +270,7 @@ class InstrumentTutorialDialog(
                     val totalItemCount = layoutManager.itemCount
                     val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
                     if (visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
-                        loadMoreRemote(appId, instrumentType, binding, adapter, allItems)
+                        appId?.let { loadMoreRemote(it, instrumentType, binding, adapter, allItems) }
                     }
                 }
             })
@@ -300,11 +305,13 @@ class InstrumentTutorialDialog(
                 allItems.addAll(cachedNotes.map { SongItem.Remote(it) })
                 adapter.updateItems(allItems)
                 isLastPage = cachedNotes.size < PAGE_SIZE
-            } else {
+            } else if (!appId.isNullOrEmpty()) {
                 lastDocument = null
                 isLoadingMore = false
                 isLastPage = false
                 fetchFirstPageRemote(appId, instrumentType, binding, adapter, allItems)
+            } else {
+                binding.progressContainer.visibility = View.GONE
             }
         }
     }
@@ -526,34 +533,56 @@ class InstrumentTutorialDialog(
     }
 
     private fun remoteNoteToSong(note: NoteItem): InstrumentSong? {
-        try {
-            val eventsResult = parseEvents(note.jsonNote)
-            val allEvents = eventsResult.first
-            if (allEvents.isEmpty()) return null
-
+        return try {
+            val arr = JSONObject(note.jsonNote).getJSONArray("events")
+            val allEvents = (0 until arr.length()).map { arr.getJSONObject(it) }
             val notes = mutableListOf<InstrumentNote>()
-            val activeNotes = mutableMapOf<Int, Long>()
 
-            allEvents.forEach { event ->
-                val meta = event.metadata ?: ""
-                if (meta == "OFF") {
-                    val startTime = activeNotes.remove(event.padIndex)
-                    if (startTime != null) {
-                        val duration = event.timestamp - startTime
-                        notes.add(InstrumentNote(event.padIndex, startTime, duration))
+            // Dynamic sustain detection: check if any event has "OFF" metadata
+            val hasSustain = allEvents.any {
+                val meta = if (it.has("metadata")) it.optString("metadata", "") else it.optString("c", "")
+                meta == "OFF"
+            }
+
+            if (hasSustain) {
+                val activeNotes = mutableMapOf<Int, Long>()
+                for (o in allEvents) {
+                    val padIndex = if (o.has("padIndex")) o.getInt("padIndex") else o.optInt("a", -1)
+                    val timestamp = if (o.has("timestamp")) o.getLong("timestamp") else o.optLong("b", 0L)
+                    val metadata = if (o.has("metadata")) o.optString("metadata", "") else o.optString("c", "")
+
+                    if (metadata == "OFF") {
+                        val startTime = activeNotes.remove(padIndex)
+                        if (startTime != null) {
+                            notes.add(InstrumentNote(padIndex, startTime, timestamp - startTime))
+                        }
+                    } else {
+                        // Filter by prefix if provided and metadata starts with something else
+                        if (instrumentPrefix.isEmpty() || metadata.isEmpty() || metadata.startsWith(instrumentPrefix) || !metadata.contains("_")) {
+                            activeNotes[padIndex] = timestamp
+                        }
                     }
-                } else {
-                    activeNotes[event.padIndex] = event.timestamp
+                }
+                // Sustain notes without a matching OFF get a default duration
+                activeNotes.forEach { (pad, start) ->
+                    notes.add(InstrumentNote(pad, start, 400L))
+                }
+            } else {
+                // Tap/percussion: each event is an independent note
+                for (o in allEvents) {
+                    val padIndex = if (o.has("padIndex")) o.getInt("padIndex") else o.optInt("a", -1)
+                    val timestamp = if (o.has("timestamp")) o.getLong("timestamp") else o.optLong("b", 0L)
+                    val metadata = if (o.has("metadata")) o.optString("metadata", "") else o.optString("c", "")
+                    
+                    if (instrumentPrefix.isEmpty() || metadata.isEmpty() || metadata.startsWith(instrumentPrefix) || !metadata.contains("_")) {
+                        notes.add(InstrumentNote(padIndex, timestamp, 400L))
+                    }
                 }
             }
 
-            activeNotes.forEach { (pad, start) ->
-                notes.add(InstrumentNote(pad, start, 400L))
-            }
-
-            return InstrumentSong(note.recordName, notes.sortedBy { it.timeMs })
+            InstrumentSong(name = note.recordName, notes = notes.sortedBy { it.timeMs })
         } catch (e: Exception) {
-            return null
+            null
         }
     }
 
@@ -585,28 +614,38 @@ class InstrumentTutorialDialog(
         if (lifecycleScope == null) return
         stopAll()
         playJob = lifecycleScope.launch {
-            val eventsResult = withContext(Dispatchers.Default) { try { parseEvents(jsonNote) } catch (e: Exception) { null } }
-            val events = eventsResult?.first?.sortedBy { it.timestamp }
+            val eventsResult = withContext(Dispatchers.Default) {
+                try {
+                    parseEvents(jsonNote)
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            val events = eventsResult?.first
             if (events.isNullOrEmpty()) {
                 onToast(mContext?.getString(R.string.invalid_note_format) ?: "Invalid format")
                 return@launch
             }
             onPlaybackStatusChanged(true)
 
-            val playbackStartTime = System.currentTimeMillis()
-
+            var lastTimestamp = 0L
             events.forEach { event ->
-                val targetTime = playbackStartTime + event.timestamp
-                val now = System.currentTimeMillis()
-                val wait = targetTime - now
+                val wait = event.timestamp - lastTimestamp
                 if (wait > 0) delay(wait)
+                lastTimestamp = event.timestamp
 
-                if (event.metadata == "OFF") {
-                    onStopNote(event.padIndex, event.metadata)
+                val metadata = event.metadata.orEmpty()
+                val isOff = metadata == "OFF"
+
+                // Filter by prefix if provided
+                val isCurrentInstrument = instrumentPrefix.isEmpty() || metadata.isEmpty() || metadata.startsWith(instrumentPrefix) || !metadata.contains("_")
+
+                if (isOff) {
+                    onStopNote(event.padIndex, metadata)
                     onUnhighlight(event.padIndex)
-                } else {
+                } else if (isCurrentInstrument) {
                     onTriggerAnim(event.padIndex)
-                    onPlayNote(event.padIndex, event.metadata ?: "")
+                    onPlayNote(event.padIndex, metadata)
                 }
             }
             delay(200L)
