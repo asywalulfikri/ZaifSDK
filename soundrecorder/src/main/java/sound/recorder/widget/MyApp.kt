@@ -148,27 +148,32 @@ open class MyApp : Application() {
         }
     }
 
-    private suspend fun initializeAdMob() = withContext(Dispatchers.Main) {
-        suspendCancellableCoroutine { cont ->
+    private suspend fun initializeAdMob() {
+        // 1. Sentuh WebView/CookieManager di Main Thread secara SINKRON.
+        // Ini sangat ringan dan memastikan engine Chromium inisialisasi di thread yang benar.
+        withContext(Dispatchers.Main) {
             try {
-                // Sentuh WebView/CookieManager di Main Thread secara sinkron sebelum AdMob.
-                // Ini memastikan engine Chromium diinisialisasi di thread UI, mencegah deadlock 
-                // saat AdMob mencoba menyentuh WebView di background thread.
-                try {
-                    CookieManager.getInstance()
-                } catch (e: Throwable) {
-                    Log.e(TAG, "Pre-touch WebView error: ${e.message}")
-                }
+                CookieManager.getInstance()
+            } catch (e: Throwable) {
+                Log.e(TAG, "Pre-touch WebView error: ${e.message}")
+            }
+        }
 
-                MobileAds.initialize(this@MyApp) { status ->
-                    Log.d(TAG, "AdMob initialized: $status")
-                    showDebugToast("AdMob berhasil diinisialisasi")
+        // 2. Inisialisasi AdMob di Background Thread (IO).
+        // Proses berat seperti loading DEX dan Client API tidak akan memblokir UI Thread.
+        withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { cont ->
+                try {
+                    MobileAds.initialize(this@MyApp) { status ->
+                        Log.d(TAG, "AdMob initialized: $status")
+                        showDebugToast("AdMob berhasil diinisialisasi")
+                        if (cont.isActive) cont.resume(Unit)
+                    }
+                } catch (e: Throwable) {
+                    Log.e(TAG, "AdMob init error: ${e.message}")
+                    showDebugToast("AdMob gagal: ${e.message}")
                     if (cont.isActive) cont.resume(Unit)
                 }
-            } catch (e: Throwable) {
-                Log.e(TAG, "AdMob init error: ${e.message}")
-                showDebugToast("AdMob gagal: ${e.message}")
-                if (cont.isActive) cont.resume(Unit)
             }
         }
     }
