@@ -56,7 +56,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
     private lateinit var userNoteHelper: UserNoteDialogHelper
     private lateinit var tutorialDialog: InstrumentTutorialDialog
 
-    private val instrumentType = "demung"
+    private val instrumentType = "belira"
     private val typePelog = "_pelog"
     private val typeSlendro = "_slendro"
 

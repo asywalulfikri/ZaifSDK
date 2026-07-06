@@ -264,8 +264,11 @@ class InstrumentTutorialDialog(
                     SongItem.Local(song, HighScoreManager.getHighScore(context, song.name))
                 }
             }
-            allItems.addAll(processedLocal)
-            adapter.updateItems(allItems)
+            
+            withContext(Dispatchers.Main) {
+                allItems.addAll(processedLocal)
+                adapter.notifyDataSetChanged()
+            }
 
             binding.rvSongs.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -289,7 +292,7 @@ class InstrumentTutorialDialog(
                         delay(300)
                         val q = s.toString().lowercase().trim()
                         val filtered = withContext(Dispatchers.Default) {
-                            if (q.isEmpty()) allItems
+                            if (q.isEmpty()) allItems.toList()
                             else allItems.filter { item ->
                                 when (item) {
                                     is SongItem.Local -> item.song.name.lowercase().contains(q)
@@ -307,7 +310,7 @@ class InstrumentTutorialDialog(
                 binding.progressContainer.visibility = View.GONE
                 val cachedNotes = cache[instrumentType]!!.notes
                 allItems.addAll(cachedNotes.map { SongItem.Remote(it) })
-                adapter.updateItems(allItems)
+                adapter.notifyDataSetChanged()
                 isLastPage = cachedNotes.size < PAGE_SIZE
             } else if (!appId.isNullOrEmpty()) {
                 lastDocument = null
@@ -366,7 +369,7 @@ class InstrumentTutorialDialog(
                 }
                 cache[instrumentType] = CachedResult(notes, System.currentTimeMillis())
                 allItems.addAll(notes.map { SongItem.Remote(it) })
-                adapter.updateItems(allItems)
+                adapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
                 binding.progressContainer.visibility = View.GONE
@@ -423,7 +426,7 @@ class InstrumentTutorialDialog(
                 val currentCached = cache[instrumentType]?.notes ?: emptyList()
                 cache[instrumentType] = CachedResult(currentCached + newNotes, System.currentTimeMillis())
                 allItems.addAll(newNotes.map { SongItem.Remote(it) })
-                adapter.updateItems(allItems)
+                adapter.notifyDataSetChanged()
             }
             .addOnFailureListener {
                 isLoadingMore = false
