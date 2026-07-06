@@ -418,6 +418,27 @@ class InstrumentTutorialDialog(
             layoutParams = LinearLayout.LayoutParams(-2, context.sdp(SdpR.dimen._32sdp))
         }
 
+        // Tombol Debug: Cek Identik (Hanya di Debug Mode)
+        val debugBtn = if (isAppDebuggable(context)) {
+            TextView(context).apply {
+                text = "IDNTK"
+                textSize = 9f
+                setPadding(context.sdp(SdpR.dimen._8sdp), 0, context.sdp(SdpR.dimen._8sdp), 0)
+                height = context.sdp(SdpR.dimen._32sdp)
+                typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+                gravity = Gravity.CENTER
+                setTextColor(Color.WHITE)
+                background = GradientDrawable().apply {
+                    setColor(Color.parseColor("#E65100")) // Orange Tua
+                    cornerRadius = context.sdpF(SdpR.dimen._6sdp)
+                }
+                layoutParams = LinearLayout.LayoutParams(-2, context.sdp(SdpR.dimen._32sdp)).apply {
+                    marginEnd = context.sdp(SdpR.dimen._6sdp)
+                }
+                setOnClickListener { checkIdenticalTitles(context) }
+            }
+        } else null
+
         fun updateFilterUI() {
             val colorAccent = Color.parseColor("#6C63FF")
             val colorBg = Color.parseColor("#1A1F3A")
@@ -472,10 +493,36 @@ class InstrumentTutorialDialog(
         updateFilterUI()
         
         searchRow.addView(etSearch)
+        debugBtn?.let { searchRow.addView(it) }
         searchRow.addView(filterBtn)
         
         // Masukkan kembali ke root layout
         root.addView(searchRow, index)
+    }
+
+    private fun checkIdenticalTitles(context: Context) {
+        val duplicates = allItems.groupBy { item ->
+            when (item) {
+                is SongItem.Local -> item.song.name.trim().lowercase()
+                is SongItem.Remote -> item.note.recordName.trim().lowercase()
+            }
+        }.filter { it.value.size > 1 }
+
+        val msg = if (duplicates.isEmpty()) {
+            "Tidak ada judul identik ditemukan."
+        } else {
+            val sb = StringBuilder("Daftar Judul Identik:\n\n")
+            duplicates.forEach { (title, list) ->
+                sb.append("• ${title.uppercase()} (${list.size}x)\n")
+            }
+            sb.toString()
+        }
+
+        AlertDialog.Builder(context)
+            .setTitle("Identical Titles Report")
+            .setMessage(msg)
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun fetchFirstPageRemote(appId: String, instrumentType: String, binding: DialogTutorialSongListBinding, adapter: SongListAdapter, allItems: MutableList<SongItem>) {
