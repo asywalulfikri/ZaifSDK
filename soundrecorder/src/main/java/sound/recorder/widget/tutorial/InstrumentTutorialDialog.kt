@@ -1107,7 +1107,7 @@ class InstrumentTutorialDialog(
         scroll.addView(input)
         root.addView(scroll)
 
-        root.addView(buildEditActionRow(ctx, dialog, "Simpan", "D2B48C") {
+        root.addView(buildEditJsonActionRow(ctx, dialog, input) {
             updateNoteField(note, "json_note", input.text.toString().trim())
             dialog.dismiss()
         })
@@ -1230,6 +1230,52 @@ class InstrumentTutorialDialog(
         addView(buildDialogBtn(ctx, "Batal", "777777") { d.dismiss() })
         addView(View(ctx).apply { layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1) })
         addView(buildDialogBtn(ctx, btnLabel, btnColor) { onSave() })
+    }
+
+    private fun buildEditJsonActionRow(ctx: Context, d: AlertDialog, input: android.widget.EditText, onSave: () -> Unit) = LinearLayout(ctx).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.END
+        setPadding(0, ctx.sdp(SdpR.dimen._12sdp), 0, 0)
+        
+        // Tombol Sync Time
+        addView(buildDialogBtn(ctx, "SYNC TIME (100ms)", "00C9FF") {
+            try {
+                val jsonStr = input.text.toString()
+                val obj = JSONObject(jsonStr)
+                val arr = obj.getJSONArray("events")
+                if (arr.length() > 0) {
+                    // Cari timestamp terkecil
+                    var minTs = Long.MAX_VALUE
+                    for (i in 0 until arr.length()) {
+                        val item = arr.getJSONObject(i)
+                        val ts = if (item.has("timestamp")) item.getLong("timestamp") else item.optLong("b", Long.MAX_VALUE)
+                        if (ts < minTs) minTs = ts
+                    }
+
+                    if (minTs != Long.MAX_VALUE) {
+                        // Geser agar mulai di 100ms
+                        val offset = 100L - minTs
+                        for (i in 0 until arr.length()) {
+                            val item = arr.getJSONObject(i)
+                            if (item.has("timestamp")) {
+                                item.put("timestamp", item.getLong("timestamp") + offset)
+                            } else if (item.has("b")) {
+                                item.put("b", item.getLong("b") + offset)
+                            }
+                        }
+                        input.setText(obj.toString(2))
+                        Toast.makeText(ctx, "Waktu berhasil disesuaikan!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Toast.makeText(ctx, "Gagal memproses JSON: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        addView(View(ctx).apply { layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1) })
+        addView(buildDialogBtn(ctx, "Batal", "777777") { d.dismiss() })
+        addView(View(ctx).apply { layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1) })
+        addView(buildDialogBtn(ctx, "Simpan", "D2B48C") { onSave() })
     }
 
     private fun deleteNote(ctx: Context, note: NoteItem) {
