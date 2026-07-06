@@ -462,5 +462,7 @@
     <string name="buy_premium">اشترِ الوضع المميز للحصول على هذه الميزة</string>
     <string name="social_media">وسائل التواصل الاجتماعي</string>
     <string name="call_us">اتصل بنا</string>
+
+    <string name="turn_on_internet_for_more_tutorial">شغّل الإنترنت لعرض المزيد من الدروس التعليمية!</string>
 </resources>
 

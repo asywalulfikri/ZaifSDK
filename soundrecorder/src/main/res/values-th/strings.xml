@@ -417,4 +417,6 @@
     <string name="buy_premium">ซื้อโหมดพรีเมียมเพื่อใช้งานฟีเจอร์นี้</string>
     <string name="social_media">โซเชียลมีเดีย</string>
     <string name="call_us">ติดต่อเรา</string>
+
+    <string name="turn_on_internet_for_more_tutorial">เปิดอินเทอร์เน็ตเพื่อดูบทช่วยสอนเพิ่มเติม!</string>
 </resources>

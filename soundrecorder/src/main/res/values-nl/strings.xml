@@ -421,4 +421,6 @@
     <string name="buy_premium">Koop de Premium-modus om toegang te krijgen tot deze functie</string>
     <string name="social_media">Sociale Media</string>
     <string name="call_us">Neem Contact Met Ons Op</string>
+
+    <string name="turn_on_internet_for_more_tutorial">Schakel internet in om meer tutorials te bekijken!</string>
 </resources>

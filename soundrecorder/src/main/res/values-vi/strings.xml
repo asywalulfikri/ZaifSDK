@@ -417,4 +417,6 @@
     <string name="buy_premium">Mua chế độ Premium để sử dụng tính năng này</string>
     <string name="social_media">Mạng Xã Hội</string>
     <string name="call_us">Liên Hệ Chúng Tôi</string>
+
+    <string name="turn_on_internet_for_more_tutorial">Bật Internet để xem thêm nhiều hướng dẫn!</string>
 </resources>

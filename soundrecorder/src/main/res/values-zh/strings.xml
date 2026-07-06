@@ -418,4 +418,6 @@
     <string name="social_media">社交媒体</string>
     <string name="call_us">联系我们</string>
 
+    <string name="turn_on_internet_for_more_tutorial">开启网络以查看更多教程！</string>
+
 </resources>

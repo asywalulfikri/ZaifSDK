@@ -98,6 +98,17 @@
             android:layout_gravity="center_horizontal"
             android:layout_margin="16dp" />
 
+        <TextView
+            android:id="@+id/tvLoading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="16dp"
+            android:textColor="#80FFFFFF"
+            android:textSize="@dimen/_10ssp"
+            android:visibility="gone" />
+
     </FrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView

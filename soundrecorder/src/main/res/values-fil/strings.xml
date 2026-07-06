@@ -419,4 +419,6 @@
     <string name="buy_premium">Bilhin ang Premium Mode upang magamit ang tampok na ito</string>
     <string name="social_media">Social Media</string>
     <string name="call_us">Makipag-ugnayan sa Amin</string>
+
+    <string name="turn_on_internet_for_more_tutorial">Buksan ang internet upang makakita ng higit pang mga tutorial!</string>
 </resources>

@@ -420,4 +420,6 @@
     <string name="social_media">소셜 미디어</string>
     <string name="call_us">문의하기</string>
 
+    <string name="turn_on_internet_for_more_tutorial">더 많은 튜토리얼을 보려면 인터넷을 켜세요!</string>
+
 </resources>

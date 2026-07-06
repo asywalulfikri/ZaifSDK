@@ -420,4 +420,6 @@
     <string name="social_media">Réseaux Sociaux</string>
     <string name="call_us">Contactez-nous</string>
 
+    <string name="turn_on_internet_for_more_tutorial">Activez Internet pour voir plus de tutoriels !</string>
+
 </resources>

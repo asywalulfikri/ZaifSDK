@@ -421,5 +421,7 @@
     <string name="social_media">Soziale Medien</string>
     <string name="call_us">Kontaktieren Sie uns</string>
 
+    <string name="turn_on_internet_for_more_tutorial">Aktiviere die Internetverbindung, um weitere Tutorials anzusehen!</string>
+
 </resources>
 

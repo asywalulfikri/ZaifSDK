@@ -413,4 +413,6 @@
     <string name="social_media">ソーシャルメディア</string>
     <string name="call_us">お問い合わせ</string>
 
+    <string name="turn_on_internet_for_more_tutorial">さらに多くのチュートリアルを見るにはインターネットをオンにしてください！</string>
+
 </resources>

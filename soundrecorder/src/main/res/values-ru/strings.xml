@@ -416,4 +416,6 @@
     <string name="social_media">Социальные сети</string>
     <string name="call_us">Связаться с нами</string>
 
+    <string name="turn_on_internet_for_more_tutorial">Включите интернет, чтобы увидеть больше обучающих материалов!</string>
+
 </resources>

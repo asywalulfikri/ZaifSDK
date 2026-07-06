@@ -9,6 +9,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
@@ -323,8 +324,34 @@ class InstrumentTutorialDialog(
         }
     }
 
+    private fun isNetworkAvailable(context: Context?): Boolean {
+        if (context == null) return false
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+            return capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } else {
+            @Suppress("DEPRECATION")
+            return connectivityManager.activeNetworkInfo?.isConnected ?: false
+        }
+    }
+
     private fun fetchFirstPageRemote(appId: String, instrumentType: String, binding: DialogTutorialSongListBinding, adapter: SongListAdapter, allItems: MutableList<SongItem>) {
+        if (!isNetworkAvailable(mContext)) {
+            binding.progressContainer.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.GONE
+            val tvLoading = binding.progressContainer.findViewById<TextView>(R.id.tvLoading)
+            tvLoading?.visibility = View.VISIBLE
+            tvLoading?.text = (mContext?.getString(R.string.no_internet_connection) ?: "") + "\n" + (mContext?.getString(R.string.turn_on_internet_for_more_tutorial) ?: "Turn on the internet to view more tutorials!")
+            return
+        }
+
         val languageCode = Locale.getDefault().language
+        binding.progressContainer.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
+        binding.progressContainer.findViewById<TextView>(R.id.tvLoading)?.visibility = View.GONE
+        
         var query = FirebaseFirestore.getInstance()
             .collection(appId)
             .whereEqualTo("category", instrumentType)
@@ -345,9 +372,10 @@ class InstrumentTutorialDialog(
                         // We have local songs, so don't show full empty state, but maybe just log
                     } else if (allItems.isEmpty()) {
                         binding.progressContainer.visibility = View.VISIBLE
-                        binding.progressContainer.getChildAt(0).visibility = View.GONE
-                        val tv = binding.progressContainer.findViewById<TextView>(R.id.tvSubtitle) // Reusing tvSubtitle if no specific loading text
-                        tv?.text = mContext?.getString(R.string.data_empty)
+                        binding.progressBar.visibility = View.GONE
+                        val tvLoading = binding.progressContainer.findViewById<TextView>(R.id.tvLoading)
+                        tvLoading?.visibility = View.VISIBLE
+                        tvLoading?.text = mContext?.getString(R.string.data_empty)
                     }
                     return@addOnSuccessListener
                 }
@@ -385,8 +413,17 @@ class InstrumentTutorialDialog(
     ) {
         val lastDoc = lastDocument ?: return
         if (isLoadingMore || isLastPage) return
+        
+        if (!isNetworkAvailable(mContext)) {
+            onToast(mContext?.getString(R.string.no_internet_connection) ?: "No Internet")
+            return
+        }
+
         isLoadingMore = true
         binding.progressContainer.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
+        binding.progressContainer.findViewById<TextView>(R.id.tvLoading)?.visibility = View.GONE
+
         val languageCode = Locale.getDefault().language
         var query = FirebaseFirestore.getInstance()
             .collection(appId)

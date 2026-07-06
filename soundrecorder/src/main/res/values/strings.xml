@@ -418,4 +418,6 @@
     <string name="social_media">Social Media</string>
     <string name="call_us">Contact Us</string>
 
+    <string name="turn_on_internet_for_more_tutorial">Turn on the internet to view more tutorials!</string>
+
 </resources>
