@@ -266,11 +266,6 @@ class InstrumentTutorialDialog(
         binding.rvSongs.adapter = adapter
         this.currentAdapter = adapter
 
-        // Setup Language Filter UI if enabled
-        if (zaifSDKConfig?.isFilterTutorial == true) {
-            setupLanguageFilterUI(context, binding, appId, instrumentType, adapter)
-        }
-
         allItems.clear()
         lifecycleScope?.launch {
             val localSongs = withContext(Dispatchers.IO) { localSongsProvider(context) }
@@ -453,6 +448,8 @@ class InstrumentTutorialDialog(
         }
 
         filterBtn.setOnClickListener {
+            if (isLoadingMore) return@setOnClickListener // Cegah klik saat sedang loading
+            
             filterAllLanguages = !filterAllLanguages
             updateFilterUI()
             
@@ -464,7 +461,10 @@ class InstrumentTutorialDialog(
             if (!appId.isNullOrEmpty()) {
                 lastDocument = null
                 isLastPage = false
+                // Langsung beritahu adapter agar tidak crash saat list berkurang ukurannya
                 allItems.removeAll { it is SongItem.Remote }
+                adapter.notifyDataSetChanged()
+
                 fetchFirstPageRemote(appId, instrumentType, binding, adapter, allItems)
             }
         }
