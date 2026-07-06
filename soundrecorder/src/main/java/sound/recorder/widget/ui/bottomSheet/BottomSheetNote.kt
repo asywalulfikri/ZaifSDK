@@ -52,14 +52,21 @@ class BottomSheetNote : BottomSheetDialogFragment() {
         activity = getActivity()
         if(activity!=null&&context!=null){
             try {
-                (dialog as? BottomSheetDialog)?.behavior?.state = STATE_EXPANDED
-                (dialog as? BottomSheetDialog)?.behavior?.isDraggable = false
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    dialog?.window?.let { WindowCompat.setDecorFitsSystemWindows(it, false) }
-                } else {
-                    @Suppress("DEPRECATION")
-                    dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+                // Konfigurasi Dialog sebelum interaksi berat
+                dialog?.let { d ->
+                    if (d is BottomSheetDialog) {
+                        d.behavior.state = STATE_EXPANDED
+                        d.behavior.isDraggable = false
+                    }
+                    
+                    d.window?.let { window ->
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            WindowCompat.setDecorFitsSystemWindows(window, false)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+                        }
+                    }
                 }
 
                 try {

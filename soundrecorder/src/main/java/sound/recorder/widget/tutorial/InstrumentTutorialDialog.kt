@@ -436,22 +436,22 @@ class InstrumentTutorialDialog(
         val binding = DialogTutorialSongListBinding.inflate(LayoutInflater.from(context))
         dialog.setContentView(binding.root)
         dialog.setCanceledOnTouchOutside(false)
-        dialog.setOnDismissListener {
-            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-            imm?.hideSoftInputFromWindow(binding.root.windowToken, 0)
-            currentDialog = null
-            if (dismissShouldStop) stopAll()
-            else dismissShouldStop = true
-            mContext = null
-        }
-        binding.btnClose.setOnClickListener { dialog.dismiss() }
-        dialog.show()
+
+        // 1. Setup window flags BEFORE show() to minimize layout cycles
         dialog.window?.let { window ->
             window.setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
             @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or 
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or 
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or 
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or 
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or 
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+            )
         }
+
+        // 2. Setup BottomSheet layout and behavior BEFORE show() if possible
         val bottomSheet = dialog.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
         bottomSheet?.let {
             it.layoutParams = it.layoutParams?.apply { height = ViewGroup.LayoutParams.MATCH_PARENT }
@@ -461,6 +461,24 @@ class InstrumentTutorialDialog(
             behavior.isDraggable = false
             behavior.peekHeight = context.resources.displayMetrics.heightPixels
         }
+
+        dialog.setOnDismissListener {
+            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.hideSoftInputFromWindow(binding.root.windowToken, 0)
+            currentDialog = null
+            if (dismissShouldStop) stopAll()
+            else dismissShouldStop = true
+            mContext = null
+        }
+        
+        binding.btnClose.setOnClickListener { dialog.dismiss() }
+        
+        // 3. Finally show the dialog
+        dialog.show()
+
+        // 4. Clear NOT_FOCUSABLE after show to allow interaction
+        dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+
         return Pair(dialog, binding)
     }
 
