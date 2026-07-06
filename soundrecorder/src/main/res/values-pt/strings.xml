@@ -427,4 +427,6 @@
     <string name="filter_recommended_label">FILTRO: SOMENTE %1$s/EN ▾</string>
     <string name="showing_all_tutorials">Mostrando todos os tutoriais</string>
     <string name="showing_recommended_tutorials">Mostrando tutoriais recomendados</string>
+
+    <string name="search_not_found">Dados "%1$s" não encontrados</string>
 </resources>

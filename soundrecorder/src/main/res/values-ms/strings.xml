@@ -429,4 +429,6 @@
     <string name="showing_all_tutorials">Memaparkan semua tutorial</string>
     <string name="showing_recommended_tutorials">Memaparkan tutorial yang disyorkan</string>
 
+    <string name="search_not_found">Data "%1$s" tidak dijumpai</string>
+
 </resources>

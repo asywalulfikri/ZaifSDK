@@ -430,5 +430,7 @@
     <string name="showing_all_tutorials">Alle Tutorials werden angezeigt</string>
     <string name="showing_recommended_tutorials">Empfohlene Tutorials werden angezeigt</string>
 
+    <string name="search_not_found">Daten "%1$s" wurden nicht gefunden</string>
+
 </resources>
 

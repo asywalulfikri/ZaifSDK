@@ -424,4 +424,6 @@
     <string name="filter_recommended_label">फ़िल्टर: केवल %1$s/EN ▾</string>
     <string name="showing_all_tutorials">सभी ट्यूटोरियल दिखाए जा रहे हैं</string>
     <string name="showing_recommended_tutorials">अनुशंसित ट्यूटोरियल दिखाए जा रहे हैं</string>
+
+    <string name="search_not_found">"%1$s" के लिए कोई डेटा नहीं मिला</string>
 </resources>

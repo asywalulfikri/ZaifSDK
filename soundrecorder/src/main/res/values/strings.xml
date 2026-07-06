@@ -427,5 +427,6 @@
     <string name="filter_recommended_label">FILTER: %1$s/EN ONLY ▾</string>
     <string name="showing_all_tutorials">Showing all tutorials</string>
     <string name="showing_recommended_tutorials">Showing recommended tutorials</string>
+    <string name="search_not_found">Data \"%1$s\" not found</string>
 
 </resources>

@@ -426,5 +426,7 @@
     <string name="showing_all_tutorials">Menampilkan semua tutorial</string>
     <string name="showing_recommended_tutorials">Menampilkan tutorial yang direkomendasikan</string>
 
+    <string name="search_not_found">Data \"%1$s\" tidak ditemukan</string>
+
 
 </resources>

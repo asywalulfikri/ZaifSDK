@@ -426,5 +426,6 @@
     <string name="filter_recommended_label">筛选：仅 %1$s/EN ▾</string>
     <string name="showing_all_tutorials">正在显示所有教程</string>
     <string name="showing_recommended_tutorials">正在显示推荐教程</string>
+    <string name="search_not_found">未找到“%1$s”数据</string>
 
 </resources>

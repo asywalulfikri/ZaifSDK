@@ -16,6 +16,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -140,11 +141,48 @@ class InstrumentTutorialDialog(
     private val playHandler = Handler(Looper.getMainLooper())
     private var currentDialog: BottomSheetDialog? = null
     private var currentAdapter: SongListAdapter? = null
+    private var mBinding: DialogTutorialSongListBinding? = null
     private val allItems = mutableListOf<SongItem>()
     private var lastDocument: DocumentSnapshot? = null
     private var isLoadingMore = false
     private var isLastPage = false
     private val PAGE_SIZE = 100L
+
+    private var currentSearchQuery = ""
+
+    private fun refreshList() {
+        val adapter = currentAdapter ?: return
+        val binding = mBinding ?: return
+        val q = currentSearchQuery.lowercase().trim()
+        val filtered = if (q.isEmpty()) {
+            allItems.toList()
+        } else {
+            allItems.filter { item ->
+                when (item) {
+                    is SongItem.Local -> item.song.name.lowercase().contains(q)
+                    is SongItem.Remote -> item.note.recordName.lowercase().contains(q) ||
+                            item.note.senderName.lowercase().contains(q)
+                }
+            }
+        }
+        lifecycleScope?.launch(Dispatchers.Main) {
+            adapter.updateItems(filtered)
+            
+            if (filtered.isEmpty()) {
+                binding.progressContainer.visibility = View.VISIBLE
+                binding.progressBar.visibility = View.GONE
+                val tvLoading = binding.progressContainer.findViewById<TextView>(R.id.tvLoading)
+                tvLoading?.visibility = View.VISIBLE
+                if (q.isNotEmpty()) {
+                    tvLoading?.text = mContext?.getString(R.string.search_not_found, q)
+                } else {
+                    tvLoading?.text = mContext?.getString(R.string.data_empty) ?: "Data Kosong"
+                }
+            } else {
+                binding.progressContainer.visibility = View.GONE
+            }
+        }
+    }
 
     private var filterAllLanguages = false
 
@@ -198,7 +236,6 @@ class InstrumentTutorialDialog(
         }
 
         val adapter = SongListAdapter(
-            items = allItems,
             context = context,
             showLearn = showLearn,
             isUnlocked = { item ->
@@ -267,6 +304,7 @@ class InstrumentTutorialDialog(
         this.currentAdapter = adapter
 
         allItems.clear()
+        currentSearchQuery = ""
         lifecycleScope?.launch {
             val localSongs = withContext(Dispatchers.IO) { localSongsProvider(context) }
             val processedLocal = withContext(Dispatchers.IO) {
@@ -277,17 +315,17 @@ class InstrumentTutorialDialog(
             
             withContext(Dispatchers.Main) {
                 allItems.addAll(processedLocal)
-                adapter.notifyDataSetChanged()
+                refreshList()
             }
 
             binding.rvSongs.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (dy <= 0 || isLoadingMore || isLastPage || binding.etSearch.text.isNotEmpty()) return
+                    if (dy <= 0 || isLoadingMore || isLastPage || currentSearchQuery.isNotEmpty()) return
                     val visibleItemCount = layoutManager.childCount
                     val totalItemCount = layoutManager.itemCount
                     val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
                     if (visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
-                        appId?.let { loadMoreRemote(it, instrumentType, binding, adapter, allItems) }
+                        appId?.let { loadMoreRemote(it, instrumentType, binding, allItems) }
                     }
                 }
             })
@@ -297,21 +335,11 @@ class InstrumentTutorialDialog(
                 override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
                 override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
                 override fun afterTextChanged(s: Editable?) {
+                    currentSearchQuery = s?.toString() ?: ""
                     searchJob?.cancel()
                     searchJob = lifecycleScope?.launch {
                         delay(300)
-                        val q = s.toString().lowercase().trim()
-                        val filtered = withContext(Dispatchers.Default) {
-                            if (q.isEmpty()) allItems.toList()
-                            else allItems.filter { item ->
-                                when (item) {
-                                    is SongItem.Local -> item.song.name.lowercase().contains(q)
-                                    is SongItem.Remote -> item.note.recordName.lowercase().contains(q) ||
-                                            item.note.senderName.lowercase().contains(q)
-                                }
-                            }
-                        }
-                        adapter.updateItems(filtered)
+                        refreshList()
                     }
                 }
             })
@@ -320,13 +348,13 @@ class InstrumentTutorialDialog(
                 binding.progressContainer.visibility = View.GONE
                 val cachedNotes = cache[instrumentType]!!.notes
                 allItems.addAll(cachedNotes.map { SongItem.Remote(it) })
-                adapter.notifyDataSetChanged()
+                refreshList()
                 isLastPage = cachedNotes.size < PAGE_SIZE
             } else if (!appId.isNullOrEmpty()) {
                 lastDocument = null
                 isLoadingMore = false
                 isLastPage = false
-                fetchFirstPageRemote(appId, instrumentType, binding, adapter, allItems)
+                fetchFirstPageRemote(appId, instrumentType, binding, allItems)
             } else {
                 binding.progressContainer.visibility = View.GONE
             }
@@ -393,6 +421,33 @@ class InstrumentTutorialDialog(
                 this, 
                 ColorStateList.valueOf(Color.parseColor("#8B93B8"))
             )
+
+            // Logic Clear Icon: Muncul saat ada teks, hilang saat kosong
+            addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    val clearIcon = if (s.isNullOrEmpty()) 0 else R.drawable.ic_close
+                    setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_search, 0, clearIcon, 0)
+                }
+                override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
+                override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
+            })
+
+            // Click listener untuk icon clear (kanan)
+            @SuppressLint("ClickableViewAccessibility")
+            setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    val drawableRight = compoundDrawables[2]
+                    if (drawableRight != null) {
+                        // Beri area klik yang sedikit lebih luas agar mudah ditekan
+                        val extraArea = context.sdp(SdpR.dimen._8sdp)
+                        if (event.x >= (width - paddingRight - drawableRight.bounds.width() - extraArea)) {
+                            setText("")
+                            return@setOnTouchListener true
+                        }
+                    }
+                }
+                false
+            }
 
             // Sesuaikan padding agar tidak terlalu mepet ke kiri/kanan
             setPadding(
@@ -484,9 +539,9 @@ class InstrumentTutorialDialog(
                 isLastPage = false
                 // Langsung beritahu adapter agar tidak crash saat list berkurang ukurannya
                 allItems.removeAll { it is SongItem.Remote }
-                adapter.notifyDataSetChanged()
+                refreshList()
 
-                fetchFirstPageRemote(appId, instrumentType, binding, adapter, allItems)
+                fetchFirstPageRemote(appId, instrumentType, binding, allItems)
             }
         }
 
@@ -525,7 +580,7 @@ class InstrumentTutorialDialog(
             .show()
     }
 
-    private fun fetchFirstPageRemote(appId: String, instrumentType: String, binding: DialogTutorialSongListBinding, adapter: SongListAdapter, allItems: MutableList<SongItem>) {
+    private fun fetchFirstPageRemote(appId: String, instrumentType: String, binding: DialogTutorialSongListBinding, allItems: MutableList<SongItem>) {
         if (!isNetworkAvailable(mContext)) {
             binding.progressContainer.visibility = View.VISIBLE
             binding.progressBar.visibility = View.GONE
@@ -569,7 +624,8 @@ class InstrumentTutorialDialog(
                         tvLoading?.visibility = View.VISIBLE
                         tvLoading?.text = mContext?.getString(R.string.data_empty)
                     }
-                    adapter.notifyDataSetChanged() // Ensure UI updates even if empty
+                    currentAdapter?.updateItems(emptyList<SongItem>()) // Ensure UI updates even if empty
+                    refreshList()
                     return@addOnSuccessListener
                 }
                 lastDocument = snapshot.documents.lastOrNull()
@@ -596,7 +652,7 @@ class InstrumentTutorialDialog(
                 }
                 
                 allItems.addAll(notes.map { SongItem.Remote(it) })
-                adapter.notifyDataSetChanged()
+                refreshList()
             }
             .addOnFailureListener {
                 binding.progressContainer.visibility = View.GONE
@@ -607,7 +663,6 @@ class InstrumentTutorialDialog(
         appId: String,
         instrumentType: String,
         binding: DialogTutorialSongListBinding,
-        adapter: SongListAdapter,
         allItems: MutableList<SongItem>
     ) {
         val lastDoc = lastDocument ?: return
@@ -672,7 +727,7 @@ class InstrumentTutorialDialog(
                 }
 
                 allItems.addAll(newNotes.map { SongItem.Remote(it) })
-                adapter.notifyDataSetChanged()
+                refreshList()
             }
             .addOnFailureListener {
                 isLoadingMore = false
@@ -689,6 +744,7 @@ class InstrumentTutorialDialog(
         val dialog = BottomSheetDialog(context)
         currentDialog = dialog
         val binding = DialogTutorialSongListBinding.inflate(LayoutInflater.from(context))
+        mBinding = binding
         dialog.setContentView(binding.root)
         dialog.setCanceledOnTouchOutside(false)
 
@@ -721,6 +777,7 @@ class InstrumentTutorialDialog(
             val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             imm?.hideSoftInputFromWindow(binding.root.windowToken, 0)
             currentDialog = null
+            mBinding = null
             if (dismissShouldStop) stopAll()
             else dismissShouldStop = true
             mContext = null
@@ -738,13 +795,14 @@ class InstrumentTutorialDialog(
     }
 
     private inner class SongListAdapter(
-        private val items: MutableList<SongItem>,
         private val context: Context,
         private val showLearn: Boolean = true,
         private val isUnlocked: (SongItem) -> Boolean,
         private val onPlay: (SongItem) -> Unit,
         private val onLearn: (SongItem) -> Unit
     ) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+
+        private val items = mutableListOf<SongItem>()
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val tvName: TextView = view.findViewById(R.id.tvSongName)
@@ -1028,12 +1086,12 @@ class InstrumentTutorialDialog(
                         onToast("Berhasil di-publish!")
                         clearCache(instrumentType)
 
-                        // Update local list & notify adapter
+                        // Update local list & refresh
                         val index = allItems.indexOfFirst { it is SongItem.Remote && it.note.docId == note.docId }
                         if (index != -1) {
                             val currentRemote = allItems[index] as SongItem.Remote
                             allItems[index] = currentRemote.copy(note = currentRemote.note.copy(status = "published"))
-                            currentAdapter?.notifyItemChanged(index)
+                            refreshList()
                         }
                     }
                     .addOnFailureListener { e -> onToast("Gagal publish: ${e.message}") }
@@ -1232,7 +1290,7 @@ class InstrumentTutorialDialog(
                         else -> remote.note
                     }
                     allItems[index] = remote.copy(note = updatedNote)
-                    currentAdapter?.notifyItemChanged(index)
+                    refreshList()
                 }
             }
     }
@@ -1337,11 +1395,11 @@ class InstrumentTutorialDialog(
                         onToast("Data berhasil dihapus.")
                         clearCache(instrumentType)
                         
-                        // Update local list & notify adapter
+                        // Update local list & refresh
                         val index = allItems.indexOfFirst { it is SongItem.Remote && it.note.docId == note.docId }
                         if (index != -1) {
                             allItems.removeAt(index)
-                            currentAdapter?.notifyItemRemoved(index)
+                            refreshList()
                         }
                     }
                     .addOnFailureListener { e -> onToast("Gagal hapus: ${e.message}") }

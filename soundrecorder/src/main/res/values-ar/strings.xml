@@ -471,5 +471,7 @@
     <string name="filter_recommended_label">التصفية: %1$s/EN فقط ▾</string>
     <string name="showing_all_tutorials">يتم عرض جميع الدروس التعليمية</string>
     <string name="showing_recommended_tutorials">يتم عرض الدروس التعليمية الموصى بها</string>
+
+    <string name="search_not_found">لم يتم العثور على البيانات "%1$s"</string>
 </resources>
 

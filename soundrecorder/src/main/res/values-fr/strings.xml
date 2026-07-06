@@ -429,4 +429,6 @@
     <string name="showing_all_tutorials">Affichage de tous les tutoriels</string>
     <string name="showing_recommended_tutorials">Affichage des tutoriels recommandés</string>
 
+    <string name="search_not_found">Aucune donnée trouvée pour "%1$s"</string>
+
 </resources>

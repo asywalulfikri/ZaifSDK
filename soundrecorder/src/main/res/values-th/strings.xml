@@ -426,4 +426,6 @@
     <string name="filter_recommended_label">ตัวกรอง: เฉพาะ %1$s/EN ▾</string>
     <string name="showing_all_tutorials">กำลังแสดงบทช่วยสอนทั้งหมด</string>
     <string name="showing_recommended_tutorials">กำลังแสดงบทช่วยสอนที่แนะนำ</string>
+
+    <string name="search_not_found">ไม่พบข้อมูล "%1$s"</string>
 </resources>

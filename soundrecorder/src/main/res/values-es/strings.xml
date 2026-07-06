@@ -428,4 +428,6 @@
     <string name="showing_all_tutorials">Mostrando todos los tutoriales</string>
     <string name="showing_recommended_tutorials">Mostrando tutoriales recomendados</string>
 
+    <string name="search_not_found">No se encontraron datos para "%1$s"</string>
+
 </resources>

@@ -422,4 +422,6 @@
     <string name="showing_all_tutorials">すべてのチュートリアルを表示中</string>
     <string name="showing_recommended_tutorials">おすすめのチュートリアルを表示中</string>
 
+    <string name="search_not_found">「%1$s」のデータが見つかりません</string>
+
 </resources>

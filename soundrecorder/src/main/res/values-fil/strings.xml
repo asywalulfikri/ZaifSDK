@@ -428,4 +428,6 @@
     <string name="filter_recommended_label">FILTER: %1$s/EN LAMANG ▾</string>
     <string name="showing_all_tutorials">Ipinapakita ang lahat ng tutorial</string>
     <string name="showing_recommended_tutorials">Ipinapakita ang mga inirerekomendang tutorial</string>
+
+    <string name="search_not_found">Walang nahanap na data para sa "%1$s"</string>
 </resources>

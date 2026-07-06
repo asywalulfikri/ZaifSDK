@@ -430,4 +430,6 @@
     <string name="filter_recommended_label">FILTER: ALLEEN %1$s/EN ▾</string>
     <string name="showing_all_tutorials">Alle tutorials worden weergegeven</string>
     <string name="showing_recommended_tutorials">Aanbevolen tutorials worden weergegeven</string>
+
+    <string name="search_not_found">Gegevens "%1$s" niet gevonden</string>
 </resources>

@@ -425,4 +425,6 @@
     <string name="showing_all_tutorials">Показаны все уроки</string>
     <string name="showing_recommended_tutorials">Показаны рекомендуемые уроки</string>
 
+    <string name="search_not_found">Данные "%1$s" не найдены</string>
+
 </resources>

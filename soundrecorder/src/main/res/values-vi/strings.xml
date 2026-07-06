@@ -426,4 +426,6 @@
     <string name="filter_recommended_label">BỘ LỌC: CHỈ %1$s/EN ▾</string>
     <string name="showing_all_tutorials">Đang hiển thị tất cả hướng dẫn</string>
     <string name="showing_recommended_tutorials">Đang hiển thị các hướng dẫn được đề xuất</string>
+
+    <string name="search_not_found">Không tìm thấy dữ liệu "%1$s"</string>
 </resources>
