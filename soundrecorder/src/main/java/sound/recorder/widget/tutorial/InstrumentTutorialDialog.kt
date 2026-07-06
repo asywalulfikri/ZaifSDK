@@ -145,6 +145,8 @@ class InstrumentTutorialDialog(
     private var isLastPage = false
     private val PAGE_SIZE = 100L
 
+    private var filterAllLanguages = false
+
     var isLearning = false
         private set
     private var learnEvents = listOf<RecordedTap>()
@@ -253,10 +255,20 @@ class InstrumentTutorialDialog(
                 }
             }
         )
+
+        // Setup Language Filter UI if enabled
+        if (zaifSDKConfig?.isFilterTutorial == true) {
+            setupLanguageFilterUI(context, binding, appId, instrumentType, adapter)
+        }
         val layoutManager = LinearLayoutManager(context)
         binding.rvSongs.layoutManager = layoutManager
         binding.rvSongs.adapter = adapter
         this.currentAdapter = adapter
+
+        // Setup Language Filter UI if enabled
+        if (zaifSDKConfig?.isFilterTutorial == true) {
+            setupLanguageFilterUI(context, binding, appId, instrumentType, adapter)
+        }
 
         allItems.clear()
         lifecycleScope?.launch {
@@ -338,6 +350,91 @@ class InstrumentTutorialDialog(
         }
     }
 
+    private fun setupLanguageFilterUI(
+        context: Context,
+        binding: DialogTutorialSongListBinding,
+        appId: String?,
+        instrumentType: String,
+        adapter: SongListAdapter
+    ) {
+        val root = binding.root
+        val etSearch = binding.etSearch
+        
+        // Cari posisi etSearch di layout
+        val index = root.indexOfChild(etSearch)
+        if (index == -1) return
+
+        // Hapus etSearch sementara untuk dibungkus
+        root.removeView(etSearch)
+
+        // Baris horizontal baru untuk Search + Filter
+        val searchRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(-1, -2)
+            setPadding(context.sdp(SdpR.dimen._12sdp), 0, context.sdp(SdpR.dimen._12sdp), 0)
+        }
+
+        // Sesuaikan etSearch agar fleksibel (weight=1)
+        etSearch.layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+            marginEnd = context.sdp(SdpR.dimen._8sdp)
+        }
+
+        // Tombol Filter (Chip style)
+        val filterBtn = TextView(context).apply {
+            textSize = 10f
+            setPadding(context.sdp(SdpR.dimen._10sdp), context.sdp(SdpR.dimen._6sdp), context.sdp(SdpR.dimen._10sdp), context.sdp(SdpR.dimen._6sdp))
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            gravity = Gravity.CENTER
+            
+            layoutParams = LinearLayout.LayoutParams(-2, -2)
+        }
+
+        fun updateFilterUI() {
+            val colorAccent = Color.parseColor("#6C63FF")
+            val colorBg = Color.parseColor("#1A1F3A")
+            
+            if (filterAllLanguages) {
+                filterBtn.text = "🌐 ALL"
+                filterBtn.setTextColor(Color.WHITE)
+                filterBtn.background = GradientDrawable().apply {
+                    setColor(colorAccent)
+                    cornerRadius = context.sdpF(SdpR.dimen._15sdp)
+                }
+            } else {
+                val langCode = Locale.getDefault().language.uppercase()
+                filterBtn.text = "🏳️ $langCode"
+                filterBtn.setTextColor(Color.parseColor("#8B93B8"))
+                filterBtn.background = GradientDrawable().apply {
+                    setColor(colorBg)
+                    cornerRadius = context.sdpF(SdpR.dimen._15sdp)
+                    setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#252B47"))
+                }
+            }
+        }
+
+        filterBtn.setOnClickListener {
+            filterAllLanguages = !filterAllLanguages
+            updateFilterUI()
+            
+            // Reload data
+            if (!appId.isNullOrEmpty()) {
+                lastDocument = null
+                isLastPage = false
+                allItems.removeAll { it is SongItem.Remote }
+                fetchFirstPageRemote(appId, instrumentType, binding, adapter, allItems)
+            }
+        }
+
+        updateFilterUI()
+        
+        searchRow.addView(etSearch)
+        searchRow.addView(filterBtn)
+        
+        // Masukkan kembali ke root layout
+        root.addView(searchRow, index)
+    }
+
     private fun fetchFirstPageRemote(appId: String, instrumentType: String, binding: DialogTutorialSongListBinding, adapter: SongListAdapter, allItems: MutableList<SongItem>) {
         if (!isNetworkAvailable(mContext)) {
             binding.progressContainer.visibility = View.VISIBLE
@@ -356,10 +453,14 @@ class InstrumentTutorialDialog(
         var query = FirebaseFirestore.getInstance()
             .collection(appId)
             .whereEqualTo("category", instrumentType)
+            
         if (!isAppDebuggable(mContext)) {
             query = query.whereEqualTo("status", "published")
-                .whereArrayContainsAny("language", listOf("en", languageCode))
+            if (!filterAllLanguages) {
+                query = query.whereArrayContainsAny("language", listOf("en", languageCode))
+            }
         }
+        
         query
             .orderBy("submitted_at", Query.Direction.DESCENDING)
             .limit(PAGE_SIZE)
@@ -378,6 +479,7 @@ class InstrumentTutorialDialog(
                         tvLoading?.visibility = View.VISIBLE
                         tvLoading?.text = mContext?.getString(R.string.data_empty)
                     }
+                    adapter.notifyDataSetChanged() // Ensure UI updates even if empty
                     return@addOnSuccessListener
                 }
                 lastDocument = snapshot.documents.lastOrNull()
@@ -397,7 +499,12 @@ class InstrumentTutorialDialog(
                         language = (d["language"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
                     )
                 }
-                cache[instrumentType] = CachedResult(notes, System.currentTimeMillis())
+                
+                // Only cache if we're in default "My Language" mode
+                if (!filterAllLanguages) {
+                    cache[instrumentType] = CachedResult(notes, System.currentTimeMillis())
+                }
+                
                 allItems.addAll(notes.map { SongItem.Remote(it) })
                 adapter.notifyDataSetChanged()
             }
@@ -430,10 +537,14 @@ class InstrumentTutorialDialog(
         var query = FirebaseFirestore.getInstance()
             .collection(appId)
             .whereEqualTo("category", instrumentType)
+            
         if (!isAppDebuggable(mContext)) {
             query = query.whereEqualTo("status", "published")
-                .whereArrayContainsAny("language", listOf("en", languageCode))
+            if (!filterAllLanguages) {
+                query = query.whereArrayContainsAny("language", listOf("en", languageCode))
+            }
         }
+
         query
             .orderBy("submitted_at", Query.Direction.DESCENDING)
             .startAfter(lastDoc)
@@ -463,8 +574,13 @@ class InstrumentTutorialDialog(
                         language = (d["language"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
                     )
                 }
-                val currentCached = cache[instrumentType]?.notes ?: emptyList()
-                cache[instrumentType] = CachedResult(currentCached + newNotes, System.currentTimeMillis())
+                
+                // Only update cache if in default mode
+                if (!filterAllLanguages) {
+                    val currentCached = cache[instrumentType]?.notes ?: emptyList()
+                    cache[instrumentType] = CachedResult(currentCached + newNotes, System.currentTimeMillis())
+                }
+
                 allItems.addAll(newNotes.map { SongItem.Remote(it) })
                 adapter.notifyDataSetChanged()
             }
@@ -930,15 +1046,35 @@ class InstrumentTutorialDialog(
     private fun showEditJsonNoteDialog(ctx: Context, note: NoteItem) {
         val dialog = AlertDialog.Builder(ctx).create()
         val root = buildEditRoot(ctx, "Edit JSON Note")
-        val input = buildEditText(ctx, note.jsonNote, "JSON...", isMultiLine = true)
-        root.addView(input)
+
+        // Bungkus EditText dalam ScrollView agar tombol tidak terdorong keluar layar
+        val scroll = android.widget.ScrollView(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(-1, 0, 1f).apply {
+                topMargin = ctx.sdp(SdpR.dimen._8sdp)
+            }
+            isFillViewport = true
+        }
+
+        val input = buildEditText(ctx, note.jsonNote, "JSON...", isMultiLine = true).apply {
+            val lp = layoutParams as LinearLayout.LayoutParams
+            lp.topMargin = 0
+            layoutParams = lp
+        }
+
+        scroll.addView(input)
+        root.addView(scroll)
+
         root.addView(buildEditActionRow(ctx, dialog, "Simpan", "D2B48C") {
             updateNoteField(note, "json_note", input.text.toString().trim())
             dialog.dismiss()
         })
         dialog.setView(root)
         dialog.show()
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            val dm = ctx.resources.displayMetrics
+            setLayout((dm.widthPixels * 0.9).toInt(), (dm.heightPixels * 0.85).toInt())
+        }
     }
 
     private fun showEditLanguageDialog(ctx: Context, note: NoteItem) {

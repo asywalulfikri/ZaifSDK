@@ -183,6 +183,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                 .isPromotNot(BuildConfig.isPromotNot)
                 .isLockRec(BuildConfig.isLockRec)
                 .isCoin(false)
+                .isFilterTutorial(true)
                 .build()
 
             Log.d(TAG, "Secondary components initialized")

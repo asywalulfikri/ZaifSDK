@@ -27,6 +27,8 @@ class ZaifSDKBuilder private constructor(
 
     var isCoin = false
 
+    var isFilterTutorial = false
+
     fun setAppName(value: String) = apply { appName = value }
     fun setVersionCode(value: Int) = apply { versionCode = value }
     fun setVersionName(value: String) = apply { versionName = value }
@@ -44,6 +46,8 @@ class ZaifSDKBuilder private constructor(
     fun isDownload(value: Boolean) = apply { isDownload = value }
     fun isLockRec(value: Boolean) = apply { isLockRec = value }
     fun isLockMusic(value: Boolean) = apply { isLockMusic = value }
+
+    fun isFilterTutorial(value: Boolean) = apply { isFilterTutorial = value }
 
     fun isCoin(value: Boolean) = apply { isCoin = value }
 
@@ -65,7 +69,8 @@ class ZaifSDKBuilder private constructor(
             isDownload = isDownload,
             isLockRec = isLockRec,
             isLockMusic = isLockMusic,
-            isCoin = isCoin
+            isCoin = isCoin,
+            isFilterTutorial = isFilterTutorial
         )
         instance = config // ✅ langsung simpan di memory
         ZaifSDKStorage.save(context, config)

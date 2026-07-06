@@ -365,6 +365,8 @@
     <string name="downloaded">Downloaded</string>
     <string name="local_song">Local Song</string>
     <string name="online_song">Online Song</string>
+    <string name="my_language">Your Language</string>
+    <string name="all_language">All Languages</string>
 
     <string name="ear_tarining">Ear Training</string>
     <string name="correct_answer">Correct Answer</string>
