@@ -82,7 +82,8 @@ class InstrumentTutorialDialog(
         val submittedAt: Long,
         val status: String,
         val jsonNote: String,
-        val isFree: Boolean = false
+        val isFree: Boolean = false,
+        val language: List<String> = emptyList()
     )
 
     sealed class SongItem {
@@ -392,7 +393,8 @@ class InstrumentTutorialDialog(
                         submittedAt = d["submitted_at"] as? Long ?: 0L,
                         status = d["status"] as? String ?: "-",
                         jsonNote = jsonNote,
-                        isFree = d["is_free"] as? Boolean ?: false
+                        isFree = d["is_free"] as? Boolean ?: false,
+                        language = (d["language"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
                     )
                 }
                 cache[instrumentType] = CachedResult(notes, System.currentTimeMillis())
@@ -457,7 +459,8 @@ class InstrumentTutorialDialog(
                         submittedAt = d["submitted_at"] as? Long ?: 0L,
                         status = d["status"] as? String ?: "-",
                         jsonNote = jsonNote,
-                        isFree = d["is_free"] as? Boolean ?: false
+                        isFree = d["is_free"] as? Boolean ?: false,
+                        language = (d["language"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
                     )
                 }
                 val currentCached = cache[instrumentType]?.notes ?: emptyList()
@@ -544,6 +547,7 @@ class InstrumentTutorialDialog(
             val btnLearn: TextView = view.findViewById(R.id.btnLearn)
             val layoutAdmin: View = view.findViewById(R.id.layoutAdmin)
             val btnPublish: TextView = view.findViewById(R.id.btnPublish)
+            val btnEdit: TextView = view.findViewById(R.id.btnEdit)
             val btnDelete: TextView = view.findViewById(R.id.btnDelete)
         }
 
@@ -588,9 +592,10 @@ class InstrumentTutorialDialog(
 
                     if (isDebug) {
                         holder.layoutAdmin.visibility = View.VISIBLE
+                        holder.btnEdit.setOnClickListener { showEditChoiceDialog(holder.itemView.context, item.note) }
                         holder.btnPublish.visibility = if (item.note.status == "published") View.GONE else View.VISIBLE
-                        holder.btnPublish.setOnClickListener { publishNote(item.note) }
-                        holder.btnDelete.setOnClickListener { deleteNote(item.note) }
+                        holder.btnPublish.setOnClickListener { publishNote(holder.itemView.context, item.note) }
+                        holder.btnDelete.setOnClickListener { deleteNote(holder.itemView.context, item.note) }
                     } else {
                         holder.layoutAdmin.visibility = View.GONE
                     }
@@ -805,9 +810,9 @@ class InstrumentTutorialDialog(
         onPlaybackStatusChanged(false)
     }
 
-    private fun publishNote(note: NoteItem) {
+    private fun publishNote(ctx: Context, note: NoteItem) {
         val appId = zaifSDKConfig?.applicationId ?: return
-        AlertDialog.Builder(mContext!!).apply {
+        AlertDialog.Builder(ctx).apply {
             setTitle("Publish Data?")
             setMessage("Data ini akan ditampilkan ke publik (semua user).")
             setPositiveButton("Publish") { _, _ ->
@@ -832,9 +837,225 @@ class InstrumentTutorialDialog(
         }
     }
 
-    private fun deleteNote(note: NoteItem) {
+    private fun showEditChoiceDialog(ctx: Context, note: NoteItem) {
+        val dialog = AlertDialog.Builder(ctx).create()
+
+        val root = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#1A0F09"))
+                cornerRadius = ctx.sdpF(SdpR.dimen._14sdp)
+                setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#22D2B48C"))
+            }
+            val pad = ctx.sdp(SdpR.dimen._16sdp)
+            setPadding(pad, pad, pad, pad)
+        }
+
+        root.addView(TextView(ctx).apply {
+            text = "Pilih yang ingin diedit"
+            setTextColor(Color.parseColor("#F5F5DC"))
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply {
+                bottomMargin = ctx.sdp(SdpR.dimen._12sdp)
+            }
+        })
+
+        val options = listOf(
+            "Nama Rekaman" to "7BAFD4",
+            "JSON Note"    to "D2B48C",
+            "Language"     to "A8D8A8",
+            "Sender Name"  to "FFB347",
+            "isFree"       to "C792EA"
+        )
+
+        options.forEach { (label, color) ->
+            root.addView(TextView(ctx).apply {
+                text = label
+                setTextColor(Color.parseColor("#$color"))
+                textSize = 12f
+                typeface = Typeface.DEFAULT_BOLD
+                gravity = Gravity.CENTER_VERTICAL
+                val padH = ctx.sdp(SdpR.dimen._12sdp)
+                val padV = ctx.sdp(SdpR.dimen._10sdp)
+                setPadding(padH, padV, padH, padV)
+                background = RippleDrawable(
+                    ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
+                    GradientDrawable().apply {
+                        setColor(Color.parseColor("#20$color"))
+                        cornerRadius = ctx.sdpF(SdpR.dimen._8sdp)
+                        setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor("#$color"))
+                    }, null
+                )
+                layoutParams = LinearLayout.LayoutParams(-1, -2).apply {
+                    bottomMargin = ctx.sdp(SdpR.dimen._8sdp)
+                }
+                setOnClickListener {
+                    dialog.dismiss()
+                    when (label) {
+                        "Nama Rekaman" -> showEditNameDialog(ctx, note)
+                        "JSON Note"    -> showEditJsonNoteDialog(ctx, note)
+                        "Language"     -> showEditLanguageDialog(ctx, note)
+                        "Sender Name"  -> showEditSenderNameDialog(ctx, note)
+                        "isFree"       -> showEditIsFreeDialog(ctx, note)
+                    }
+                }
+            })
+        }
+        dialog.setView(root)
+        dialog.show()
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setLayout((ctx.resources.displayMetrics.widthPixels * 0.85).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+    }
+
+    private fun showEditNameDialog(ctx: Context, note: NoteItem) {
+        val dialog = AlertDialog.Builder(ctx).create()
+        val root = buildEditRoot(ctx, "Edit Nama Rekaman")
+        val input = buildEditText(ctx, note.recordName, "Nama rekaman")
+        root.addView(input)
+        root.addView(buildEditActionRow(ctx, dialog, "Simpan", "D2B48C") {
+            val newName = input.text.toString().trim()
+            if (newName.isNotEmpty()) {
+                updateNoteField(note, "record_name", newName)
+                dialog.dismiss()
+            }
+        })
+        dialog.setView(root)
+        dialog.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    }
+
+    private fun showEditJsonNoteDialog(ctx: Context, note: NoteItem) {
+        val dialog = AlertDialog.Builder(ctx).create()
+        val root = buildEditRoot(ctx, "Edit JSON Note")
+        val input = buildEditText(ctx, note.jsonNote, "JSON...", isMultiLine = true)
+        root.addView(input)
+        root.addView(buildEditActionRow(ctx, dialog, "Simpan", "D2B48C") {
+            updateNoteField(note, "json_note", input.text.toString().trim())
+            dialog.dismiss()
+        })
+        dialog.setView(root)
+        dialog.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    }
+
+    private fun showEditLanguageDialog(ctx: Context, note: NoteItem) {
+        val dialog = AlertDialog.Builder(ctx).create()
+        val root = buildEditRoot(ctx, "Edit Language (comma separated)")
+        val input = buildEditText(ctx, note.language.joinToString(","), "id,en...")
+        root.addView(input)
+        root.addView(buildEditActionRow(ctx, dialog, "Simpan", "A8D8A8") {
+            val list = input.text.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            updateNoteField(note, "language", list)
+            dialog.dismiss()
+        })
+        dialog.setView(root)
+        dialog.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    }
+
+    private fun showEditSenderNameDialog(ctx: Context, note: NoteItem) {
+        val dialog = AlertDialog.Builder(ctx).create()
+        val root = buildEditRoot(ctx, "Edit Sender Name")
+        val input = buildEditText(ctx, note.senderName, "Nama pengirim")
+        root.addView(input)
+        root.addView(buildEditActionRow(ctx, dialog, "Simpan", "FFB347") {
+            updateNoteField(note, "sender_name", input.text.toString().trim())
+            dialog.dismiss()
+        })
+        dialog.setView(root)
+        dialog.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    }
+
+    private fun showEditIsFreeDialog(ctx: Context, note: NoteItem) {
+        val dialog = AlertDialog.Builder(ctx).create()
+        val root = buildEditRoot(ctx, "Edit isFree")
+        val btnRow = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            setPadding(0, ctx.sdp(SdpR.dimen._12sdp), 0, 0)
+        }
+        btnRow.addView(buildDialogBtn(ctx, "TRUE", "4CAF50") { updateNoteField(note, "is_free", true); dialog.dismiss() })
+        btnRow.addView(View(ctx).apply { layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1) })
+        btnRow.addView(buildDialogBtn(ctx, "FALSE", "FF5252") { updateNoteField(note, "is_free", false); dialog.dismiss() })
+        root.addView(btnRow)
+        dialog.setView(root)
+        dialog.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+    }
+
+    private fun updateNoteField(note: NoteItem, field: String, value: Any) {
         val appId = zaifSDKConfig?.applicationId ?: return
-        AlertDialog.Builder(mContext!!).apply {
+        FirebaseFirestore.getInstance().collection(appId).document(note.docId)
+            .update(field, value)
+            .addOnSuccessListener {
+                onToast("Update $field berhasil!")
+                clearCache(instrumentType)
+                // Update local model
+                val index = allItems.indexOfFirst { it is SongItem.Remote && it.note.docId == note.docId }
+                if (index != -1) {
+                    val remote = allItems[index] as SongItem.Remote
+                    val updatedNote = when(field) {
+                        "record_name" -> remote.note.copy(recordName = value as String)
+                        "sender_name" -> remote.note.copy(senderName = value as String)
+                        "json_note"   -> remote.note.copy(jsonNote = value as String)
+                        "is_free"     -> remote.note.copy(isFree = value as Boolean)
+                        else -> remote.note
+                    }
+                    allItems[index] = remote.copy(note = updatedNote)
+                    currentAdapter?.notifyItemChanged(index)
+                }
+            }
+    }
+
+    private fun buildEditRoot(ctx: Context, title: String) = LinearLayout(ctx).apply {
+        orientation = LinearLayout.VERTICAL
+        background = GradientDrawable().apply {
+            setColor(Color.parseColor("#1A0F09"))
+            cornerRadius = ctx.sdpF(SdpR.dimen._14sdp)
+        }
+        setPadding(ctx.sdp(SdpR.dimen._16sdp), ctx.sdp(SdpR.dimen._16sdp), ctx.sdp(SdpR.dimen._16sdp), ctx.sdp(SdpR.dimen._16sdp))
+        addView(TextView(ctx).apply {
+            text = title
+            setTextColor(Color.WHITE)
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+        })
+    }
+
+    private fun buildEditText(ctx: Context, initial: String, hintText: String, isMultiLine: Boolean = false) = android.widget.EditText(ctx).apply {
+        setText(initial)
+        hint = hintText
+        setTextColor(Color.WHITE)
+        setHintTextColor(Color.GRAY)
+        textSize = 13f
+        if (isMultiLine) {
+            minLines = 3
+            gravity = Gravity.TOP
+        }
+        background = GradientDrawable().apply {
+            setColor(Color.parseColor("#2D1B10"))
+            cornerRadius = ctx.sdpF(SdpR.dimen._8sdp)
+        }
+        setPadding(ctx.sdp(SdpR.dimen._10sdp), ctx.sdp(SdpR.dimen._10sdp), ctx.sdp(SdpR.dimen._10sdp), ctx.sdp(SdpR.dimen._10sdp))
+        layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = ctx.sdp(SdpR.dimen._12sdp) }
+    }
+
+    private fun buildEditActionRow(ctx: Context, d: AlertDialog, btnLabel: String, btnColor: String, onSave: () -> Unit) = LinearLayout(ctx).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.END
+        setPadding(0, ctx.sdp(SdpR.dimen._12sdp), 0, 0)
+        addView(buildDialogBtn(ctx, "Batal", "777777") { d.dismiss() })
+        addView(View(ctx).apply { layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1) })
+        addView(buildDialogBtn(ctx, btnLabel, btnColor) { onSave() })
+    }
+
+    private fun deleteNote(ctx: Context, note: NoteItem) {
+        val appId = zaifSDKConfig?.applicationId ?: return
+        AlertDialog.Builder(ctx).apply {
             setTitle("Hapus Data?")
             setMessage("Data ini akan dihapus permanen dari server.")
             setPositiveButton("Hapus") { _, _ ->
