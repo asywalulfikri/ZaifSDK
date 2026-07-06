@@ -63,7 +63,7 @@ object RecordingListDialogHelper {
     private const val KEY_PROMOTED_IDS   = "promoted_ids"
     private const val KEY_LAST_PROMO_DATE = "last_promo_date"
     private const val KEY_PROMO_COUNT_TODAY = "promo_count_today"
-    private const val MAX_DAILY_PROMOS   = 2
+    private const val MAX_DAILY_PROMOS   = 5
 
     // ─── Helper shorthand ───
     private fun Context.sdp(id: Int) = resources.getDimensionPixelSize(id)

@@ -138,7 +138,7 @@ class InstrumentTutorialDialog(
     private var lastDocument: DocumentSnapshot? = null
     private var isLoadingMore = false
     private var isLastPage = false
-    private val PAGE_SIZE = 50L
+    private val PAGE_SIZE = 100L
 
     var isLearning = false
         private set
