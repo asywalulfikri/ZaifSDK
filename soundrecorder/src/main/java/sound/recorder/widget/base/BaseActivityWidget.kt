@@ -1498,6 +1498,14 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     protected open fun getFirebaseToken(): String? {
         val tokens = AtomicReference("")
+        
+        // Safety check for Firebase initialization
+        val ctx = this.applicationContext
+        if (com.google.firebase.FirebaseApp.getApps(ctx).isEmpty()) {
+            try { com.google.firebase.FirebaseApp.initializeApp(ctx) } catch (e: Exception) {}
+            if (com.google.firebase.FirebaseApp.getApps(ctx).isEmpty()) return null
+        }
+
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task: Task<String> ->
                 if (!task.isSuccessful) {

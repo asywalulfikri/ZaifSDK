@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -595,6 +596,20 @@ class InstrumentTutorialDialog(
         binding.progressBar.visibility = View.VISIBLE
         binding.progressContainer.findViewById<TextView>(R.id.tvLoading)?.visibility = View.GONE
         
+        // Safety check for Firebase initialization
+        if (mContext != null && FirebaseApp.getApps(mContext!!).isEmpty()) {
+            try {
+                FirebaseApp.initializeApp(mContext!!)
+            } catch (e: Exception) {
+                binding.progressContainer.visibility = View.GONE
+                return
+            }
+            if (FirebaseApp.getApps(mContext!!).isEmpty()) {
+                binding.progressContainer.visibility = View.GONE
+                return
+            }
+        }
+
         var query = FirebaseFirestore.getInstance()
             .collection(appId)
             .whereEqualTo("category", instrumentType)
@@ -671,6 +686,16 @@ class InstrumentTutorialDialog(
         if (!isNetworkAvailable(mContext)) {
             onToast(mContext?.getString(R.string.no_internet_connection) ?: "No Internet")
             return
+        }
+
+        // Safety check for Firebase initialization
+        if (mContext != null && FirebaseApp.getApps(mContext!!).isEmpty()) {
+            try {
+                FirebaseApp.initializeApp(mContext!!)
+            } catch (e: Exception) {
+                return
+            }
+            if (FirebaseApp.getApps(mContext!!).isEmpty()) return
         }
 
         isLoadingMore = true
@@ -1076,6 +1101,13 @@ class InstrumentTutorialDialog(
 
     private fun publishNote(ctx: Context, note: NoteItem) {
         val appId = zaifSDKConfig?.applicationId ?: return
+
+        // Safety check for Firebase initialization
+        if (FirebaseApp.getApps(ctx).isEmpty()) {
+            try { FirebaseApp.initializeApp(ctx) } catch (e: Exception) {}
+            if (FirebaseApp.getApps(ctx).isEmpty()) return
+        }
+
         AlertDialog.Builder(ctx).apply {
             setTitle("Publish Data?")
             setMessage("Data ini akan ditampilkan ke publik (semua user).")
@@ -1273,6 +1305,14 @@ class InstrumentTutorialDialog(
 
     private fun updateNoteField(note: NoteItem, field: String, value: Any) {
         val appId = zaifSDKConfig?.applicationId ?: return
+
+        // Safety check for Firebase initialization
+        val ctx = mContext
+        if (ctx != null && FirebaseApp.getApps(ctx).isEmpty()) {
+            try { FirebaseApp.initializeApp(ctx) } catch (e: Exception) {}
+            if (FirebaseApp.getApps(ctx).isEmpty()) return
+        }
+
         FirebaseFirestore.getInstance().collection(appId).document(note.docId)
             .update(field, value)
             .addOnSuccessListener {
@@ -1385,6 +1425,13 @@ class InstrumentTutorialDialog(
 
     private fun deleteNote(ctx: Context, note: NoteItem) {
         val appId = zaifSDKConfig?.applicationId ?: return
+
+        // Safety check for Firebase initialization
+        if (FirebaseApp.getApps(ctx).isEmpty()) {
+            try { FirebaseApp.initializeApp(ctx) } catch (e: Exception) {}
+            if (FirebaseApp.getApps(ctx).isEmpty()) return
+        }
+
         AlertDialog.Builder(ctx).apply {
             setTitle("Hapus Data?")
             setMessage("Data ini akan dihapus permanen dari server.")

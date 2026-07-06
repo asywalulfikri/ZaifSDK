@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.intuit.sdp.R as SdpR
@@ -192,6 +193,12 @@ class KritikSaranDialog {
 
     private fun submitSongRequest(context: Context, name: String,bugDescription :String ) {
         val config = ZaifSDKBuilder.load(context)
+
+        // Safety check for Firebase initialization
+        if (FirebaseApp.getApps(context).isEmpty()) {
+            try { FirebaseApp.initializeApp(context) } catch (e: Exception) {}
+            if (FirebaseApp.getApps(context).isEmpty()) return
+        }
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             val token = if (task.isSuccessful) task.result else "unknown"

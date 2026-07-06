@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.*
 import com.intuit.sdp.R as SdpR
@@ -508,6 +509,25 @@ object MusicListDialogHelper {
                     onlineLoadingLayout?.visibility = View.VISIBLE
                     onlineLoadingLayout?.getChildAt(0)?.visibility = View.VISIBLE
                     onlineRecyclerView?.visibility = View.GONE
+                }
+
+                // Safety check for Firebase initialization
+                if (FirebaseApp.getApps(context).isEmpty()) {
+                    try {
+                        FirebaseApp.initializeApp(context)
+                    } catch (e: Exception) {
+                        isLoadingOnline = false
+                        onlineLoadingLayout?.visibility = View.GONE
+                        Toast.makeText(context, "Firebase not initialized", Toast.LENGTH_SHORT).show()
+                        return
+                    }
+                    
+                    // Check again after attempt
+                    if (FirebaseApp.getApps(context).isEmpty()) {
+                        isLoadingOnline = false
+                        onlineLoadingLayout?.visibility = View.GONE
+                        return
+                    }
                 }
 
                 var collection = "song_" + zaifSDKConfig?.applicationId

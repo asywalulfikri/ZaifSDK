@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import sound.recorder.widget.R
@@ -169,6 +170,12 @@ class RequestSongDialog {
     private fun submitSongRequest(context: Context, songTitle: String) {
         val deviceInfo = "${Build.MANUFACTURER} ${Build.MODEL} (API ${Build.VERSION.SDK_INT})"
         val config = ZaifSDKBuilder.load(context)
+
+        // Safety check for Firebase initialization
+        if (FirebaseApp.getApps(context).isEmpty()) {
+            try { FirebaseApp.initializeApp(context) } catch (e: Exception) {}
+            if (FirebaseApp.getApps(context).isEmpty()) return
+        }
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             val token = if (task.isSuccessful) task.result else "unknown"
