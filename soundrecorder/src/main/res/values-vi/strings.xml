@@ -419,4 +419,11 @@
     <string name="call_us">Liên Hệ Chúng Tôi</string>
 
     <string name="turn_on_internet_for_more_tutorial">Bật Internet để xem thêm nhiều hướng dẫn!</string>
+
+    <string name="my_language">Ngôn ngữ của bạn</string>
+    <string name="all_language">Tất cả ngôn ngữ</string>
+    <string name="filter_all_languages_label">BỘ LỌC: TẤT CẢ NGÔN NGỮ ▾</string>
+    <string name="filter_recommended_label">BỘ LỌC: CHỈ %1$s/EN ▾</string>
+    <string name="showing_all_tutorials">Đang hiển thị tất cả hướng dẫn</string>
+    <string name="showing_recommended_tutorials">Đang hiển thị các hướng dẫn được đề xuất</string>
 </resources>

@@ -464,5 +464,12 @@
     <string name="call_us">اتصل بنا</string>
 
     <string name="turn_on_internet_for_more_tutorial">شغّل الإنترنت لعرض المزيد من الدروس التعليمية!</string>
+
+    <string name="my_language">لغتك</string>
+    <string name="all_language">جميع اللغات</string>
+    <string name="filter_all_languages_label">التصفية: جميع اللغات ▾</string>
+    <string name="filter_recommended_label">التصفية: %1$s/EN فقط ▾</string>
+    <string name="showing_all_tutorials">يتم عرض جميع الدروس التعليمية</string>
+    <string name="showing_recommended_tutorials">يتم عرض الدروس التعليمية الموصى بها</string>
 </resources>
 

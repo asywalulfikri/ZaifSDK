@@ -415,4 +415,11 @@
 
     <string name="turn_on_internet_for_more_tutorial">さらに多くのチュートリアルを見るにはインターネットをオンにしてください！</string>
 
+    <string name="my_language">あなたの言語</string>
+    <string name="all_language">すべての言語</string>
+    <string name="filter_all_languages_label">フィルター：すべての言語 ▾</string>
+    <string name="filter_recommended_label">フィルター：%1$s/EN のみ ▾</string>
+    <string name="showing_all_tutorials">すべてのチュートリアルを表示中</string>
+    <string name="showing_recommended_tutorials">おすすめのチュートリアルを表示中</string>
+
 </resources>

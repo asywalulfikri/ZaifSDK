@@ -419,4 +419,11 @@
     <string name="call_us">ติดต่อเรา</string>
 
     <string name="turn_on_internet_for_more_tutorial">เปิดอินเทอร์เน็ตเพื่อดูบทช่วยสอนเพิ่มเติม!</string>
+
+    <string name="my_language">ภาษาของคุณ</string>
+    <string name="all_language">ทุกภาษา</string>
+    <string name="filter_all_languages_label">ตัวกรอง: ทุกภาษา ▾</string>
+    <string name="filter_recommended_label">ตัวกรอง: เฉพาะ %1$s/EN ▾</string>
+    <string name="showing_all_tutorials">กำลังแสดงบทช่วยสอนทั้งหมด</string>
+    <string name="showing_recommended_tutorials">กำลังแสดงบทช่วยสอนที่แนะนำ</string>
 </resources>

@@ -422,4 +422,11 @@
 
     <string name="turn_on_internet_for_more_tutorial">더 많은 튜토리얼을 보려면 인터넷을 켜세요!</string>
 
+    <string name="my_language">내 언어</string>
+    <string name="all_language">모든 언어</string>
+    <string name="filter_all_languages_label">필터: 모든 언어 ▾</string>
+    <string name="filter_recommended_label">필터: %1$s/EN만 ▾</string>
+    <string name="showing_all_tutorials">모든 튜토리얼 표시 중</string>
+    <string name="showing_recommended_tutorials">추천 튜토리얼 표시 중</string>
+
 </resources>

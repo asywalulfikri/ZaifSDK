@@ -27,6 +27,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -375,19 +376,51 @@ class InstrumentTutorialDialog(
             setPadding(context.sdp(SdpR.dimen._12sdp), 0, context.sdp(SdpR.dimen._12sdp), 0)
         }
 
-        // Sesuaikan etSearch agar fleksibel (weight=1)
-        etSearch.layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
-            marginEnd = context.sdp(SdpR.dimen._8sdp)
+        // Sesuaikan etSearch agar lebih menarik (Pill style background)
+        etSearch.apply {
+            layoutParams = LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._32sdp), 1f).apply {
+                marginEnd = context.sdp(SdpR.dimen._8sdp)
+            }
+            
+            // Tambahkan frame/background modern
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#1A1F3A")) // Latar belakang gelap
+                cornerRadius = context.sdpF(SdpR.dimen._20sdp) // Rounded penuh (Pill)
+                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#252B47")) // Garis tepi halus
+            }
+            
+            // Tambahkan icon search di dalam
+            setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_search, 0, 0, 0)
+            compoundDrawablePadding = context.sdp(SdpR.dimen._8sdp)
+            
+            // Beri warna pada icon search
+            TextViewCompat.setCompoundDrawableTintList(
+                this, 
+                ColorStateList.valueOf(Color.parseColor("#8B93B8"))
+            )
+
+            // Sesuaikan padding agar tidak terlalu mepet ke kiri/kanan
+            setPadding(
+                context.sdp(SdpR.dimen._12sdp), 
+                0, 
+                context.sdp(SdpR.dimen._12sdp), 
+                0
+            )
+            
+            textSize = 12f
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.parseColor("#5C637F"))
         }
 
-        // Tombol Filter (Chip style)
+        // Tombol Filter (Button style)
         val filterBtn = TextView(context).apply {
-            textSize = 10f
-            setPadding(context.sdp(SdpR.dimen._10sdp), context.sdp(SdpR.dimen._6sdp), context.sdp(SdpR.dimen._10sdp), context.sdp(SdpR.dimen._6sdp))
+            textSize = 9f
+            setPadding(context.sdp(SdpR.dimen._10sdp), 0, context.sdp(SdpR.dimen._10sdp), 0)
+            height = context.sdp(SdpR.dimen._32sdp) // Samakan tinggi dengan search bar
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
             gravity = Gravity.CENTER
             
-            layoutParams = LinearLayout.LayoutParams(-2, -2)
+            layoutParams = LinearLayout.LayoutParams(-2, context.sdp(SdpR.dimen._32sdp))
         }
 
         fun updateFilterUI() {
@@ -395,21 +428,27 @@ class InstrumentTutorialDialog(
             val colorBg = Color.parseColor("#1A1F3A")
             
             if (filterAllLanguages) {
-                filterBtn.text = "🌐 ALL"
+                filterBtn.text = context.getString(R.string.filter_all_languages_label)
                 filterBtn.setTextColor(Color.WHITE)
-                filterBtn.background = GradientDrawable().apply {
-                    setColor(colorAccent)
-                    cornerRadius = context.sdpF(SdpR.dimen._15sdp)
-                }
+                filterBtn.background = RippleDrawable(
+                    ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
+                    GradientDrawable().apply {
+                        setColor(colorAccent)
+                        cornerRadius = context.sdpF(SdpR.dimen._6sdp)
+                    }, null
+                )
             } else {
                 val langCode = Locale.getDefault().language.uppercase()
-                filterBtn.text = "🏳️ $langCode"
+                filterBtn.text = context.getString(R.string.filter_recommended_label, langCode)
                 filterBtn.setTextColor(Color.parseColor("#8B93B8"))
-                filterBtn.background = GradientDrawable().apply {
-                    setColor(colorBg)
-                    cornerRadius = context.sdpF(SdpR.dimen._15sdp)
-                    setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#252B47"))
-                }
+                filterBtn.background = RippleDrawable(
+                    ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
+                    GradientDrawable().apply {
+                        setColor(colorBg)
+                        cornerRadius = context.sdpF(SdpR.dimen._6sdp)
+                        setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#336C63FF")) // Ungu tipis
+                    }, null
+                )
             }
         }
 
@@ -417,6 +456,10 @@ class InstrumentTutorialDialog(
             filterAllLanguages = !filterAllLanguages
             updateFilterUI()
             
+            val msg = if (filterAllLanguages) context.getString(R.string.showing_all_tutorials)
+                      else context.getString(R.string.showing_recommended_tutorials)
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+
             // Reload data
             if (!appId.isNullOrEmpty()) {
                 lastDocument = null

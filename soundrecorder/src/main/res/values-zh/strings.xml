@@ -420,4 +420,11 @@
 
     <string name="turn_on_internet_for_more_tutorial">开启网络以查看更多教程！</string>
 
+    <string name="my_language">你的语言</string>
+    <string name="all_language">所有语言</string>
+    <string name="filter_all_languages_label">筛选：所有语言 ▾</string>
+    <string name="filter_recommended_label">筛选：仅 %1$s/EN ▾</string>
+    <string name="showing_all_tutorials">正在显示所有教程</string>
+    <string name="showing_recommended_tutorials">正在显示推荐教程</string>
+
 </resources>

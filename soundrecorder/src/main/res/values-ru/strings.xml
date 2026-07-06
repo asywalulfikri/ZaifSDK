@@ -418,4 +418,11 @@
 
     <string name="turn_on_internet_for_more_tutorial">Включите интернет, чтобы увидеть больше обучающих материалов!</string>
 
+    <string name="my_language">Ваш язык</string>
+    <string name="all_language">Все языки</string>
+    <string name="filter_all_languages_label">ФИЛЬТР: ВСЕ ЯЗЫКИ ▾</string>
+    <string name="filter_recommended_label">ФИЛЬТР: ТОЛЬКО %1$s/EN ▾</string>
+    <string name="showing_all_tutorials">Показаны все уроки</string>
+    <string name="showing_recommended_tutorials">Показаны рекомендуемые уроки</string>
+
 </resources>

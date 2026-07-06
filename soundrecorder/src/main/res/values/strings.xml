@@ -365,8 +365,7 @@
     <string name="downloaded">Downloaded</string>
     <string name="local_song">Local Song</string>
     <string name="online_song">Online Song</string>
-    <string name="my_language">Your Language</string>
-    <string name="all_language">All Languages</string>
+
 
     <string name="ear_tarining">Ear Training</string>
     <string name="correct_answer">Correct Answer</string>
@@ -421,5 +420,12 @@
     <string name="call_us">Contact Us</string>
 
     <string name="turn_on_internet_for_more_tutorial">Turn on the internet to view more tutorials!</string>
+
+    <string name="my_language">Your Language</string>
+    <string name="all_language">All Languages</string>
+    <string name="filter_all_languages_label">FILTER: ALL LANGUAGES ▾</string>
+    <string name="filter_recommended_label">FILTER: %1$s/EN ONLY ▾</string>
+    <string name="showing_all_tutorials">Showing all tutorials</string>
+    <string name="showing_recommended_tutorials">Showing recommended tutorials</string>
 
 </resources>

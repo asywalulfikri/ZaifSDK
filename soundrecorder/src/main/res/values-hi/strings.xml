@@ -417,4 +417,11 @@
     <string name="call_us">हमसे संपर्क करें</string>
 
     <string name="turn_on_internet_for_more_tutorial">अधिक ट्यूटोरियल देखने के लिए इंटरनेट चालू करें!</string>
+
+    <string name="my_language">आपकी भाषा</string>
+    <string name="all_language">सभी भाषाएँ</string>
+    <string name="filter_all_languages_label">फ़िल्टर: सभी भाषाएँ ▾</string>
+    <string name="filter_recommended_label">फ़िल्टर: केवल %1$s/EN ▾</string>
+    <string name="showing_all_tutorials">सभी ट्यूटोरियल दिखाए जा रहे हैं</string>
+    <string name="showing_recommended_tutorials">अनुशंसित ट्यूटोरियल दिखाए जा रहे हैं</string>
 </resources>

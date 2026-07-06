@@ -423,4 +423,11 @@
     <string name="call_us">Neem Contact Met Ons Op</string>
 
     <string name="turn_on_internet_for_more_tutorial">Schakel internet in om meer tutorials te bekijken!</string>
+
+    <string name="my_language">Jouw taal</string>
+    <string name="all_language">Alle talen</string>
+    <string name="filter_all_languages_label">FILTER: ALLE TALEN ▾</string>
+    <string name="filter_recommended_label">FILTER: ALLEEN %1$s/EN ▾</string>
+    <string name="showing_all_tutorials">Alle tutorials worden weergegeven</string>
+    <string name="showing_recommended_tutorials">Aanbevolen tutorials worden weergegeven</string>
 </resources>

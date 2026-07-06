@@ -419,5 +419,12 @@
 
     <string name="turn_on_internet_for_more_tutorial">Hidupkan internet untuk melihat lebih banyak tutorial!</string>
 
+    <string name="my_language">Bahasa Kamu</string>
+    <string name="all_language">Semua Bahasa</string>
+    <string name="filter_all_languages_label">FILTER: SEMUA BAHASA ▾</string>
+    <string name="filter_recommended_label">FILTER: HANYA %1$s/EN ▾</string>
+    <string name="showing_all_tutorials">Menampilkan semua tutorial</string>
+    <string name="showing_recommended_tutorials">Menampilkan tutorial yang direkomendasikan</string>
+
 
 </resources>

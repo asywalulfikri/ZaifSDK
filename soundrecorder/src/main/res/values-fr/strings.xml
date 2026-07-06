@@ -422,4 +422,11 @@
 
     <string name="turn_on_internet_for_more_tutorial">Activez Internet pour voir plus de tutoriels !</string>
 
+    <string name="my_language">Votre langue</string>
+    <string name="all_language">Toutes les langues</string>
+    <string name="filter_all_languages_label">FILTRE : TOUTES LES LANGUES ▾</string>
+    <string name="filter_recommended_label">FILTRE : %1$s/EN UNIQUEMENT ▾</string>
+    <string name="showing_all_tutorials">Affichage de tous les tutoriels</string>
+    <string name="showing_recommended_tutorials">Affichage des tutoriels recommandés</string>
+
 </resources>

@@ -421,4 +421,11 @@
     <string name="call_us">Makipag-ugnayan sa Amin</string>
 
     <string name="turn_on_internet_for_more_tutorial">Buksan ang internet upang makakita ng higit pang mga tutorial!</string>
+
+    <string name="my_language">Iyong Wika</string>
+    <string name="all_language">Lahat ng Wika</string>
+    <string name="filter_all_languages_label">FILTER: LAHAT NG WIKA ▾</string>
+    <string name="filter_recommended_label">FILTER: %1$s/EN LAMANG ▾</string>
+    <string name="showing_all_tutorials">Ipinapakita ang lahat ng tutorial</string>
+    <string name="showing_recommended_tutorials">Ipinapakita ang mga inirerekomendang tutorial</string>
 </resources>

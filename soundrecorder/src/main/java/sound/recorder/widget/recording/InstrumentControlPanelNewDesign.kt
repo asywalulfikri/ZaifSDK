@@ -230,10 +230,10 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
 
         // Buttons based on Image colors
         btnMusic  = btnFactory.createGameBtn(context.getString(R.string.music_unlock), "FFB347", R.drawable.icon_music)
-        btnRecord = btnFactory.createGameBtn("REC", "8BC34A", R.drawable.ic_record)
+        btnRecord = btnFactory.createGameBtn(context.getString(R.string.record), "8BC34A", R.drawable.ic_record)
         btnList   = btnFactory.createGameBtn("LIST REC", "9C27B0", R.drawable.ic_list)
-        btnNote   = btnFactory.createGameBtn("CATATAN", "E91E63", R.drawable.notes)
-        btnVolume = btnFactory.createGameBtn("VOLUME", "2196F3", R.drawable.baseline_volume_up_24)
+        btnNote   = btnFactory.createGameBtn(context.getString(R.string.note), "E91E63", R.drawable.notes)
+        btnVolume = btnFactory.createGameBtn(context.getString(R.string.volume), "2196F3", R.drawable.baseline_volume_up_24)
         btnStop   = btnFactory.createGameBtn(context.getString(R.string.stop), "F44336", R.drawable.ic_baseline_stop_24)
         
         btnStop.visibility = GONE

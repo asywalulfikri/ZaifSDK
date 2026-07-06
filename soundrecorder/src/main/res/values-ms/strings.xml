@@ -422,4 +422,11 @@
 
     <string name="turn_on_internet_for_more_tutorial">Hidupkan internet untuk melihat lebih banyak tutorial!</string>
 
+    <string name="my_language">Bahasa Anda</string>
+    <string name="all_language">Semua Bahasa</string>
+    <string name="filter_all_languages_label">PENAPIS: SEMUA BAHASA ▾</string>
+    <string name="filter_recommended_label">PENAPIS: %1$s/EN SAHAJA ▾</string>
+    <string name="showing_all_tutorials">Memaparkan semua tutorial</string>
+    <string name="showing_recommended_tutorials">Memaparkan tutorial yang disyorkan</string>
+
 </resources>

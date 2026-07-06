@@ -423,5 +423,12 @@
 
     <string name="turn_on_internet_for_more_tutorial">Aktiviere die Internetverbindung, um weitere Tutorials anzusehen!</string>
 
+    <string name="my_language">Ihre Sprache</string>
+    <string name="all_language">Alle Sprachen</string>
+    <string name="filter_all_languages_label">FILTER: ALLE SPRACHEN ▾</string>
+    <string name="filter_recommended_label">FILTER: NUR %1$s/EN ▾</string>
+    <string name="showing_all_tutorials">Alle Tutorials werden angezeigt</string>
+    <string name="showing_recommended_tutorials">Empfohlene Tutorials werden angezeigt</string>
+
 </resources>
 
