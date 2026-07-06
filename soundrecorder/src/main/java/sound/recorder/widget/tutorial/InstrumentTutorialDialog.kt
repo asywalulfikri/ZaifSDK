@@ -75,6 +75,7 @@ class InstrumentTutorialDialog(
     var zaifSDKConfig: ZaifSDKConfig? = null
 
     data class NoteItem(
+        val docId: String,
         val recordName: String,
         val senderName: String,
         val submittedAt: Long,
@@ -135,6 +136,8 @@ class InstrumentTutorialDialog(
     private var playJob: Job? = null
     private val playHandler = Handler(Looper.getMainLooper())
     private var currentDialog: BottomSheetDialog? = null
+    private var currentAdapter: SongListAdapter? = null
+    private val allItems = mutableListOf<SongItem>()
     private var lastDocument: DocumentSnapshot? = null
     private var isLoadingMore = false
     private var isLastPage = false
@@ -190,7 +193,7 @@ class InstrumentTutorialDialog(
         }
 
         val adapter = SongListAdapter(
-            items = mutableListOf(),
+            items = allItems,
             context = context,
             showLearn = showLearn,
             isUnlocked = { item ->
@@ -251,8 +254,9 @@ class InstrumentTutorialDialog(
         val layoutManager = LinearLayoutManager(context)
         binding.rvSongs.layoutManager = layoutManager
         binding.rvSongs.adapter = adapter
+        this.currentAdapter = adapter
 
-        val allItems = mutableListOf<SongItem>()
+        allItems.clear()
         lifecycleScope?.launch {
             val localSongs = withContext(Dispatchers.IO) { localSongsProvider(context) }
             val processedLocal = withContext(Dispatchers.IO) {
@@ -281,7 +285,7 @@ class InstrumentTutorialDialog(
                 override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
                 override fun afterTextChanged(s: Editable?) {
                     searchJob?.cancel()
-                    searchJob = lifecycleScope.launch {
+                    searchJob = lifecycleScope?.launch {
                         delay(300)
                         val q = s.toString().lowercase().trim()
                         val filtered = withContext(Dispatchers.Default) {
@@ -351,6 +355,7 @@ class InstrumentTutorialDialog(
                     val jsonNote = d["json_note"] as? String ?: ""
                     if (jsonNote.isBlank()) return@mapNotNull null
                     NoteItem(
+                        docId = doc.id,
                         recordName = d["record_name"] as? String ?: "-",
                         senderName = d["sender_name"] as? String ?: "-",
                         submittedAt = d["submitted_at"] as? Long ?: 0L,
@@ -406,6 +411,7 @@ class InstrumentTutorialDialog(
                     val jsonNote = d["json_note"] as? String ?: ""
                     if (jsonNote.isBlank()) return@mapNotNull null
                     NoteItem(
+                        docId = doc.id,
                         recordName = d["record_name"] as? String ?: "-",
                         senderName = d["sender_name"] as? String ?: "-",
                         submittedAt = d["submitted_at"] as? Long ?: 0L,
@@ -496,6 +502,9 @@ class InstrumentTutorialDialog(
             val tvInfo: TextView = view.findViewById(R.id.tvSongInfo)
             val btnPlay: TextView = view.findViewById(R.id.btnPlay)
             val btnLearn: TextView = view.findViewById(R.id.btnLearn)
+            val layoutAdmin: View = view.findViewById(R.id.layoutAdmin)
+            val btnPublish: TextView = view.findViewById(R.id.btnPublish)
+            val btnDelete: TextView = view.findViewById(R.id.btnDelete)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -508,6 +517,8 @@ class InstrumentTutorialDialog(
             val item = items[position]
             val unlocked = isUnlocked(item)
             val lockSuffix = if (unlocked) "" else " 🔒"
+            val isDebug = isAppDebuggable(context)
+
             when (item) {
                 is SongItem.Local -> {
                     holder.tvName.text = item.song.name
@@ -521,10 +532,11 @@ class InstrumentTutorialDialog(
                     }
                     holder.btnPlay.text = "${context.getString(R.string.play).uppercase()}$lockSuffix"
                     holder.btnLearn.text = "${context.getString(R.string.learn).uppercase()}$lockSuffix"
+                    holder.layoutAdmin.visibility = View.GONE
                 }
                 is SongItem.Remote -> {
                     val sdf = SimpleDateFormat("dd/MM  HH:mm", Locale.getDefault())
-                    if (!isAppDebuggable(context)) {
+                    if (!isDebug) {
                         holder.tvName.text = item.note.recordName.uppercase()
                     } else {
                         holder.tvName.text = item.note.recordName.uppercase() + "---" + item.note.status
@@ -533,6 +545,15 @@ class InstrumentTutorialDialog(
                     holder.tvInfo.text = "👤 ${item.note.senderName}  ·  🕐 ${sdf.format(Date(item.note.submittedAt))}"
                     holder.btnPlay.text = "${context.getString(R.string.play).uppercase()}$lockSuffix"
                     holder.btnLearn.text = "${context.getString(R.string.learn).uppercase()}$lockSuffix"
+
+                    if (isDebug) {
+                        holder.layoutAdmin.visibility = View.VISIBLE
+                        holder.btnPublish.visibility = if (item.note.status == "published") View.GONE else View.VISIBLE
+                        holder.btnPublish.setOnClickListener { publishNote(item.note) }
+                        holder.btnDelete.setOnClickListener { deleteNote(item.note) }
+                    } else {
+                        holder.layoutAdmin.visibility = View.GONE
+                    }
                 }
             }
             holder.btnPlay.visibility = View.VISIBLE
@@ -742,6 +763,59 @@ class InstrumentTutorialDialog(
         onClearHighlight()
         onLearnVisible(false)
         onPlaybackStatusChanged(false)
+    }
+
+    private fun publishNote(note: NoteItem) {
+        val appId = zaifSDKConfig?.applicationId ?: return
+        AlertDialog.Builder(mContext!!).apply {
+            setTitle("Publish Data?")
+            setMessage("Data ini akan ditampilkan ke publik (semua user).")
+            setPositiveButton("Publish") { _, _ ->
+                FirebaseFirestore.getInstance().collection(appId).document(note.docId)
+                    .update("status", "published")
+                    .addOnSuccessListener {
+                        onToast("Berhasil di-publish!")
+                        clearCache(instrumentType)
+
+                        // Update local list & notify adapter
+                        val index = allItems.indexOfFirst { it is SongItem.Remote && it.note.docId == note.docId }
+                        if (index != -1) {
+                            val currentRemote = allItems[index] as SongItem.Remote
+                            allItems[index] = currentRemote.copy(note = currentRemote.note.copy(status = "published"))
+                            currentAdapter?.notifyItemChanged(index)
+                        }
+                    }
+                    .addOnFailureListener { e -> onToast("Gagal publish: ${e.message}") }
+            }
+            setNegativeButton("Batal", null)
+            show()
+        }
+    }
+
+    private fun deleteNote(note: NoteItem) {
+        val appId = zaifSDKConfig?.applicationId ?: return
+        AlertDialog.Builder(mContext!!).apply {
+            setTitle("Hapus Data?")
+            setMessage("Data ini akan dihapus permanen dari server.")
+            setPositiveButton("Hapus") { _, _ ->
+                FirebaseFirestore.getInstance().collection(appId).document(note.docId)
+                    .delete()
+                    .addOnSuccessListener {
+                        onToast("Data berhasil dihapus.")
+                        clearCache(instrumentType)
+                        
+                        // Update local list & notify adapter
+                        val index = allItems.indexOfFirst { it is SongItem.Remote && it.note.docId == note.docId }
+                        if (index != -1) {
+                            allItems.removeAt(index)
+                            currentAdapter?.notifyItemRemoved(index)
+                        }
+                    }
+                    .addOnFailureListener { e -> onToast("Gagal hapus: ${e.message}") }
+            }
+            setNegativeButton("Batal", null)
+            show()
+        }
     }
 
     @SuppressLint("UseKtx", "SetTextI18n")
