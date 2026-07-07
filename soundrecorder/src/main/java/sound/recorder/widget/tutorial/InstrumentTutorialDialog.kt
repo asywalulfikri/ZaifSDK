@@ -147,6 +147,7 @@ class InstrumentTutorialDialog(
     private var lastDocument: DocumentSnapshot? = null
     private var isLoadingMore = false
     private var isLastPage = false
+    private var isFetchingRemote = false
     private val PAGE_SIZE = 100L
 
     private var currentSearchQuery = ""
@@ -180,7 +181,9 @@ class InstrumentTutorialDialog(
                     tvLoading?.text = mContext?.getString(R.string.data_empty) ?: "Data Kosong"
                 }
             } else {
-                binding.progressContainer.visibility = View.GONE
+                if (!isFetchingRemote) {
+                    binding.progressContainer.visibility = View.GONE
+                }
             }
         }
     }
@@ -591,10 +594,13 @@ class InstrumentTutorialDialog(
             return
         }
 
+        isFetchingRemote = true
         val languageCode = Locale.getDefault().language
         binding.progressContainer.visibility = View.VISIBLE
         binding.progressBar.visibility = View.VISIBLE
-        binding.progressContainer.findViewById<TextView>(R.id.tvLoading)?.visibility = View.GONE
+        val tvLoading = binding.progressContainer.findViewById<TextView>(R.id.tvLoading)
+        tvLoading?.visibility = View.VISIBLE
+        tvLoading?.text = mContext?.getString(R.string.loading) ?: "Loading..."
         
         // Safety check for Firebase initialization
         if (mContext != null && FirebaseApp.getApps(mContext!!).isEmpty()) {
@@ -626,6 +632,7 @@ class InstrumentTutorialDialog(
             .limit(PAGE_SIZE)
             .get()
             .addOnSuccessListener { snapshot ->
+                isFetchingRemote = false
                 binding.progressContainer.visibility = View.GONE
                 if (snapshot.isEmpty) {
                     isLastPage = true
@@ -670,6 +677,7 @@ class InstrumentTutorialDialog(
                 refreshList()
             }
             .addOnFailureListener {
+                isFetchingRemote = false
                 binding.progressContainer.visibility = View.GONE
             }
     }

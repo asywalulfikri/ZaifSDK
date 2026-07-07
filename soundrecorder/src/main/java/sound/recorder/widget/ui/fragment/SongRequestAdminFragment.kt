@@ -1,10 +1,17 @@
 package sound.recorder.widget.ui.fragment
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -14,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.intuit.sdp.R as SdpR
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
@@ -84,6 +92,8 @@ class SongRequestAdminFragment : Fragment() {
         binding?.btnFilterAll?.setOnClickListener     { applyFilter("all") }
         binding?.btnFilterPending?.setOnClickListener { applyFilter("pending") }
         binding?.btnFilterDone?.setOnClickListener    { applyFilter("done") }
+
+        setupAdminTools(view)
 
         zaifSDKConfig = ZaifSDKBuilder.load(requireContext())
 
@@ -230,6 +240,118 @@ class SongRequestAdminFragment : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Gagal hapus: ${it.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun setupAdminTools(view: View) {
+        val context = requireContext()
+        val root = view as? LinearLayout ?: return
+        
+        // Temukan index rvRequests untuk menyisipkan tools di atasnya
+        val rvIndex = root.indexOfChild(binding?.rvRequests)
+        if (rvIndex == -1) return
+
+        val adminLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(context.sdp(SdpR.dimen._12sdp), 0, context.sdp(SdpR.dimen._12sdp), context.sdp(SdpR.dimen._12sdp))
+        }
+
+        val btnCheck = TextView(context).apply {
+            text = "CHECK IDENTIK"
+            textSize = 10f
+            setTextColor(Color.WHITE)
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(context.sdp(SdpR.dimen._10sdp), context.sdp(SdpR.dimen._6sdp), context.sdp(SdpR.dimen._10sdp), context.sdp(SdpR.dimen._6sdp))
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#448AFF"))
+                cornerRadius = context.sdp(SdpR.dimen._4sdp).toFloat()
+            }
+            setOnClickListener { checkIdenticalRequests() }
+        }
+
+        val btnClean = TextView(context).apply {
+            text = "CLEAN DUPLICATES"
+            textSize = 10f
+            setTextColor(Color.WHITE)
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(context.sdp(SdpR.dimen._10sdp), context.sdp(SdpR.dimen._6sdp), context.sdp(SdpR.dimen._10sdp), context.sdp(SdpR.dimen._6sdp))
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#FF5252"))
+                cornerRadius = context.sdp(SdpR.dimen._4sdp).toFloat()
+            }
+            layoutParams = LinearLayout.LayoutParams(-2, -2).apply {
+                marginStart = context.sdp(SdpR.dimen._8sdp)
+            }
+            setOnClickListener { cleanIdenticalRequests() }
+        }
+
+        adminLayout.addView(btnCheck)
+        adminLayout.addView(btnClean)
+        root.addView(adminLayout, rvIndex)
+    }
+
+    private fun checkIdenticalRequests() {
+        val duplicates = allRequests.groupBy { it.songTitle.trim().lowercase() }
+            .filter { it.value.size > 1 }
+
+        if (duplicates.isEmpty()) {
+            Toast.makeText(requireContext(), "Tidak ada request identik ditemukan.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val sb = StringBuilder("Daftar Request Identik:\n\n")
+        duplicates.forEach { (title, list) ->
+            sb.append("• ${title.uppercase()} (${list.size}x)\n")
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Identical Requests Report")
+            .setMessage(sb.toString())
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun cleanIdenticalRequests() {
+        val duplicatesMap = allRequests.groupBy { it.songTitle.trim().lowercase() }
+            .filter { it.value.size > 1 }
+
+        if (duplicatesMap.isEmpty()) {
+            Toast.makeText(requireContext(), "Tidak ada duplikat untuk dihapus.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Clean Duplicates?")
+            .setMessage("Sistem akan menghapus request duplikat dan hanya menyisakan satu untuk setiap judul yang sama. Lanjutkan?")
+            .setPositiveButton("Hapus") { _, _ ->
+                var totalDeleted = 0
+                val db = FirebaseFirestore.getInstance()
+                
+                duplicatesMap.forEach { (_, list) ->
+                    // Sisakan satu (yang paling lama/awal atau yang mana saja)
+                    // Kita ambil semua kecuali item pertama
+                    val toDelete = list.drop(1)
+                    toDelete.forEach { req ->
+                        db.collection("song_request").document(req.docId).delete()
+                            .addOnSuccessListener {
+                                totalDeleted++
+                                allRequests.remove(req)
+                                if (totalDeleted == list.size - 1) {
+                                     // Not ideal for multiple groups but okay for UI update
+                                     adapter.updateItems(allRequests)
+                                     binding?.tvCount?.text = "${allRequests.size} requests"
+                                }
+                            }
+                    }
+                }
+                Toast.makeText(requireContext(), "Proses penghapusan dimulai...", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    private fun Context.sdp(id: Int): Int {
+        return this.resources.getDimensionPixelSize(id)
     }
 
     override fun onDestroyView() {
