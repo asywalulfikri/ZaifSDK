@@ -460,4 +460,11 @@
     <string name="data_renew_one_day">Gegevens worden elke dag bijgewerkt.</string>
     <string name="data_renew_one_minutes">Gegevens worden elke 30 minuten bijgewerkt.</string>
     <string name="yours">Jij</string>
+
+    <string name="title_reset_layout">Alle aangepaste trommelposities en -groottes worden teruggezet naar de standaardinstellingen. Doorgaan?</string>
+    <string name="reset_layout">Lay-out resetten</string>
+    <string name="skin_success_changed">Skin succesvol gewijzigd</string>
+    <string name="sound">Geluid</string>
+    <string name="saved">Opgeslagen</string>
+    <string name="tap_gendang">Tik op een trommel</string>
 </resources>

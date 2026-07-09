@@ -460,5 +460,12 @@
     <string name="data_renew_one_minutes">Die Daten werden alle 30 Minuten aktualisiert.</string>
     <string name="yours">Du</string>
 
+    <string name="title_reset_layout">Alle von Ihnen angepassten Trommelpositionen und -größen werden auf die Standardwerte zurückgesetzt. Fortfahren?</string>
+    <string name="reset_layout">Layout zurücksetzen</string>
+    <string name="skin_success_changed">Skin erfolgreich geändert</string>
+    <string name="sound">Sound</string>
+    <string name="saved">Gespeichert</string>
+    <string name="tap_gendang">Tippen Sie auf eine Trommel</string>
+
 </resources>
 

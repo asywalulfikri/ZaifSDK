@@ -456,4 +456,11 @@
     <string name="data_renew_one_day">Data is updated every day.</string>
     <string name="data_renew_one_minutes">Data is updated every 30 minutes.</string>
     <string name="yours">You</string>
+
+    <string name="title_reset_layout">All drum positions and sizes you have customized will be reset to their default values. Continue?</string>
+    <string name="reset_layout">Reset Layout</string>
+    <string name="skin_success_changed">Skin changed successfully</string>
+    <string name="sound">Sound</string>
+    <string name="saved">Saved</string>
+    <string name="tap_gendang">Tap a Drum</string>
 </resources>

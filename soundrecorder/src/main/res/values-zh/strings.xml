@@ -456,5 +456,12 @@
     <string name="data_renew_one_minutes">数据每30分钟更新一次。</string>
     <string name="yours">你</string>
 
+    <string name="title_reset_layout">您调整的所有鼓的位置和大小将恢复为默认设置。是否继续？</string>
+    <string name="reset_layout">重置布局</string>
+    <string name="skin_success_changed">皮肤更换成功</string>
+    <string name="sound">声音</string>
+    <string name="saved">已保存</string>
+    <string name="tap_gendang">点击鼓</string>
+
 
 </resources>

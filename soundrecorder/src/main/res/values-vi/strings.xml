@@ -456,4 +456,11 @@
     <string name="data_renew_one_day">Dữ liệu được cập nhật mỗi ngày.</string>
     <string name="data_renew_one_minutes">Dữ liệu được cập nhật mỗi 30 phút.</string>
     <string name="yours">Bạn</string>
+
+    <string name="title_reset_layout">Tất cả vị trí và kích thước trống mà bạn đã tùy chỉnh sẽ được đặt lại về mặc định. Tiếp tục?</string>
+    <string name="reset_layout">Đặt lại bố cục</string>
+    <string name="skin_success_changed">Đã thay đổi giao diện thành công</string>
+    <string name="sound">Âm thanh</string>
+    <string name="saved">Đã lưu</string>
+    <string name="tap_gendang">Chạm vào trống</string>
 </resources>

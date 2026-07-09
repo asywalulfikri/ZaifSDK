@@ -456,4 +456,11 @@
     <string name="data_renew_one_day">ข้อมูลจะอัปเดตทุกวัน</string>
     <string name="data_renew_one_minutes">ข้อมูลจะอัปเดตทุก 30 นาที</string>
     <string name="yours">คุณ</string>
+
+    <string name="title_reset_layout">ตำแหน่งและขนาดกลองทั้งหมดที่คุณปรับแต่งจะถูกรีเซ็ตเป็นค่าเริ่มต้น ดำเนินการต่อหรือไม่?</string>
+    <string name="reset_layout">รีเซ็ตเลย์เอาต์</string>
+    <string name="skin_success_changed">เปลี่ยนสกินสำเร็จ</string>
+    <string name="sound">เสียง</string>
+    <string name="saved">บันทึกแล้ว</string>
+    <string name="tap_gendang">แตะกลอง</string>
 </resources>

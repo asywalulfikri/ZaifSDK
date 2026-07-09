@@ -459,5 +459,12 @@
     <string name="data_renew_one_minutes">Ina-update ang data bawat 30 minuto.</string>
     <string name="yours">Ikaw</string>
 
+    <string name="title_reset_layout">Lahat ng posisyon at laki ng drum na iyong binago ay ibabalik sa orihinal. Magpatuloy?</string>
+    <string name="reset_layout">I-reset ang Layout</string>
+    <string name="skin_success_changed">Matagumpay na napalitan ang Skin</string>
+    <string name="sound">Tunog</string>
+    <string name="saved">Nai-save</string>
+    <string name="tap_gendang">I-tap ang Drum</string>
+
 
 </resources>

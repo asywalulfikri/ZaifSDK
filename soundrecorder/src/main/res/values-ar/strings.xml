@@ -501,5 +501,12 @@
     <string name="data_renew_one_day">يتم تحديث البيانات كل يوم.</string>
     <string name="data_renew_one_minutes">يتم تحديث البيانات كل 30 دقيقة.</string>
     <string name="yours">أنت</string>
+
+    <string name="title_reset_layout">سيتم إعادة جميع مواضع وأحجام الطبول التي قمت بتخصيصها إلى الإعدادات الافتراضية. هل تريد المتابعة؟</string>
+    <string name="reset_layout">إعادة تعيين التخطيط</string>
+    <string name="skin_success_changed">تم تغيير المظهر بنجاح</string>
+    <string name="sound">الصوت</string>
+    <string name="saved">تم الحفظ</string>
+    <string name="tap_gendang">اضغط على الطبل</string>
 </resources>
 

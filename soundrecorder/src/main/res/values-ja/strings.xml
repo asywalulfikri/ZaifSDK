@@ -452,4 +452,11 @@
     <string name="data_renew_one_minutes">データは30分ごとに更新されます。</string>
     <string name="yours">あなた</string>
 
+    <string name="title_reset_layout">変更したすべてのドラムの位置とサイズは初期状態に戻されます。続行しますか？</string>
+    <string name="reset_layout">レイアウトをリセット</string>
+    <string name="skin_success_changed">スキンが正常に変更されました</string>
+    <string name="sound">サウンド</string>
+    <string name="saved">保存済み</string>
+    <string name="tap_gendang">ドラムをタップ</string>
+
 </resources>

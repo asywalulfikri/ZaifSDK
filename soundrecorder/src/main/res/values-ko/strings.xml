@@ -459,4 +459,11 @@
     <string name="data_renew_one_minutes">데이터는 30분마다 업데이트됩니다.</string>
     <string name="yours">당신</string>
 
+    <string name="title_reset_layout">사용자가 변경한 모든 드럼 위치와 크기가 기본값으로 초기화됩니다. 계속하시겠습니까?</string>
+    <string name="reset_layout">레이아웃 초기화</string>
+    <string name="skin_success_changed">스킨이 성공적으로 변경되었습니다</string>
+    <string name="sound">소리</string>
+    <string name="saved">저장됨</string>
+    <string name="tap_gendang">드럼을 탭하세요</string>
+
 </resources>

@@ -454,4 +454,11 @@
     <string name="data_renew_one_day">डेटा हर दिन अपडेट किया जाता है।</string>
     <string name="data_renew_one_minutes">डेटा हर 30 मिनट में अपडेट किया जाता है।</string>
     <string name="yours">आप</string>
+
+    <string name="title_reset_layout">आपके द्वारा बदली गई सभी ड्रम की स्थिति और आकार डिफ़ॉल्ट पर रीसेट कर दिए जाएंगे। जारी रखें?</string>
+    <string name="reset_layout">लेआउट रीसेट करें</string>
+    <string name="skin_success_changed">स्किन सफलतापूर्वक बदल दी गई</string>
+    <string name="sound">ध्वनि</string>
+    <string name="saved">सहेजा गया</string>
+    <string name="tap_gendang">ड्रम पर टैप करें</string>
 </resources>

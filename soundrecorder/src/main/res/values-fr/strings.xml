@@ -459,4 +459,11 @@
     <string name="data_renew_one_minutes">Les données sont mises à jour toutes les 30 minutes.</string>
     <string name="yours">Vous</string>
 
+    <string name="title_reset_layout">Toutes les positions et tailles des tambours que vous avez personnalisées seront réinitialisées à leurs valeurs par défaut. Continuer ?</string>
+    <string name="reset_layout">Réinitialiser la disposition</string>
+    <string name="skin_success_changed">Le skin a été changé avec succès</string>
+    <string name="sound">Son</string>
+    <string name="saved">Enregistré</string>
+    <string name="tap_gendang">Touchez un tambour</string>
+
 </resources>

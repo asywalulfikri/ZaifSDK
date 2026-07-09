@@ -457,5 +457,12 @@
     <string name="data_renew_one_minutes">Data diperbarui tiap 30 menit.</string>
     <string name="yours">Kamu</string>
 
+    <string name="title_reset_layout">Semua posisi dan ukuran gendang yang sudah Anda atur akan dikembalikan ke awal. Lanjutkan?</string>
+    <string name="reset_layout">Reset Layout</string>
+    <string name="skin_success_changed">Kulit Berhasil Diganti</string>
+    <string name="sound">Suara</string>
+    <string name="saved">Disimpan</string>
+    <string name="tap_gendang">Ketuk Gendang</string>
+
 
 </resources>

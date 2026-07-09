@@ -459,4 +459,11 @@
     <string name="data_renew_one_minutes">Data dikemas kini setiap 30 minit.</string>
     <string name="yours">Anda</string>
 
+    <string name="title_reset_layout">Semua kedudukan dan saiz gendang yang telah anda ubah akan dikembalikan kepada tetapan asal. Teruskan?</string>
+    <string name="reset_layout">Tetapkan Semula Susun Atur</string>
+    <string name="skin_success_changed">Kulit berjaya ditukar</string>
+    <string name="sound">Bunyi</string>
+    <string name="saved">Disimpan</string>
+    <string name="tap_gendang">Ketik Gendang</string>
+
 </resources>
