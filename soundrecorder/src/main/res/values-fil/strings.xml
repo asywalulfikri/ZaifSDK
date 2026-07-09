@@ -430,4 +430,27 @@
     <string name="showing_recommended_tutorials">Ipinapakita ang mga inirerekomendang tutorial</string>
 
     <string name="search_not_found">Walang nahanap na data para sa "%1$s"</string>
+
+    <string name="change_position">Baguhin ang Posisyon</string>
+    <string name="click_hold_to_change_position">Pindutin nang matagal at i-drag upang baguhin ang posisyon ng drum</string>
+    <string name="click_change_size_gendang">Gamitin ang dalawang daliri upang baguhin ang laki ng drum</string>
+    <string name="change_size">Baguhin ang Laki</string>
+    <string name="select_skin">Pumili ng Skin</string>
+    <string name="change_skin">Palitan ang Skin</string>
+    <string name="add_gendang">Magdagdag ng Drum</string>
+    <string name="edit_gendang">I-edit ang Drum</string>
+    <string name="delete_gendang">Tanggalin ang Drum</string>
+    <string name="move_gendang_position">Ilipat ang Posisyon ng Drum</string>
+    <string name="upload_my_file">Mag-upload ng Sariling File</string>
+
+    <string name="select_gendang_to_delete">🗑️ Pumili ng drum na tatanggalin</string>
+    <string name="select_gendang_to_change_sound">🎵 Pumili ng drum upang palitan ang tunog</string>
+    <string name="select_gendang_to_change_skin">🎨 Pumili ng drum upang palitan ang skin</string>
+    <string name="title_delete_gendang">Tanggalin ang Drum?</string>
+    <string name="deleted">Natanggal</string>
+    <string name="gendang_name">Pangalan ng Drum</string>
+    <string name="add_new_gendang">Magdagdag ng Bagong Drum</string>
+    <string name="sure_to_delete">Sigurado ka bang gusto mong tanggalin?</string>
+    <string name="custom">Custom</string>
+    <string name="success_added">Matagumpay na naidagdag</string>
 </resources>

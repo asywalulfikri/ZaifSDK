@@ -432,5 +432,28 @@
 
     <string name="search_not_found">Daten "%1$s" wurden nicht gefunden</string>
 
+    <string name="change_position">Position ändern</string>
+    <string name="click_hold_to_change_position">Tippen, halten und ziehen, um die Trommelposition zu ändern</string>
+    <string name="click_change_size_gendang">Mit zwei Fingern zusammenziehen, um die Trommelgröße zu ändern</string>
+    <string name="change_size">Größe ändern</string>
+    <string name="select_skin">Skin auswählen</string>
+    <string name="change_skin">Skin ändern</string>
+    <string name="add_gendang">Trommel hinzufügen</string>
+    <string name="edit_gendang">Trommel bearbeiten</string>
+    <string name="delete_gendang">Trommel löschen</string>
+    <string name="move_gendang_position">Trommelposition verschieben</string>
+    <string name="upload_my_file">Eigene Datei hochladen</string>
+
+    <string name="select_gendang_to_delete">🗑️ Wähle eine Trommel zum Löschen</string>
+    <string name="select_gendang_to_change_sound">🎵 Wähle eine Trommel, um den Klang zu ändern</string>
+    <string name="select_gendang_to_change_skin">🎨 Wähle eine Trommel, um den Skin zu ändern</string>
+    <string name="title_delete_gendang">Trommel löschen?</string>
+    <string name="deleted">Gelöscht</string>
+    <string name="gendang_name">Name der Trommel</string>
+    <string name="add_new_gendang">Neue Trommel hinzufügen</string>
+    <string name="sure_to_delete">Möchten Sie diese wirklich löschen?</string>
+    <string name="custom">Benutzerdefiniert</string>
+    <string name="success_added">Erfolgreich hinzugefügt</string>
+
 </resources>
 

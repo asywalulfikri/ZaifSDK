@@ -431,4 +431,27 @@
 
     <string name="search_not_found">Data "%1$s" tidak dijumpai</string>
 
+    <string name="change_position">Ubah Kedudukan</string>
+    <string name="click_hold_to_change_position">Tekan, tahan dan seret untuk mengubah kedudukan gendang</string>
+    <string name="click_change_size_gendang">Gunakan dua jari untuk mencubit dan mengubah saiz gendang</string>
+    <string name="change_size">Ubah Saiz</string>
+    <string name="select_skin">Pilih Kulit</string>
+    <string name="change_skin">Tukar Kulit</string>
+    <string name="add_gendang">Tambah Gendang</string>
+    <string name="edit_gendang">Edit Gendang</string>
+    <string name="delete_gendang">Padam Gendang</string>
+    <string name="move_gendang_position">Alih Kedudukan Gendang</string>
+    <string name="upload_my_file">Muat Naik Fail Sendiri</string>
+
+    <string name="select_gendang_to_delete">🗑️ Pilih gendang untuk dipadam</string>
+    <string name="select_gendang_to_change_sound">🎵 Pilih gendang untuk menukar bunyi</string>
+    <string name="select_gendang_to_change_skin">🎨 Pilih gendang untuk menukar kulit</string>
+    <string name="title_delete_gendang">Padam Gendang?</string>
+    <string name="deleted">Dipadam</string>
+    <string name="gendang_name">Nama Gendang</string>
+    <string name="add_new_gendang">Tambah Gendang Baharu</string>
+    <string name="sure_to_delete">Adakah anda pasti mahu memadam</string>
+    <string name="custom">Tersuai</string>
+    <string name="success_added">Berjaya ditambah</string>
+
 </resources>

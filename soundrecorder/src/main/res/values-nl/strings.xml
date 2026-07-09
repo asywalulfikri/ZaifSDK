@@ -432,4 +432,28 @@
     <string name="showing_recommended_tutorials">Aanbevolen tutorials worden weergegeven</string>
 
     <string name="search_not_found">Gegevens "%1$s" niet gevonden</string>
+
+    <string name="change_position">Positie wijzigen</string>
+    <string name="click_hold_to_change_position">Houd ingedrukt en sleep om de positie van de trommel te wijzigen</string>
+    <string name="click_change_size_gendang">Gebruik twee vingers om de grootte van de trommel aan te passen</string>
+    <string name="change_size">Grootte wijzigen</string>
+    <string name="select_skin">Skin kiezen</string>
+    <string name="change_skin">Skin wijzigen</string>
+    <string name="add_gendang">Trommel toevoegen</string>
+    <string name="edit_gendang">Trommel bewerken</string>
+    <string name="delete_gendang">Trommel verwijderen</string>
+    <string name="move_gendang_position">Trommelpositie verplaatsen</string>
+    <string name="upload_my_file">Eigen bestand uploaden</string>
+
+    <string name="select_gendang_to_delete">🗑️ Selecteer een trommel om te verwijderen</string>
+    <string name="select_gendang_to_change_sound">🎵 Selecteer een trommel om het geluid te wijzigen</string>
+    <string name="select_gendang_to_change_skin">🎨 Selecteer een trommel om de skin te wijzigen</string>
+    <string name="title_delete_gendang">Trommel verwijderen?</string>
+    <string name="deleted">Verwijderd</string>
+    <string name="gendang_name">Naam van de trommel</string>
+    <string name="add_new_gendang">Nieuwe trommel toevoegen</string>
+    <string name="sure_to_delete">Weet je zeker dat je wilt verwijderen</string>
+    <string name="custom">Aangepast</string>
+    <string name="success_added">Succesvol toegevoegd</string>
+
 </resources>

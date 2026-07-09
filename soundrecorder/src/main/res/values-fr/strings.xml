@@ -431,4 +431,27 @@
 
     <string name="search_not_found">Aucune donnée trouvée pour "%1$s"</string>
 
+    <string name="change_position">Changer la position</string>
+    <string name="click_hold_to_change_position">Appuyez, maintenez et faites glisser pour déplacer le tambour</string>
+    <string name="click_change_size_gendang">Utilisez deux doigts pour pincer et redimensionner le tambour</string>
+    <string name="change_size">Changer la taille</string>
+    <string name="select_skin">Choisir un skin</string>
+    <string name="change_skin">Changer le skin</string>
+    <string name="add_gendang">Ajouter un tambour</string>
+    <string name="edit_gendang">Modifier le tambour</string>
+    <string name="delete_gendang">Supprimer le tambour</string>
+    <string name="move_gendang_position">Déplacer la position du tambour</string>
+    <string name="upload_my_file">Téléverser votre propre fichier</string>
+
+    <string name="select_gendang_to_delete">🗑️ Sélectionnez un tambour à supprimer</string>
+    <string name="select_gendang_to_change_sound">🎵 Sélectionnez un tambour pour changer le son</string>
+    <string name="select_gendang_to_change_skin">🎨 Sélectionnez un tambour pour changer le skin</string>
+    <string name="title_delete_gendang">Supprimer le tambour ?</string>
+    <string name="deleted">Supprimé</string>
+    <string name="gendang_name">Nom du tambour</string>
+    <string name="add_new_gendang">Ajouter un nouveau tambour</string>
+    <string name="sure_to_delete">Êtes-vous sûr de vouloir supprimer</string>
+    <string name="custom">Personnalisé</string>
+    <string name="success_added">Ajout réussi</string>
+
 </resources>

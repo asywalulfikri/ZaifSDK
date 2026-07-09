@@ -473,5 +473,28 @@
     <string name="showing_recommended_tutorials">يتم عرض الدروس التعليمية الموصى بها</string>
 
     <string name="search_not_found">لم يتم العثور على البيانات "%1$s"</string>
+
+    <string name="change_position">تغيير الموضع</string>
+    <string name="click_hold_to_change_position">اضغط مطولاً ثم اسحب لتغيير موضع الطبل</string>
+    <string name="click_change_size_gendang">استخدم إصبعين للقرص لتغيير حجم الطبل</string>
+    <string name="change_size">تغيير الحجم</string>
+    <string name="select_skin">اختر المظهر</string>
+    <string name="change_skin">تغيير المظهر</string>
+    <string name="add_gendang">إضافة طبل</string>
+    <string name="edit_gendang">تعديل الطبل</string>
+    <string name="delete_gendang">حذف الطبل</string>
+    <string name="move_gendang_position">تحريك موضع الطبل</string>
+    <string name="upload_my_file">رفع ملفك الخاص</string>
+
+    <string name="select_gendang_to_delete">🗑️ اختر الطبل الذي تريد حذفه</string>
+    <string name="select_gendang_to_change_sound">🎵 اختر الطبل لتغيير صوته</string>
+    <string name="select_gendang_to_change_skin">🎨 اختر الطبل لتغيير المظهر</string>
+    <string name="title_delete_gendang">حذف الطبل؟</string>
+    <string name="deleted">تم الحذف</string>
+    <string name="gendang_name">اسم الطبل</string>
+    <string name="add_new_gendang">إضافة طبل جديد</string>
+    <string name="sure_to_delete">هل أنت متأكد أنك تريد حذف</string>
+    <string name="custom">مخصص</string>
+    <string name="success_added">تمت الإضافة بنجاح</string>
 </resources>
 

@@ -426,4 +426,27 @@
     <string name="showing_recommended_tutorials">अनुशंसित ट्यूटोरियल दिखाए जा रहे हैं</string>
 
     <string name="search_not_found">"%1$s" के लिए कोई डेटा नहीं मिला</string>
+
+    <string name="change_position">स्थिति बदलें</string>
+    <string name="click_hold_to_change_position">ड्रम की स्थिति बदलने के लिए दबाकर रखें और खींचें</string>
+    <string name="click_change_size_gendang">ड्रम का आकार बदलने के लिए दो उंगलियों से पिंच करें</string>
+    <string name="change_size">आकार बदलें</string>
+    <string name="select_skin">स्किन चुनें</string>
+    <string name="change_skin">स्किन बदलें</string>
+    <string name="add_gendang">ड्रम जोड़ें</string>
+    <string name="edit_gendang">ड्रम संपादित करें</string>
+    <string name="delete_gendang">ड्रम हटाएँ</string>
+    <string name="move_gendang_position">ड्रम की स्थिति बदलें</string>
+    <string name="upload_my_file">अपनी फ़ाइल अपलोड करें</string>
+
+    <string name="select_gendang_to_delete">🗑️ हटाने के लिए ड्रम चुनें</string>
+    <string name="select_gendang_to_change_sound">🎵 ध्वनि बदलने के लिए ड्रम चुनें</string>
+    <string name="select_gendang_to_change_skin">🎨 स्किन बदलने के लिए ड्रम चुनें</string>
+    <string name="title_delete_gendang">ड्रम हटाएँ?</string>
+    <string name="deleted">हटा दिया गया</string>
+    <string name="gendang_name">ड्रम का नाम</string>
+    <string name="add_new_gendang">नया ड्रम जोड़ें</string>
+    <string name="sure_to_delete">क्या आप वाकई हटाना चाहते हैं</string>
+    <string name="custom">कस्टम</string>
+    <string name="success_added">सफलतापूर्वक जोड़ा गया</string>
 </resources>

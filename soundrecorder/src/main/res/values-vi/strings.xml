@@ -428,4 +428,27 @@
     <string name="showing_recommended_tutorials">Đang hiển thị các hướng dẫn được đề xuất</string>
 
     <string name="search_not_found">Không tìm thấy dữ liệu "%1$s"</string>
+
+    <string name="change_position">Thay đổi vị trí</string>
+    <string name="click_hold_to_change_position">Nhấn giữ và kéo để thay đổi vị trí của trống</string>
+    <string name="click_change_size_gendang">Dùng hai ngón tay chụm để thay đổi kích thước trống</string>
+    <string name="change_size">Thay đổi kích thước</string>
+    <string name="select_skin">Chọn giao diện</string>
+    <string name="change_skin">Đổi giao diện</string>
+    <string name="add_gendang">Thêm trống</string>
+    <string name="edit_gendang">Chỉnh sửa trống</string>
+    <string name="delete_gendang">Xóa trống</string>
+    <string name="move_gendang_position">Di chuyển vị trí trống</string>
+    <string name="upload_my_file">Tải lên tệp của bạn</string>
+
+    <string name="select_gendang_to_delete">🗑️ Chọn trống để xóa</string>
+    <string name="select_gendang_to_change_sound">🎵 Chọn trống để thay đổi âm thanh</string>
+    <string name="select_gendang_to_change_skin">🎨 Chọn trống để thay đổi giao diện</string>
+    <string name="title_delete_gendang">Xóa trống?</string>
+    <string name="deleted">Đã xóa</string>
+    <string name="gendang_name">Tên trống</string>
+    <string name="add_new_gendang">Thêm trống mới</string>
+    <string name="sure_to_delete">Bạn có chắc chắn muốn xóa</string>
+    <string name="custom">Tùy chỉnh</string>
+    <string name="success_added">Đã thêm thành công</string>
 </resources>

@@ -424,4 +424,27 @@
 
     <string name="search_not_found">「%1$s」のデータが見つかりません</string>
 
+    <string name="change_position">位置を変更</string>
+    <string name="click_hold_to_change_position">長押ししてドラッグするとドラムの位置を変更できます</string>
+    <string name="click_change_size_gendang">2本の指でピンチしてドラムのサイズを変更できます</string>
+    <string name="change_size">サイズを変更</string>
+    <string name="select_skin">スキンを選択</string>
+    <string name="change_skin">スキンを変更</string>
+    <string name="add_gendang">ドラムを追加</string>
+    <string name="edit_gendang">ドラムを編集</string>
+    <string name="delete_gendang">ドラムを削除</string>
+    <string name="move_gendang_position">ドラムの位置を移動</string>
+    <string name="upload_my_file">自分のファイルをアップロード</string>
+
+    <string name="select_gendang_to_delete">🗑️ 削除するドラムを選択してください</string>
+    <string name="select_gendang_to_change_sound">🎵 音を変更するドラムを選択してください</string>
+    <string name="select_gendang_to_change_skin">🎨 スキンを変更するドラムを選択してください</string>
+    <string name="title_delete_gendang">ドラムを削除しますか？</string>
+    <string name="deleted">削除しました</string>
+    <string name="gendang_name">ドラム名</string>
+    <string name="add_new_gendang">新しいドラムを追加</string>
+    <string name="sure_to_delete">本当に削除しますか</string>
+    <string name="custom">カスタム</string>
+    <string name="success_added">追加に成功しました</string>
+
 </resources>

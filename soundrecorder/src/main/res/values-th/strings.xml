@@ -428,4 +428,27 @@
     <string name="showing_recommended_tutorials">กำลังแสดงบทช่วยสอนที่แนะนำ</string>
 
     <string name="search_not_found">ไม่พบข้อมูล "%1$s"</string>
+
+    <string name="change_position">เปลี่ยนตำแหน่ง</string>
+    <string name="click_hold_to_change_position">แตะค้างแล้วลากเพื่อเปลี่ยนตำแหน่งกลอง</string>
+    <string name="click_change_size_gendang">ใช้สองนิ้วบีบเพื่อเปลี่ยนขนาดกลอง</string>
+    <string name="change_size">เปลี่ยนขนาด</string>
+    <string name="select_skin">เลือกสกิน</string>
+    <string name="change_skin">เปลี่ยนสกิน</string>
+    <string name="add_gendang">เพิ่มกลอง</string>
+    <string name="edit_gendang">แก้ไขกลอง</string>
+    <string name="delete_gendang">ลบกลอง</string>
+    <string name="move_gendang_position">ย้ายตำแหน่งกลอง</string>
+    <string name="upload_my_file">อัปโหลดไฟล์ของคุณเอง</string>
+
+    <string name="select_gendang_to_delete">🗑️ เลือกกลองที่จะลบ</string>
+    <string name="select_gendang_to_change_sound">🎵 เลือกกลองเพื่อเปลี่ยนเสียง</string>
+    <string name="select_gendang_to_change_skin">🎨 เลือกกลองเพื่อเปลี่ยนสกิน</string>
+    <string name="title_delete_gendang">ลบกลอง?</string>
+    <string name="deleted">ลบแล้ว</string>
+    <string name="gendang_name">ชื่อกลอง</string>
+    <string name="add_new_gendang">เพิ่มกลองใหม่</string>
+    <string name="sure_to_delete">คุณแน่ใจหรือไม่ว่าต้องการลบ</string>
+    <string name="custom">กำหนดเอง</string>
+    <string name="success_added">เพิ่มสำเร็จ</string>
 </resources>

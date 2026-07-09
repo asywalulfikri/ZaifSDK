@@ -427,4 +427,27 @@
 
     <string name="search_not_found">Данные "%1$s" не найдены</string>
 
+    <string name="change_position">Изменить положение</string>
+    <string name="click_hold_to_change_position">Нажмите, удерживайте и перетащите, чтобы изменить положение барабана</string>
+    <string name="click_change_size_gendang">Используйте два пальца, чтобы изменить размер барабана</string>
+    <string name="change_size">Изменить размер</string>
+    <string name="select_skin">Выбрать скин</string>
+    <string name="change_skin">Изменить скин</string>
+    <string name="add_gendang">Добавить барабан</string>
+    <string name="edit_gendang">Редактировать барабан</string>
+    <string name="delete_gendang">Удалить барабан</string>
+    <string name="move_gendang_position">Переместить барабан</string>
+    <string name="upload_my_file">Загрузить свой файл</string>
+
+    <string name="select_gendang_to_delete">🗑️ Выберите барабан для удаления</string>
+    <string name="select_gendang_to_change_sound">🎵 Выберите барабан, чтобы изменить звук</string>
+    <string name="select_gendang_to_change_skin">🎨 Выберите барабан, чтобы изменить внешний вид</string>
+    <string name="title_delete_gendang">Удалить барабан?</string>
+    <string name="deleted">Удалено</string>
+    <string name="gendang_name">Название барабана</string>
+    <string name="add_new_gendang">Добавить новый барабан</string>
+    <string name="sure_to_delete">Вы уверены, что хотите удалить</string>
+    <string name="custom">Пользовательский</string>
+    <string name="success_added">Успешно добавлено</string>
+
 </resources>

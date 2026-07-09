@@ -431,4 +431,27 @@
 
     <string name="search_not_found">"%1$s"에 대한 데이터를 찾을 수 없습니다</string>
 
+    <string name="change_position">위치 변경</string>
+    <string name="click_hold_to_change_position">길게 누른 후 드래그하여 드럼 위치를 변경하세요</string>
+    <string name="click_change_size_gendang">두 손가락으로 핀치하여 드럼 크기를 변경하세요</string>
+    <string name="change_size">크기 변경</string>
+    <string name="select_skin">스킨 선택</string>
+    <string name="change_skin">스킨 변경</string>
+    <string name="add_gendang">드럼 추가</string>
+    <string name="edit_gendang">드럼 편집</string>
+    <string name="delete_gendang">드럼 삭제</string>
+    <string name="move_gendang_position">드럼 위치 이동</string>
+    <string name="upload_my_file">내 파일 업로드</string>
+
+    <string name="select_gendang_to_delete">🗑️ 삭제할 드럼을 선택하세요</string>
+    <string name="select_gendang_to_change_sound">🎵 소리를 변경할 드럼을 선택하세요</string>
+    <string name="select_gendang_to_change_skin">🎨 스킨을 변경할 드럼을 선택하세요</string>
+    <string name="title_delete_gendang">드럼을 삭제하시겠습니까?</string>
+    <string name="deleted">삭제됨</string>
+    <string name="gendang_name">드럼 이름</string>
+    <string name="add_new_gendang">새 드럼 추가</string>
+    <string name="sure_to_delete">정말 삭제하시겠습니까?</string>
+    <string name="custom">사용자 지정</string>
+    <string name="success_added">성공적으로 추가되었습니다</string>
+
 </resources>

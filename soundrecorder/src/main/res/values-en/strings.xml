@@ -426,4 +426,28 @@
     <string name="showing_all_tutorials">Showing all tutorials</string>
     <string name="showing_recommended_tutorials">Showing recommended tutorials</string>
     <string name="search_not_found">Data \"%1$s\" not found</string>
+
+    <string name="change_position">Change Position</string>
+    <string name="click_hold_to_change_position">Tap, hold, and drag to change the drum position</string>
+    <string name="click_change_size_gendang">Use two fingers to pinch and resize the drum</string>
+    <string name="change_size">Change Size</string>
+    <string name="select_skin">Select Skin</string>
+    <string name="change_skin">Change Skin</string>
+    <string name="add_gendang">Add Drum</string>
+    <string name="edit_gendang">Edit Drum</string>
+    <string name="delete_gendang">Delete Drum</string>
+    <string name="move_gendang_position">Move Drum Position</string>
+    <string name="upload_my_file">Upload Your Own File</string>
+
+    <string name="select_gendang_to_delete">🗑️ Select a drum to delete</string>
+    <string name="select_gendang_to_change_sound">🎵 Select a drum to change its sound</string>
+    <string name="select_gendang_to_change_skin">🎨 Select a drum to change its skin</string>
+    <string name="title_delete_gendang">Delete Drum?</string>
+    <string name="deleted">Deleted</string>
+    <string name="gendang_name">Drum Name</string>
+    <string name="add_new_gendang">Add New Drum</string>
+    <string name="sure_to_delete">Are you sure you want to delete</string>
+    <string name="custom">Custom</string>
+    <string name="success_added">Added successfully</string>
+
 </resources>

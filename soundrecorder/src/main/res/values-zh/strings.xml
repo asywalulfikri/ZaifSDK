@@ -428,4 +428,28 @@
     <string name="showing_recommended_tutorials">正在显示推荐教程</string>
     <string name="search_not_found">未找到“%1$s”数据</string>
 
+    <string name="change_position">更改位置</string>
+    <string name="click_hold_to_change_position">长按并拖动以更改鼓的位置</string>
+    <string name="click_change_size_gendang">使用两根手指捏合以调整鼓的大小</string>
+    <string name="change_size">调整大小</string>
+    <string name="select_skin">选择皮肤</string>
+    <string name="change_skin">更换皮肤</string>
+    <string name="add_gendang">添加鼓</string>
+    <string name="edit_gendang">编辑鼓</string>
+    <string name="delete_gendang">删除鼓</string>
+    <string name="move_gendang_position">移动鼓的位置</string>
+    <string name="upload_my_file">上传自己的文件</string>
+
+    <string name="select_gendang_to_delete">🗑️ 选择要删除的鼓</string>
+    <string name="select_gendang_to_change_sound">🎵 选择要更改声音的鼓</string>
+    <string name="select_gendang_to_change_skin">🎨 选择要更换皮肤的鼓</string>
+    <string name="title_delete_gendang">删除鼓？</string>
+    <string name="deleted">已删除</string>
+    <string name="gendang_name">鼓名称</string>
+    <string name="add_new_gendang">添加新鼓</string>
+    <string name="sure_to_delete">确定要删除吗</string>
+    <string name="custom">自定义</string>
+    <string name="success_added">添加成功</string>
+
+
 </resources>

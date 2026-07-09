@@ -434,4 +434,35 @@
     <string name="showing_recommended_tutorials">Menampilkan tutorial yang direkomendasikan</string>
     <string name="search_not_found">Data \"%1$s\" tidak ditemukan</string>
 
+    <string name="change_position">Ubah Posisi</string>
+    <string name="click_hold_to_change_position">Klik tahan dan geser untuk merubah posisi gendang</string>
+    <string name="click_change_size_gendang">Klik tahan pakai 2 jari dan cubit untuk merubah ukuran gendang</string>
+    <string name="change_size">Ubah Ukuran</string>
+    <string name="select_skin">Pilih Kulit</string>
+    <string name="change_skin">Ganti Kulit</string>
+    <string name="add_gendang">Tambah Gendang</string>
+    <string name="edit_gendang">Edit Gendang</string>
+    <string name="delete_gendang">Hapus Gendang</string>
+    <string name="move_gendang_position">Geser Posisi Gendang</string>
+    <string name="upload_my_file">Upload File Sendiri</string>
+
+    <string name="title_reset_layout">Semua posisi dan ukuran gendang yang sudah Anda atur akan dikembalikan ke awal. Lanjutkan?</string>
+    <string name="reset_layout">Reset Layout</string>
+    <string name="skin_success_changed">Kulit Berhasil Diganti</string>
+    <string name="sound">Suara</string>
+    <string name="saved">Disimpan</string>
+    <string name="tap_gendang">Ketuk Gendang</string>
+
+    <string name="select_gendang_to_delete">🗑️ Pilih gendang untuk dihapus</string>
+    <string name="select_gendang_to_change_sound">🎵 Pilih gendang untuk ganti suara</string>
+    <string name="select_gendang_to_change_skin">🎨 Pilih gendang untuk ganti kulit</string>
+    <string name="title_delete_gendang">Hapus Gendang?</string>
+    <string name="deleted">Dihapus</string>
+    <string name="gendang_name">Nama Gendang</string>
+    <string name="add_new_gendang">Tambah Gendang Baru</string>
+    <string name="sure_to_delete">Apakah Anda yakin ingin menghapus</string>
+    <string name="custom">Custom</string>
+    <string name="success_added">Berhasil ditambah</string>
+
+
 </resources>

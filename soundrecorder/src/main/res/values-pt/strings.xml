@@ -429,4 +429,27 @@
     <string name="showing_recommended_tutorials">Mostrando tutoriais recomendados</string>
 
     <string name="search_not_found">Dados "%1$s" não encontrados</string>
+
+    <string name="change_position">Alterar Posição</string>
+    <string name="click_hold_to_change_position">Toque, segure e arraste para alterar a posição do tambor</string>
+    <string name="click_change_size_gendang">Use dois dedos para pinçar e alterar o tamanho do tambor</string>
+    <string name="change_size">Alterar Tamanho</string>
+    <string name="select_skin">Selecionar Skin</string>
+    <string name="change_skin">Alterar Skin</string>
+    <string name="add_gendang">Adicionar Tambor</string>
+    <string name="edit_gendang">Editar Tambor</string>
+    <string name="delete_gendang">Excluir Tambor</string>
+    <string name="move_gendang_position">Mover Posição do Tambor</string>
+    <string name="upload_my_file">Enviar Seu Próprio Arquivo</string>
+
+    <string name="select_gendang_to_delete">🗑️ Selecione um tambor para excluir</string>
+    <string name="select_gendang_to_change_sound">🎵 Selecione um tambor para alterar o som</string>
+    <string name="select_gendang_to_change_skin">🎨 Selecione um tambor para alterar a aparência</string>
+    <string name="title_delete_gendang">Excluir tambor?</string>
+    <string name="deleted">Excluído</string>
+    <string name="gendang_name">Nome do tambor</string>
+    <string name="add_new_gendang">Adicionar novo tambor</string>
+    <string name="sure_to_delete">Tem certeza de que deseja excluir</string>
+    <string name="custom">Personalizado</string>
+    <string name="success_added">Adicionado com sucesso</string>
 </resources>
