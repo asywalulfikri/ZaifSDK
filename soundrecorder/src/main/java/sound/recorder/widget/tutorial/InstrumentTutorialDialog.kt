@@ -26,6 +26,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.edit
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.core.widget.TextViewCompat
@@ -212,6 +213,7 @@ class InstrumentTutorialDialog(
     private val PAGE_SIZE = 100L
 
     private var currentSearchQuery = ""
+    private var adminStatusFilter = "ALL" // "ALL", "PUBLISHED", "DRAFT"
 
     private fun refreshList() {
         val adapter = currentAdapter ?: return
@@ -559,6 +561,61 @@ class InstrumentTutorialDialog(
             }
         } else null
 
+        // Tombol Admin Status Filter
+        val statusFilterBtn = if (isAppDebuggable(context)) {
+            TextView(context).apply {
+                textSize = 9f
+                setPadding(context.sdp(SdpR.dimen._8sdp), 0, context.sdp(SdpR.dimen._8sdp), 0)
+                height = context.sdp(SdpR.dimen._32sdp)
+                typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+                gravity = Gravity.CENTER
+                setTextColor(Color.WHITE)
+                layoutParams = LinearLayout.LayoutParams(-2, context.sdp(SdpR.dimen._32sdp)).apply {
+                    marginEnd = context.sdp(SdpR.dimen._6sdp)
+                }
+            }
+        } else null
+
+        fun updateStatusFilterUI() {
+            statusFilterBtn?.let { btn ->
+                btn.text = "STS: $adminStatusFilter ▼"
+                btn.background = GradientDrawable().apply {
+                    val color = when(adminStatusFilter) {
+                        "PUBLISHED" -> "#2E7D32" // Green
+                        "DRAFT" -> "#C62828" // Red
+                        else -> "#455A64" // Gray
+                    }
+                    setColor(Color.parseColor(color))
+                    cornerRadius = context.sdpF(SdpR.dimen._6sdp)
+                }
+            }
+        }
+
+        statusFilterBtn?.setOnClickListener { view ->
+            val popup = PopupMenu(context, view)
+            popup.menu.add("ALL")
+            popup.menu.add("PUBLISHED")
+            popup.menu.add("DRAFT")
+            popup.setOnMenuItemClickListener { item ->
+                val newStatus = item.title.toString()
+                if (adminStatusFilter != newStatus) {
+                    adminStatusFilter = newStatus
+                    updateStatusFilterUI()
+                    
+                    // Reload data
+                    if (!appId.isNullOrEmpty()) {
+                        lastDocument = null
+                        isLastPage = false
+                        allItems.removeAll { it is SongItem.Remote }
+                        refreshList()
+                        fetchFirstPageRemote(appId, instrumentType, binding, allItems)
+                    }
+                }
+                true
+            }
+            popup.show()
+        }
+
         fun updateFilterUI() {
             val colorAccent = Color.parseColor("#6C63FF")
             val colorBg = Color.parseColor("#1A1F3A")
@@ -611,9 +668,11 @@ class InstrumentTutorialDialog(
         }
 
         updateFilterUI()
+        updateStatusFilterUI()
         
         searchRow.addView(etSearch)
         debugBtn?.let { searchRow.addView(it) }
+        statusFilterBtn?.let { searchRow.addView(it) }
         searchRow.addView(filterBtn)
         
         // Masukkan kembali ke root layout
@@ -696,6 +755,15 @@ class InstrumentTutorialDialog(
             query = query.whereEqualTo("status", "published")
             if (!filterAllLanguages) {
                 query = query.whereArrayContainsAny("language", listOf("en", languageCode))
+            }
+        } else {
+            // Admin Filter logic in Debug Mode
+            if (adminStatusFilter == "PUBLISHED") {
+                query = query.whereEqualTo("status", "published")
+            } else if (adminStatusFilter == "DRAFT") {
+                // Use whereIn to avoid the requirement of having status as the first orderBy
+                // and to include various possible draft/pending values.
+                query = query.whereIn("status", listOf("DRAFT", "draft", "-", "pending"))
             }
         }
         
@@ -794,6 +862,15 @@ class InstrumentTutorialDialog(
             query = query.whereEqualTo("status", "published")
             if (!filterAllLanguages) {
                 query = query.whereArrayContainsAny("language", listOf("en", languageCode))
+            }
+        } else {
+            // Admin Filter logic in Debug Mode
+            if (adminStatusFilter == "PUBLISHED") {
+                query = query.whereEqualTo("status", "published")
+            } else if (adminStatusFilter == "DRAFT") {
+                // Use whereIn to avoid the requirement of having status as the first orderBy
+                // and to include various possible draft/pending values.
+                query = query.whereIn("status", listOf("DRAFT", "draft", "-", "pending"))
             }
         }
 
@@ -920,10 +997,14 @@ class InstrumentTutorialDialog(
             val tvInfo: TextView = view.findViewById(R.id.tvSongInfo)
             val btnPlay: TextView = view.findViewById(R.id.btnPlay)
             val btnLearn: TextView = view.findViewById(R.id.btnLearn)
-            val layoutAdmin: View = view.findViewById(R.id.layoutAdmin)
+            val layoutAdmin: LinearLayout = view.findViewById(R.id.layoutAdmin)
             val btnPublish: TextView = view.findViewById(R.id.btnPublish)
             val btnEdit: TextView = view.findViewById(R.id.btnEdit)
             val btnDelete: TextView = view.findViewById(R.id.btnDelete)
+            
+            // Placeholder for admin play/stop
+            var btnPlayAdmin: TextView? = null
+            var btnStopAdmin: TextView? = null
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -971,6 +1052,21 @@ class InstrumentTutorialDialog(
                         holder.btnPublish.visibility = if (item.note.status == "published") View.GONE else View.VISIBLE
                         holder.btnPublish.setOnClickListener { publishNote(holder.itemView.context, item.note) }
                         holder.btnDelete.setOnClickListener { deleteNote(holder.itemView.context, item.note) }
+                        
+                        // Add Admin Play/Stop buttons if not already added
+                        if (holder.btnPlayAdmin == null) {
+                            val btnPlayAdmin = buildAdminButton(context, "PLAY ADMIN", "#BBDEFB", "#1976D2")
+                            val btnStopAdmin = buildAdminButton(context, "STOP ADMIN", "#FFCDD2", "#D32F2F")
+                            
+                            holder.layoutAdmin.addView(btnPlayAdmin, 0)
+                            holder.layoutAdmin.addView(btnStopAdmin, 1)
+                            
+                            holder.btnPlayAdmin = btnPlayAdmin
+                            holder.btnStopAdmin = btnStopAdmin
+                        }
+                        
+                        holder.btnPlayAdmin?.setOnClickListener { playUserNote(item.note.jsonNote) }
+                        holder.btnStopAdmin?.setOnClickListener { stopAll() }
                     } else {
                         holder.layoutAdmin.visibility = View.GONE
                     }
@@ -1629,4 +1725,21 @@ class InstrumentTutorialDialog(
 
     private fun Context.sdp(id: Int): Int = resources.getDimensionPixelSize(id)
     private fun Context.sdpF(id: Int): Float = resources.getDimension(id)
+
+    private fun buildAdminButton(context: Context, label: String, bgColor: String, textColor: String): TextView {
+        return TextView(context).apply {
+            text = label
+            this.setTextColor(Color.parseColor(textColor))
+            textSize = 8f
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(context.sdp(SdpR.dimen._8sdp), context.sdp(SdpR.dimen._4sdp), context.sdp(SdpR.dimen._8sdp), context.sdp(SdpR.dimen._4sdp))
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor(bgColor))
+                cornerRadius = context.sdpF(SdpR.dimen._4sdp)
+            }
+            layoutParams = LinearLayout.LayoutParams(-2, -2).apply {
+                marginEnd = context.sdp(SdpR.dimen._8sdp)
+            }
+        }
+    }
 }
