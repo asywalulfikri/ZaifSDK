@@ -452,5 +452,10 @@
     <string name="custom">Custom</string>
     <string name="success_added">Berhasil ditambah</string>
 
+    <string name="data_renew_one_hours">Data diperbarui tiap 1 jam.</string>
+    <string name="data_renew_one_day">Data diperbarui tiap 1 hari.</string>
+    <string name="data_renew_one_minutes">Data diperbarui tiap 30 menit.</string>
+    <string name="yours">Kamu</string>
+
 
 </resources>

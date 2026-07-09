@@ -447,4 +447,9 @@
     <string name="custom">カスタム</string>
     <string name="success_added">追加に成功しました</string>
 
+    <string name="data_renew_one_hours">データは1時間ごとに更新されます。</string>
+    <string name="data_renew_one_day">データは1日ごとに更新されます。</string>
+    <string name="data_renew_one_minutes">データは30分ごとに更新されます。</string>
+    <string name="yours">あなた</string>
+
 </resources>

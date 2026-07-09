@@ -451,4 +451,9 @@
     <string name="sure_to_delete">คุณแน่ใจหรือไม่ว่าต้องการลบ</string>
     <string name="custom">กำหนดเอง</string>
     <string name="success_added">เพิ่มสำเร็จ</string>
+
+    <string name="data_renew_one_hours">ข้อมูลจะอัปเดตทุก 1 ชั่วโมง</string>
+    <string name="data_renew_one_day">ข้อมูลจะอัปเดตทุกวัน</string>
+    <string name="data_renew_one_minutes">ข้อมูลจะอัปเดตทุก 30 นาที</string>
+    <string name="yours">คุณ</string>
 </resources>

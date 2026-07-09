@@ -451,4 +451,9 @@
     <string name="sure_to_delete">Bạn có chắc chắn muốn xóa</string>
     <string name="custom">Tùy chỉnh</string>
     <string name="success_added">Đã thêm thành công</string>
+
+    <string name="data_renew_one_hours">Dữ liệu được cập nhật mỗi giờ.</string>
+    <string name="data_renew_one_day">Dữ liệu được cập nhật mỗi ngày.</string>
+    <string name="data_renew_one_minutes">Dữ liệu được cập nhật mỗi 30 phút.</string>
+    <string name="yours">Bạn</string>
 </resources>

@@ -454,4 +454,9 @@
     <string name="custom">Tersuai</string>
     <string name="success_added">Berjaya ditambah</string>
 
+    <string name="data_renew_one_hours">Data dikemas kini setiap 1 jam.</string>
+    <string name="data_renew_one_day">Data dikemas kini setiap hari.</string>
+    <string name="data_renew_one_minutes">Data dikemas kini setiap 30 minit.</string>
+    <string name="yours">Anda</string>
+
 </resources>

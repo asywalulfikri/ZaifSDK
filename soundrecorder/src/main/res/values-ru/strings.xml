@@ -450,4 +450,9 @@
     <string name="custom">Пользовательский</string>
     <string name="success_added">Успешно добавлено</string>
 
+    <string name="data_renew_one_hours">Данные обновляются каждый час.</string>
+    <string name="data_renew_one_day">Данные обновляются каждый день.</string>
+    <string name="data_renew_one_minutes">Данные обновляются каждые 30 минут.</string>
+    <string name="yours">Вы</string>
+
 </resources>

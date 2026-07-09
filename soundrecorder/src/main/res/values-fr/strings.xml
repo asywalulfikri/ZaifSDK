@@ -454,4 +454,9 @@
     <string name="custom">Personnalisé</string>
     <string name="success_added">Ajout réussi</string>
 
+    <string name="data_renew_one_hours">Les données sont mises à jour toutes les heures.</string>
+    <string name="data_renew_one_day">Les données sont mises à jour tous les jours.</string>
+    <string name="data_renew_one_minutes">Les données sont mises à jour toutes les 30 minutes.</string>
+    <string name="yours">Vous</string>
+
 </resources>

@@ -496,5 +496,10 @@
     <string name="sure_to_delete">هل أنت متأكد أنك تريد حذف</string>
     <string name="custom">مخصص</string>
     <string name="success_added">تمت الإضافة بنجاح</string>
+
+    <string name="data_renew_one_hours">يتم تحديث البيانات كل ساعة.</string>
+    <string name="data_renew_one_day">يتم تحديث البيانات كل يوم.</string>
+    <string name="data_renew_one_minutes">يتم تحديث البيانات كل 30 دقيقة.</string>
+    <string name="yours">أنت</string>
 </resources>
 

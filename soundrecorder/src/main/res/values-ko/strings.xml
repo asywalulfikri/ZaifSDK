@@ -454,4 +454,9 @@
     <string name="custom">사용자 지정</string>
     <string name="success_added">성공적으로 추가되었습니다</string>
 
+    <string name="data_renew_one_hours">데이터는 매시간 업데이트됩니다.</string>
+    <string name="data_renew_one_day">데이터는 매일 업데이트됩니다.</string>
+    <string name="data_renew_one_minutes">데이터는 30분마다 업데이트됩니다.</string>
+    <string name="yours">당신</string>
+
 </resources>

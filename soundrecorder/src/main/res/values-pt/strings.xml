@@ -452,4 +452,10 @@
     <string name="sure_to_delete">Tem certeza de que deseja excluir</string>
     <string name="custom">Personalizado</string>
     <string name="success_added">Adicionado com sucesso</string>
+
+    <string name="data_renew_one_hours">Os dados são atualizados a cada hora.</string>
+    <string name="data_renew_one_day">Os dados são atualizados todos os dias.</string>
+    <string name="data_renew_one_minutes">Os dados são atualizados a cada 30 minutos.</string>
+    <string name="yours">Você</string>
+
 </resources>

@@ -449,4 +449,9 @@
     <string name="sure_to_delete">क्या आप वाकई हटाना चाहते हैं</string>
     <string name="custom">कस्टम</string>
     <string name="success_added">सफलतापूर्वक जोड़ा गया</string>
+
+    <string name="data_renew_one_hours">डेटा हर घंटे अपडेट किया जाता है।</string>
+    <string name="data_renew_one_day">डेटा हर दिन अपडेट किया जाता है।</string>
+    <string name="data_renew_one_minutes">डेटा हर 30 मिनट में अपडेट किया जाता है।</string>
+    <string name="yours">आप</string>
 </resources>

@@ -456,4 +456,8 @@
     <string name="custom">Aangepast</string>
     <string name="success_added">Succesvol toegevoegd</string>
 
+    <string name="data_renew_one_hours">Gegevens worden elk uur bijgewerkt.</string>
+    <string name="data_renew_one_day">Gegevens worden elke dag bijgewerkt.</string>
+    <string name="data_renew_one_minutes">Gegevens worden elke 30 minuten bijgewerkt.</string>
+    <string name="yours">Jij</string>
 </resources>

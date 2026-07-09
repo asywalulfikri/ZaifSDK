@@ -451,5 +451,10 @@
     <string name="custom">自定义</string>
     <string name="success_added">添加成功</string>
 
+    <string name="data_renew_one_hours">数据每小时更新一次。</string>
+    <string name="data_renew_one_day">数据每天更新一次。</string>
+    <string name="data_renew_one_minutes">数据每30分钟更新一次。</string>
+    <string name="yours">你</string>
+
 
 </resources>

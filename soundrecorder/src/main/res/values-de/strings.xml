@@ -455,5 +455,10 @@
     <string name="custom">Benutzerdefiniert</string>
     <string name="success_added">Erfolgreich hinzugefügt</string>
 
+    <string name="data_renew_one_hours">Die Daten werden jede Stunde aktualisiert.</string>
+    <string name="data_renew_one_day">Die Daten werden täglich aktualisiert.</string>
+    <string name="data_renew_one_minutes">Die Daten werden alle 30 Minuten aktualisiert.</string>
+    <string name="yours">Du</string>
+
 </resources>
 

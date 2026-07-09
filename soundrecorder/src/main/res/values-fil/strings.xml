@@ -453,4 +453,11 @@
     <string name="sure_to_delete">Sigurado ka bang gusto mong tanggalin?</string>
     <string name="custom">Custom</string>
     <string name="success_added">Matagumpay na naidagdag</string>
+
+    <string name="data_renew_one_hours">Ina-update ang data bawat oras.</string>
+    <string name="data_renew_one_day">Ina-update ang data araw-araw.</string>
+    <string name="data_renew_one_minutes">Ina-update ang data bawat 30 minuto.</string>
+    <string name="yours">Ikaw</string>
+
+
 </resources>

@@ -451,4 +451,9 @@
     <string name="sure_to_delete">Are you sure you want to delete</string>
     <string name="custom">Custom</string>
     <string name="success_added">Added successfully</string>
+
+    <string name="data_renew_one_hours">Data is updated every hour.</string>
+    <string name="data_renew_one_day">Data is updated every day.</string>
+    <string name="data_renew_one_minutes">Data is updated every 30 minutes.</string>
+    <string name="yours">You</string>
 </resources>
