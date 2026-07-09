@@ -195,8 +195,11 @@ class InstrumentTutorialDialog(
         private fun keyForRemote(note: NoteItem) = "remote_${note.submittedAt}"
 
         fun clearCache() = cache.clear()
-        fun clearCache(instrumentType: String) {
+        fun clearCache(context: Context?, instrumentType: String) {
             cache.remove(instrumentType)
+            context?.getSharedPreferences(PREFS_DISK_CACHE, Context.MODE_PRIVATE)?.edit {
+                remove(instrumentType)
+            }
         }
     }
 
@@ -411,7 +414,7 @@ class InstrumentTutorialDialog(
                 }
             })
 
-            if (isCacheValid(context, instrumentType)) {
+            if (!isAppDebuggable(context) && isCacheValid(context, instrumentType)) {
                 binding.progressContainer.visibility = View.GONE
                 val cachedNotes = getCache(context, instrumentType)!!.notes
                 allItems.addAll(cachedNotes.map { SongItem.Remote(it) })
@@ -808,8 +811,8 @@ class InstrumentTutorialDialog(
                     )
                 }
                 
-                // Only cache if we're in default "My Language" mode
-                if (!filterAllLanguages) {
+                // Only cache if we're in default "My Language" mode and NOT in debug mode
+                if (!filterAllLanguages && !isAppDebuggable(mContext)) {
                     val result = CachedResult(notes, System.currentTimeMillis())
                     cache[instrumentType] = result
                     saveCacheToDisk(mContext, instrumentType, result)
@@ -904,8 +907,8 @@ class InstrumentTutorialDialog(
                     )
                 }
                 
-                // Only update cache if in default mode
-                if (!filterAllLanguages) {
+                // Only update cache if in default mode and NOT in debug mode
+                if (!filterAllLanguages && !isAppDebuggable(mContext)) {
                     val currentCached = getCache(mContext, instrumentType)
                     val notes = currentCached?.notes ?: emptyList()
                     val fetchedAt = currentCached?.fetchedAt ?: System.currentTimeMillis()
@@ -1298,7 +1301,7 @@ class InstrumentTutorialDialog(
                     .update("status", "published")
                     .addOnSuccessListener {
                         onToast("Berhasil di-publish!")
-                        clearCache(instrumentType)
+                        clearCache(ctx, instrumentType)
 
                         // Update local list & refresh
                         val index = allItems.indexOfFirst { it is SongItem.Remote && it.note.docId == note.docId }
@@ -1499,7 +1502,7 @@ class InstrumentTutorialDialog(
             .update(field, value)
             .addOnSuccessListener {
                 onToast("Update $field berhasil!")
-                clearCache(instrumentType)
+                clearCache(ctx, instrumentType)
                 // Update local model
                 val index = allItems.indexOfFirst { it is SongItem.Remote && it.note.docId == note.docId }
                 if (index != -1) {
@@ -1622,7 +1625,7 @@ class InstrumentTutorialDialog(
                     .delete()
                     .addOnSuccessListener {
                         onToast("Data berhasil dihapus.")
-                        clearCache(instrumentType)
+                        clearCache(ctx, instrumentType)
                         
                         // Update local list & refresh
                         val index = allItems.indexOfFirst { it is SongItem.Remote && it.note.docId == note.docId }
