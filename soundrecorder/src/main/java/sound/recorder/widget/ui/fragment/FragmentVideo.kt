@@ -8,11 +8,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -31,15 +33,26 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
     private var mPage = 1
     private var mVideoList = ArrayList<Video>()
     private lateinit var binding: ActivityListVideoBinding
-    private var firestore: FirebaseFirestore? = FirebaseFirestore.getInstance()
+    private var firestore: FirebaseFirestore? = null
 
     companion object {
+        private const val CACHE_TTL_MS = 24 * 60 * 60 * 1000L // 1 hari
+        private var videoCache: List<Video>? = null
+        private var lastFetchedAt = 0L
+
         fun newInstance(): FragmentVideo {
             return FragmentVideo()
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        // Safety check for Firebase initialization
+        val ctx = requireContext()
+        if (FirebaseApp.getApps(ctx).isEmpty()) {
+            try { FirebaseApp.initializeApp(ctx) } catch (e: Exception) {}
+        }
+        firestore = FirebaseFirestore.getInstance()
+
         binding = ActivityListVideoBinding.inflate(inflater, container, false)
         setupRecyclerView()
         load(false)
@@ -79,26 +92,61 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
 
     @SuppressLint("NotifyDataSetChanged")
     private fun load(loadMore: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        // Check Memory Cache first
+        val now = System.currentTimeMillis()
+        if (!loadMore && videoCache != null && (now - lastFetchedAt < CACHE_TTL_MS)) {
+            val wrapper = VideoWrapper()
+            wrapper.list = ArrayList(videoCache!!)
+            binding.progressBar.visibility = View.GONE
+            result(wrapper, loadMore)
+            mAdapter?.notifyDataSetChanged()
+            return
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
+                // Handle offline fallback if cache exists
+                if (!isInternetConnected() && videoCache != null) {
+                    val wrapper = VideoWrapper()
+                    wrapper.list = ArrayList(videoCache!!)
+                    withContext(Dispatchers.Main) {
+                        binding.progressBar.visibility = View.GONE
+                        result(wrapper, loadMore)
+                        mAdapter?.notifyDataSetChanged()
+                    }
+                    return@launch
+                }
+
                 val querySnapshot = firestore?.collection("videos")?.get()?.await()
                 if (querySnapshot != null) {
+                    val allVideos = ArrayList<Video>()
+                    for (doc in querySnapshot.documents) {
+                        val video = Video()
+                        video.datepublish = doc.getString("datepublish")
+                        video.description = doc.getString("description")
+                        video.thumbnail = doc.getString("thumbnail")
+                        video.url = doc.getString("url")
+                        video.title = doc.getString("title")
+                        allVideos.add(video)
+                    }
+
+                    // Update Cache
+                    if (!loadMore) {
+                        videoCache = allVideos
+                        lastFetchedAt = System.currentTimeMillis()
+                    }
+
                     val wrapper = VideoWrapper()
                     wrapper.list = ArrayList()
                     var rowList = 1
-                    for (doc in querySnapshot.documents) { // Menggunakan documents untuk mendapatkan List<DocumentSnapshot>
+                    // Apply current pagination logic
+                    for (video in allVideos) {
                         if (rowList <= mPage * 50 && rowList > (mPage - 1) * 50) {
-                            val video = Video()
-                            video.datepublish = doc.getString("datepublish")
-                            video.description = doc.getString("description")
-                            video.thumbnail = doc.getString("thumbnail")
-                            video.url = doc.getString("url")
-                            video.title = doc.getString("title")
-                            Log.d("title", video.url + "-")
                             wrapper.list.add(video)
                         }
                         rowList++
                     }
+
                     withContext(Dispatchers.Main) {
                         binding.progressBar.visibility = View.GONE
                         result(wrapper, loadMore)
@@ -106,12 +154,27 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        setToast("Failed Get Data")
+                        // If failed and have cache, fallback to cache
+                        if (videoCache != null) {
+                            val wrapper = VideoWrapper()
+                            wrapper.list = ArrayList(videoCache!!)
+                            binding.progressBar.visibility = View.GONE
+                            result(wrapper, loadMore)
+                        } else {
+                            setToast("Failed Get Data")
+                        }
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    setToast("Error: ${e.message}")
+                    if (videoCache != null) {
+                        val wrapper = VideoWrapper()
+                        wrapper.list = ArrayList(videoCache!!)
+                        binding.progressBar.visibility = View.GONE
+                        result(wrapper, loadMore)
+                    } else {
+                        setToast("Error: ${e.message}")
+                    }
                 }
             }
         }

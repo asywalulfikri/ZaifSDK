@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
 import sound.recorder.widget.databinding.ListNoteBinding
 import sound.recorder.widget.listener.MyAdsListener
@@ -34,15 +35,26 @@ open class NoteFragmentFirebase : BottomSheetDialogFragment() {
     private val notesList: ArrayList<Note> = ArrayList()
 
 
-    private val db = FirebaseFirestore.getInstance()
+    private var db: FirebaseFirestore? = null
     private val collectionPath = "not"
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        // Safety check for Firebase initialization
+        val ctx = requireContext()
+        if (FirebaseApp.getApps(ctx).isEmpty()) {
+            try { FirebaseApp.initializeApp(ctx) } catch (e: Exception) {}
+        }
+        db = FirebaseFirestore.getInstance()
+
         _binding = ListNoteBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     companion object {
+        private const val CACHE_TTL_MS = 24 * 60 * 60 * 1000L // 1 hari
+        private var noteCache: List<Note>? = null
+        private var lastFetchedAt = 0L
+
         fun newInstance(): NoteFragmentFirebase {
             return NoteFragmentFirebase()
         }
@@ -81,30 +93,49 @@ open class NoteFragmentFirebase : BottomSheetDialogFragment() {
 
 
     private fun fetchDocumentsFromCollection() {
-        db.collection(collectionPath)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                // Process the list of documents here
+        // Check Memory Cache first
+        val now = System.currentTimeMillis()
+        if (noteCache != null && (now - lastFetchedAt < CACHE_TTL_MS)) {
+            notesList.clear()
+            notesList.addAll(noteCache!!)
+            songNote()
+            return
+        }
 
+        db?.collection(collectionPath)
+            ?.get()
+            ?.addOnSuccessListener { querySnapshot ->
+                // Process the list of documents here
+                val newNotes = ArrayList<Note>()
                 for (document in querySnapshot) {
                     if (document.exists()) {
                         val data = document.data
 
                         val note = Note()
-                        note.title = data["title"] as String
-                        note.note = data["note"] as String
+                        note.title = data["title"] as? String ?: "-"
+                        note.note = data["note"] as? String ?: ""
                         // Add more fields as needed
-                        notesList.add(note)
-
+                        newNotes.add(note)
                     }
                 }
 
+                // Update Cache
+                noteCache = newNotes
+                lastFetchedAt = System.currentTimeMillis()
+
+                notesList.clear()
+                notesList.addAll(newNotes)
                 songNote()
-                // Here, you have the list of documents in 'documentList'
             }
-            .addOnFailureListener { exception ->
-                Toast.makeText(requireActivity(),exception.message,Toast.LENGTH_SHORT).show()
-                // Handle any errors that occurred while retrieving data
+            ?.addOnFailureListener { exception ->
+                // Fallback to cache if failed (offline)
+                if (noteCache != null) {
+                    notesList.clear()
+                    notesList.addAll(noteCache!!)
+                    songNote()
+                } else {
+                    Toast.makeText(requireActivity(), exception.message, Toast.LENGTH_SHORT).show()
+                }
             }
     }
 

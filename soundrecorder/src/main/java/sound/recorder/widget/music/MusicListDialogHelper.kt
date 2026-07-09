@@ -76,7 +76,7 @@ object MusicListDialogHelper {
     private var isLastPageOnline = false
     private var lastLoadTime = 0L
     private val onlineCache = mutableListOf<FirestoreSong>()
-    private const val CACHE_DURATION = 5 * 60 * 1000L // 5 minutes
+    private const val CACHE_DURATION = 60 * 60 * 1000L // 1 Jam
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -502,6 +502,19 @@ object MusicListDialogHelper {
                 }
 
                 if (isLoadingOnline || (isLastPageOnline && isLoadMore)) return
+
+                // Offline fallback: if no internet but cache exists, use it
+                if (!isInternetAvailable(themedContext) && onlineCache.isNotEmpty()) {
+                    onlineRecyclerView?.visibility = View.VISIBLE
+                    onlineLoadingLayout?.visibility = View.GONE
+                    renderOnlineList(searchField.text?.toString().orEmpty())
+                    if (allTracks.isNotEmpty()) {
+                        val titles = allTracks.map { it.title.trim().lowercase() }.toSet()
+                        onlineAdapter?.setDownloadedTitles(titles)
+                    }
+                    return
+                }
+
                 isLoadingOnline = true
 
                 if (!isLoadMore) {

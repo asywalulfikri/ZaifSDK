@@ -95,7 +95,7 @@ class InstrumentTutorialDialog(
     }
 
     companion object {
-        private const val CACHE_TTL_MS = 5 * 60 * 1000L
+        private const val CACHE_TTL_MS = 30 * 60 * 1000L // 30 menit
         private const val UNLOCK_TTL_MS = 24 * 60 * 60 * 1000L   // 1 hari
         private const val PREFS_UNLOCKED = "zaif_note_unlocks"
 
@@ -755,8 +755,10 @@ class InstrumentTutorialDialog(
                 
                 // Only update cache if in default mode
                 if (!filterAllLanguages) {
-                    val currentCached = cache[instrumentType]?.notes ?: emptyList()
-                    cache[instrumentType] = CachedResult(currentCached + newNotes, System.currentTimeMillis())
+                    val currentCached = cache[instrumentType]
+                    val notes = currentCached?.notes ?: emptyList()
+                    val fetchedAt = currentCached?.fetchedAt ?: System.currentTimeMillis()
+                    cache[instrumentType] = CachedResult(notes + newNotes, fetchedAt)
                 }
 
                 allItems.addAll(newNotes.map { SongItem.Remote(it) })
