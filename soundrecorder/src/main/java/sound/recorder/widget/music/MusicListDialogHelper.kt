@@ -544,7 +544,7 @@ object MusicListDialogHelper {
                 }
 
                 var collection = "song_" + zaifSDKConfig?.applicationId
-                if (zaifSDKConfig?.applicationId == "gendang.elektronik.beat") {
+                if (zaifSDKConfig?.applicationId == "gendang.elektronik.beat"||zaifSDKConfig?.applicationId == "kendang.koplo.didikempot") {
                     collection = "song"
                 }
 
