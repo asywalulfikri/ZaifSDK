@@ -121,7 +121,7 @@ object MusicListDialogHelper {
     }
 
     @SuppressLint("UseKtx", "ClickableViewAccessibility")
-    fun show(context: Context, isDownload: Boolean = false) {
+    fun show(context: Context, isDownload: Boolean = false): AlertDialog {
         val themedContext = resolveThemedContext(context)
 
         zaifSDKConfig = ZaifSDKBuilder.load(context)
@@ -754,6 +754,8 @@ object MusicListDialogHelper {
         rootContainer.post {
             refreshLocalTracks()
         }
+
+        return dialog
     }
 
     @Suppress("DEPRECATION")

@@ -20,7 +20,7 @@ object InstrumentDialogHelper {
         context: Context,
         title: String,
         onAccept: () -> Unit
-    ) {
+    ): Dialog {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
@@ -42,13 +42,14 @@ object InstrumentDialogHelper {
         btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
+        return dialog
     }
 
     @SuppressLint("UseKtx", "SetTextI18n")
     fun showBuyAdsDialog(
         context: Context,
         onAccept: () -> Unit
-    ) {
+    ): Dialog {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
@@ -70,6 +71,7 @@ object InstrumentDialogHelper {
         btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
+        return dialog
     }
 
     /**
@@ -82,7 +84,7 @@ object InstrumentDialogHelper {
         context: Context,
         onSave: (name: String) -> Unit,
         onCancel: (() -> Unit)? = null       // ← nullable, backward-compatible
-    ) {
+    ): Dialog {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_save_record, null)
@@ -126,13 +128,14 @@ object InstrumentDialogHelper {
         dialog.show()
         val dm = context.resources.displayMetrics
         dialog.window?.setLayout((dm.widthPixels * 0.50).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        return dialog
     }
 
     @SuppressLint("UseKtx", "SetTextI18n")
     fun showRecordDialog(
         context: Context,
         onAccept: () -> Unit
-    ) {
+    ): Dialog {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
@@ -154,13 +157,14 @@ object InstrumentDialogHelper {
         btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
+        return dialog
     }
 
     @SuppressLint("UseKtx", "SetTextI18n")
     fun showRecordChooseDialog(
         context: Context,
         onAccept: (useMic: Boolean) -> Unit
-    ) {
+    ): Dialog {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
@@ -177,13 +181,14 @@ object InstrumentDialogHelper {
         btnCancel.setOnClickListener         { dialog.dismiss() }
 
         dialog.show()
+        return dialog
     }
 
     @SuppressLint("UseKtx", "SetTextI18n")
     fun showCancelRecordDialog(
         context: Context,
         onAccept: () -> Unit
-    ) {
+    ): Dialog {
         val dialog = Dialog(context)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
@@ -205,5 +210,6 @@ object InstrumentDialogHelper {
         btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
+        return dialog
     }
 }

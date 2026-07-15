@@ -246,12 +246,14 @@ class InstrumentControlPanel @JvmOverloads constructor(
         setupClickListeners()
     }
 
+    private var activeDialog: android.app.Dialog? = null
+
     private fun setupClickListeners() {
 
         btnMusic.setOnClickListener {
             if (!isMusicUnlocked) {
                 if (!isNetworkAvailable()) { setToast(context.getString(R.string.no_internet_connection)); return@setOnClickListener }
-                InstrumentDialogHelper.showUnlockDialog(context, context.getString(R.string.list_music).uppercase()) {
+                activeDialog = InstrumentDialogHelper.showUnlockDialog(context, context.getString(R.string.list_music).uppercase()) {
                     adRequestListener?.onShowRewardedAd("music") { isMusicUnlocked = true; refreshStatusLabels(); handleMusicOpen() }
                 }
             } else handleMusicOpen()
@@ -262,7 +264,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
         btnList.setOnClickListener {
             if (!isListRecordUnlocked) {
-                InstrumentDialogHelper.showUnlockDialog(context, context.getString(R.string.list_record_result).uppercase()) {
+                activeDialog = InstrumentDialogHelper.showUnlockDialog(context, context.getString(R.string.list_record_result).uppercase()) {
                     if (isNetworkAvailable()) {
                         adRequestListener?.onShowRewardedAd("list_record") { isListRecordUnlocked = true; refreshStatusLabels(); openRecordList() }
                     } else setToast(context.getString(R.string.no_internet_connection))
@@ -290,7 +292,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     // ─── RECORDING ───
     private fun showStartRecordConfirmation() {
-        InstrumentDialogHelper.showRecordChooseDialog(context) { useMic ->
+        activeDialog = InstrumentDialogHelper.showRecordChooseDialog(context) { useMic ->
             if (useMic) checkMicPermission { startRecording(true) }
             else startRecording(false)
         }
@@ -327,7 +329,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
         val events = recorderManager.stopRecording()
         if (events.isNotEmpty()) {
-            InstrumentDialogHelper.showSaveRecordDialog(
+            activeDialog = InstrumentDialogHelper.showSaveRecordDialog(
                 context = context,
                 onSave = { name ->
                     // User pilih SAVE
@@ -422,6 +424,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
         blinkManager.resetRecordBtn()
         recorderManager.stopPlayback()
         if (::btnStop.isInitialized) btnStop.visibility = GONE
+        activeDialog?.dismiss()
+        activeDialog = null
     }
 
     override fun onDetachedFromWindow() {
