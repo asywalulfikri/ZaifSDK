@@ -1520,6 +1520,40 @@ class InstrumentTutorialDialog(
             }
     }
 
+    private fun applySyncTime(ctx: Context, input: android.widget.EditText, targetMs: Long) {
+        try {
+            val jsonStr = input.text.toString()
+            val obj = JSONObject(jsonStr)
+            val arr = obj.getJSONArray("events")
+            if (arr.length() > 0) {
+                // Cari timestamp terkecil
+                var minTs = Long.MAX_VALUE
+                for (i in 0 until arr.length()) {
+                    val item = arr.getJSONObject(i)
+                    val ts = if (item.has("timestamp")) item.getLong("timestamp") else item.optLong("b", Long.MAX_VALUE)
+                    if (ts < minTs) minTs = ts
+                }
+
+                if (minTs != Long.MAX_VALUE) {
+                    // Geser agar mulai di targetMs
+                    val offset = targetMs - minTs
+                    for (i in 0 until arr.length()) {
+                        val item = arr.getJSONObject(i)
+                        if (item.has("timestamp")) {
+                            item.put("timestamp", item.getLong("timestamp") + offset)
+                        } else if (item.has("b")) {
+                            item.put("b", item.getLong("b") + offset)
+                        }
+                    }
+                    input.setText(obj.toString(2))
+                    Toast.makeText(ctx, "Waktu disesuaikan ke ${targetMs}ms!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: Exception) {
+            Toast.makeText(ctx, "Gagal memproses JSON: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun buildEditRoot(ctx: Context, title: String) = LinearLayout(ctx).apply {
         orientation = LinearLayout.VERTICAL
         background = GradientDrawable().apply {
@@ -1567,40 +1601,20 @@ class InstrumentTutorialDialog(
         gravity = Gravity.END
         setPadding(0, ctx.sdp(SdpR.dimen._12sdp), 0, 0)
         
-        // Tombol Sync Time
-        addView(buildDialogBtn(ctx, "SYNC TIME (100ms)", "00C9FF") {
-            try {
-                val jsonStr = input.text.toString()
-                val obj = JSONObject(jsonStr)
-                val arr = obj.getJSONArray("events")
-                if (arr.length() > 0) {
-                    // Cari timestamp terkecil
-                    var minTs = Long.MAX_VALUE
-                    for (i in 0 until arr.length()) {
-                        val item = arr.getJSONObject(i)
-                        val ts = if (item.has("timestamp")) item.getLong("timestamp") else item.optLong("b", Long.MAX_VALUE)
-                        if (ts < minTs) minTs = ts
-                    }
-
-                    if (minTs != Long.MAX_VALUE) {
-                        // Geser agar mulai di 100ms
-                        val offset = 100L - minTs
-                        for (i in 0 until arr.length()) {
-                            val item = arr.getJSONObject(i)
-                            if (item.has("timestamp")) {
-                                item.put("timestamp", item.getLong("timestamp") + offset)
-                            } else if (item.has("b")) {
-                                item.put("b", item.getLong("b") + offset)
-                            }
-                        }
-                        input.setText(obj.toString(2))
-                        Toast.makeText(ctx, "Waktu berhasil disesuaikan!", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Toast.makeText(ctx, "Gagal memproses JSON: ${e.message}", Toast.LENGTH_SHORT).show()
+        // Tombol Sync Time dengan Pilihan Menu
+        val syncBtn = buildDialogBtn(ctx, "SYNC TIME ▼", "00C9FF") { view ->
+            val popup = PopupMenu(ctx, view)
+            for (ms in 100..600 step 100) {
+                popup.menu.add("${ms}ms")
             }
-        })
+            popup.setOnMenuItemClickListener { item ->
+                val msValue = item.title.toString().replace("ms", "").toLong()
+                applySyncTime(ctx, input, msValue)
+                true
+            }
+            popup.show()
+        }
+        addView(syncBtn)
 
         addView(View(ctx).apply { layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1) })
         addView(buildDialogBtn(ctx, "Batal", "777777") { d.dismiss() })
@@ -1713,7 +1727,7 @@ class InstrumentTutorialDialog(
         }
     }
 
-    private fun buildDialogBtn(context: Context, label: String, colorHex: String, onClick: () -> Unit): TextView {
+    private fun buildDialogBtn(context: Context, label: String, colorHex: String, onClick: (View) -> Unit): TextView {
         val color = Color.parseColor("#$colorHex")
         return TextView(context).apply {
             text = label
@@ -1722,7 +1736,7 @@ class InstrumentTutorialDialog(
             setPadding(context.sdp(SdpR.dimen._12sdp), context.sdp(SdpR.dimen._6sdp), context.sdp(SdpR.dimen._12sdp), context.sdp(SdpR.dimen._6sdp))
             typeface = Typeface.DEFAULT_BOLD
             background = RippleDrawable(ColorStateList.valueOf(Color.argb(40, Color.red(color), Color.green(color), Color.blue(color))), null, null)
-            setOnClickListener { onClick() }
+            setOnClickListener { onClick(it) }
         }
     }
 
