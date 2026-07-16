@@ -535,7 +535,7 @@ object RecordingListDialogHelper {
                 "json_note"      to jsonNote,
                 "record_name"    to rec.name,
                 "category"       to rec.setName,
-                "language"   to listOf(getLanguageCode()),
+                "language"       to getLanguageList(),
                 "appId"          to appId,
                 "status"         to "DRAFT",
                 "deviceInfo"     to getInfo(),
@@ -574,6 +574,15 @@ object RecordingListDialogHelper {
         }
 
         return locale.language
+    }
+
+    private fun getLanguageList(): List<String> {
+        val code = getLanguageCode()
+        return if (code == "id" || code == "in") {
+            listOf("id", "in")
+        } else {
+            listOf(code)
+        }
     }
     private fun buildTextButton(
         context: Context,
