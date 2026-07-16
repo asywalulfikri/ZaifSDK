@@ -1554,6 +1554,48 @@ class InstrumentTutorialDialog(
         }
     }
 
+    private fun tryFixJson(ctx: Context, input: android.widget.EditText) {
+        var json = input.text.toString().trim()
+        if (json.isEmpty()) return
+
+        try {
+            // 1. Perbaikan dasar: Tambahkan tanda kutip pada key yang lupa (e.g. record_name: -> "record_name":)
+            json = json.replace("(?m)^(\\s*)([a-zA-Z0-9_]+)(\\s*):".toRegex(), "$1\"$2\"$3:")
+
+            // 2. Hapus koma berlebih di akhir list/object (trailing comma)
+            json = json.replace(",(\\s*[}\\]])".toRegex(), "$1")
+
+            // 3. Lengkapi tanda kurung yang hilang di akhir
+            val openBraces = json.count { it == '{' }
+            val closeBraces = json.count { it == '}' }
+            val openBrackets = json.count { it == '[' }
+            val closeBrackets = json.count { it == ']' }
+
+            if (openBrackets > closeBrackets) {
+                repeat(openBrackets - closeBrackets) { json += "]" }
+            }
+            if (openBraces > closeBraces) {
+                repeat(openBraces - closeBraces) { json += "}" }
+            }
+
+            // 4. Coba parsing untuk Prettify
+            if (json.startsWith("{")) {
+                val obj = JSONObject(json)
+                input.setText(obj.toString(2))
+            } else if (json.startsWith("[")) {
+                val arr = JSONArray(json)
+                input.setText(arr.toString(2))
+            } else {
+                input.setText(json)
+            }
+            Toast.makeText(ctx, "JSON Fixed!", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            // Jika parsing gagal, setidaknya struktur dasar sudah diperbaiki
+            input.setText(json)
+            Toast.makeText(ctx, "Fixed structure, but check content: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun buildEditRoot(ctx: Context, title: String) = LinearLayout(ctx).apply {
         orientation = LinearLayout.VERTICAL
         background = GradientDrawable().apply {
@@ -1601,6 +1643,12 @@ class InstrumentTutorialDialog(
         gravity = Gravity.END
         setPadding(0, ctx.sdp(SdpR.dimen._12sdp), 0, 0)
         
+        // Tombol Fix JSON
+        addView(buildDialogBtn(ctx, "FIX JSON", "A8D8A8") {
+            tryFixJson(ctx, input)
+        })
+        addView(View(ctx).apply { layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._8sdp), 1) })
+
         // Tombol Sync Time dengan Pilihan Menu
         val syncBtn = buildDialogBtn(ctx, "SYNC TIME ▼", "00C9FF") { view ->
             val popup = PopupMenu(ctx, view)
