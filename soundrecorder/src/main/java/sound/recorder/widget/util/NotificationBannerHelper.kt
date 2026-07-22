@@ -1,5 +1,6 @@
 package sound.recorder.widget.util
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -7,6 +8,9 @@ import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -15,10 +19,12 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import sound.recorder.widget.R
+import java.lang.ref.WeakReference
 import com.intuit.sdp.R as SdpR
 
 object NotificationBannerHelper {
 
+    private const val TAG           = "NotificationBanner"
     private const val PREF_KEY_SEEN = "promotion_banner_seen"
     private const val PREF_NAME     = "recordingWidget"
 
@@ -31,6 +37,9 @@ object NotificationBannerHelper {
     private const val GOLD      = "#FFE000"   // bright gold
     private const val BODY      = "#FFFFFF"   // white text
 
+    @Volatile
+    private var isShowing = false
+
     private fun Context.sdp(id: Int)  = resources.getDimensionPixelSize(id)
     private fun Context.sdpF(id: Int) = resources.getDimension(id)
 
@@ -38,149 +47,196 @@ object NotificationBannerHelper {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         if (prefs.getBoolean(PREF_KEY_SEEN, false)) return
 
-        val dialog = AlertDialog.Builder(context).create()
-        val metrics = context.resources.displayMetrics
+        if (isShowing) return
+        
+        // Safety check for Activity state
+        if (context is Activity && (context.isFinishing || context.isDestroyed)) return
 
-        val root = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                intArrayOf(Color.parseColor(BG_TOP), Color.parseColor(BG_MID), Color.parseColor(BG_BTM))
-            ).apply {
-                cornerRadius = context.sdpF(SdpR.dimen._20sdp)
-                setStroke(context.sdp(SdpR.dimen._2sdp), GradientDrawable(
+        isShowing = true
+        val contextRef = WeakReference(context)
+
+        try {
+            val dialog = AlertDialog.Builder(context).create()
+            val metrics = context.resources.displayMetrics
+
+            val root = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                background = GradientDrawable(
+                    GradientDrawable.Orientation.TL_BR,
+                    intArrayOf(Color.parseColor(BG_TOP), Color.parseColor(BG_MID), Color.parseColor(BG_BTM))
+                ).apply {
+                    cornerRadius = context.sdpF(SdpR.dimen._20sdp)
+                    setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor(NEON_CYAN))
+                }
+            }
+
+            // ─── Header ───
+            val padH = context.sdp(SdpR.dimen._12sdp)
+            val padV = context.sdp(SdpR.dimen._10sdp)
+            val header = FrameLayout(context)
+
+            val headerContent = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(padH, padV, padH, context.sdp(SdpR.dimen._6sdp))
+
+                addView(TextView(context).apply {
+                    text = context.getString(R.string.system_notification)
+                    setTextColor(Color.parseColor(NEON_CYAN))
+                    textSize = 9f
+                    letterSpacing = 0.3f
+                    typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                })
+                addView(TextView(context).apply {
+                    text = context.getString(R.string.notification).uppercase()
+                    setTextColor(Color.parseColor(GOLD))
+                    textSize = 17f
+                    typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
+                    setShadowLayer(8f, 0f, 0f, Color.parseColor(GOLD))
+                    val topPad = context.sdp(SdpR.dimen._2sdp)
+                    setPadding(0, topPad, 0, 0)
+                })
+            }
+
+            val closeSize   = context.sdp(SdpR.dimen._24sdp)
+            val closeMargin = context.sdp(SdpR.dimen._6sdp)
+            
+            // Safe dismiss function
+            val safeDismiss = {
+                val currentContext = contextRef.get()
+                if (currentContext != null) {
+                    val canDismiss = if (currentContext is Activity) {
+                        !currentContext.isFinishing && !currentContext.isDestroyed
+                    } else true
+
+                    if (canDismiss && dialog.isShowing) {
+                        Handler(Looper.getMainLooper()).post {
+                            try {
+                                dialog.dismiss()
+                                isShowing = false
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Dismiss error: ${e.message}")
+                                isShowing = false
+                            }
+                        }
+                    } else {
+                        isShowing = false
+                    }
+                } else {
+                    isShowing = false
+                }
+            }
+
+            val closeBtn = FrameLayout(context).apply {
+                layoutParams = FrameLayout.LayoutParams(closeSize, closeSize).apply {
+                    gravity = Gravity.TOP or Gravity.END
+                    setMargins(0, closeMargin, closeMargin, 0)
+                }
+                background = RippleDrawable(
+                    ColorStateList.valueOf(Color.parseColor("#4000F2FF")), null, 
+                    GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.WHITE) }
+                )
+                addView(TextView(context).apply {
+                    text = "✕"
+                    setTextColor(Color.parseColor(NEON_CYAN))
+                    textSize = 14f
+                    gravity = Gravity.CENTER
+                    layoutParams = FrameLayout.LayoutParams(-1, -1)
+                })
+                setOnClickListener { 
+                    markSeen(context)
+                    safeDismiss()
+                }
+            }
+
+            header.addView(headerContent)
+            header.addView(closeBtn)
+            root.addView(header)
+
+            // ─── Glow divider ───
+            root.addView(buildDivider(context, NEON_CYAN))
+
+            // ─── Scrollable body ───
+            val scrollView = ScrollView(context).apply { isVerticalScrollBarEnabled = false }
+            val body = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(padH, context.sdp(SdpR.dimen._8sdp), padH, context.sdp(SdpR.dimen._8sdp))
+            }
+
+            body.addView(TextView(context).apply {
+                text = context.getString(R.string.promotion_my_note_info)
+                setTextColor(Color.parseColor(BODY))
+                textSize = 12f
+                setLineSpacing(0f, 1.3f)
+            })
+
+            body.addView(LinearLayout(context).apply {
+                layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._8sdp))
+            })
+
+            body.addView(buildNoteChip(context, context.getString(R.string.not_approve_notification)))
+
+            scrollView.addView(body)
+            root.addView(scrollView, LinearLayout.LayoutParams(-1, (metrics.heightPixels * 0.28).toInt()))
+
+            // ─── Glow divider ───
+            root.addView(buildDivider(context, NEON_MAG))
+
+            // ─── Confirm button ───
+            val btnContainer = FrameLayout(context).apply {
+                setPadding(padH, context.sdp(SdpR.dimen._8sdp), padH, context.sdp(SdpR.dimen._10sdp))
+            }
+            btnContainer.addView(TextView(context).apply {
+                text = context.getString(R.string.understand).uppercase()
+                setTextColor(Color.BLACK)
+                textSize = 13f
+                gravity = Gravity.CENTER
+                typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
+                letterSpacing = 0.15f
+                setPadding(0, context.sdp(SdpR.dimen._8sdp), 0, context.sdp(SdpR.dimen._8sdp))
+                
+                val normalBg = GradientDrawable(
                     GradientDrawable.Orientation.LEFT_RIGHT,
                     intArrayOf(Color.parseColor(NEON_CYAN), Color.parseColor(NEON_MAG))
-                ).let { Color.parseColor(NEON_CYAN) }) // Simplified stroke for now
-                // Let's use a solid neon stroke for simplicity in code-based UI
-                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor(NEON_CYAN))
-            }
-        }
-
-        // ─── Header ───
-        val padH = context.sdp(SdpR.dimen._12sdp)
-        val padV = context.sdp(SdpR.dimen._10sdp)
-        val header = FrameLayout(context)
-
-        val headerContent = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(padH, padV, padH, context.sdp(SdpR.dimen._6sdp))
-
-            addView(TextView(context).apply {
-                text = context.getString(R.string.system_notification)
-                setTextColor(Color.parseColor(NEON_CYAN))
-                textSize = 9f
-                letterSpacing = 0.3f
-                typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                ).apply { cornerRadius = context.sdpF(SdpR.dimen._24sdp) }
+                
+                background = RippleDrawable(
+                    ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
+                    normalBg,
+                    null
+                )
+                setOnClickListener { 
+                    markSeen(context)
+                    safeDismiss()
+                }
             })
-            addView(TextView(context).apply {
-                text = context.getString(R.string.notification).uppercase()
-                setTextColor(Color.parseColor(GOLD))
-                textSize = 17f
-                typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-                setShadowLayer(8f, 0f, 0f, Color.parseColor(GOLD))
-                val topPad = context.sdp(SdpR.dimen._2sdp)
-                setPadding(0, topPad, 0, 0)
-            })
-        }
+            root.addView(btnContainer)
 
-        val closeSize   = context.sdp(SdpR.dimen._24sdp)
-        val closeMargin = context.sdp(SdpR.dimen._6sdp)
-        val closeBtn = FrameLayout(context).apply {
-            layoutParams = FrameLayout.LayoutParams(closeSize, closeSize).apply {
-                gravity = Gravity.TOP or Gravity.END
-                setMargins(0, closeMargin, closeMargin, 0)
-            }
-            background = RippleDrawable(
-                ColorStateList.valueOf(Color.parseColor("#4000F2FF")), null, 
-                GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.WHITE) }
-            )
-            addView(TextView(context).apply {
-                text = "✕"
-                setTextColor(Color.parseColor(NEON_CYAN))
-                textSize = 14f
-                gravity = Gravity.CENTER
-                layoutParams = FrameLayout.LayoutParams(-1, -1)
-            })
-            setOnClickListener { markSeen(context); dialog.dismiss() }
-        }
-
-        header.addView(headerContent)
-        header.addView(closeBtn)
-        root.addView(header)
-
-        // ─── Glow divider ───
-        root.addView(buildDivider(context, NEON_CYAN))
-
-        // ─── Scrollable body ───
-        val scrollView = ScrollView(context).apply { isVerticalScrollBarEnabled = false }
-        val body = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(padH, context.sdp(SdpR.dimen._8sdp), padH, context.sdp(SdpR.dimen._8sdp))
-        }
-
-        body.addView(TextView(context).apply {
-            text = context.getString(R.string.promotion_my_note_info)
-            setTextColor(Color.parseColor(BODY))
-            textSize = 12f
-            setLineSpacing(0f, 1.3f)
-        })
-
-        body.addView(LinearLayout(context).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._8sdp))
-        })
-
-        body.addView(buildNoteChip(context, context.getString(R.string.not_approve_notification)))
-
-        scrollView.addView(body)
-        root.addView(scrollView, LinearLayout.LayoutParams(-1, (metrics.heightPixels * 0.28).toInt()))
-
-        // ─── Glow divider ───
-        root.addView(buildDivider(context, NEON_MAG))
-
-        // ─── Confirm button ───
-        val btnContainer = FrameLayout(context).apply {
-            setPadding(padH, context.sdp(SdpR.dimen._8sdp), padH, context.sdp(SdpR.dimen._10sdp))
-        }
-        btnContainer.addView(TextView(context).apply {
-            text = context.getString(R.string.understand).uppercase()
-            setTextColor(Color.BLACK)
-            textSize = 13f
-            gravity = Gravity.CENTER
-            typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-            letterSpacing = 0.15f
-            setPadding(0, context.sdp(SdpR.dimen._8sdp), 0, context.sdp(SdpR.dimen._8sdp))
+            dialog.setView(root)
+            dialog.setOnCancelListener { isShowing = false }
+            dialog.show()
             
-            val normalBg = GradientDrawable(
-                GradientDrawable.Orientation.LEFT_RIGHT,
-                intArrayOf(Color.parseColor(NEON_CYAN), Color.parseColor(NEON_MAG))
-            ).apply { cornerRadius = context.sdpF(SdpR.dimen._24sdp) }
-            
-            background = RippleDrawable(
-                ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
-                normalBg,
-                null
-            )
-            setOnClickListener { markSeen(context); dialog.dismiss() }
-        })
-        root.addView(btnContainer)
-
-        dialog.setView(root)
-        dialog.show()
-        dialog.window?.apply {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-            setLayout(
-                (metrics.widthPixels * 0.82).toInt(),
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            attributes?.windowAnimations = android.R.style.Animation_Dialog
+            dialog.window?.apply {
+                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+                setLayout(
+                    (metrics.widthPixels * 0.82).toInt(),
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                attributes?.windowAnimations = android.R.style.Animation_Dialog
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Show dialog failed: ${e.message}")
+            isShowing = false
         }
     }
 
     private fun markSeen(context: Context) {
-        context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            .edit().putBoolean(PREF_KEY_SEEN, true).apply()
+        try {
+            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                .edit().putBoolean(PREF_KEY_SEEN, true).apply()
+        } catch (e: Exception) {
+            Log.e(TAG, "Mark seen failed: ${e.message}")
+        }
     }
 
     private fun buildDivider(context: Context, colorStr: String) = LinearLayout(context).apply {
