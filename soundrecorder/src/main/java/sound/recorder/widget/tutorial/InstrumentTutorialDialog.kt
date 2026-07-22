@@ -3,6 +3,7 @@ package sound.recorder.widget.tutorial
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
@@ -1671,15 +1672,18 @@ class InstrumentTutorialDialog(
     }
 
     private fun deleteNote(ctx: Context, note: NoteItem) {
+        val activity = getActivity(ctx) ?: return
+        if (activity.isFinishing || activity.isDestroyed) return
+
         val appId = zaifSDKConfig?.applicationId ?: return
 
         // Safety check for Firebase initialization
-        if (FirebaseApp.getApps(ctx).isEmpty()) {
-            try { FirebaseApp.initializeApp(ctx) } catch (e: Exception) {}
-            if (FirebaseApp.getApps(ctx).isEmpty()) return
+        if (FirebaseApp.getApps(activity).isEmpty()) {
+            try { FirebaseApp.initializeApp(activity) } catch (e: Exception) {}
+            if (FirebaseApp.getApps(activity).isEmpty()) return
         }
 
-        AlertDialog.Builder(ctx).apply {
+        AlertDialog.Builder(activity).apply {
             setTitle("Hapus Data?")
             setMessage("Data ini akan dihapus permanen dari server.")
             setPositiveButton("Hapus") { _, _ ->
@@ -1687,7 +1691,7 @@ class InstrumentTutorialDialog(
                     .delete()
                     .addOnSuccessListener {
                         onToast("Data berhasil dihapus.")
-                        clearCache(ctx, instrumentType)
+                        clearCache(activity, instrumentType)
                         
                         // Update local list & refresh
                         val index = allItems.indexOfFirst { it is SongItem.Remote && it.note.docId == note.docId }
@@ -1705,73 +1709,88 @@ class InstrumentTutorialDialog(
 
     @SuppressLint("UseKtx", "SetTextI18n")
     private fun showUnlockDialog(context: Context, key: String, onCoinUnlock: () -> Unit, onAdConfirm: () -> Unit) {
-        if (context is Activity && (context.isFinishing || context.isDestroyed)) return
-        val d = AlertDialog.Builder(context).create()
-        val balance = CoinManager.getBalance(context)
-        val root = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#1A0803"))
-                cornerRadius = context.sdpF(SdpR.dimen._14sdp)
-                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#33F0B429"))
-            }
-            val p = context.sdp(SdpR.dimen._16sdp)
-            setPadding(p, p, p, p)
-        }
-        root.addView(TextView(context).apply {
-            text = "🔒  ${context.getString(R.string.note_locked)}"
-            setTextColor(Color.parseColor("#F0B429"))
-            textSize = 14f
-            typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-        })
+        val activity = getActivity(context) ?: return
+        if (activity.isFinishing || activity.isDestroyed) return
 
-        if (zaifSDKConfig?.isCoin == true) {
-            root.addView(View(context).apply {
-                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, context.sdp(SdpR.dimen._8sdp))
-            })
-            root.addView(TextView(context).apply {
-                text = "🪙 " + context.getString(R.string.your_coin) + ": $balance"
-                setTextColor(Color.parseColor("#D2B48C"))
-                textSize = 11f
-                setLineSpacing(0f, 1.4f)
-            })
-        }
+        activity.runOnUiThread {
+            if (activity.isFinishing || activity.isDestroyed) return@runOnUiThread
 
-        root.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, context.sdp(SdpR.dimen._12sdp))
-        })
-        val btnRow = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.END
-        }
-        btnRow.addView(buildDialogBtn(context, context.getString(R.string.cancel), "777777") { d.dismiss() })
-        btnRow.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1)
-        })
-        btnRow.addView(buildDialogBtn(context, context.getString(R.string.watch_ad_label), "F0B429") {
-            d.dismiss()
-            onAdConfirm()
-        })
-        if (zaifSDKConfig?.isCoin == true && balance > 0) {
-            btnRow.addView(View(context).apply {
-                layoutParams = LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1)
-            })
-            btnRow.addView(buildDialogBtn(context, "🪙 ${CoinManager.UNLOCK_COST} " + context.getString(R.string.coin), "4CAF50") {
-                d.dismiss()
-                if (CoinManager.spendCoin(context)) {
-                    markUnlocked(context, key)
-                    onCoinUnlock()
-                } else {
-                    Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
+            val balance = CoinManager.getBalance(activity)
+            val root = LinearLayout(activity).apply {
+                orientation = LinearLayout.VERTICAL
+                background = GradientDrawable().apply {
+                    setColor(Color.parseColor("#1A0803"))
+                    cornerRadius = activity.sdpF(SdpR.dimen._14sdp)
+                    setStroke(activity.sdp(SdpR.dimen._1sdp), Color.parseColor("#33F0B429"))
                 }
+                val p = activity.sdp(SdpR.dimen._16sdp)
+                setPadding(p, p, p, p)
+            }
+
+            val d = AlertDialog.Builder(activity).create()
+
+            root.addView(TextView(activity).apply {
+                text = "🔒  ${activity.getString(R.string.note_locked)}"
+                setTextColor(Color.parseColor("#F0B429"))
+                textSize = 14f
+                typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
             })
-        }
-        root.addView(btnRow)
-        d.setView(root)
-        d.show()
-        d.window?.apply {
-            setLayout((context.resources.displayMetrics.widthPixels * 0.85f).toInt(), WindowManager.LayoutParams.WRAP_CONTENT)
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            if (zaifSDKConfig?.isCoin == true) {
+                root.addView(View(activity).apply {
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, activity.sdp(SdpR.dimen._8sdp))
+                })
+                root.addView(TextView(activity).apply {
+                    text = "🪙 " + activity.getString(R.string.your_coin) + ": $balance"
+                    setTextColor(Color.parseColor("#D2B48C"))
+                    textSize = 11f
+                    setLineSpacing(0f, 1.4f)
+                })
+            }
+
+            root.addView(View(activity).apply {
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, activity.sdp(SdpR.dimen._12sdp))
+            })
+            val btnRow = LinearLayout(activity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.END
+            }
+            btnRow.addView(buildDialogBtn(activity, activity.getString(R.string.cancel), "777777") { d.dismiss() })
+            btnRow.addView(View(activity).apply {
+                layoutParams = LinearLayout.LayoutParams(activity.sdp(SdpR.dimen._8sdp), 1)
+            })
+            btnRow.addView(buildDialogBtn(activity, activity.getString(R.string.watch_ad_label), "F0B429") {
+                d.dismiss()
+                onAdConfirm()
+            })
+            if (zaifSDKConfig?.isCoin == true && balance > 0) {
+                btnRow.addView(View(activity).apply {
+                    layoutParams = LinearLayout.LayoutParams(activity.sdp(SdpR.dimen._8sdp), 1)
+                })
+                btnRow.addView(buildDialogBtn(activity, "🪙 ${CoinManager.UNLOCK_COST} " + activity.getString(R.string.coin), "4CAF50") {
+                    d.dismiss()
+                    if (CoinManager.spendCoin(activity)) {
+                        markUnlocked(activity, key)
+                        onCoinUnlock()
+                    } else {
+                        Toast.makeText(activity, activity.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
+                    }
+                })
+            }
+            root.addView(btnRow)
+            d.setView(root)
+
+            d.window?.apply {
+                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            }
+
+            try {
+                d.show()
+                val width = (activity.resources.displayMetrics.widthPixels * 0.85f).toInt()
+                d.window?.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -1790,6 +1809,15 @@ class InstrumentTutorialDialog(
 
     private fun Context.sdp(id: Int): Int = resources.getDimensionPixelSize(id)
     private fun Context.sdpF(id: Int): Float = resources.getDimension(id)
+
+    private fun getActivity(context: Context): Activity? {
+        var ctx = context
+        while (ctx is ContextWrapper) {
+            if (ctx is Activity) return ctx
+            ctx = ctx.baseContext
+        }
+        return null
+    }
 
     private fun buildAdminButton(context: Context, label: String, bgColor: String, textColor: String): TextView {
         return TextView(context).apply {
