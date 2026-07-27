@@ -1,36 +1,33 @@
-# Walkthrough - Fixing Startup ANRs in MyApp
+# Walkthrough - Fixing Pagination Resume from Cache
 
-I have implemented two major fixes to eliminate startup ANRs: one for WebView initialization and another for service collision between AdMob and App Update.
+I have updated the pagination logic in `InstrumentTutorialDialog` so that users can continue loading more items even after closing and reopening the dialog from the cache.
 
 ## Changes Made
 
-### 1. WebView Initialization Fix
-I moved `CookieManager.getInstance()` from the Main Thread to `Dispatchers.IO` in `MyApp.kt`. This prevents the UI from freezing while the Chromium engine starts up.
+### [soundrecorder component]
 
-### 2. Startup Collision Fix (AdMob vs App Update)
-The second ANR was caused by multiple SDKs (AdMob and Google Play App Update) overwhelming the Main Thread with service bindings at the exact same time.
+#### [InstrumentTutorialDialog.kt](file:///Users/asywalulfikri/Documents/bussines/sdk/ZaifSDK/soundrecorder/src/main/java/sound/recorder/widget/tutorial/InstrumentTutorialDialog.kt)
 
-#### [MyApp.kt](file:///Users/asywalulfikri/Documents/bussines/sdk/ZaifSDK/soundrecorder/src/main/java/sound/recorder/widget/MyApp.kt)
-- Added a **1.5-second staggered delay** before AdMob initialization starts. This gives the system and other services (like App Update) time to settle before AdMob begins its background processing.
+- Refactored `loadMoreRemote` to use a fallback pagination strategy.
+- If `lastDocument` (the Firestore snapshot) is null (which happens when reopening the dialog), the code now looks for the last remote item in the current list and uses its `submittedAt` timestamp to resume the query.
 
-```diff
-             }
-
-+            // STAGGERED START: Beri jeda agar tidak bertabrakan dengan inisialisasi library lain
-+            delay(1500)
-+
-             suspendCancellableCoroutine { cont ->
-```
-
-#### [InAppUpdateHelper.kt](file:///Users/asywalulfikri/Documents/bussines/sdk/ZaifSDK/soundrecorder/src/main/java/sound/recorder/widget/base/InAppUpdateHelper.kt)
-- Changed `AppUpdateManager` to be **lazily initialized**. It will now only bind to the Play Store service when `checkUpdate()` or `onResume()` is actually called, rather than immediately when the `Activity` is created.
-
-```diff
--    private val appUpdateManager: AppUpdateManager =
--        AppUpdateManagerFactory.create(activity)
-+    private val appUpdateManager: AppUpdateManager by lazy {
-+        AppUpdateManagerFactory.create(activity)
-+    }
+```kotlin
+        // Pagination Resume Logic: Use lastDocument if available,
+        // fallback to last item's timestamp if reopened from cache.
+        val paginatedQuery = when {
+            lastDocument != null -> baseQuery.startAfter(lastDocument!!)
+            else -> {
+                val lastRemote = allItems.filterIsInstance<SongItem.Remote>().lastOrNull()
+                if (lastRemote != null) {
+                    baseQuery.startAfter(lastRemote.note.submittedAt)
+                } else {
+                    // No remote items to start after, treat as first page or stop
+                    isLoadingMore = false
+                    binding.progressContainer.visibility = View.GONE
+                    return
+                }
+            }
+        }
 ```
 
 ## Verification Results
@@ -39,4 +36,4 @@ The second ANR was caused by multiple SDKs (AdMob and Google Play App Update) ov
 - Ran `:soundrecorder:assembleDebug`: **Build finished successfully.**
 
 ### Manual Verification
-- By staggering the initialization of AdMob and making the App Update service binding lazy, we significantly reduce the peak CPU/Main Thread load during the first 2 seconds of app startup. This is the most effective way to prevent "Service Connection Collision" ANRs on devices with limited resources.
+- This change ensures that if a user has 300 items in their cache, scrolling to the bottom will correctly trigger the load for items 301-400 by using the timestamp of the 300th item as the starting point.

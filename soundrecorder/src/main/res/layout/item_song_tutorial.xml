@@ -11,12 +11,26 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical">
 
+        <!-- Number -->
+        <TextView
+            android:id="@+id/tvNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="1"
+            android:textColor="#8B93B8"
+            android:textSize="@dimen/_10ssp"
+            android:textStyle="bold"
+            android:minWidth="@dimen/_20sdp"
+            android:gravity="center"/>
+
         <!-- Icon -->
         <ImageView
             android:id="@+id/ivSongIcon"
-            android:layout_width="@dimen/_32sdp"
-            android:layout_height="@dimen/_32sdp"
-            android:layout_alignParentStart="true"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_toEndOf="@id/tvNumber"
             android:layout_centerVertical="true"
             android:src="@drawable/icon_music"
             android:contentDescription="@string/song" />

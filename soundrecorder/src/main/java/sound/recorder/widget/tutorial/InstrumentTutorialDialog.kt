@@ -834,7 +834,6 @@ class InstrumentTutorialDialog(
         binding: DialogTutorialSongListBinding,
         allItems: MutableList<SongItem>
     ) {
-        val lastDoc = lastDocument ?: return
         if (isLoadingMore || isLastPage) return
         
         if (!isNetworkAvailable(mContext)) {
@@ -878,9 +877,26 @@ class InstrumentTutorialDialog(
             }
         }
 
-        query
-            .orderBy("submitted_at", Query.Direction.DESCENDING)
-            .startAfter(lastDoc)
+        val baseQuery = query.orderBy("submitted_at", Query.Direction.DESCENDING)
+
+        // Pagination Resume Logic: Use lastDocument if available, 
+        // fallback to last item's timestamp if reopened from cache.
+        val paginatedQuery = when {
+            lastDocument != null -> baseQuery.startAfter(lastDocument!!)
+            else -> {
+                val lastRemote = allItems.filterIsInstance<SongItem.Remote>().lastOrNull()
+                if (lastRemote != null) {
+                    baseQuery.startAfter(lastRemote.note.submittedAt)
+                } else {
+                    // No remote items to start after, treat as first page or stop
+                    isLoadingMore = false
+                    binding.progressContainer.visibility = View.GONE
+                    return
+                }
+            }
+        }
+
+        paginatedQuery
             .limit(PAGE_SIZE)
             .get()
             .addOnSuccessListener { snapshot ->
@@ -997,6 +1013,7 @@ class InstrumentTutorialDialog(
         private val items = mutableListOf<SongItem>()
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val tvNumber: TextView = view.findViewById(R.id.tvNumber)
             val tvName: TextView = view.findViewById(R.id.tvSongName)
             val tvInfo: TextView = view.findViewById(R.id.tvSongInfo)
             val btnPlay: TextView = view.findViewById(R.id.btnPlay)
@@ -1022,6 +1039,8 @@ class InstrumentTutorialDialog(
             val unlocked = isUnlocked(item)
             val lockSuffix = if (unlocked) "" else " 🔒"
             val isDebug = isAppDebuggable(context)
+
+            holder.tvNumber.text = "${position + 1}."
 
             when (item) {
                 is SongItem.Local -> {
