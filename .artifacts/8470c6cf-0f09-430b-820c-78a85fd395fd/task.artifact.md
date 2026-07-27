@@ -1,0 +1,3 @@
+- [x] Remove `withContext(Dispatchers.Main)` for `CookieManager.getInstance()` in `MyApp.kt`
+- [x] Verify compilation
+- [x] Create walkthrough

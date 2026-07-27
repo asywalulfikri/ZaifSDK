@@ -149,19 +149,17 @@ open class MyApp : Application() {
     }
 
     private suspend fun initializeAdMob() {
-        // 1. Sentuh WebView/CookieManager di Main Thread secara SINKRON.
-        // Ini sangat ringan dan memastikan engine Chromium inisialisasi di thread yang benar.
-        withContext(Dispatchers.Main) {
+        // Inisialisasi CookieManager dan AdMob di Background Thread (IO).
+        // Memanggil CookieManager.getInstance() di Main Thread (UI) sangat berisiko menyebabkan ANR 
+        // karena engine Chromium mungkin memerlukan waktu untuk inisialisasi.
+        withContext(Dispatchers.IO) {
             try {
+                // Pre-touch CookieManager di background agar engine WebView siap
                 CookieManager.getInstance()
             } catch (e: Throwable) {
                 Log.e(TAG, "Pre-touch WebView error: ${e.message}")
             }
-        }
 
-        // 2. Inisialisasi AdMob di Background Thread (IO).
-        // Proses berat seperti loading DEX dan Client API tidak akan memblokir UI Thread.
-        withContext(Dispatchers.IO) {
             suspendCancellableCoroutine { cont ->
                 try {
                     MobileAds.initialize(this@MyApp) { status ->
