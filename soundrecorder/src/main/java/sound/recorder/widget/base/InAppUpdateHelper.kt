@@ -29,8 +29,9 @@ class InAppUpdateHelper(
     private val updateType: Int = AppUpdateType.FLEXIBLE
 ) {
 
-    private val appUpdateManager: AppUpdateManager =
+    private val appUpdateManager: AppUpdateManager by lazy {
         AppUpdateManagerFactory.create(activity)
+    }
 
     private val updateLock = Any()
     private var isUpdateFlowRunning = false

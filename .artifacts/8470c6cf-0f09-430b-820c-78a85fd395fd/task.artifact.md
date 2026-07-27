@@ -1,3 +1,7 @@
 - [x] Remove `withContext(Dispatchers.Main)` for `CookieManager.getInstance()` in `MyApp.kt`
 - [x] Verify compilation
 - [x] Create walkthrough
+- [x] Add staggered delay to `initializeAdMob` in `MyApp.kt`
+- [x] Lazily initialize `AppUpdateManager` in `InAppUpdateHelper.kt`
+- [x] Verify final compilation
+- [x] Update walkthrough

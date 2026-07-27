@@ -160,6 +160,10 @@ open class MyApp : Application() {
                 Log.e(TAG, "Pre-touch WebView error: ${e.message}")
             }
 
+            // STAGGERED START: Beri jeda agar tidak bertabrakan dengan inisialisasi library lain (seperti App Update)
+            // yang juga membebani Main Thread saat startup.
+            delay(1500)
+
             suspendCancellableCoroutine { cont ->
                 try {
                     MobileAds.initialize(this@MyApp) { status ->

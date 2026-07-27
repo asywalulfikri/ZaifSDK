@@ -1,24 +1,24 @@
-# Fix Main Thread ANR in MyApp Initialization
+# Fix Startup Collision ANR (AdMob vs App Update)
 
-The application is experiencing a recurring ANR (Application Not Responding) during startup. The stack trace indicates that `CookieManager.getInstance()` is being called on the main thread within `MyApp.initializeAdMob()`, which blocks the UI while initializing the WebView engine (Chromium).
+The application is experiencing a second type of ANR where the Main Thread is overwhelmed during startup by concurrent service bindings from `app-update` and initializations from `AdMob`.
 
 ## Proposed Changes
 
 ### [soundrecorder component]
 
 #### [MODIFY] [MyApp.kt](file:///Users/asywalulfikri/Documents/bussines/sdk/ZaifSDK/soundrecorder/src/main/java/sound/recorder/widget/MyApp.kt)
+- Add a strategic delay (e.g., 1500ms) before calling `MobileAds.initialize` in `initializeAdMob`.
+- This "staggered" approach ensures the Main Thread has finished critical activity startup and other service bindings (like Google Play App Update) before AdMob starts its heavy background-to-main-thread communication.
 
-- Remove the `withContext(Dispatchers.Main)` wrapper around `CookieManager.getInstance()` in the `initializeAdMob` function.
-- This will allow the WebView initialization to occur on a background thread (`Dispatchers.IO`), preventing it from blocking the main thread and causing ANRs.
-- Modern Android versions support calling `CookieManager.getInstance()` from background threads.
+#### [MODIFY] [InAppUpdateHelper.kt](file:///Users/asywalulfikri/Documents/bussines/sdk/ZaifSDK/soundrecorder/src/main/java/sound/recorder/widget/base/InAppUpdateHelper.kt)
+- Move `AppUpdateManagerFactory.create(activity)` from the constructor/property initializer to the `checkUpdate` and `onResume` methods, lazily.
+- This prevents the Play Store service from being bound immediately upon Activity creation, further spreading out the startup load.
 
 ## Verification Plan
 
 ### Automated Tests
-- I will check if the project compiles after the change.
-- Since this is a runtime ANR issue, static analysis or unit tests might not catch it, but ensuring the code still runs on the background thread is key.
+- Build the project to ensure no syntax errors.
 
 ### Manual Verification
-- Deploy the app and monitor Logcat for any WebView-related errors during startup.
-- Verify that AdMob initializes successfully (log "AdMob initialized: ...").
-- Ensure no ANR occurs during the splash screen/startup phase.
+- Deploy to a device (especially the one reported, if available) and check if the ANR still occurs at startup.
+- Verify that AdMob and App Update still work correctly after the delay.
