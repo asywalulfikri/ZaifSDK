@@ -69,6 +69,9 @@ LineNumberTable, *Annotation*, EnclosingMethod
 -keep class com.google.android.gms.ads.** { *; }
 -dontwarn com.google.android.gms.ads.**
 
+-keep class com.google.android.play.core.hsdp.** { *; }
+-keepclassmembers class com.google.android.play.core.hsdp.** { *; }
+
 # WebView
 -keepclassmembers class * extends android.webkit.WebViewClient {
     public void *(android.webkit.WebView, java.lang.String, android.graphics.Bitmap);
