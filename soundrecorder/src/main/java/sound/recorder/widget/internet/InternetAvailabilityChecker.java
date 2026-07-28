@@ -2,6 +2,11 @@ package sound.recorder.widget.internet;
 
 import android.content.Context;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.os.Build;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -16,6 +21,7 @@ public final class InternetAvailabilityChecker implements NetworkChangeReceiver.
    private WeakReference<Context> mContextWeakReference;
    private List<WeakReference<InternetConnectivityListener>> mInternetConnectivityListenersWeakReferences;
    private NetworkChangeReceiver mNetworkChangeReceiver;
+   private ConnectivityManager.NetworkCallback mNetworkCallback;
    private boolean mIsNetworkChangeRegistered = false;
    private boolean mIsInternetConnected = false;
    private boolean isInitialConnectivityStatusKnow = false; // this variable is to track if initial connectivity status has been calculated or not
@@ -145,13 +151,44 @@ public final class InternetAvailabilityChecker implements NetworkChangeReceiver.
    private void registerNetworkChangeReceiver() {
       Context context = mContextWeakReference.get();
       if (context != null && !mIsNetworkChangeRegistered) {
-         mNetworkChangeReceiver = new NetworkChangeReceiver();
-         mNetworkChangeReceiver.setNetworkChangeListener(this);
-         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            context.registerReceiver(mNetworkChangeReceiver, new IntentFilter(CONNECTIVITY_CHANGE_INTENT_ACTION), Context.RECEIVER_EXPORTED);
-         } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(mNetworkChangeReceiver, new IntentFilter(CONNECTIVITY_CHANGE_INTENT_ACTION), Context.RECEIVER_EXPORTED);
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (connectivityManager != null) {
+               mNetworkCallback = new ConnectivityManager.NetworkCallback() {
+                  @Override
+                  public void onAvailable(Network network) {
+                     onNetworkChange(true);
+                  }
+
+                  @Override
+                  public void onLost(Network network) {
+                     onNetworkChange(false);
+                  }
+               };
+               NetworkRequest networkRequest = new NetworkRequest.Builder()
+                       .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                       .build();
+               connectivityManager.registerNetworkCallback(networkRequest, mNetworkCallback);
+            }
+         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+             if (connectivityManager != null) {
+                mNetworkCallback = new ConnectivityManager.NetworkCallback() {
+                   @Override
+                   public void onAvailable(Network network) {
+                      onNetworkChange(true);
+                   }
+
+                   @Override
+                   public void onLost(Network network) {
+                      onNetworkChange(false);
+                   }
+                };
+                connectivityManager.registerDefaultNetworkCallback(mNetworkCallback);
+             }
          } else {
+            mNetworkChangeReceiver = new NetworkChangeReceiver();
+            mNetworkChangeReceiver.setNetworkChangeListener(this);
             context.registerReceiver(mNetworkChangeReceiver, new IntentFilter(CONNECTIVITY_CHANGE_INTENT_ACTION));
          }
          mIsNetworkChangeRegistered = true;
@@ -163,15 +200,23 @@ public final class InternetAvailabilityChecker implements NetworkChangeReceiver.
     */
    private void unregisterNetworkChangeReceiver() {
       Context context = mContextWeakReference.get();
-      if (context != null && mNetworkChangeReceiver != null && mIsNetworkChangeRegistered) {
-         try {
-            context.unregisterReceiver(mNetworkChangeReceiver);
-         } catch (IllegalArgumentException exception) {
-            //consume this exception
+      if (context != null && mIsNetworkChangeRegistered) {
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && mNetworkCallback != null) {
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (connectivityManager != null) {
+               connectivityManager.unregisterNetworkCallback(mNetworkCallback);
+            }
+            mNetworkCallback = null;
+         } else if (mNetworkChangeReceiver != null) {
+            try {
+               context.unregisterReceiver(mNetworkChangeReceiver);
+            } catch (IllegalArgumentException exception) {
+               //consume this exception
+            }
+            mNetworkChangeReceiver.removeNetworkChangeListener();
+            mNetworkChangeReceiver = null;
          }
-         mNetworkChangeReceiver.removeNetworkChangeListener();
       }
-      mNetworkChangeReceiver = null;
       mIsNetworkChangeRegistered = false;
       mCheckConnectivityCallback = null;
    }
