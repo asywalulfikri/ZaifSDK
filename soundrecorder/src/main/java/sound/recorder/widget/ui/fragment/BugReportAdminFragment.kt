@@ -1,10 +1,19 @@
 package sound.recorder.widget.ui.fragment
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.text.InputType
+import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -13,10 +22,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
 import sound.recorder.widget.databinding.FragmentSongRequestAdminBinding
+import sound.recorder.widget.encrypt.CryptoManager
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
+import java.security.KeyFactory
+import java.security.Signature
+import java.security.spec.PKCS8EncodedKeySpec
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -30,7 +51,8 @@ class BugReportAdminFragment : Fragment() {
         val bugTitle: String,
         val bugDescription: String,
         val requestedAt: Long,
-        val status: String
+        val status: String,
+        val firebaseToken: String = ""
     )
 
     private val allRequests = mutableListOf<BugRequest>()
@@ -50,7 +72,8 @@ class BugReportAdminFragment : Fragment() {
 
         adapter = SongRequestAdapter(
             onMarkDone = { req -> updateStatus(req, "done") },
-            onDelete   = { req -> deleteRequest(req) }
+            onDelete   = { req -> deleteRequest(req) },
+            onReply    = { req -> showReplyDialog(req) }
         )
 
         binding?.rvRequests?.layoutManager = LinearLayoutManager(requireContext())
@@ -86,7 +109,8 @@ class BugReportAdminFragment : Fragment() {
                         bugTitle  = d["bug_title"]   as? String ?: "-",
                         bugDescription  = d["bug_description"]   as? String ?: "-",
                         requestedAt = d["requested_at"] as? Long   ?: 0L,
-                        status     = d["status"]       as? String ?: "pending"
+                        status     = d["status"]       as? String ?: "pending",
+                        firebaseToken = d["firebaseToken"] as? String ?: ""
                     )
                 })
                 applyFilter(currentFilter)
@@ -156,6 +180,163 @@ class BugReportAdminFragment : Fragment() {
             }
     }
 
+    private fun showReplyDialog(req: BugRequest) {
+        val context = requireContext()
+        val etReply = EditText(context).apply {
+            hint = "Masukkan pesan balasan..."
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minLines = 3
+        }
+
+        val layout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 24)
+            addView(etReply)
+        }
+
+        AlertDialog.Builder(context)
+            .setTitle("Balas Bug Report")
+            .setMessage("Kirim notifikasi ke user untuk: ${req.bugTitle}")
+            .setView(layout)
+            .setPositiveButton("Kirim") { _, _ ->
+                val message = etReply.text.toString().trim()
+                if (message.isNotEmpty()) {
+                    sendReplyNotification(req, message)
+                } else {
+                    Toast.makeText(context, "Pesan tidak boleh kosong", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    private fun sendReplyNotification(req: BugRequest, replyMessage: String) {
+        val encryptedKey = zaifSDKConfig?.fcmKey.orEmpty()
+        val encryptionKey = zaifSDKConfig?.applicationId.orEmpty()
+        if (encryptedKey.isBlank() || encryptionKey.isBlank()) {
+            Toast.makeText(requireContext(), "FCM Key atau App ID belum dikonfigurasi", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val serviceAccountJson = try {
+            CryptoManager(requireContext(), encryptionKey).decrypt(encryptedKey)
+        } catch (_: Exception) {
+            Toast.makeText(requireContext(), "Gagal dekripsi FCM key", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val projectId = try {
+            JSONObject(serviceAccountJson).getString("project_id")
+        } catch (_: Exception) {
+            Toast.makeText(requireContext(), "Project ID tidak ditemukan di JSON", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val accessToken = getOAuthToken(serviceAccountJson)
+                if (accessToken == null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Gagal mendapatkan OAuth token", Toast.LENGTH_SHORT).show()
+                    }
+                    return@launch
+                }
+
+                val conn = (URL("https://fcm.googleapis.com/v1/projects/$projectId/messages:send")
+                    .openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Authorization", "Bearer $accessToken")
+                    setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+                    doOutput = true
+                }
+
+                val payload = JSONObject().apply {
+                    put("message", JSONObject().apply {
+                        put("token", req.firebaseToken)
+                        put("notification", JSONObject().apply {
+                            put("title", "Balasan Bug Report")
+                            put("body", replyMessage)
+                        })
+                        put("data", JSONObject().apply {
+                            put("type", "bug_reply")
+                            put("bug_id", req.docId)
+                        })
+                    })
+                }
+
+                OutputStreamWriter(conn.outputStream).use { it.write(payload.toString()) }
+                val success = conn.responseCode in 200..299
+
+                withContext(Dispatchers.Main) {
+                    val msg = if (success) "Balasan berhasil dikirim!" else "Gagal kirim notifikasi: ${conn.responseCode}"
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private suspend fun getOAuthToken(serviceAccountJson: String): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val json = JSONObject(serviceAccountJson)
+                val privateKeyPem = json.getString("private_key")
+                    .replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replace("\n", "")
+                    .trim()
+                val clientEmail = json.getString("client_email")
+
+                val now = System.currentTimeMillis() / 1000L
+                val headerJson = """{"alg":"RS256","typ":"JWT"}"""
+                val payloadJson = JSONObject().apply {
+                    put("iss", clientEmail)
+                    put("scope", "https://www.googleapis.com/auth/firebase.messaging")
+                    put("aud", "https://oauth2.googleapis.com/token")
+                    put("iat", now)
+                    put("exp", now + 3600L)
+                }.toString()
+
+                val header  = Base64.encodeToString(headerJson.toByteArray(), Base64.NO_WRAP or Base64.URL_SAFE)
+                val payload = Base64.encodeToString(payloadJson.toByteArray(), Base64.NO_WRAP or Base64.URL_SAFE)
+                val signingInput = "$header.$payload"
+
+                val keyBytes   = Base64.decode(privateKeyPem, Base64.DEFAULT)
+                val privateKey = KeyFactory.getInstance("RSA").generatePrivate(PKCS8EncodedKeySpec(keyBytes))
+                val sig = Signature.getInstance("SHA256withRSA").apply {
+                    initSign(privateKey)
+                    update(signingInput.toByteArray())
+                }.sign()
+
+                val jwt = "$signingInput.${Base64.encodeToString(sig, Base64.NO_WRAP or Base64.URL_SAFE)}"
+
+                val tokenConn = (URL("https://oauth2.googleapis.com/token")
+                    .openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+                    doOutput = true
+                    connectTimeout = 10_000
+                    readTimeout    = 10_000
+                }
+
+                val body = "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=$jwt"
+                OutputStreamWriter(tokenConn.outputStream).use { it.write(body) }
+
+                if (tokenConn.responseCode == 200) {
+                    val response = tokenConn.inputStream.bufferedReader().readText()
+                    JSONObject(response).getString("access_token")
+                } else {
+                    null
+                }
+            } catch (_: Exception) {
+                null
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
@@ -165,7 +346,8 @@ class BugReportAdminFragment : Fragment() {
 
     private inner class SongRequestAdapter(
         private val onMarkDone: (BugRequest) -> Unit,
-        private val onDelete: (BugRequest) -> Unit
+        private val onDelete: (BugRequest) -> Unit,
+        private val onReply: (BugRequest) -> Unit
     ) : RecyclerView.Adapter<SongRequestAdapter.VH>() {
 
         private val items = mutableListOf<BugRequest>()
@@ -177,6 +359,7 @@ class BugReportAdminFragment : Fragment() {
             val tvDate: TextView?      = view.findViewById(R.id.tvDate)
             val btnMarkDone: TextView? = view.findViewById(R.id.btnMarkDone)
             val btnDelete: TextView?   = view.findViewById(R.id.btnDelete)
+            val btnReply: TextView?    = view.findViewById(R.id.btnReply)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -207,6 +390,13 @@ class BugReportAdminFragment : Fragment() {
 
             holder.btnMarkDone?.setOnClickListener { onMarkDone(item) }
             holder.btnDelete?.setOnClickListener   { onDelete(item) }
+
+            if (item.firebaseToken.isNotEmpty()) {
+                holder.btnReply?.visibility = View.VISIBLE
+                holder.btnReply?.setOnClickListener { onReply(item) }
+            } else {
+                holder.btnReply?.visibility = View.GONE
+            }
         }
 
         override fun getItemCount() = items.size
