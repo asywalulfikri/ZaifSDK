@@ -98,7 +98,7 @@ class InstrumentTutorialDialog(
     }
 
     companion object {
-        private const val CACHE_TTL_MS = 30 * 60 * 1000L // 30 menit
+        private const val CACHE_TTL_MS = 24 * 60 * 60 * 1000L // 1 hari
         private const val UNLOCK_TTL_MS = 24 * 60 * 60 * 1000L   // 1 hari
         private const val PREFS_UNLOCKED = "zaif_note_unlocks"
         private const val PREFS_DISK_CACHE = "zaif_tutorial_disk_cache"

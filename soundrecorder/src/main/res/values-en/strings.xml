@@ -452,7 +452,7 @@
 
     <string name="data_renew_one_hours">Data is updated every hour.</string>
     <string name="data_renew_one_day">Data is updated every day.</string>
-    <string name="data_renew_one_minutes">Data is updated every 30 minutes.</string>
+    <string name="data_renew_one_minutes">Data is updated every 24 hours.</string>
     <string name="yours">You</string>
 
     <string name="title_reset_layout">All drum positions and sizes you have customized will be reset to their default values. Continue?</string>

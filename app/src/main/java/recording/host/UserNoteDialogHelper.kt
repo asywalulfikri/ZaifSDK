@@ -63,7 +63,7 @@ class UserNoteDialogHelper(
     )
 
     companion object {
-        private const val CACHE_TTL_MS   = 15 * 60 * 1000L
+        private const val CACHE_TTL_MS   = 24 * 60 * 60 * 1000L // 1 hari
         private const val UNLOCK_TTL_MS  = 7 * 24 * 60 * 60 * 1000L // 1 minggu
         private const val PREFS_UNLOCKED = "zaif_note_unlocks"
 

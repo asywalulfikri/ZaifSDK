@@ -454,7 +454,7 @@
 
     <string name="data_renew_one_hours">Data diperbarui tiap 1 jam.</string>
     <string name="data_renew_one_day">Data diperbarui tiap 1 hari.</string>
-    <string name="data_renew_one_minutes">Data diperbarui tiap 30 menit.</string>
+    <string name="data_renew_one_minutes">Data diperbarui tiap 24 jam.</string>
     <string name="yours">Kamu</string>
 
     <string name="title_reset_layout">Semua posisi dan ukuran gendang yang sudah Anda atur akan dikembalikan ke awal. Lanjutkan?</string>
