@@ -461,4 +461,6 @@
     <string name="sound">ध्वनि</string>
     <string name="saved">सहेजा गया</string>
     <string name="tap_gendang">ड्रम पर टैप करें</string>
+
+    <string name="enable_internet_to_record">स्क्रीन रिकॉर्ड करने के लिए इंटरनेट चालू करें</string>
 </resources>

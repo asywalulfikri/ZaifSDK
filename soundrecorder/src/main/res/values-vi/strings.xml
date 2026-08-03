@@ -463,4 +463,6 @@
     <string name="sound">Âm thanh</string>
     <string name="saved">Đã lưu</string>
     <string name="tap_gendang">Chạm vào trống</string>
+
+    <string name="enable_internet_to_record">Bật Internet để ghi màn hình</string>
 </resources>

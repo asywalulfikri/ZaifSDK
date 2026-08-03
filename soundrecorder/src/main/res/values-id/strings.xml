@@ -446,13 +446,6 @@
     <string name="move_gendang_position">Geser Posisi Gendang</string>
     <string name="upload_my_file">Upload File Sendiri</string>
 
-    <string name="title_reset_layout">Semua posisi dan ukuran gendang yang sudah Anda atur akan dikembalikan ke awal. Lanjutkan?</string>
-    <string name="reset_layout">Reset Layout</string>
-    <string name="skin_success_changed">Kulit Berhasil Diganti</string>
-    <string name="sound">Suara</string>
-    <string name="saved">Disimpan</string>
-    <string name="tap_gendang">Ketuk Gendang</string>
-
     <string name="select_gendang_to_delete">🗑️ Pilih gendang untuk dihapus</string>
     <string name="select_gendang_to_change_sound">🎵 Pilih gendang untuk ganti suara</string>
     <string name="select_gendang_to_change_skin">🎨 Pilih gendang untuk ganti kulit</string>
@@ -469,6 +462,16 @@
     <string name="data_renew_one_day">Data diperbarui tiap 1 hari.</string>
     <string name="data_renew_one_minutes">Data diperbarui tiap 30 Menit.</string>
     <string name="yours">Kamu</string>
+
+    <string name="title_reset_layout">Semua posisi dan ukuran gendang yang sudah Anda atur akan dikembalikan ke awal. Lanjutkan?</string>
+    <string name="reset_layout">Reset Layout</string>
+    <string name="skin_success_changed">Kulit Berhasil Diganti</string>
+    <string name="sound">Suara</string>
+    <string name="saved">Disimpan</string>
+    <string name="tap_gendang">Ketuk Gendang</string>
+
+
+    <string name="enable_internet_to_record">Hidupkan internet untuk melakukan rekam layar</string>
 
 
 

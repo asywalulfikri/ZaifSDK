@@ -467,4 +467,6 @@
     <string name="sound">Geluid</string>
     <string name="saved">Opgeslagen</string>
     <string name="tap_gendang">Tik op een trommel</string>
+
+    <string name="enable_internet_to_record">Schakel internet in om het scherm op te nemen</string>
 </resources>

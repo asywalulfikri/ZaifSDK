@@ -466,4 +466,6 @@
     <string name="saved">Enregistré</string>
     <string name="tap_gendang">Touchez un tambour</string>
 
+    <string name="enable_internet_to_record">Activez Internet pour enregistrer votre écran</string>
+
 </resources>

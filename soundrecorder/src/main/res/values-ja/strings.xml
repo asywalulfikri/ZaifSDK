@@ -459,4 +459,6 @@
     <string name="saved">保存済み</string>
     <string name="tap_gendang">ドラムをタップ</string>
 
+    <string name="enable_internet_to_record">画面録画を行うにはインターネットを有効にしてください</string>
+
 </resources>

@@ -466,5 +466,7 @@
     <string name="saved">Nai-save</string>
     <string name="tap_gendang">I-tap ang Drum</string>
 
+    <string name="enable_internet_to_record">I-on ang internet upang mag-record ng screen</string>
+
 
 </resources>

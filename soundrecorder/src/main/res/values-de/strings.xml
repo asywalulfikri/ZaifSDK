@@ -467,5 +467,7 @@
     <string name="saved">Gespeichert</string>
     <string name="tap_gendang">Tippen Sie auf eine Trommel</string>
 
+    <string name="enable_internet_to_record">Aktivieren Sie das Internet, um den Bildschirm aufzunehmen</string>
+
 </resources>
 

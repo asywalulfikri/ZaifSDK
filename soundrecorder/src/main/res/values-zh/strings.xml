@@ -463,5 +463,7 @@
     <string name="saved">已保存</string>
     <string name="tap_gendang">点击鼓</string>
 
+    <string name="enable_internet_to_record">请开启网络以录制屏幕</string>
+
 
 </resources>

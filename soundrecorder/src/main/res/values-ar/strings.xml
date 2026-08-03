@@ -508,5 +508,7 @@
     <string name="sound">الصوت</string>
     <string name="saved">تم الحفظ</string>
     <string name="tap_gendang">اضغط على الطبل</string>
+
+    <string name="enable_internet_to_record">قم بتشغيل الإنترنت لتسجيل الشاشة</string>
 </resources>
 

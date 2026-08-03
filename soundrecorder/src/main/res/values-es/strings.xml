@@ -465,4 +465,6 @@
     <string name="saved">Guardado</string>
     <string name="tap_gendang">Toca un tambor</string>
 
+    <string name="enable_internet_to_record">Activa Internet para grabar la pantalla</string>
+
 </resources>

@@ -463,4 +463,8 @@
     <string name="sound">Sound</string>
     <string name="saved">Saved</string>
     <string name="tap_gendang">Tap a Drum</string>
+
+    <string name="enable_internet_to_record">Turn on the internet to record your screen</string>
+
+
 </resources>

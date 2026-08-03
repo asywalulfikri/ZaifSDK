@@ -466,4 +466,6 @@
     <string name="saved">저장됨</string>
     <string name="tap_gendang">드럼을 탭하세요</string>
 
+    <string name="enable_internet_to_record">화면 녹화를 하려면 인터넷을 켜세요</string>
+
 </resources>

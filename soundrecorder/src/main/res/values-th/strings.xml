@@ -463,4 +463,6 @@
     <string name="sound">เสียง</string>
     <string name="saved">บันทึกแล้ว</string>
     <string name="tap_gendang">แตะกลอง</string>
+
+    <string name="enable_internet_to_record">เปิดอินเทอร์เน็ตเพื่อบันทึกหน้าจอ</string>
 </resources>

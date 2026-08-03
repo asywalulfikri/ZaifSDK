@@ -466,4 +466,6 @@
     <string name="saved">Disimpan</string>
     <string name="tap_gendang">Ketik Gendang</string>
 
+    <string name="enable_internet_to_record">Hidupkan internet untuk merakam skrin</string>
+
 </resources>
