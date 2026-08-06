@@ -1,37 +1,23 @@
-# Fix IllegalArgumentException in BlurMaskFilter
+# Update Firebase Query for Online Notes
 
-The application is crashing with `java.lang.IllegalArgumentException` in `BlurMaskFilter.nativeConstructor`. This happens when the `radius` parameter passed to the `BlurMaskFilter` constructor is less than or equal to 0.
-
-## User Review Required
-
-> [!IMPORTANT]
-> This fix adds a small floor value (0.01f) to the blur radius to prevent the crash when the calculated radius is 0 or less. This might result in a very subtle blur even when it was intended to be none, but it's much better than a crash. Alternatively, we could conditionally set the `maskFilter` to null, but adding a floor is simpler for one-liners.
+The user wants to refine the Firebase Firestore query in `NoteFragmentFirebase.kt` to filter notes by their `published` status and supported languages. Specifically, the notes should be filtered by the device's language plus English ("en"), with "en" being mandatory in the filter list.
 
 ## Proposed Changes
 
-I will update all occurrences of `BlurMaskFilter` instantiation to ensure that the radius is always greater than 0.
+### Component: Sound Recorder Widget
 
-### Component: App UI
-
-#### [MODIFY] [DemungView.kt](file:///Users/asywalulfikri/Documents/bussines/sdk/ZaifSDK/app/src/main/java/recording/host/DemungView.kt)
-- Wrap radius calculations with `max(0.01f, ...)` for all `BlurMaskFilter` calls.
-
-### Component: Sound Recorder Widgets
-
-#### [MODIFY] [DJSeekBar.kt](file:///Users/asywalulfikri/Documents/bussines/sdk/ZaifSDK/soundrecorder/src/main/java/sound/recorder/widget/music/DJSeekBar.kt)
-- Wrap radius calculations with `max(0.01f, ...)` for all `BlurMaskFilter` calls.
-
-#### [MODIFY] [MusicSeekBar.kt](file:///Users/asywalulfikri/Documents/bussines/sdk/ZaifSDK/soundrecorder/src/main/java/sound/recorder/widget/music/MusicSeekBar.kt)
-- Wrap radius calculations with `max(0.01f, ...)` for all `BlurMaskFilter` calls.
-
-#### [MODIFY] [SmoothSeekBar.kt](file:///Users/asywalulfikri/Documents/bussines/sdk/ZaifSDK/soundrecorder/src/main/java/sound/recorder/widget/music/SmoothSeekBar.kt)
-- Wrap radius calculations with `max(0.01f, ...)` for all `BlurMaskFilter` calls.
+#### [MODIFY] [NoteFragmentFirebase.kt](file:///Users/asywalulfikri/Documents/bussines/sdk/ZaifSDK/soundrecorder/src/main/java/sound/recorder/widget/ui/fragment/NoteFragmentFirebase.kt)
+- Add `import java.util.Locale`.
+- Add `import com.google.firebase.firestore.Query` for ordering.
+- Update `collectionPath` to `"balera.music.android"` (matching `UserNoteDialogHelper.kt` and the "note online" context).
+- Update `fetchDocumentsFromCollection` to:
+    - Filter by `.whereEqualTo("status", "published")`.
+    - Filter by `.whereArrayContainsAny("language", listOf("en", deviceLanguage))`.
+    - Add `.orderBy("submitted_at", Query.Direction.DESCENDING)` to show newest notes first.
+    - Map `docId` and `status` from Firestore to the `Note` object.
 
 ## Verification Plan
 
-### Automated Tests
-- None, as this is a UI rendering issue that is hard to unit test without screenshot testing or complex mocking.
-
 ### Manual Verification
-- Code review of the applied changes to ensure all `BlurMaskFilter` calls are guarded.
-- Build the project to ensure no syntax errors.
+- Verify the code compiles.
+- Check that the query parameters correctly reflect the requirements ("status", "language" array, and ordering).
