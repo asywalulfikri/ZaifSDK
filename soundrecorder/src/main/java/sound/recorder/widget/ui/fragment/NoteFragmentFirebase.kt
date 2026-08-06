@@ -141,7 +141,7 @@ open class NoteFragmentFirebase : BottomSheetDialogFragment() {
 
 
     private fun songNote() {
-        val mAdapter = NotesAdapter(notesList)
+        val mAdapter = NotesAdapter(notesList) { }
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(requireActivity())
         binding.recyclerView.layoutManager = mLayoutManager
         binding.recyclerView.itemAnimator = DefaultItemAnimator()

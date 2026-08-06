@@ -32,7 +32,7 @@ import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.recording.database.AppDatabase
 import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.recording.database.RecordingEntity
-import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
+import sound.recorder.widget.ui.bottomSheet.BottomSheetNotesTabbed
 import com.intuit.sdp.R as SdpR
 
 class InstrumentControlPanelNewDesign @JvmOverloads constructor(
@@ -290,7 +290,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
 
         btnNote.setOnClickListener {
             (context as? FragmentActivity)?.let {
-                BottomSheetNote().show(it.supportFragmentManager, "note")
+                BottomSheetNotesTabbed().show(it.supportFragmentManager, "note")
             }
         }
     }

@@ -118,6 +118,8 @@
     <string name="share_via">Bagikan melalui</string>
 
     <string name="note_song">Catatan Lagu</string>
+    <string name="my_song_notes">Catatan Lagu Saya</string>
+    <string name="online_song_notes">Catatan Lagu Online</string>
     <string name="choose_color">Pilih Warna</string>
     <string name="note_empty">Belum ada Catatan</string>
     <string name="enter_note">Masukkan Catatan!</string>
@@ -463,6 +465,9 @@
     <string name="sound">Suara</string>
     <string name="saved">Disimpan</string>
     <string name="tap_gendang">Ketuk Gendang</string>
+
+    <string name="search_note">Cari Catatan...</string>
+    <string name="copy_note">Salin Catatan</string>
 
 
 </resources>

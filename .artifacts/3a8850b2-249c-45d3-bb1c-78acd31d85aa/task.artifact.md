@@ -1,0 +1,6 @@
+- `[x]` Refactor `BottomSheetNotesTabbed.kt` for performance
+    - `[x]` Introduce Coroutines for DB and Cache operations
+    - `[x]` Optimize adapter initialization (setup once)
+    - `[x]` Asynchronous search/filter logic
+    - `[x]` Null safety and code clean-up
+- `[x]` Verify build and performance

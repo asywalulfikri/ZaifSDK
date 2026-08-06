@@ -14,6 +14,9 @@ public class Note {
 
     private String title;
 
+    private String docId;
+    private String status;
+
 
     // Create table SQL query
     public static final String CREATE_TABLE =
@@ -65,5 +68,21 @@ public class Note {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDocId() {
+        return docId;
+    }
+
+    public void setDocId(String docId) {
+        this.docId = docId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

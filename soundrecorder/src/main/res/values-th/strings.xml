@@ -465,4 +465,7 @@
     <string name="tap_gendang">แตะกลอง</string>
 
     <string name="enable_internet_to_record">เปิดอินเทอร์เน็ตเพื่อบันทึกหน้าจอ</string>
+
+    <string name="search_note">ค้นหาโน้ต...</string>
+    <string name="copy_note">คัดลอกโน้ต</string>
 </resources>

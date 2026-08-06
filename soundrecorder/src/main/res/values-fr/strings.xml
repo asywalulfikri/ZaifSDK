@@ -468,4 +468,7 @@
 
     <string name="enable_internet_to_record">Activez Internet pour enregistrer votre écran</string>
 
+    <string name="search_note">Rechercher des notes...</string>
+    <string name="copy_note">Copier la note</string>
+
 </resources>

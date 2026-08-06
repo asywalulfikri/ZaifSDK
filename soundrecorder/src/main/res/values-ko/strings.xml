@@ -468,4 +468,7 @@
 
     <string name="enable_internet_to_record">화면 녹화를 하려면 인터넷을 켜세요</string>
 
+    <string name="search_note">노트 검색...</string>
+    <string name="copy_note">노트 복사</string>
+
 </resources>

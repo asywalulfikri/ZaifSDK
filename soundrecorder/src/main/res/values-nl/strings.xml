@@ -469,4 +469,7 @@
     <string name="tap_gendang">Tik op een trommel</string>
 
     <string name="enable_internet_to_record">Schakel internet in om het scherm op te nemen</string>
+
+    <string name="search_note">Notities zoeken...</string>
+    <string name="copy_note">Notitie kopiëren</string>
 </resources>

@@ -461,4 +461,7 @@
 
     <string name="enable_internet_to_record">画面録画を行うにはインターネットを有効にしてください</string>
 
+    <string name="search_note">ノートを検索...</string>
+    <string name="copy_note">ノートをコピー</string>
+
 </resources>

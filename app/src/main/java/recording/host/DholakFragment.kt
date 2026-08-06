@@ -22,7 +22,7 @@ import sound.recorder.widget.listener.MyNoteListener
 import sound.recorder.widget.listener.NoteListener
 import sound.recorder.widget.notes.Note
 import sound.recorder.widget.recording.InstrumentRecorderManager
-import sound.recorder.widget.ui.bottomSheet.BottomSheetNoteFirebase
+import sound.recorder.widget.ui.bottomSheet.BottomSheetNotesTabbed
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
@@ -98,7 +98,7 @@ class DholakFragment : BaseFragment(),
             }
 
             runCatching {
-                BottomSheetNoteFirebase()
+                BottomSheetNotesTabbed.newInstance(true)
                     .show(parentFragmentManager, "note_sheet")
             }.onFailure {
                 activity?.let { ctx ->

@@ -13,8 +13,7 @@
     <string name="dialog_msg_update_app_version">The new version is available in Play Store, please update your application</string>
     <string name="dialog_msg_update_app">Please update your Application</string>
 
-    <string name="lbl_new_note_title">New Note Song</string>
-    <string name="lbl_edit_note_title">Edit Note Song</string>
+
 
     <string name="cover_song">Cover\nSong</string>
     <string name="record">Record</string>
@@ -117,6 +116,11 @@
     <string name="share_via">Share via</string>
 
     <string name="note_song">Song Notes</string>
+    <string name="my_song_notes">My Song Notes</string>
+    <string name="online_song_notes">Online Song Notes</string>
+    <string name="add">Add</string>
+    <string name="already_promoted">This note has already been promoted. Edit it to promote again!</string>
+    <string name="approve">Approve</string>
     <string name="choose_color">Choose Color</string>
     <string name="note_empty">No Notes Yet</string>
     <string name="enter_note">Enter a Note!</string>
@@ -466,6 +470,12 @@
 
     <string name="enable_internet_to_record">Turn on the internet to record your screen</string>
     <string name="reply">Reply</string>
+
+    <string name="lbl_new_note_title">New Song Note</string>
+    <string name="lbl_edit_note_title">Edit Song Note</string>
+
+    <string name="search_note">Search Notes...</string>
+    <string name="copy_note">Copy Note</string>
 
 
 </resources>

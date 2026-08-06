@@ -468,5 +468,8 @@
 
     <string name="enable_internet_to_record">I-on ang internet upang mag-record ng screen</string>
 
+    <string name="search_note">Maghanap ng Tala...</string>
+    <string name="copy_note">Kopyahin ang Tala</string>
+
 
 </resources>

@@ -18,6 +18,7 @@ class ZaifSDKBuilder private constructor(
     var showTooltip = false
     var fcmKey = ""
     var isPromotNot = false
+    var isPromotNote = false
 
     var isDownload = false
 
@@ -42,6 +43,7 @@ class ZaifSDKBuilder private constructor(
     fun showTooltip(value: Boolean) = apply { showTooltip = value }
     fun setFcmKey(value: String) = apply { fcmKey = value }
     fun isPromotNot(value: Boolean) = apply { isPromotNot = value }
+    fun isPromotNote(value: Boolean) = apply { isPromotNote = value }
 
     fun isDownload(value: Boolean) = apply { isDownload = value }
     fun isLockRec(value: Boolean) = apply { isLockRec = value }
@@ -66,6 +68,7 @@ class ZaifSDKBuilder private constructor(
             showTooltip = showTooltip,
             fcmKey = fcmKey,
             isPromotNot = isPromotNot,
+            isPromotNote = isPromotNote,
             isDownload = isDownload,
             isLockRec = isLockRec,
             isLockMusic = isLockMusic,

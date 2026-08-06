@@ -44,7 +44,7 @@ import sound.recorder.widget.listener.MyStopSDKMusicListener
 import sound.recorder.widget.listener.PauseListener
 import sound.recorder.widget.tools.Timer
 import sound.recorder.widget.ui.bottomSheet.BottomSheet
-import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
+import sound.recorder.widget.ui.bottomSheet.BottomSheetNotesTabbed
 import sound.recorder.widget.ui.bottomSheet.BottomSheetSetting
 import sound.recorder.widget.util.*
 import java.io.File
@@ -209,7 +209,7 @@ class VoiceRecordFragmentVerticalBlack : BaseFragmentWidget(), BottomSheet.OnCli
 
             binding.noteBtn.setOnClickListener {
                 try {
-                    val bottomSheet = BottomSheetNote()
+                    val bottomSheet = BottomSheetNotesTabbed()
                     bottomSheet.show(requireActivity().supportFragmentManager, LOG_TAG)
                 }catch (e : Exception){
                     setToast(activity,e.message.toString())

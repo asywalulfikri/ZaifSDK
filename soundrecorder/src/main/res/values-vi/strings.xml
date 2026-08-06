@@ -465,4 +465,7 @@
     <string name="tap_gendang">Chạm vào trống</string>
 
     <string name="enable_internet_to_record">Bật Internet để ghi màn hình</string>
+
+    <string name="search_note">Tìm kiếm ghi chú...</string>
+    <string name="copy_note">Sao chép ghi chú</string>
 </resources>

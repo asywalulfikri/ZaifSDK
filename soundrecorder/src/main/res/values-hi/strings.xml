@@ -463,4 +463,7 @@
     <string name="tap_gendang">ड्रम पर टैप करें</string>
 
     <string name="enable_internet_to_record">स्क्रीन रिकॉर्ड करने के लिए इंटरनेट चालू करें</string>
+
+    <string name="search_note">नोट खोजें...</string>
+    <string name="copy_note">नोट कॉपी करें</string>
 </resources>

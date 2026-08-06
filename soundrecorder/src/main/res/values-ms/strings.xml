@@ -468,4 +468,7 @@
 
     <string name="enable_internet_to_record">Hidupkan internet untuk merakam skrin</string>
 
+    <string name="search_note">Cari Nota...</string>
+    <string name="copy_note">Salin Nota</string>
+
 </resources>

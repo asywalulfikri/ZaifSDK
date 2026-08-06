@@ -467,4 +467,7 @@
 
     <string name="enable_internet_to_record">Ative a Internet para gravar a tela</string>
 
+    <string name="search_note">Pesquisar notas...</string>
+    <string name="copy_note">Copiar Nota</string>
+
 </resources>

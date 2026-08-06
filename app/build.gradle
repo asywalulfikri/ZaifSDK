@@ -33,6 +33,7 @@ android {
         buildConfigField("Boolean", "hasSong", "true")
         buildConfigField("Boolean", "isPotrait", "false")
         buildConfigField("Boolean", "isPromotNot", "true")
+        buildConfigField("Boolean", "isPromotNote", "true")
         buildConfigField("String", "unityGameId", "\"5278177\"")
         buildConfigField("Boolean", "isDownload", "true")
         buildConfigField("Boolean", "isLockRec","false")

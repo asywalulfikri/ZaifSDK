@@ -119,6 +119,8 @@
 
 
     <string name="note_song">Song Notes</string>
+    <string name="my_song_notes">My Song Notes</string>
+    <string name="online_song_notes">Online Song Notes</string>
     <string name="choose_color">Choose Color</string>
     <string name="note_empty">No Notes Yet</string>
     <string name="enter_note">Enter a Note!</string>

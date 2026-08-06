@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    app:cardMaxElevation="4dp"
+    android:layout_marginHorizontal="@dimen/_10sdp"
+    android:layout_marginVertical="@dimen/_6sdp"
+    app:cardBackgroundColor="#1A1A3A"
+    app:cardCornerRadius="@dimen/_12sdp"
+    app:cardElevation="0dp"
     android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
@@ -16,27 +15,24 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingVertical="@dimen/_5sdp"
+        android:paddingHorizontal="@dimen/_10sdp">
 
-        <FrameLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/bg_circle_light"> <TextView
-            android:id="@+id/dot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:fontFamily="@font/ooredoo"
-            android:text="1"
-            android:textColor="@color/colorPrimary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        </FrameLayout>
+        <ImageView
+            android:id="@+id/ivIcon"
+            android:layout_width="@dimen/_32sdp"
+            android:layout_height="@dimen/_32sdp"
+            android:background="@drawable/piring"
+            android:backgroundTint="#2D2D5A"
+            android:padding="@dimen/_6sdp"
+            android:src="@drawable/icon_music"
+            app:tint="#4A90D9"
+            android:contentDescription="@string/app_name" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_12sdp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -45,18 +41,32 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/title"
+                    android:id="@+id/tvNoteTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
-                    android:layout_toStartOf="@+id/timestamp"
                     android:ellipsize="end"
                     android:fontFamily="@font/ooredoo"
                     android:maxLines="1"
-                    android:text="Indonesia Raya"
-                    android:textColor="#1A1A1A"
-                    android:textSize="16sp"
+                    android:text="Song Title"
+                    android:textColor="#FFFFFF"
+                    android:textSize="@dimen/_13ssp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@+id/tvNoteTitle"
+                    android:layout_marginStart="@dimen/_4sdp"
+                    android:paddingHorizontal="@dimen/_6sdp"
+                    android:paddingVertical="@dimen/_2sdp"
+                    android:text="DRAFT"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_8ssp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/timestamp"
@@ -66,31 +76,67 @@
                     android:layout_centerVertical="true"
                     android:alpha="0.7"
                     android:text="14 Mei"
-                    android:textColor="#888888"
-                    android:textSize="11sp" />
+                    android:textColor="#8888AA"
+                    android:textSize="@dimen/_9ssp" />
             </RelativeLayout>
 
             <TextView
-                android:id="@+id/note"
+                android:id="@+id/tvNoteDesc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/_2sdp"
                 android:ellipsize="end"
                 android:fontFamily="@font/campton_medium"
-                android:lineSpacingExtra="2dp"
                 android:maxLines="2"
                 android:text="Mari Lah Kemari hei hei kemari bermain bersama"
-                android:textColor="#555555"
-                android:textSize="13sp" />
+                android:textColor="#8888AA"
+                android:textSize="@dimen/_10ssp" />
+
+            <!-- Admin Actions Container -->
+            <LinearLayout
+                android:id="@+id/layoutAdminActions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_6sdp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/btnApprove"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_btn_tutorial_learn"
+                    android:paddingHorizontal="@dimen/_12sdp"
+                    android:paddingVertical="@dimen/_4sdp"
+                    android:text="@string/approve"
+                    android:textColor="#4CAF50"
+                    android:textSize="@dimen/_9ssp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnDeleteOnline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:background="@drawable/bg_btn_tutorial_play"
+                    android:paddingHorizontal="@dimen/_12sdp"
+                    android:paddingVertical="@dimen/_4sdp"
+                    android:text="@string/delete_not"
+                    android:textColor="#FF5252"
+                    android:textSize="@dimen/_9ssp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="8dp"
-            android:alpha="0.3"
-            android:src="@drawable/ic_chevron_right" />
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:layout_marginStart="@dimen/_4sdp"
+            android:src="@drawable/ic_chevron_right"
+            app:tint="#444466"
+            android:contentDescription="@string/app_name" />
 
     </LinearLayout>
 

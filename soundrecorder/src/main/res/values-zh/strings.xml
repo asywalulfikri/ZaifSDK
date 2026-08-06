@@ -465,5 +465,8 @@
 
     <string name="enable_internet_to_record">请开启网络以录制屏幕</string>
 
+    <string name="search_note">搜索笔记...</string>
+    <string name="copy_note">复制笔记</string>
+
 
 </resources>

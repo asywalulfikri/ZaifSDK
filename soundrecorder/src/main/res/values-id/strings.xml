@@ -12,9 +12,6 @@
     <string name="dialog_msg_update_app_version">Versi Baru telah tersedia di Playstore, Silakan Update Aplikasi Anda</string>
     <string name="dialog_msg_update_app">Silahkan Update Aplikasi Anda</string>
 
-    <string name="lbl_new_note_title">Catatan Lagu Baru</string>
-    <string name="lbl_edit_note_title">Edit Catatan Lagu</string>
-
     <string name="cover_song">Cover\nLagu</string>
     <string name="record">Rekam</string>
     <string name="text_continue">Lanjutkan</string>
@@ -118,6 +115,11 @@
     <string name="share_via">Bagikan melalui</string>
 
     <string name="note_song">Catatan Lagu</string>
+    <string name="my_song_notes">Catatan Lagu Saya</string>
+    <string name="online_song_notes">Catatan Lagu Online</string>
+    <string name="add">Tambah</string>
+    <string name="already_promoted">Catatan ini sudah pernah dipromosikan. Edit terlebih dahulu jika ingin promosi lagi!</string>
+    <string name="approve">Setujui</string>
     <string name="choose_color">Pilih Warna</string>
     <string name="note_empty">Belum ada Catatan</string>
     <string name="enter_note">Masukkan Catatan!</string>
@@ -473,6 +475,14 @@
 
     <string name="enable_internet_to_record">Hidupkan internet untuk melakukan rekam layar</string>
     <string name="reply">Balas</string>
+
+
+    <string name="lbl_new_note_title">Catatan Lagu Baru</string>
+    <string name="lbl_edit_note_title">Edit Catatan Lagu</string>
+    <string name="search_note">Cari Catatan...</string>
+    <string name="copy_note">Salin Catatan</string>
+
+
 
 
 

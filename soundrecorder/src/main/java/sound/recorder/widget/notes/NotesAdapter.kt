@@ -1,7 +1,6 @@
 package sound.recorder.widget.notes
 
 import android.annotation.SuppressLint
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,19 +13,24 @@ import sound.recorder.widget.notes.NotesAdapter.MyViewHolder
 import java.text.ParseException
 import java.text.SimpleDateFormat
 
-class NotesAdapter(private val notesList: ArrayList<Note>) :
+class NotesAdapter(
+    private val notesList: ArrayList<Note>,
+    private val onItemClick: (Int) -> Unit
+) :
     RecyclerView.Adapter<MyViewHolder>() {
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        var note: TextView
-        var dot: TextView
+        var tvNoteDesc: TextView
         var timestamp: TextView
-        var title : TextView
+        var tvNoteTitle : TextView
+        var tvStatus: TextView
+        var layoutAdmin: View
 
         init {
-            note = view.findViewById(R.id.note)
-            dot = view.findViewById(R.id.dot)
+            tvNoteDesc = view.findViewById(R.id.tvNoteDesc)
             timestamp = view.findViewById(R.id.timestamp)
-            title = view.findViewById(R.id.title)
+            tvNoteTitle = view.findViewById(R.id.tvNoteTitle)
+            tvStatus = view.findViewById(R.id.tvStatus)
+            layoutAdmin = view.findViewById(R.id.layoutAdminActions)
         }
     }
 
@@ -39,37 +43,42 @@ class NotesAdapter(private val notesList: ArrayList<Note>) :
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val note = notesList[position]
 
+        // Hide admin views for local notes
+        holder.tvStatus.visibility = View.GONE
+        holder.layoutAdmin.visibility = View.GONE
+
         try {
             val jsonObject = JSONObject(note.note.toString())
-            val value = Gson().fromJson(note.note,Note::class.java)
+            val value = Gson().fromJson(note.note, Note::class.java)
             // The JSON string is valid
             if(note.timestamp!=null){
+                holder.timestamp.visibility = View.VISIBLE
                 holder.timestamp.text = formatDate(note.timestamp)
             }else{
                 holder.timestamp.visibility =View.GONE
             }
-            holder.title.text = value.title.toString()
-            holder.title.visibility = View.VISIBLE
-            holder.note.text = value.note.toString()
-            holder.note.visibility = View.VISIBLE
+            holder.tvNoteTitle.text = value.title.toString()
+            holder.tvNoteTitle.visibility = View.VISIBLE
+            holder.tvNoteDesc.text = value.note.toString()
+            holder.tvNoteDesc.visibility = View.VISIBLE
 
         } catch (e: Exception) {
             // The JSON string is not valid
-            holder.note.text = note.note
+            holder.tvNoteDesc.text = note.note
             if(note.title!=null){
-                holder.title.text = note.title
+                holder.tvNoteTitle.text = note.title
             }
         }
 
-        // Displaying dot from HTML character code
-        holder.dot.text = Html.fromHtml("&#8226;")
-
         // Formatting and displaying timestamp
         if(note.timestamp!=null){
+            holder.timestamp.visibility = View.VISIBLE
             holder.timestamp.text = formatDate(note.timestamp)
         }else{
             holder.timestamp.visibility =View.GONE
         }
+
+        holder.itemView.setOnClickListener { onItemClick(position) }
     }
 
     override fun getItemCount(): Int {

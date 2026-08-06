@@ -510,5 +510,8 @@
     <string name="tap_gendang">اضغط على الطبل</string>
 
     <string name="enable_internet_to_record">قم بتشغيل الإنترنت لتسجيل الشاشة</string>
+
+    <string name="search_note">البحث في الملاحظات...</string>
+    <string name="copy_note">نسخ الملاحظة</string>
 </resources>
 

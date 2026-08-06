@@ -13,8 +13,6 @@
     <string name="dialog_msg_update_app_version">Die neue Version ist im Play Store verfügbar. Bitte aktualisieren Sie Ihre Anwendung.</string>
     <string name="dialog_msg_update_app">Bitte aktualisieren Sie Ihre Anwendung</string>
 
-    <string name="lbl_new_note_title">Neue Notiz Lied</string>
-    <string name="lbl_edit_note_title">Notiz Lied bearbeiten</string>
 
     <string name="cover_song">Cover\nLied</string>
     <string name="record">Aufnehmen</string>
@@ -468,6 +466,12 @@
     <string name="tap_gendang">Tippen Sie auf eine Trommel</string>
 
     <string name="enable_internet_to_record">Aktivieren Sie das Internet, um den Bildschirm aufzunehmen</string>
+
+    <string name="lbl_new_note_title">Neue Liednotiz</string>
+    <string name="lbl_edit_note_title">Liednotiz bearbeiten</string>
+
+    <string name="search_note">Notizen suchen...</string>
+    <string name="copy_note">Notiz kopieren</string>
 
 </resources>
 

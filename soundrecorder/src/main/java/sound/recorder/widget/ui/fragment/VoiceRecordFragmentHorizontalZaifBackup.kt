@@ -49,7 +49,7 @@ import sound.recorder.widget.listener.MyStopMusicListener
 import sound.recorder.widget.listener.MyStopSDKMusicListener
 import sound.recorder.widget.listener.PauseListener
 import sound.recorder.widget.ui.bottomSheet.BottomSheet
-import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
+import sound.recorder.widget.ui.bottomSheet.BottomSheetNotesTabbed
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.*
 import java.io.File
@@ -336,7 +336,7 @@ class VoiceRecordFragmentHorizontalZaifBackup : BaseFragmentWidget(), BottomShee
         binding.ivNote.setOnClickListener {
             activity?.let {
                 try {
-                    val bottomSheet = BottomSheetNote()
+                    val bottomSheet = BottomSheetNotesTabbed()
                     bottomSheet.show(it.supportFragmentManager, LOG_TAG)
                 } catch (e: Exception) {
                     setToast(e.message.toString())

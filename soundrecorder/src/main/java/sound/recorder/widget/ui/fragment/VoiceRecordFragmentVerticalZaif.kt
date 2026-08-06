@@ -31,7 +31,7 @@ import sound.recorder.widget.databinding.WidgetRecordVerticalZaifBinding
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.listener.MyMusicListener
 import sound.recorder.widget.ui.bottomSheet.BottomSheet
-import sound.recorder.widget.ui.bottomSheet.BottomSheetNote
+import sound.recorder.widget.ui.bottomSheet.BottomSheetNotesTabbed
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.*
 import java.text.SimpleDateFormat
@@ -168,7 +168,7 @@ class VoiceRecordFragmentVerticalZaif :
 
         binding.ivNote.setOnClickListener {
             if (isAdded && !parentFragmentManager.isStateSaved) {
-                BottomSheetNote().show(parentFragmentManager, LOG_TAG)
+                BottomSheetNotesTabbed().show(parentFragmentManager, LOG_TAG)
             }
         }
 

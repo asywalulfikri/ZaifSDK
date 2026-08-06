@@ -14,6 +14,7 @@ data class ZaifSDKConfig(
     val showTooltip: Boolean,
     val fcmKey: String,
     val isPromotNot: Boolean = false,
+    val isPromotNote: Boolean = false,
     val isDownload: Boolean = false,
     val isLockRec: Boolean = false,
     val isLockMusic: Boolean = false,

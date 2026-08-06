@@ -464,4 +464,7 @@
 
     <string name="enable_internet_to_record">Включите Интернет, чтобы записать экран</string>
 
+    <string name="search_note">Поиск заметок...</string>
+    <string name="copy_note">Копировать заметку</string>
+
 </resources>
