@@ -311,9 +311,9 @@ class DemungView @JvmOverloads constructor(
             } else {
                 canvas.drawRoundRect(rect, radius, radius, Paint().apply { val s=190-i*10; color=Color.rgb(s,s-20,s-55) })
             }
-            canvas.drawOval(RectF(rect.left+3*dp, rect.bottom-2*dp, rect.right-3*dp, rect.bottom+5*dp), Paint().apply { color=Color.argb(80,0,0,0); maskFilter=BlurMaskFilter(4f*dp, BlurMaskFilter.Blur.NORMAL) })
+            canvas.drawOval(RectF(rect.left+3*dp, rect.bottom-2*dp, rect.right-3*dp, rect.bottom+5*dp), Paint().apply { color=Color.argb(80,0,0,0); maskFilter=BlurMaskFilter(max(0.01f, 4f*dp), BlurMaskFilter.Blur.NORMAL) })
             val fs = rect.width()*0.25f
-            notAngkaPaint.textSize = fs; notAngkaGlowPaint.textSize = fs; notAngkaGlowPaint.maskFilter = BlurMaskFilter(fs*0.3f, BlurMaskFilter.Blur.NORMAL)
+            notAngkaPaint.textSize = fs; notAngkaGlowPaint.textSize = fs; notAngkaGlowPaint.maskFilter = BlurMaskFilter(max(0.01f, fs*0.3f), BlurMaskFilter.Blur.NORMAL)
             if (anim != null && anim.vibrateProgress > 0.3f) { notAngkaGlowPaint.alpha=(anim.vibrateProgress*200).toInt(); canvas.drawText(notAngka[i], rect.centerX()+vibOff, rect.bottom-rect.width()*0.18f, notAngkaGlowPaint) }
             canvas.drawText(notAngka[i], rect.centerX()+vibOff, rect.bottom-rect.width()*0.18f, notAngkaPaint)
         }

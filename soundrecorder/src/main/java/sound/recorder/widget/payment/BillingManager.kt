@@ -29,12 +29,14 @@ class BillingManager(
         BillingClient.newBuilder(activity.applicationContext)
             .setListener { billingResult, purchases ->
                 Log.d(TAG, "OnPurchasesUpdated: ${billingResult.responseCode}")
+                isProcessing = false // 🔥 FIX: Reset flag saat ada update apapun dari Play Store
 
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
                     purchases.forEach { handlePurchase(it) }
                 }
             }
             .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
+            .enableAutoServiceReconnection() // 🔥 FIX: PBL 8.0+ Re-koneksi otomatis
             .build()
     }
 

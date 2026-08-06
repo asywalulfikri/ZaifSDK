@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.sin
 
 class DJSeekBar @JvmOverloads constructor(
@@ -158,7 +159,7 @@ class DJSeekBar @JvmOverloads constructor(
                         color    = glowColor
                         alpha    = 25 * layer
                         style    = Paint.Style.FILL
-                        maskFilter = BlurMaskFilter(thumbR * layer * 0.6f, BlurMaskFilter.Blur.NORMAL)
+                        maskFilter = BlurMaskFilter(max(0.01f, thumbR * layer * 0.6f), BlurMaskFilter.Blur.NORMAL)
                     }
                     canvas.drawCircle(thumbX, h / 2f, thumbR, thumbPaint)
                 }
@@ -169,7 +170,7 @@ class DJSeekBar @JvmOverloads constructor(
                 color      = Color.BLACK
                 alpha      = 80
                 style      = Paint.Style.FILL
-                maskFilter = BlurMaskFilter(thumbR * 0.5f, BlurMaskFilter.Blur.NORMAL)
+                maskFilter = BlurMaskFilter(max(0.01f, thumbR * 0.5f), BlurMaskFilter.Blur.NORMAL)
             }
             canvas.drawCircle(thumbX + 1.5f, h / 2f + 2f, thumbR, thumbPaint)
 

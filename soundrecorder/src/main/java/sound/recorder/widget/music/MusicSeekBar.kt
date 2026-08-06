@@ -6,6 +6,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import kotlin.math.max
 
 class MusicSeekBar @JvmOverloads constructor(
     context: Context,
@@ -185,7 +186,7 @@ class MusicSeekBar @JvmOverloads constructor(
         // Glow halo
         if (showGlow) {
             thumbPaint.apply {
-                maskFilter  = BlurMaskFilter(r * 0.7f, BlurMaskFilter.Blur.NORMAL)
+                maskFilter  = BlurMaskFilter(max(0.01f, r * 0.7f), BlurMaskFilter.Blur.NORMAL)
                 color       = glowColor
                 alpha       = 40
                 shader      = null

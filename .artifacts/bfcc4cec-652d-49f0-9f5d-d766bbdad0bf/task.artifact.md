@@ -1,0 +1,5 @@
+- [x] Fix `BlurMaskFilter` in `DemungView.kt`
+- [x] Fix `BlurMaskFilter` in `DJSeekBar.kt`
+- [x] Fix `BlurMaskFilter` in `MusicSeekBar.kt`
+- [x] Fix `BlurMaskFilter` in `SmoothSeekBar.kt`
+- [x] Verify build

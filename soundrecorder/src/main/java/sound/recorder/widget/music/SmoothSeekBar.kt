@@ -7,6 +7,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import kotlin.math.max
 
 /**
  * SmoothSeekBar
@@ -116,7 +117,7 @@ class SmoothSeekBar @JvmOverloads constructor(
 
         // ── 3. Thumb shadow (lingkaran abu transparan di belakang thumb) ──────
         paintShadow.color    = thumbShadowColor
-        paintShadow.maskFilter = BlurMaskFilter(thumbRadius * 0.5f, BlurMaskFilter.Blur.NORMAL)
+        paintShadow.maskFilter = BlurMaskFilter(max(0.01f, thumbRadius * 0.5f), BlurMaskFilter.Blur.NORMAL)
         canvas.drawCircle(thumbX, h / 2f + thumbRadius * 0.15f, thumbRadius * 0.9f, paintShadow)
         paintShadow.maskFilter = null
 
