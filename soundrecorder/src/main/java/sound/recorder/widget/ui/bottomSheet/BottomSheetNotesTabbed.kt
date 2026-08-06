@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -25,6 +26,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDE
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -44,6 +46,7 @@ import sound.recorder.widget.notes.DatabaseHelper
 import sound.recorder.widget.notes.Note
 import sound.recorder.widget.notes.NotesAdapter
 import sound.recorder.widget.notes.utils.RecyclerTouchListener
+import sound.recorder.widget.tutorial.InstrumentTutorialDialog
 import sound.recorder.widget.util.Toastic
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -111,7 +114,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         setupCommonActions()
         setupTabs()
         setupRecyclerViews()
-        
+
         val isPromoteEnabled = zaifSDKConfig?.isPromotNote ?: false
         if (!isPromoteEnabled) {
             binding.tabStrip.visibility = View.GONE
@@ -145,7 +148,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
 
     private fun setupCommonActions() {
         binding.ivClose.setOnClickListener { dismissAllowingStateLoss() }
-        
+
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -173,7 +176,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         updateTabUI()
         binding.fab.visibility = View.VISIBLE
         binding.progressBar.visibility = View.GONE
-        
+
         binding.recyclerView.adapter = localAdapter
         loadLocalNotes()
     }
@@ -182,7 +185,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         isOnlineTab = true
         updateTabUI()
         binding.fab.visibility = View.GONE
-        
+
         binding.recyclerView.adapter = onlineAdapter
         loadOnlineNotes()
     }
@@ -192,7 +195,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         val accentColor = Color.parseColor("#6C63FF")
         val bgMedium = Color.parseColor("#1A1F3A")
         val cornerRadius = context.resources.getDimension(SdpR.dimen._14sdp)
-        
+
         if (!isOnlineTab) {
             // Local Active
             binding.tabLocal.setTextColor(Color.WHITE)
@@ -224,7 +227,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
 
     override fun onStart() {
         super.onStart()
-        
+
         val dialog = dialog
         if (dialog != null) {
             // Paksa BottomSheet agar tingginya maksimal (mentok atas)
@@ -232,7 +235,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
             bottomSheet?.let {
                 it.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
                 val behavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(it)
-                behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+                behavior.state = STATE_EXPANDED
                 behavior.skipCollapsed = true
                 behavior.isDraggable = false
             }
@@ -294,7 +297,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
     }
 
     private fun showActionsDialog(position: Int) {
-        val activity = getActivity() ?: return
+        val activity = activity ?: return
         val optionsList = mutableListOf<CharSequence>(
             getString(R.string.use_note),
             getString(R.string.edit_note),
@@ -307,7 +310,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         }
 
         val options = optionsList.toTypedArray()
-        
+
         AlertDialog.Builder(activity)
             .setTitle(getString(R.string.choose))
             .setItems(options) { _, which ->
@@ -342,7 +345,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         // 1. Check if already promoted (Signature check)
         val (cleanTitle, cleanNote) = getCleanNoteData(note)
         val currentSignature = "$cleanTitle|$cleanNote"
-        val savedSignature = prefs.getString("sig_${note.getId()}", "")
+        val savedSignature = prefs.getString("sig_${note.id}", "")
 
         if (currentSignature == savedSignature) {
             Toastic.toastic(context, getString(R.string.already_promoted), Toastic.LENGTH_SHORT, Toastic.WARNING, null, true).show()
@@ -407,7 +410,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                 context.getSharedPreferences("note_promo_prefs", Context.MODE_PRIVATE).edit()
                     .putString("last_promo_date", today)
                     .putInt("promo_count", currentCount + 1)
-                    .putString("sig_${note.getId()}", signature)
+                    .putString("sig_${note.id}", signature)
                     .apply()
 
                 Toastic.toastic(context, getString(R.string.send_note_success), Toastic.LENGTH_SHORT, Toastic.SUCCESS, null, true).show()
@@ -426,13 +429,13 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
     }
 
     private fun showNoteDialog(shouldUpdate: Boolean, existingNote: Note?, position: Int) {
-        val activity = getActivity() ?: return
+        val activity = activity ?: return
         val view = LayoutInflater.from(activity).inflate(R.layout.note_dialog, null)
-        
+
         val inputNote = view.findViewById<EditText>(R.id.note)
         val inputTitle = view.findViewById<EditText>(R.id.title)
         val dialogTitle = view.findViewById<TextView>(R.id.dialog_title)
-        
+
         dialogTitle.text = if (!shouldUpdate) getString(R.string.lbl_new_note_title) else getString(R.string.lbl_edit_note_title)
 
         if (shouldUpdate && existingNote != null) {
@@ -452,9 +455,9 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
             .setPositiveButton(if (shouldUpdate) R.string.update else R.string.save) { _, _ -> }
             .setNegativeButton(R.string.cancel) { d, _ -> d.cancel() }
             .create()
-            
+
         dialog.show()
-        
+
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val titleText = inputTitle.text.toString().trim()
             val noteText = inputNote.text.toString().trim()
@@ -509,7 +512,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
     // ─── Online Notes Logic ───────────────────────────────────────────────────
 
     private fun showOnlineActionsDialog(note: Note) {
-        val activity = getActivity() ?: return
+        val activity = activity ?: return
         val options = arrayOf<CharSequence>(
             getString(R.string.use_note),
             getString(R.string.copy_note),
@@ -536,6 +539,12 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
     }
 
     private fun loadOnlineNotes() {
+        val isDebug = isAppDebuggable(context)
+        if (isDebug) {
+            fetchOnlineNotes()
+            return
+        }
+
         lifecycleScope.launch(Dispatchers.IO) {
             val cached = readCache()
             withContext(Dispatchers.Main) {
@@ -548,17 +557,31 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         }
     }
 
+    fun setToast(message : String){
+        Toast.makeText(context,message, Toast.LENGTH_SHORT).show()
+    }
+
+
+    private fun isAppDebuggable(context: Context?): Boolean {
+        return context?.applicationInfo?.let {
+            (it.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        } ?: false
+    }
+
     private fun fetchOnlineNotes() {
         if (_binding == null) return
         binding.progressBar.visibility = View.VISIBLE
         val languageCode = Locale.getDefault().language
 
-        var query = firestore.collection(collectionPath)
-            .whereArrayContainsAny("language", listOf("en", languageCode))
-            
-        if (!isAppDebuggable(requireContext())) {
+        val isDebug = isAppDebuggable(context)
+
+        var query: Query = firestore.collection(collectionPath)
+
+        if(!isDebug) {
             query = query.whereEqualTo("status", "published")
+                .whereArrayContainsAny("language", listOf("en", languageCode))
         }
+
 
         query.get()
             .addOnSuccessListener { snapshot ->
@@ -574,7 +597,9 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                     }
                 }
                 lifecycleScope.launch(Dispatchers.IO) {
-                    saveCache(fetched)
+                    if (!isDebug) {
+                        saveCache(fetched)
+                    }
                 }
                 populateOnlineList(fetched)
             }
@@ -582,7 +607,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                 if (!isAdded || _binding == null) return@addOnFailureListener
                 binding.progressBar.visibility = View.GONE
                 Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-                
+
                 lifecycleScope.launch(Dispatchers.IO) {
                     val stale = readCache(ignoreExpiry = true)
                     withContext(Dispatchers.Main) {
@@ -596,9 +621,9 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         val docId = note.docId ?: return
         val currentStatus = note.status ?: "DRAFT"
         val newStatus = if (currentStatus == "published") "DRAFT" else "published"
-        
+
         binding.progressBar.visibility = View.VISIBLE
-        
+
         firestore.collection(collectionPath).document(docId)
             .update("status", newStatus)
             .addOnSuccessListener {
@@ -618,7 +643,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
     private fun deleteOnlineNote(note: Note) {
         val docId = note.docId ?: return
         val context = requireContext()
-        
+
         AlertDialog.Builder(context)
             .setTitle("Hapus Catatan Online?")
             .setMessage("Data ini akan dihapus permanen dari Firestore.")
@@ -643,9 +668,8 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
             .show()
     }
 
-    private fun isAppDebuggable(context: Context): Boolean {
-        return (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
-    }
+
+
 
     private fun populateOnlineList(notes: List<Note>) {
         onlineFullList = notes

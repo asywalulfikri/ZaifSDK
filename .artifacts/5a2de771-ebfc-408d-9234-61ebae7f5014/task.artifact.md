@@ -1,0 +1,2 @@
+- [ ] Fix Firestore query reassignment in `BottomSheetNotesTabbed.kt`
+- [ ] Verify if `collectionPath` needs to be changed (optional, based on behavior)
