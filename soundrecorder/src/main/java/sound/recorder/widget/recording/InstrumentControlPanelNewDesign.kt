@@ -62,6 +62,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
     private var isMicMode = false
     private var isEarphoneWhenRecording = false
     private var globalTypeface: Typeface? = null
+    private var activeDialog: android.app.Dialog? = null
 
     var adRequestListener: AdRequestListener? = null
     var onRequestAudioPermissionMic: (() -> Unit)? = null
@@ -297,9 +298,18 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
 
     // ─── RECORDING ───
     private fun showStartRecordConfirmation() {
-        InstrumentDialogHelper.showRecordChooseDialog(context) { useMic ->
-            if (useMic) checkMicPermission { startRecording(true) }
-            else startRecording(false)
+        activeDialog = InstrumentDialogHelper.showRecordChooseDialog(context) { useMic ->
+            if (useMic) {
+                checkMicPermission {
+                    activeDialog = InstrumentDialogHelper.showCountdownDialog(context) {
+                        startRecording(true)
+                    }
+                }
+            } else {
+                activeDialog = InstrumentDialogHelper.showCountdownDialog(context) {
+                    startRecording(false)
+                }
+            }
         }
     }
 
@@ -334,7 +344,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
 
         val events = recorderManager.stopRecording()
         if (events.isNotEmpty()) {
-            InstrumentDialogHelper.showSaveRecordDialog(
+            activeDialog = InstrumentDialogHelper.showSaveRecordDialog(
                 context = context,
                 onSave = { name ->
                     // User pilih SAVE
@@ -429,6 +439,8 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
         blinkManager.resetRecordBtn()
         recorderManager.stopPlayback()
         if (::btnStop.isInitialized) btnStop.visibility = GONE
+        activeDialog?.dismiss()
+        activeDialog = null
     }
 
     override fun onDetachedFromWindow() {

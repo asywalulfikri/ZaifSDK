@@ -1,0 +1,3 @@
+- [x] Implement `showCountdownDialog` in `InstrumentDialogHelper.kt`
+- [x] Integrate countdown in `InstrumentControlPanel.kt`
+- [ ] Verify build and recording flow

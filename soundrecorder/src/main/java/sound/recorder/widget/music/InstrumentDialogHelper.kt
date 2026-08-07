@@ -212,4 +212,71 @@ object InstrumentDialogHelper {
         dialog.show()
         return dialog
     }
+
+    @SuppressLint("UseKtx", "SetTextI18n")
+    fun showCountdownDialog(
+        context: Context,
+        onFinished: () -> Unit
+    ): Dialog {
+        // Gunakan Fullscreen theme agar pasti muncul di depan
+        val dialog = Dialog(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(false)
+
+        val root = android.widget.FrameLayout(context).apply {
+            setBackgroundColor(android.graphics.Color.parseColor("#99000000")) // Semi-transparan hitam
+        }
+
+        val textView = TextView(context).apply {
+            layoutParams = android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.Gravity.CENTER
+            )
+            setTextColor(android.graphics.Color.WHITE)
+            textSize = 100f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            text = "3"
+        }
+
+        root.addView(textView)
+        dialog.setContentView(root)
+
+        try {
+            dialog.show()
+        } catch (e: Exception) {
+            onFinished()
+            return dialog
+        }
+
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        var count = 3
+
+        val runnable = object : Runnable {
+            override fun run() {
+                count--
+                if (count > 0) {
+                    textView.text = count.toString()
+                    handler.postDelayed(this, 1000)
+                } else {
+                    try {
+                        if (dialog.isShowing) {
+                            dialog.dismiss()
+                        }
+                    } catch (e: Exception) {}
+                    onFinished()
+                }
+            }
+        }
+
+        handler.postDelayed(runnable, 1000)
+
+        // Tambahan keamanan: Hentikan handler jika dialog di-dismiss secara paksa
+        dialog.setOnDismissListener {
+            handler.removeCallbacks(runnable)
+            count = 0 // Memastikan runnable yang sedang berjalan berhenti di iterasi berikutnya
+        }
+
+        return dialog
+    }
 }

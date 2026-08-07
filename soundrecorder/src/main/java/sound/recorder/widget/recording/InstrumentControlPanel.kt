@@ -293,8 +293,17 @@ class InstrumentControlPanel @JvmOverloads constructor(
     // ─── RECORDING ───
     private fun showStartRecordConfirmation() {
         activeDialog = InstrumentDialogHelper.showRecordChooseDialog(context) { useMic ->
-            if (useMic) checkMicPermission { startRecording(true) }
-            else startRecording(false)
+            if (useMic) {
+                checkMicPermission {
+                    activeDialog = InstrumentDialogHelper.showCountdownDialog(context) {
+                        startRecording(true)
+                    }
+                }
+            } else {
+                activeDialog = InstrumentDialogHelper.showCountdownDialog(context) {
+                    startRecording(false)
+                }
+            }
         }
     }
 

@@ -46,7 +46,7 @@ import sound.recorder.widget.util.SpeedMarquee
 
 class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChangeListener,
     NoteListener, MusicListener, CompleteMarqueeListener,
-    InstrumentControlPanelNewDesign.InstrumentControlListener {
+    InstrumentControlPanel.InstrumentControlListener {
 
     private var binding: FragmentDemungBinding? = null
     private val viewModel: MusicViewModel by activityViewModels()
@@ -60,7 +60,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
     private val typePelog = "_pelog"
     private val typeSlendro = "_slendro"
 
-    private var rewardedAdListener: InstrumentControlPanelNewDesign.AdRequestListener? = null
+    private var rewardedAdListener: InstrumentControlPanel.AdRequestListener? = null
 
     // ─── 1. REGISTER PERMISSION MIC ───
     private val requestPermissionMic = registerForActivityResult(
@@ -247,7 +247,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
         b.controlPanel.setup(instrumentType, LinearLayout.HORIZONTAL, style, this)
         b.controlPanel.setVolumeButtonVisible(true)
 
-        rewardedAdListener = object : InstrumentControlPanelNewDesign.AdRequestListener {
+        rewardedAdListener = object : InstrumentControlPanel.AdRequestListener {
             override fun onShowRewardedAd(type: String, onComplete: () -> Unit) {
                 val act = activity as? GameActivity
                 if (act == null || !isAdded) return
