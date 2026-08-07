@@ -220,6 +220,7 @@ class InstrumentTutorialDialog(
     private var isLoadingMore = false
     private var isLastPage = false
     private var isFetchingRemote = false
+    private var isOfflinePagination = false
     private val PAGE_SIZE = 100L
 
     private var currentSearchQuery = ""
@@ -241,7 +242,7 @@ class InstrumentTutorialDialog(
             }
         }
         lifecycleScope?.launch(Dispatchers.Main) {
-            adapter.updateItems(filtered)
+            adapter.updateItems(filtered, isOfflinePagination)
             
             if (filtered.isEmpty()) {
                 binding.progressContainer.visibility = View.VISIBLE
@@ -281,7 +282,7 @@ class InstrumentTutorialDialog(
         isPremium: Boolean = false,
         showLearn: Boolean = true,
         playRemoteAsSong: Boolean = false,
-        freeSongKeys: Set<String> = setOf("local_DORAEMON INTRO", "local_HAPPY BIRTHDAY"),
+        freeSongKeys: Set<String> = setOf("local_DORAEMON INTRO", "local_HAPPY BIRTHDAY","Gundul Gundul Pacul",""),
         localSongsProvider: (Context) -> List<InstrumentSong>,
         onPlay: (InstrumentSong) -> Unit,
         onLearn: (InstrumentSong) -> Unit = {}
@@ -727,6 +728,7 @@ class InstrumentTutorialDialog(
     }
 
     private fun fetchFirstPageRemote(appId: String, instrumentType: String, binding: DialogTutorialSongListBinding, allItems: MutableList<SongItem>) {
+        isOfflinePagination = false
         if (!isNetworkAvailable(mContext)) {
             lifecycleScope?.launch {
                 val cachedResult = getCache(mContext, instrumentType)
@@ -859,9 +861,11 @@ class InstrumentTutorialDialog(
         if (isLoadingMore || isLastPage) return
         
         if (!isNetworkAvailable(mContext)) {
-            onToast(mContext?.getString(R.string.no_internet_connection) ?: "No Internet")
+            isOfflinePagination = true
+            refreshList()
             return
         }
+        isOfflinePagination = false
 
         // Safety check for Firebase initialization
         if (mContext != null && FirebaseApp.getApps(mContext!!).isEmpty()) {
@@ -1032,9 +1036,13 @@ class InstrumentTutorialDialog(
         private val isUnlocked: (SongItem) -> Boolean,
         private val onPlay: (SongItem) -> Unit,
         private val onLearn: (SongItem) -> Unit
-    ) : RecyclerView.Adapter<SongListAdapter.ViewHolder>() {
+    ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         private val items = mutableListOf<SongItem>()
+        private var isOffline = false
+
+        private val VIEW_TYPE_ITEM = 0
+        private val VIEW_TYPE_OFFLINE = 1
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val tvNumber: TextView = view.findViewById(R.id.tvNumber)
@@ -1052,84 +1060,108 @@ class InstrumentTutorialDialog(
             var btnStopAdmin: TextView? = null
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_song_tutorial, parent, false)
-            return ViewHolder(view)
+        inner class OfflineViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+        override fun getItemViewType(position: Int): Int {
+            return if (isOffline && position == items.size) VIEW_TYPE_OFFLINE else VIEW_TYPE_ITEM
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+            return if (viewType == VIEW_TYPE_OFFLINE) {
+                val tv = TextView(parent.context).apply {
+                    layoutParams = ViewGroup.LayoutParams(-1, -2)
+                    gravity = Gravity.CENTER
+                    val pad = context.sdp(SdpR.dimen._16sdp)
+                    setPadding(pad, pad, pad, pad)
+                    setTextColor(Color.parseColor("#80FFFFFF"))
+                    textSize = 12f
+                    text = context.getString(R.string.no_internet_connection)
+                }
+                OfflineViewHolder(tv)
+            } else {
+                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_song_tutorial, parent, false)
+                ViewHolder(view)
+            }
         }
 
         @SuppressLint("SetTextI18n", "NotifyDataSetChanged")
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            if (holder is OfflineViewHolder) return
+            
             val item = items[position]
             val unlocked = isUnlocked(item)
             val lockSuffix = if (unlocked) "" else " 🔒"
             val isDebug = isAppDebuggable(context)
+            val vh = holder as ViewHolder
 
-            holder.tvNumber.text = "${position + 1}."
+            vh.tvNumber.text = "${position + 1}."
 
             when (item) {
                 is SongItem.Local -> {
-                    holder.tvName.text = item.song.name
+                    vh.tvName.text = item.song.name
                     val best = item.bestScore
                     val total = item.song.notes.size
                     if (best > 0) {
-                        holder.tvInfo.visibility = View.VISIBLE
-                        holder.tvInfo.text = context.getString(R.string.best) + ": $best / $total"
+                        vh.tvInfo.visibility = View.VISIBLE
+                        vh.tvInfo.text = context.getString(R.string.best) + ": $best / $total"
                     } else {
-                        holder.tvInfo.visibility = View.GONE
+                        vh.tvInfo.visibility = View.GONE
                     }
-                    holder.btnPlay.text = "${context.getString(R.string.play).uppercase()}$lockSuffix"
-                    holder.btnLearn.text = "${context.getString(R.string.learn).uppercase()}$lockSuffix"
-                    holder.layoutAdmin.visibility = View.GONE
+                    vh.btnPlay.text = "${context.getString(R.string.play).uppercase()}$lockSuffix"
+                    vh.btnLearn.text = "${context.getString(R.string.learn).uppercase()}$lockSuffix"
+                    vh.layoutAdmin.visibility = View.GONE
                 }
                 is SongItem.Remote -> {
                     val sdf = SimpleDateFormat("dd/MM  HH:mm", Locale.getDefault())
                     if (!isDebug) {
-                        holder.tvName.text = item.note.recordName.uppercase()
+                        vh.tvName.text = item.note.recordName.uppercase()
                     } else {
-                        holder.tvName.text = item.note.recordName.uppercase() + "---" + item.note.status
+                        vh.tvName.text = item.note.recordName.uppercase() + "---" + item.note.status
                     }
-                    holder.tvInfo.visibility = View.VISIBLE
-                    holder.tvInfo.text = "👤 ${item.note.senderName}  ·  🕐 ${sdf.format(Date(item.note.submittedAt))}"
-                    holder.btnPlay.text = "${context.getString(R.string.play).uppercase()}$lockSuffix"
-                    holder.btnLearn.text = "${context.getString(R.string.learn).uppercase()}$lockSuffix"
+                    vh.tvInfo.visibility = View.VISIBLE
+                    vh.tvInfo.text = "👤 ${item.note.senderName}  ·  🕐 ${sdf.format(Date(item.note.submittedAt))}"
+                    vh.btnPlay.text = "${context.getString(R.string.play).uppercase()}$lockSuffix"
+                    vh.btnLearn.text = "${context.getString(R.string.learn).uppercase()}$lockSuffix"
 
                     if (isDebug) {
-                        holder.layoutAdmin.visibility = View.VISIBLE
-                        holder.btnEdit.setOnClickListener { showEditChoiceDialog(holder.itemView.context, item.note) }
-                        holder.btnPublish.visibility = if (item.note.status == "published") View.GONE else View.VISIBLE
-                        holder.btnPublish.setOnClickListener { publishNote(holder.itemView.context, item.note) }
-                        holder.btnDelete.setOnClickListener { deleteNote(holder.itemView.context, item.note) }
+                        vh.layoutAdmin.visibility = View.VISIBLE
+                        vh.btnEdit.setOnClickListener { showEditChoiceDialog(vh.itemView.context, item.note) }
+                        vh.btnPublish.visibility = if (item.note.status == "published") View.GONE else View.VISIBLE
+                        vh.btnPublish.setOnClickListener { publishNote(vh.itemView.context, item.note) }
+                        vh.btnDelete.setOnClickListener { deleteNote(vh.itemView.context, item.note) }
                         
                         // Add Admin Play/Stop buttons if not already added
-                        if (holder.btnPlayAdmin == null) {
+                        if (vh.btnPlayAdmin == null) {
                             val btnPlayAdmin = buildAdminButton(context, "PLAY ADMIN", "#BBDEFB", "#1976D2")
                             val btnStopAdmin = buildAdminButton(context, "STOP ADMIN", "#FFCDD2", "#D32F2F")
                             
-                            holder.layoutAdmin.addView(btnPlayAdmin, 0)
-                            holder.layoutAdmin.addView(btnStopAdmin, 1)
+                            vh.layoutAdmin.addView(btnPlayAdmin, 0)
+                            vh.layoutAdmin.addView(btnStopAdmin, 1)
                             
-                            holder.btnPlayAdmin = btnPlayAdmin
-                            holder.btnStopAdmin = btnStopAdmin
+                            vh.btnPlayAdmin = btnPlayAdmin
+                            vh.btnStopAdmin = btnStopAdmin
                         }
                         
-                        holder.btnPlayAdmin?.setOnClickListener { playUserNote(item.note.jsonNote) }
-                        holder.btnStopAdmin?.setOnClickListener { stopAll() }
+                        vh.btnPlayAdmin?.setOnClickListener { playUserNote(item.note.jsonNote) }
+                        vh.btnStopAdmin?.setOnClickListener { stopAll() }
                     } else {
-                        holder.layoutAdmin.visibility = View.GONE
+                        vh.layoutAdmin.visibility = View.GONE
                     }
                 }
             }
-            holder.btnPlay.visibility = View.VISIBLE
-            holder.btnLearn.visibility = if (showLearn) View.VISIBLE else View.GONE
-            holder.btnPlay.setOnClickListener { onPlay(item) }
-            holder.btnLearn.setOnClickListener { onLearn(item) }
+            vh.btnPlay.visibility = View.VISIBLE
+            vh.btnLearn.visibility = if (showLearn) View.VISIBLE else View.GONE
+            vh.btnPlay.setOnClickListener { onPlay(item) }
+            vh.btnLearn.setOnClickListener { onLearn(item) }
         }
 
-        override fun getItemCount() = items.size
+        override fun getItemCount() = if (isOffline) items.size + 1 else items.size
+
         @SuppressLint("NotifyDataSetChanged")
-        fun updateItems(newItems: List<SongItem>) {
+        fun updateItems(newItems: List<SongItem>, offline: Boolean = false) {
             items.clear()
             items.addAll(newItems)
+            isOffline = offline
             notifyDataSetChanged()
         }
     }
