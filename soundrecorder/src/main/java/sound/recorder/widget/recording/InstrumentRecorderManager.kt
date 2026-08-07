@@ -4,6 +4,8 @@ import android.os.Handler
 import android.os.Looper
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import sound.recorder.widget.recording.database.RecordedTap
 
 class InstrumentRecorderManager(
@@ -64,8 +66,8 @@ class InstrumentRecorderManager(
     /**
      * Mengubah List Events menjadi String JSON untuk disimpan ke database
      */
-    fun getEventsAsString(events: List<RecordedTap>): String {
-        return try {
+    suspend fun getEventsAsString(events: List<RecordedTap>): String = withContext(Dispatchers.Default) {
+        try {
             gson.toJson(events)
         } catch (e: Exception) {
             ""
@@ -75,8 +77,8 @@ class InstrumentRecorderManager(
     /**
      * Mengubah String JSON dari database kembali menjadi List<RecordedTap>
      */
-    fun parseJson(json: String): List<RecordedTap> {
-        return if (json.isEmpty()) {
+    suspend fun parseJson(json: String): List<RecordedTap> = withContext(Dispatchers.Default) {
+        if (json.isEmpty()) {
             emptyList()
         } else {
             try {

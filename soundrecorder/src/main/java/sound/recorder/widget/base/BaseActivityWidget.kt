@@ -439,6 +439,11 @@ open class BaseActivityWidget : AppCompatActivity() {
 
         reloadJob?.cancel()
         retryJob?.cancel()
+        
+        // Final cleanup
+        mPanAnim?.setAnimationListener(null)
+        mPanAnim?.cancel()
+        mPanAnim = null
 
         super.onDestroy()
     }
@@ -522,10 +527,14 @@ open class BaseActivityWidget : AppCompatActivity() {
                 // 4. Inisialisasi MobileAds hanya jika belum diinisialisasi oleh MyApp
                 if (::consentInformation.isInitialized && consentInformation.canRequestAds()) {
                     if (!sound.recorder.widget.MyApp.areEssentialsInitialized) {
-                        // Jalankan di Background untuk menghindari blokir Main Thread (Android 14 fix)
+                        // Jalankan di Background untuk menghindari blokir Main Thread
                         val context = this@BaseActivityWidget.applicationContext
-                        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                            MobileAds.initialize(context) { }
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            try {
+                                MobileAds.initialize(context) { }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "MobileAds initialize error: ${e.message}")
+                            }
                         }
                     }
                 }
@@ -1496,31 +1505,28 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
 
-    protected open fun getFirebaseToken(): String? {
-        val tokens = AtomicReference("")
-        
+    protected suspend fun getFirebaseToken(): String? = withContext(Dispatchers.IO) {
         // Safety check for Firebase initialization
-        val ctx = this.applicationContext
+        val ctx = this@BaseActivityWidget.applicationContext
         if (com.google.firebase.FirebaseApp.getApps(ctx).isEmpty()) {
             try { com.google.firebase.FirebaseApp.initializeApp(ctx) } catch (e: Exception) {}
-            if (com.google.firebase.FirebaseApp.getApps(ctx).isEmpty()) return null
+            if (com.google.firebase.FirebaseApp.getApps(ctx).isEmpty()) return@withContext null
         }
 
-        FirebaseMessaging.getInstance().token
-            .addOnCompleteListener { task: Task<String> ->
-                if (!task.isSuccessful) {
-                    Log.w("response", "Fetching FCM registration token failed", task.exception)
-                    //getFirebaseToken()
-                    return@addOnCompleteListener
+        try {
+            suspendCancellableCoroutine { cont ->
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        cont.resume(task.result) { }
+                    } else {
+                        Log.w("response", "Fetching FCM registration token failed", task.exception)
+                        cont.resume(null) { }
+                    }
                 }
-
-                // Get new FCM registration token
-                val tokenFirebase = task.result
-                tokens.set(tokenFirebase)
-                Log.d("tokenFirebase",tokenFirebase.toString())
-
             }
-        return tokens.get()
+        } catch (e: Exception) {
+            null
+        }
     }
 
 

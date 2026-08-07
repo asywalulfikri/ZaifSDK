@@ -10,6 +10,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 
@@ -70,12 +73,15 @@ class AudioEngine(private val context: Context) {
     }
 
     fun stopMicRecording() {
-        try {
-            mediaRecorder?.apply { stop(); release() }
-        } catch (e: Exception) {
-            Log.e("AudioEngine", "Stop mic failed: ${e.message}")
-        }
+        val recorder = mediaRecorder
         mediaRecorder = null
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                recorder?.apply { stop(); release() }
+            } catch (e: Exception) {
+                Log.e("AudioEngine", "Stop mic failed: ${e.message}")
+            }
+        }
     }
 
     // ─── MEDIA PLAYER ───
@@ -108,12 +114,15 @@ class AudioEngine(private val context: Context) {
 
     fun stopPlayingAudio() {
         syncHandler.removeCallbacksAndMessages(null)
-        try {
-            audioPlayer?.apply { if (isPlaying) stop(); release() }
-        } catch (e: Exception) {
-            Log.e("AudioEngine", "Failed to stop audio player: ${e.message}")
-        }
+        val player = audioPlayer
         audioPlayer = null
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                player?.apply { if (isPlaying) stop(); release() }
+            } catch (e: Exception) {
+                Log.e("AudioEngine", "Failed to stop audio player: ${e.message}")
+            }
+        }
     }
 
     fun release() {

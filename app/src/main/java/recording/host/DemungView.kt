@@ -120,6 +120,18 @@ class DemungView @JvmOverloads constructor(
     private var paluBitmap:  Bitmap? = null
     private var frameBitmap: Bitmap? = null
 
+    // Reuse objects to avoid allocations in onDraw
+    private val tempRect = RectF()
+    private val tempRect2 = RectF()
+    private val tempPath = Path()
+    private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.argb(80, 0, 0, 0) }
+    private val bilahFallbackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val stripRect = RectF()
+    private var density = 1f
+
+    private var shadowFilter: BlurMaskFilter? = null
+    private val notAngkaFilters = mutableMapOf<Int, BlurMaskFilter>()
+
     private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val bilahGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.argb(60, 255, 220, 80); style = Paint.Style.FILL
@@ -158,7 +170,8 @@ class DemungView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        val dp = resources.displayMetrics.density
+        density = resources.displayMetrics.density
+        val dp = density
         val tabHeightPx = tabHeightDp * dp
         val tabPadHPx   = tabPadHDp   * dp
         val tabGapPx    = tabGapDp    * dp
@@ -189,11 +202,17 @@ class DemungView @JvmOverloads constructor(
         val bilahWidth   = (bilahAreaW - totalGap) / BILAH_COUNT
         val innerCenterY = innerRect.centerY()
 
+        shadowFilter = BlurMaskFilter(max(0.01f, 4f * dp), BlurMaskFilter.Blur.NORMAL)
+        notAngkaFilters.clear()
+
         for (i in 0 until BILAH_COUNT) {
             val left   = innerRect.left + bilahPadPx + i * (bilahWidth + gapPx)
             val right  = left + bilahWidth
             val bilahH = innerRect.height() * heightRatios[i] * 0.88f
             bilahRects[i].set(left, innerCenterY - bilahH / 2f, right, innerCenterY + bilahH / 2f)
+            
+            val fs = bilahWidth * 0.25f
+            notAngkaFilters[i] = BlurMaskFilter(max(0.01f, fs * 0.3f), BlurMaskFilter.Blur.NORMAL)
         }
     }
 
@@ -247,21 +266,20 @@ class DemungView @JvmOverloads constructor(
 
     private fun drawHighlight(canvas: Canvas) {
         if (highlightIndex < 0 || highlightIndex >= BILAH_COUNT) return
-        val dp = resources.displayMetrics.density
         val rect = bilahRects[highlightIndex]
         val radius = rect.width() * 0.14f
-        val expand = 6f * dp
-        val expandedRect = RectF(rect.left - expand, rect.top - expand, rect.right + expand, rect.bottom + expand)
+        val expand = 6f * density
+        tempRect.set(rect.left - expand, rect.top - expand, rect.right + expand, rect.bottom + expand)
         highlightFillPaint.color = Color.argb((highlightAlpha * 80).toInt().coerceIn(0, 255), 80, 220, 255)
         highlightStrokePaint.alpha = (highlightAlpha * 255).toInt().coerceIn(0, 255)
-        canvas.drawRoundRect(expandedRect, radius + expand, radius + expand, highlightFillPaint)
-        canvas.drawRoundRect(expandedRect, radius + expand, radius + expand, highlightStrokePaint)
+        canvas.drawRoundRect(tempRect, radius + expand, radius + expand, highlightFillPaint)
+        canvas.drawRoundRect(tempRect, radius + expand, radius + expand, highlightStrokePaint)
     }
 
     private fun drawTabs(canvas: Canvas) {
-        val dp = resources.displayMetrics.density
+        val dp = density
         val radius = tabRadiusDp * dp
-        val stripRect = RectF(tabRects[0].left - 2f*dp, tabRects[0].top - 2f*dp, tabRects[TAB_COUNT-1].right + 2f*dp, tabRects[0].bottom + 2f*dp)
+        stripRect.set(tabRects[0].left - 2f*dp, tabRects[0].top - 2f*dp, tabRects[TAB_COUNT-1].right + 2f*dp, tabRects[0].bottom + 2f*dp)
         canvas.drawRoundRect(stripRect, radius+2f, radius+2f, tabBgPaint)
         for (i in 0 until TAB_COUNT) {
             val rect = tabRects[i]
@@ -276,7 +294,7 @@ class DemungView @JvmOverloads constructor(
     private fun drawFrameBitmap(canvas: Canvas) { frameBitmap?.let { canvas.drawBitmap(it, null, frameRect, bitmapPaint) } }
 
     private fun drawRipples(canvas: Canvas) {
-        val dp = resources.displayMetrics.density
+        val dp = density
         for (bilahAnim in activeAnims) {
             val rect = bilahRects[bilahAnim.bilahIndex]
             val cx = rect.centerX(); val cy = rect.centerY()
@@ -293,34 +311,52 @@ class DemungView @JvmOverloads constructor(
     }
 
     private fun drawBilah(canvas: Canvas) {
-        val bmp = bilahBitmap; val dp = resources.displayMetrics.density
+        val bmp = bilahBitmap; val dp = density
         for (i in 0 until BILAH_COUNT) {
             val baseRect = bilahRects[i]; val radius = baseRect.width() * 0.14f
             val anim = activeAnims.firstOrNull { it.bilahIndex == i && it.active }
             val vibOff = if (anim != null) sin((1f-anim.vibrateProgress)*35f*Math.PI.toFloat())*baseRect.width()*0.045f*anim.vibrateProgress else 0f
-            val rect = RectF(baseRect.left+vibOff, baseRect.top, baseRect.right+vibOff, baseRect.bottom)
+            
+            tempRect.set(baseRect.left+vibOff, baseRect.top, baseRect.right+vibOff, baseRect.bottom)
 
             if (anim != null && anim.vibrateProgress > 0.6f) {
                 bilahGlowPaint.alpha = ((anim.vibrateProgress-0.6f)/0.4f*120).toInt()
                 val ex = 3f*dp*anim.vibrateProgress
-                canvas.drawRoundRect(RectF(rect.left-ex, rect.top-ex, rect.right+ex, rect.bottom+ex), radius+ex, radius+ex, bilahGlowPaint)
+                tempRect2.set(tempRect.left-ex, tempRect.top-ex, tempRect.right+ex, tempRect.bottom+ex)
+                canvas.drawRoundRect(tempRect2, radius+ex, radius+ex, bilahGlowPaint)
             }
             if (bmp != null) {
-                val path = Path().apply { addRoundRect(rect, radius, radius, Path.Direction.CW) }
-                canvas.save(); canvas.clipPath(path); canvas.drawBitmap(bmp, null, rect, bitmapPaint); canvas.restore()
+                tempPath.reset()
+                tempPath.addRoundRect(tempRect, radius, radius, Path.Direction.CW)
+                canvas.save(); canvas.clipPath(tempPath); canvas.drawBitmap(bmp, null, tempRect, bitmapPaint); canvas.restore()
             } else {
-                canvas.drawRoundRect(rect, radius, radius, Paint().apply { val s=190-i*10; color=Color.rgb(s,s-20,s-55) })
+                val s=190-i*10
+                bilahFallbackPaint.color = Color.rgb(s,s-20,s-55)
+                canvas.drawRoundRect(tempRect, radius, radius, bilahFallbackPaint)
             }
-            canvas.drawOval(RectF(rect.left+3*dp, rect.bottom-2*dp, rect.right-3*dp, rect.bottom+5*dp), Paint().apply { color=Color.argb(80,0,0,0); maskFilter=BlurMaskFilter(max(0.01f, 4f*dp), BlurMaskFilter.Blur.NORMAL) })
-            val fs = rect.width()*0.25f
-            notAngkaPaint.textSize = fs; notAngkaGlowPaint.textSize = fs; notAngkaGlowPaint.maskFilter = BlurMaskFilter(max(0.01f, fs*0.3f), BlurMaskFilter.Blur.NORMAL)
-            if (anim != null && anim.vibrateProgress > 0.3f) { notAngkaGlowPaint.alpha=(anim.vibrateProgress*200).toInt(); canvas.drawText(notAngka[i], rect.centerX()+vibOff, rect.bottom-rect.width()*0.18f, notAngkaGlowPaint) }
-            canvas.drawText(notAngka[i], rect.centerX()+vibOff, rect.bottom-rect.width()*0.18f, notAngkaPaint)
+            
+            val shadowEx = 3*dp
+            val shadowTop = tempRect.bottom - 2*dp
+            val shadowBottom = tempRect.bottom + 5*dp
+            val shadowLeft = tempRect.left + shadowEx
+            val shadowRight = tempRect.right - shadowEx
+            
+            shadowPaint.maskFilter = shadowFilter
+            canvas.drawOval(shadowLeft, shadowTop, shadowRight, shadowBottom, shadowPaint)
+            
+            val fs = tempRect.width()*0.25f
+            notAngkaPaint.textSize = fs; notAngkaGlowPaint.textSize = fs
+            notAngkaGlowPaint.maskFilter = notAngkaFilters[i]
+            if (anim != null && anim.vibrateProgress > 0.3f) { 
+                notAngkaGlowPaint.alpha=(anim.vibrateProgress*200).toInt()
+                canvas.drawText(notAngka[i], tempRect.centerX(), tempRect.bottom-tempRect.width()*0.18f, notAngkaGlowPaint) 
+            }
+            canvas.drawText(notAngka[i], tempRect.centerX(), tempRect.bottom-tempRect.width()*0.18f, notAngkaPaint)
         }
     }
 
     private fun drawHammers(canvas: Canvas) {
-        val bmp = paluBitmap ?: return; val dp = resources.displayMetrics.density
+        val bmp = paluBitmap ?: return; val dp = density
         for (anim in activeAnims.toList()) {
             if (!anim.active || anim.hammerProgress <= 0f) continue
             val p = anim.hammerProgress; val bilahRect = bilahRects[anim.bilahIndex]; val paluW = bilahRect.width()*3.2f; val paluH = paluW*(bmp.height.toFloat()/bmp.width.toFloat())
@@ -329,7 +365,9 @@ class DemungView @JvmOverloads constructor(
             val cosR = cos(rotRad).toFloat(); val sinR = sin(rotRad).toFloat()
             val px = bilahRect.centerX()-(headOffX*cosR-headOffY*sinR); val py = (bilahRect.bottom+2f*dp)-(headOffX*sinR+headOffY*cosR)
             val alpha = when { p<0.10f -> (p/0.10f*255).toInt(); p>0.80f -> ((1f-(p-0.80f)/0.20f)*255).toInt(); else -> 255 }.coerceIn(0, 255)
-            canvas.save(); canvas.rotate(rot, px, py); bitmapPaint.alpha = alpha; canvas.drawBitmap(bmp, null, RectF(px-0.9f*paluW, py-0.9f*paluH, px+0.1f*paluW, py+0.1f*paluH), bitmapPaint); bitmapPaint.alpha = 255; canvas.restore()
+            
+            tempRect.set(px-0.9f*paluW, py-0.9f*paluH, px+0.1f*paluW, py+0.1f*paluH)
+            canvas.save(); canvas.rotate(rot, px, py); bitmapPaint.alpha = alpha; canvas.drawBitmap(bmp, null, tempRect, bitmapPaint); bitmapPaint.alpha = 255; canvas.restore()
         }
     }
 
@@ -377,6 +415,11 @@ class DemungView @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+
+        // Hentikan animasi highlight
+        highlightAnim?.removeAllUpdateListeners()
+        highlightAnim?.cancel()
+        highlightAnim = null
 
         // Buat salinan list agar tidak terjadi ConcurrentModificationException
         val animsToCancel = activeAnims.toList()

@@ -59,30 +59,35 @@ internal class RecorderWaveformView: View {
     }
 
     fun reset(){
-        amplitudes.clear()
-        spikes.clear()
-        invalidate()
+        synchronized(spikes) {
+            amplitudes.clear()
+            spikes.clear()
+        }
+        postInvalidate()
     }
 
     fun updateAmps(amp: Int?){
 
         if(amp!=null){
             val norm  = min(amp/7, maxAmp) // 100*abs(Math.log10(1.0*amp/(sqrt(amp*1.0)+1)))
-            amplitudes.add(norm)
-            val amps = amplitudes.takeLast(maxSpikes)
+            
+            synchronized(spikes) {
+                amplitudes.add(norm)
+                val amps = amplitudes.takeLast(maxSpikes)
 
-            spikes.clear()
+                spikes.clear()
 
-            for(i in amps.indices){
-                val delta = maxAmp.toFloat()
-                val top = delta - amps[i]
-                val bottom = top + amps[i] as Int
-                val rectUp = RectF(sw-i*(w+d), top, sw-i*(w+d) - w, bottom)
-                val rectDown = RectF(sw-i*(w+d), delta-2, sw-i*(w+d) - w, delta+amps[i])
-                spikes.add(rectUp)
-                spikes.add(rectDown)
+                for(i in amps.indices){
+                    val delta = maxAmp.toFloat()
+                    val top = delta - amps[i]
+                    val bottom = top + amps[i] as Int
+                    val rectUp = RectF(sw-i*(w+d), top, sw-i*(w+d) - w, bottom)
+                    val rectDown = RectF(sw-i*(w+d), delta-2, sw-i*(w+d) - w, delta+amps[i])
+                    spikes.add(rectUp)
+                    spikes.add(rectDown)
+                }
             }
-            invalidate()
+            postInvalidate()
         }
     }
 
@@ -90,8 +95,10 @@ internal class RecorderWaveformView: View {
         // this may be called several times on start or create
         // therefore we shouldn't initialize objects here
 
-        spikes.forEach {
-            canvas.drawRoundRect(it, 6f, 6f,paintRead)
+        synchronized(spikes) {
+            spikes.forEach {
+                canvas.drawRoundRect(it, 6f, 6f,paintRead)
+            }
         }
     }
 }

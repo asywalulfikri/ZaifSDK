@@ -343,11 +343,12 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 onSave = { name ->
                     // User pilih SAVE
                     onRecordingStopped?.invoke(true)
-                    val json = recorderManager.getEventsAsString(events)
                     val audioPath = if (isMicMode) audioEngine.currentAudioFile?.absolutePath else null
                     val earphoneUsed = isEarphoneWhenRecording
+                    
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
+                            val json = recorderManager.getEventsAsString(events)
                             AppDatabase.getInstance(context.applicationContext).recordingDao().insert(
                                 RecordingEntity(
                                     name = name,
@@ -394,20 +395,22 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 btnStop.visibility = VISIBLE
                 blinkManager.startStopBlink()
 
-                val events = recorderManager.parseJson(entity.eventsJson)
-                val hasAudio = !entity.audioPath.isNullOrEmpty()
+                CoroutineScope(Dispatchers.Main).launch {
+                    val events = recorderManager.parseJson(entity.eventsJson)
+                    val hasAudio = !entity.audioPath.isNullOrEmpty()
 
-                val onFinish: () -> Unit = {
-                    post { blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate() }
-                }
+                    val onFinish: () -> Unit = {
+                        post { blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate() }
+                    }
 
-                if (hasAudio) {
-                    listener?.onMuteControl(!entity.isEarphoneRecording)
-                    recorderManager.play(events) { post { invalidate() } }
-                    audioEngine.startPlayingAudioSync(entity.audioPath!!, onFinish)
-                } else {
-                    listener?.onMuteControl(false)
-                    recorderManager.play(events) { post { blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate() } }
+                    if (hasAudio) {
+                        listener?.onMuteControl(!entity.isEarphoneRecording)
+                        recorderManager.play(events) { post { invalidate() } }
+                        audioEngine.startPlayingAudioSync(entity.audioPath!!, onFinish)
+                    } else {
+                        listener?.onMuteControl(false)
+                        recorderManager.play(events) { post { blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate() } }
+                    }
                 }
             }
         }

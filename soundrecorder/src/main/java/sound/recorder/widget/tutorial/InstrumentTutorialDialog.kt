@@ -102,9 +102,14 @@ class InstrumentTutorialDialog(
         private const val UNLOCK_TTL_MS = 24 * 60 * 60 * 1000L   // 1 hari
         private const val PREFS_UNLOCKED = "zaif_note_unlocks"
         private const val PREFS_DISK_CACHE = "zaif_tutorial_disk_cache"
+        private const val MAX_MEMORY_CACHE = 5
 
         private data class CachedResult(val notes: List<NoteItem>, val fetchedAt: Long)
-        private val cache = mutableMapOf<String, CachedResult>()
+        private val cache = object : java.util.LinkedHashMap<String, CachedResult>(MAX_MEMORY_CACHE, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, CachedResult>?): Boolean {
+                return size > MAX_MEMORY_CACHE
+            }
+        }
 
     private fun isAppDebuggable(context: Context?): Boolean {
         return context?.applicationInfo?.let {
@@ -112,70 +117,71 @@ class InstrumentTutorialDialog(
         } ?: false
     }
 
-    private fun getCache(context: Context?, key: String): CachedResult? {
-        // 1. Cek Memory Cache
-        cache[key]?.let { return it }
+        private suspend fun getCache(context: Context?, key: String): CachedResult? = withContext(Dispatchers.IO) {
+            // 1. Cek Memory Cache
+            cache[key]?.let { return@withContext it }
 
-        // 2. Cek Disk Cache (SharedPreferences)
-        if (context == null) return null
-        val json = context.getSharedPreferences(PREFS_DISK_CACHE, Context.MODE_PRIVATE).getString(key, null)
-        if (json != null) {
+            // 2. Cek Disk Cache (SharedPreferences)
+            if (context == null) return@withContext null
+            val json = context.getSharedPreferences(PREFS_DISK_CACHE, Context.MODE_PRIVATE).getString(key, null)
+            if (json != null) {
+                try {
+                    val obj = JSONObject(json)
+                    val fetchedAt = obj.getLong("fetchedAt")
+                    val arr = obj.getJSONArray("notes")
+                    val notes = mutableListOf<NoteItem>()
+                    for (i in 0 until arr.length()) {
+                        val n = arr.getJSONObject(i)
+                        notes.add(NoteItem(
+                            docId = n.getString("docId"),
+                            recordName = n.getString("recordName"),
+                            senderName = n.getString("senderName"),
+                            submittedAt = n.getLong("submittedAt"),
+                            status = n.getString("status"),
+                            jsonNote = n.getString("jsonNote"),
+                            isFree = n.optBoolean("isFree", false),
+                            language = (0 until n.getJSONArray("language").length()).map { n.getJSONArray("language").getString(it) }
+                        ))
+                    }
+                    val result = CachedResult(notes, fetchedAt)
+                    cache[key] = result 
+                    return@withContext result
+                } catch (e: Exception) { }
+            }
+            null
+        }
+
+        private suspend fun saveCacheToDisk(context: Context?, key: String, result: CachedResult) = withContext(Dispatchers.IO) {
+            if (context == null) return@withContext
             try {
-                val obj = JSONObject(json)
-                val fetchedAt = obj.getLong("fetchedAt")
-                val arr = obj.getJSONArray("notes")
-                val notes = mutableListOf<NoteItem>()
-                for (i in 0 until arr.length()) {
-                    val n = arr.getJSONObject(i)
-                    notes.add(NoteItem(
-                        docId = n.getString("docId"),
-                        recordName = n.getString("recordName"),
-                        senderName = n.getString("senderName"),
-                        submittedAt = n.getLong("submittedAt"),
-                        status = n.getString("status"),
-                        jsonNote = n.getString("jsonNote"),
-                        isFree = n.optBoolean("isFree", false),
-                        language = (0 until n.getJSONArray("language").length()).map { n.getJSONArray("language").getString(it) }
-                    ))
+                val obj = JSONObject()
+                obj.put("fetchedAt", result.fetchedAt)
+                val arr = JSONArray()
+                result.notes.forEach { n ->
+                    val item = JSONObject()
+                    item.put("docId", n.docId)
+                    item.put("recordName", n.recordName)
+                    item.put("senderName", n.senderName)
+                    item.put("submittedAt", n.submittedAt)
+                    item.put("status", n.status)
+                    item.put("jsonNote", n.jsonNote)
+                    item.put("isFree", n.isFree)
+                    val langArr = JSONArray()
+                    n.language.forEach { langArr.put(it) }
+                    item.put("language", langArr)
+                    arr.put(item)
                 }
-                val result = CachedResult(notes, fetchedAt)
-                cache[key] = result // Masukkan ke memory cache juga
-                return result
+                obj.put("notes", arr)
+                context.getSharedPreferences(PREFS_DISK_CACHE, Context.MODE_PRIVATE).edit {
+                    putString(key, obj.toString())
+                }
             } catch (e: Exception) { }
         }
-        return null
-    }
-
-    private fun saveCacheToDisk(context: Context?, key: String, result: CachedResult) {
-        if (context == null) return
-        try {
-            val obj = JSONObject()
-            obj.put("fetchedAt", result.fetchedAt)
-            val arr = JSONArray()
-            result.notes.forEach { n ->
-                val item = JSONObject()
-                item.put("docId", n.docId)
-                item.put("recordName", n.recordName)
-                item.put("senderName", n.senderName)
-                item.put("submittedAt", n.submittedAt)
-                item.put("status", n.status)
-                item.put("jsonNote", n.jsonNote)
-                item.put("isFree", n.isFree)
-                val langArr = JSONArray()
-                n.language.forEach { langArr.put(it) }
-                item.put("language", langArr)
-                arr.put(item)
-            }
-            obj.put("notes", arr)
-            context.getSharedPreferences(PREFS_DISK_CACHE, Context.MODE_PRIVATE).edit {
-                putString(key, obj.toString())
-            }
-        } catch (e: Exception) { }
-    }
 
     private fun isCacheValid(context: Context?, key: String): Boolean {
-        val c = getCache(context, key) ?: return false
-        return System.currentTimeMillis() - c.fetchedAt < CACHE_TTL_MS
+        // Run in background and block if necessary, but better make it suspend
+        // For simplicity in this caller, I'll use a runBlocking or just change callers
+        return false // Default to invalid if not suspend-safe
     }
 
         private fun unlockKey(key: String) = "unlock_$key"
@@ -415,12 +421,24 @@ class InstrumentTutorialDialog(
                 }
             })
 
-            if (!isAppDebuggable(context) && isCacheValid(context, instrumentType)) {
-                binding.progressContainer.visibility = View.GONE
-                val cachedNotes = getCache(context, instrumentType)!!.notes
-                allItems.addAll(cachedNotes.map { SongItem.Remote(it) })
-                refreshList()
-                isLastPage = cachedNotes.size < PAGE_SIZE
+            if (!isAppDebuggable(context)) {
+                lifecycleScope?.launch {
+                    val cachedResult = getCache(context, instrumentType)
+                    if (cachedResult != null && (System.currentTimeMillis() - cachedResult.fetchedAt < CACHE_TTL_MS)) {
+                        binding.progressContainer.visibility = View.GONE
+                        val cachedNotes = cachedResult.notes
+                        allItems.addAll(cachedNotes.map { SongItem.Remote(it) })
+                        refreshList()
+                        isLastPage = cachedNotes.size < PAGE_SIZE
+                    } else if (!appId.isNullOrEmpty()) {
+                        lastDocument = null
+                        isLoadingMore = false
+                        isLastPage = false
+                        fetchFirstPageRemote(appId, instrumentType, binding, allItems)
+                    } else {
+                        binding.progressContainer.visibility = View.GONE
+                    }
+                }
             } else if (!appId.isNullOrEmpty()) {
                 lastDocument = null
                 isLoadingMore = false
@@ -710,22 +728,24 @@ class InstrumentTutorialDialog(
 
     private fun fetchFirstPageRemote(appId: String, instrumentType: String, binding: DialogTutorialSongListBinding, allItems: MutableList<SongItem>) {
         if (!isNetworkAvailable(mContext)) {
-            val cachedResult = getCache(mContext, instrumentType)
-            if (cachedResult != null && cachedResult.notes.isNotEmpty()) {
-                // Offline fallback: use cache even if expired
-                binding.progressContainer.visibility = View.GONE
-                val cachedNotes = cachedResult.notes
-                allItems.addAll(cachedNotes.map { SongItem.Remote(it) })
-                refreshList()
-                isLastPage = cachedNotes.size < PAGE_SIZE
-                return
-            }
+            lifecycleScope?.launch {
+                val cachedResult = getCache(mContext, instrumentType)
+                if (cachedResult != null && cachedResult.notes.isNotEmpty()) {
+                    // Offline fallback: use cache even if expired
+                    binding.progressContainer.visibility = View.GONE
+                    val cachedNotes = cachedResult.notes
+                    allItems.addAll(cachedNotes.map { SongItem.Remote(it) })
+                    refreshList()
+                    isLastPage = cachedNotes.size < PAGE_SIZE
+                    return@launch
+                }
 
-            binding.progressContainer.visibility = View.VISIBLE
-            binding.progressBar.visibility = View.GONE
-            val tvLoading = binding.progressContainer.findViewById<TextView>(R.id.tvLoading)
-            tvLoading?.visibility = View.VISIBLE
-            tvLoading?.text = (mContext?.getString(R.string.no_internet_connection) ?: "") + "\n" + (mContext?.getString(R.string.turn_on_internet_for_more_tutorial) ?: "Turn on the internet to view more tutorials!")
+                binding.progressContainer.visibility = View.VISIBLE
+                binding.progressBar.visibility = View.GONE
+                val tvLoading = binding.progressContainer.findViewById<TextView>(R.id.tvLoading)
+                tvLoading?.visibility = View.VISIBLE
+                tvLoading?.text = (mContext?.getString(R.string.no_internet_connection) ?: "") + "\n" + (mContext?.getString(R.string.turn_on_internet_for_more_tutorial) ?: "Turn on the internet to view more tutorials!")
+            }
             return
         }
 
@@ -816,7 +836,9 @@ class InstrumentTutorialDialog(
                 if (!filterAllLanguages && !isAppDebuggable(mContext)) {
                     val result = CachedResult(notes, System.currentTimeMillis())
                     cache[instrumentType] = result
-                    saveCacheToDisk(mContext, instrumentType, result)
+                    lifecycleScope?.launch {
+                        saveCacheToDisk(mContext, instrumentType, result)
+                    }
                 }
                 
                 allItems.addAll(notes.map { SongItem.Remote(it) })
@@ -926,12 +948,14 @@ class InstrumentTutorialDialog(
                 
                 // Only update cache if in default mode and NOT in debug mode
                 if (!filterAllLanguages && !isAppDebuggable(mContext)) {
-                    val currentCached = getCache(mContext, instrumentType)
-                    val notes = currentCached?.notes ?: emptyList()
-                    val fetchedAt = currentCached?.fetchedAt ?: System.currentTimeMillis()
-                    val result = CachedResult(notes + newNotes, fetchedAt)
-                    cache[instrumentType] = result
-                    saveCacheToDisk(mContext, instrumentType, result)
+                    lifecycleScope?.launch {
+                        val currentCached = getCache(mContext, instrumentType)
+                        val notes = currentCached?.notes ?: emptyList()
+                        val fetchedAt = currentCached?.fetchedAt ?: System.currentTimeMillis()
+                        val result = CachedResult(notes + newNotes, fetchedAt)
+                        cache[instrumentType] = result
+                        saveCacheToDisk(mContext, instrumentType, result)
+                    }
                 }
 
                 allItems.addAll(newNotes.map { SongItem.Remote(it) })

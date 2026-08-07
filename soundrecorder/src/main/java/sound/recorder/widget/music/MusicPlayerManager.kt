@@ -32,6 +32,7 @@ object MusicPlayerManager {
     private var currentTrack: MusicTrack? = null
     private var listener: PlayerListener? = null
     private var progressJob: Job? = null
+    private val managerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     private var _isPlaying = false
     val isPlaying: Boolean get() = _isPlaying
@@ -90,37 +91,37 @@ object MusicPlayerManager {
         currentTrack = track
         currentVolume = loadMusicVolume(context)
 
-        CoroutineScope(Dispatchers.IO).launch {          // ← pindah ke IO thread
+        managerScope.launch {
             try {
-                val player = if (track.isRaw) {
-                    MediaPlayer.create(context, track.rawResId)
-                } else {
-                    MediaPlayer().apply {
-                        setDataSource(context, track.deviceUri!!)
-                        prepare()                         // aman di IO thread
+                val player = withContext(Dispatchers.IO) {
+                    if (track.isRaw) {
+                        MediaPlayer.create(context, track.rawResId)
+                    } else {
+                        MediaPlayer().apply {
+                            setDataSource(context, track.deviceUri!!)
+                            prepare()
+                        }
                     }
                 }
 
-                withContext(Dispatchers.Main) {           // ← balik ke Main untuk UI
-                    mediaPlayer = player
-                    mediaPlayer?.apply {
-                        setVolume(currentVolume, currentVolume)
-                        start()
-                        _isPlaying = true
+                mediaPlayer = player
+                mediaPlayer?.apply {
+                    setVolume(currentVolume, currentVolume)
+                    start()
+                    _isPlaying = true
+                    _isPaused = false
+
+                    listener?.onPlay(track)
+
+                    setOnCompletionListener {
+                        _isPlaying = false
                         _isPaused = false
-
-                        listener?.onPlay(track)
-
-                        setOnCompletionListener {
-                            _isPlaying = false
-                            _isPaused = false
-                            progressJob?.cancel()
-                            listener?.onComplete()
-                            stop()
-                        }
-
-                        startProgressTracking()
+                        progressJob?.cancel()
+                        listener?.onComplete()
+                        stop()
                     }
+
+                    startProgressTracking()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -157,11 +158,10 @@ object MusicPlayerManager {
         progressJob?.cancel()
         progressJob = null
 
-        // Pindahkan operasi MediaPlayer yang berat ke background thread
         val playerToRelease = mediaPlayer
-        mediaPlayer = null // Langsung null-kan agar UI tidak menunggu
+        mediaPlayer = null 
 
-        CoroutineScope(Dispatchers.IO).launch {
+        managerScope.launch(Dispatchers.IO) {
             try {
                 playerToRelease?.let {
                     if (it.isPlaying) it.stop()
@@ -195,7 +195,7 @@ object MusicPlayerManager {
 
     private fun startProgressTracking() {
         progressJob?.cancel()
-        progressJob = CoroutineScope(Dispatchers.Main).launch {
+        progressJob = managerScope.launch {
             while (_isPlaying) {
                 val current = mediaPlayer?.currentPosition ?: 0
                 val max = mediaPlayer?.duration ?: 0

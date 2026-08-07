@@ -19,10 +19,12 @@ import android.view.animation.LinearInterpolator;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import sound.recorder.widget.animation.initializers.AccelerationInitializer;
 import sound.recorder.widget.animation.initializers.ParticleInitializer;
@@ -43,8 +45,8 @@ public class ParticleSystem {
 
     private ParticleField mDrawingView;
 
-    private ArrayList<Particle> mParticles;
-    private final ArrayList<Particle> mActiveParticles = new ArrayList<>();
+    private final ArrayList<Particle> mParticles = new ArrayList<>();
+    private final List<Particle> mActiveParticles = Collections.synchronizedList(new ArrayList<Particle>());
     private long mTimeToLive;
     private long mCurrentTime = 0;
 
@@ -55,8 +57,14 @@ public class ParticleSystem {
     private List<ParticleModifier> mModifiers;
     private List<ParticleInitializer> mInitializers;
     private ValueAnimator mAnimator;
-    private Timer mTimer;
-    private final ParticleTimerTask mTimerTask = new ParticleTimerTask(this);
+    private ScheduledExecutorService mScheduler;
+    private final Runnable mUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            onUpdate(mCurrentTime);
+            mCurrentTime += TIMER_TASK_INTERVAL;
+        }
+    };
 
     private float mDpToPxScale;
     private int[] mParentLocation;
@@ -66,23 +74,6 @@ public class ParticleSystem {
     private int mEmitterYMin;
     private int mEmitterYMax;
 
-    private static class ParticleTimerTask extends TimerTask {
-
-        private final WeakReference<ParticleSystem> mPs;
-
-        public ParticleTimerTask(ParticleSystem ps) {
-            mPs = new WeakReference<>(ps);
-        }
-
-        @Override
-        public void run() {
-            if(mPs.get() != null) {
-                ParticleSystem ps = mPs.get();
-                ps.onUpdate(ps.mCurrentTime);
-                ps.mCurrentTime += TIMER_TASK_INTERVAL;
-            }
-        }
-    }
 
     private ParticleSystem(ViewGroup parentView, int maxParticles, long timeToLive) {
         mRandom = new Random();
@@ -95,8 +86,6 @@ public class ParticleSystem {
 
         mMaxParticles = maxParticles;
         // Create the particles
-
-        mParticles = new ArrayList<>();
         mTimeToLive = timeToLive;
 
         DisplayMetrics displayMetrics = parentView.getContext().getResources().getDisplayMetrics();
@@ -496,12 +485,21 @@ public class ParticleSystem {
         mParticlesPerMillisecond = particlesPerSecond/1000f;
         // Add a full size view to the parent view
         mDrawingView = new ParticleField(mParentView.getContext());
+        mDrawingView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {}
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                cancel();
+            }
+        });
         mParentView.addView(mDrawingView);
         mEmittingTime = -1; // Meaning infinite
         mDrawingView.setParticles (mActiveParticles);
         updateParticlesBeforeStartTime(particlesPerSecond);
-        mTimer = new Timer();
-        mTimer.schedule(mTimerTask, 0, TIMER_TASK_INTERVAL);
+        mScheduler = Executors.newSingleThreadScheduledExecutor();
+        mScheduler.scheduleWithFixedDelay(mUpdateRunnable, 0, TIMER_TASK_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     public void emit(int emitterX, int emitterY, int particlesPerSecond, int emittingTime) {
@@ -571,6 +569,15 @@ public class ParticleSystem {
         }
         // Add a full size view to the parent view
         mDrawingView = new ParticleField(mParentView.getContext());
+        mDrawingView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {}
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                cancel();
+            }
+        });
         mParentView.addView(mDrawingView);
         mDrawingView.setParticles(mActiveParticles);
         // We start a property animator that will call us to do the update
@@ -697,18 +704,29 @@ public class ParticleSystem {
                 if (!active) {
                     Particle p = mActiveParticles.remove(i);
                     i--; // Needed to keep the index at the right position
-                    mParticles.add(p);
+                    synchronized (mParticles) {
+                        mParticles.add(p);
+                    }
                 }
             }
         }
-        mDrawingView.postInvalidate();
+        if (mDrawingView != null) {
+            mDrawingView.postInvalidate();
+        }
     }
 
     private void cleanupAnimation() {
-        mParentView.removeView(mDrawingView);
-        mDrawingView = null;
+        if (mDrawingView != null) {
+            mParentView.removeView(mDrawingView);
+            mDrawingView = null;
+        }
         mParentView.postInvalidate();
-        mParticles.addAll(mActiveParticles);
+        synchronized (mActiveParticles) {
+            synchronized (mParticles) {
+                mParticles.addAll(mActiveParticles);
+            }
+            mActiveParticles.clear();
+        }
     }
 
     /**
@@ -728,11 +746,11 @@ public class ParticleSystem {
         if (mAnimator != null && mAnimator.isRunning()) {
             mAnimator.cancel();
         }
-        if (mTimer != null) {
-            mTimer.cancel();
-            mTimer.purge();
-            cleanupAnimation();
+        if (mScheduler != null) {
+            mScheduler.shutdownNow();
+            mScheduler = null;
         }
+        cleanupAnimation();
     }
 
     private void updateParticlesBeforeStartTime(int particlesPerSecond) {

@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import android.media.SoundPool
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import java.util.concurrent.Executors
 import kotlin.apply
 import kotlin.collections.set
 import kotlin.let
@@ -19,6 +20,7 @@ object SoundPlayUtils {
 
     private val instrumentSounds = mutableMapOf<String, MutableMap<String, Int>>()
     private var volume = 1f
+    private val audioExecutor = Executors.newSingleThreadExecutor()
 
     // Status loading
     private var totalSounds = 0
@@ -125,8 +127,8 @@ object SoundPlayUtils {
      * Memainkan musik/track panjang dari MediaPlayer.
      */
     fun playAudioTrack(context: Context, resId: Int) {
-        // Jalankan di background agar tidak ANR saat release/create (terutama di HP low-end)
-        Thread {
+        // Gunakan executor agar tidak membebani sistem dengan thread baru terus menerus
+        audioExecutor.execute {
             try {
                 mediaPlayer?.let {
                     if (it.isPlaying) it.stop()
@@ -138,14 +140,14 @@ object SoundPlayUtils {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        }.start()
+        }
     }
 
     /**
      * Menghentikan audio track yang sedang berjalan.
      */
     fun stopSound() {
-        Thread {
+        audioExecutor.execute {
             try {
                 mediaPlayer?.let {
                     if (it.isPlaying) it.stop()
@@ -155,7 +157,7 @@ object SoundPlayUtils {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        }.start()
+        }
     }
 
     fun setVolume(newVolume: Float) {
@@ -164,7 +166,7 @@ object SoundPlayUtils {
     }
 
     fun release() {
-        Thread {
+        audioExecutor.execute {
             try {
                 soundPool?.release()
                 mediaPlayer?.release()
@@ -174,6 +176,6 @@ object SoundPlayUtils {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        }.start()
+        }
     }
 }
