@@ -8,6 +8,9 @@ import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.Window
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -241,6 +244,25 @@ object InstrumentDialogHelper {
 
         root.addView(textView)
         dialog.setContentView(root)
+
+        // Memastikan dialog menempati seluruh layar dan menyembunyikan navigasi
+        // Dilakukan setelah setContentView agar decorView sudah terinisialisasi
+        dialog.window?.let { window ->
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            
+            // Mendukung konten di area poni/notch untuk perangkat modern (API 28+)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                window.attributes.layoutInDisplayCutoutMode = 
+                    android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
+
+            // Menggunakan WindowInsetsControllerCompat untuk stabilitas di semua versi
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            WindowCompat.getInsetsController(window, window.decorView)?.apply {
+                hide(WindowInsetsCompat.Type.systemBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
 
         try {
             dialog.show()
