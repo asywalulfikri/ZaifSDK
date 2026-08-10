@@ -514,46 +514,54 @@ object RecordingListDialogHelper {
     }
 
     private fun sendNoteToFirestore(context: Context, rec: RecordingEntity, senderName: String, onSuccess: () -> Unit = {}) {
-        val jsonNote = """
-            {
-              "id": ${rec.id},
-              "name": "${rec.name}",
-              "category": "${rec.setName}",
-              "events": ${rec.eventsJson},
-              "audio_path": "${rec.audioPath ?: ""}",
-              "created_at": ${rec.createdAt},
-              "duration_ms": ${rec.durationMs},
-              "is_earphone": ${rec.isEarphoneRecording}
-            }
-        """.trimIndent()
-
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
             val appId = zaifSDKConfig?.applicationId ?: return@addOnSuccessListener
-            val data = hashMapOf(
-                "sender_name"    to senderName,
-                "firebase_token" to token,
-                "json_note"      to jsonNote,
-                "record_name"    to rec.name,
-                "category"       to rec.setName,
-                "language"       to getLanguageList(),
-                "appId"          to appId,
-                "status"         to "DRAFT",
-                "isFree"         to true,
-                "deviceInfo"     to getInfo(),
-                "submitted_at"   to System.currentTimeMillis()
-            )
 
-            FirebaseFirestore.getInstance()
-                .collection(appId)
-                .add(data)
-                .addOnSuccessListener {
-                    markAsPromoted(context, rec.id)
-                    onSuccess()
-                    Toast.makeText(context, context.getString(R.string.send_note_success), Toast.LENGTH_SHORT).show()
+            // Jalankan sinkronisasi di Background Thread (Dispatchers.Default) agar tidak ANR jika note sangat panjang
+            CoroutineScope(Dispatchers.Main).launch {
+                val syncedEvents = withContext(Dispatchers.Default) {
+                    sound.recorder.widget.util.Utils.syncJsonNoteTimestamps(rec.eventsJson, 500L)
                 }
-                .addOnFailureListener {
-                    Toast.makeText(context, context.getString(R.string.send_note_failed), Toast.LENGTH_SHORT).show()
-                }
+
+                val jsonNote = """
+                    {
+                      "id": ${rec.id},
+                      "name": "${rec.name}",
+                      "category": "${rec.setName}",
+                      "events": $syncedEvents,
+                      "audio_path": "${rec.audioPath ?: ""}",
+                      "created_at": ${rec.createdAt},
+                      "duration_ms": ${rec.durationMs},
+                      "is_earphone": ${rec.isEarphoneRecording}
+                    }
+                """.trimIndent()
+
+                val data = hashMapOf(
+                    "sender_name"    to senderName,
+                    "firebase_token" to token,
+                    "json_note"      to jsonNote,
+                    "record_name"    to rec.name,
+                    "category"       to rec.setName,
+                    "language"       to getLanguageList(),
+                    "appId"          to appId,
+                    "status"         to "DRAFT",
+                    "isFree"         to true,
+                    "deviceInfo"     to getInfo(),
+                    "submitted_at"   to System.currentTimeMillis()
+                )
+
+                FirebaseFirestore.getInstance()
+                    .collection(appId)
+                    .add(data)
+                    .addOnSuccessListener {
+                        markAsPromoted(context, rec.id)
+                        onSuccess()
+                        Toast.makeText(context, context.getString(R.string.send_note_success), Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(context, context.getString(R.string.send_note_failed), Toast.LENGTH_SHORT).show()
+                    }
+            }
         }.addOnFailureListener {
             Toast.makeText(context, context.getString(R.string.send_note_failed), Toast.LENGTH_SHORT).show()
         }
