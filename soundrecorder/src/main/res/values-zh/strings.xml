@@ -468,5 +468,10 @@
     <string name="search_note">搜索笔记...</string>
     <string name="copy_note">复制笔记</string>
 
+    <string name="vibra">振动</string>
+    <string name="on">开启</string>
+    <string name="off">关闭</string>
+    <string name="info_delay">为了防止使用免提设备或耳机时出现声音延迟，请不要使用蓝牙免提设备或蓝牙耳机。请使用有线免提设备或有线耳机。</string>
+
 
 </resources>

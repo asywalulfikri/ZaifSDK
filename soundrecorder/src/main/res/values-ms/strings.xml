@@ -471,4 +471,9 @@
     <string name="search_note">Cari Nota...</string>
     <string name="copy_note">Salin Nota</string>
 
+    <string name="vibra">Getaran</string>
+    <string name="on">Hidup</string>
+    <string name="off">Mati</string>
+    <string name="info_delay">Untuk mengelakkan kelewatan bunyi apabila menggunakan fon telinga atau headset, jangan gunakan fon telinga atau headset Bluetooth. Gunakan fon telinga atau headset berwayar sahaja.</string>
+
 </resources>

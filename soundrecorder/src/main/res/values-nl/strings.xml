@@ -472,4 +472,9 @@
 
     <string name="search_note">Notities zoeken...</string>
     <string name="copy_note">Notitie kopiëren</string>
+
+    <string name="vibra">Trilling</string>
+    <string name="on">Aan</string>
+    <string name="off">Uit</string>
+    <string name="info_delay">Gebruik geen Bluetooth-handsfree of Bluetooth-hoofdtelefoon om geluidsvertraging te voorkomen. Gebruik in plaats daarvan een bedrade handsfree of hoofdtelefoon.</string>
 </resources>

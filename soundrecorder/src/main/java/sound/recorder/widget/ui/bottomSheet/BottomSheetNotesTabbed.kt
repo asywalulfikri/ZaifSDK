@@ -288,6 +288,8 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             val notes = dbHelper?.allNotes.orEmpty()
             withContext(Dispatchers.Main) {
+                if (_binding == null || !isAdded) return@withContext
+                
                 localNotesList.clear()
                 localNotesList.addAll(notes)
                 localAdapter?.notifyDataSetChanged()
@@ -298,25 +300,31 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
 
     private fun showActionsDialog(position: Int) {
         val activity = activity ?: return
-        val optionsList = mutableListOf<CharSequence>(
-            getString(R.string.use_note),
-            getString(R.string.edit_note),
-            getString(R.string.delete_not)
-        )
+        
+        // Pre-fetch all strings to avoid IllegalStateException if fragment is detached during callback
+        val strUseNote = getString(R.string.use_note)
+        val strEditNote = getString(R.string.edit_note)
+        val strDeleteNote = getString(R.string.delete_not)
+        val strPromote = getString(R.string.promosikan)
+        val strChoose = getString(R.string.choose)
+
+        val optionsList = mutableListOf<CharSequence>(strUseNote, strEditNote, strDeleteNote)
 
         val isPromoteEnabled = zaifSDKConfig?.isPromotNote ?: false
         if (isPromoteEnabled) {
-            optionsList.add(getString(R.string.promosikan))
+            optionsList.add(strPromote)
         }
 
         val options = optionsList.toTypedArray()
 
         AlertDialog.Builder(activity)
-            .setTitle(getString(R.string.choose))
+            .setTitle(strChoose)
             .setItems(options) { _, which ->
+                if (!isAdded) return@setItems
+                
                 val selectedOption = options[which]
-                when {
-                    selectedOption == getString(R.string.use_note) -> {
+                when (selectedOption) {
+                    strUseNote -> {
                         try {
                             val rawNote = localNotesList[position].note
                             val noteText = try {
@@ -329,16 +337,25 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                             dismissAllowingStateLoss()
                         } catch (e: Exception) {}
                     }
-                    selectedOption == getString(R.string.edit_note) -> showNoteDialog(true, localNotesList[position], position)
-                    selectedOption == getString(R.string.delete_not) -> deleteLocalNote(position)
-                    selectedOption == getString(R.string.promosikan) -> showPromoteConfirmation(localNotesList[position])
+                    strEditNote -> showNoteDialog(true, localNotesList[position], position)
+                    strDeleteNote -> deleteLocalNote(position)
+                    strPromote -> showPromoteConfirmation(localNotesList[position])
                 }
             }
             .show()
     }
 
     private fun showPromoteConfirmation(note: Note) {
-        val context = requireContext()
+        val context = context ?: return
+        
+        // Pre-fetch strings
+        val strAlreadyPromoted = getString(R.string.already_promoted)
+        val strLimitPromoted = getString(R.string.limit_promot)
+        val strPromote = getString(R.string.promosikan)
+        val strPromoteInfo = getString(R.string.promot_info)
+        val strSend = getString(R.string.send)
+        val strCancel = getString(R.string.cancel)
+
         val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         val prefs = context.getSharedPreferences("note_promo_prefs", Context.MODE_PRIVATE)
 
@@ -348,7 +365,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         val savedSignature = prefs.getString("sig_${note.id}", "")
 
         if (currentSignature == savedSignature) {
-            Toastic.toastic(context, getString(R.string.already_promoted), Toastic.LENGTH_SHORT, Toastic.WARNING, null, true).show()
+            Toastic.toastic(context, strAlreadyPromoted, Toastic.LENGTH_SHORT, Toastic.WARNING, null, true).show()
             return
         }
 
@@ -357,17 +374,17 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         val count = if (lastDate == today) prefs.getInt("promo_count", 0) else 0
 
         if (count >= 3) {
-            Toastic.toastic(context, getString(R.string.limit_promot), Toastic.LENGTH_SHORT, Toastic.WARNING, null, true).show()
+            Toastic.toastic(context, strLimitPromoted, Toastic.LENGTH_SHORT, Toastic.WARNING, null, true).show()
             return
         }
 
         AlertDialog.Builder(context)
-            .setTitle(getString(R.string.promosikan))
-            .setMessage(getString(R.string.promot_info))
-            .setPositiveButton(getString(R.string.send)) { _, _ ->
+            .setTitle(strPromote)
+            .setMessage(strPromoteInfo)
+            .setPositiveButton(strSend) { _, _ ->
                 promoteNoteToOnline(note, today, count, currentSignature)
             }
-            .setNegativeButton(getString(R.string.cancel), null)
+            .setNegativeButton(strCancel, null)
             .show()
     }
 
@@ -386,11 +403,12 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
     }
 
     private fun promoteNoteToOnline(note: Note, today: String, currentCount: Int, signature: String) {
-        val context = requireContext()
-        binding.progressBar.visibility = View.VISIBLE
+        val context = context ?: return
+        if (_binding == null) return
+        
+        _binding?.progressBar?.visibility = View.VISIBLE
 
         val (cleanTitle, cleanNote) = getCleanNoteData(note)
-
         val languageCode = Locale.getDefault().language
         val languageList = if (languageCode == "id" || languageCode == "in") listOf("id", "in") else listOf(languageCode)
 
@@ -402,10 +420,15 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
             "submitted_at" to System.currentTimeMillis()
         )
 
+        // Pre-fetch success string
+        val strSuccess = getString(R.string.send_note_success)
+
         firestore.collection(collectionPath)
             .add(data)
             .addOnSuccessListener {
-                binding.progressBar.visibility = View.GONE
+                if (_binding == null || !isAdded) return@addOnSuccessListener
+                
+                _binding?.progressBar?.visibility = View.GONE
                 // Update limit AND save signature
                 context.getSharedPreferences("note_promo_prefs", Context.MODE_PRIVATE).edit()
                     .putString("last_promo_date", today)
@@ -413,10 +436,11 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                     .putString("sig_${note.id}", signature)
                     .apply()
 
-                Toastic.toastic(context, getString(R.string.send_note_success), Toastic.LENGTH_SHORT, Toastic.SUCCESS, null, true).show()
+                Toastic.toastic(context, strSuccess, Toastic.LENGTH_SHORT, Toastic.SUCCESS, null, true).show()
             }
             .addOnFailureListener {
-                binding.progressBar.visibility = View.GONE
+                if (_binding == null || !isAdded) return@addOnFailureListener
+                _binding?.progressBar?.visibility = View.GONE
                 Toast.makeText(context, "Gagal: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
@@ -436,7 +460,12 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         val inputTitle = view.findViewById<EditText>(R.id.title)
         val dialogTitle = view.findViewById<TextView>(R.id.dialog_title)
 
-        dialogTitle.text = if (!shouldUpdate) getString(R.string.lbl_new_note_title) else getString(R.string.lbl_edit_note_title)
+        // Pre-fetch strings
+        val strNewNote = getString(R.string.lbl_new_note_title)
+        val strEditNote = getString(R.string.lbl_edit_note_title)
+        val strEnterNote = getString(R.string.enter_note)
+
+        dialogTitle.text = if (!shouldUpdate) strNewNote else strEditNote
 
         if (shouldUpdate && existingNote != null) {
             try {
@@ -459,11 +488,13 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         dialog.show()
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            if (!isAdded) return@setOnClickListener
+            
             val titleText = inputTitle.text.toString().trim()
             val noteText = inputNote.text.toString().trim()
 
             if (TextUtils.isEmpty(noteText)) {
-                Toastic.toastic(activity, getString(R.string.enter_note), Toastic.LENGTH_SHORT, Toastic.WARNING, null, true).show()
+                Toastic.toastic(activity, strEnterNote, Toastic.LENGTH_SHORT, Toastic.WARNING, null, true).show()
                 return@setOnClickListener
             }
 
@@ -487,9 +518,11 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
             val id = dbHelper?.insertNote(noteContent, titleText) ?: return@launch
             val newNote = dbHelper?.getNote(id) ?: return@launch
             withContext(Dispatchers.Main) {
+                if (_binding == null || !isAdded) return@withContext
+                
                 localNotesList.add(0, newNote)
                 localAdapter?.notifyItemInserted(0)
-                binding.recyclerView.scrollToPosition(0)
+                _binding?.recyclerView?.scrollToPosition(0)
                 toggleEmptyView(localNotesList.isEmpty())
             }
         }
@@ -503,6 +536,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
             lifecycleScope.launch(Dispatchers.IO) {
                 dbHelper?.updateNote(note)
                 withContext(Dispatchers.Main) {
+                    if (_binding == null || !isAdded) return@withContext
                     localAdapter?.notifyItemChanged(position)
                 }
             }
@@ -513,15 +547,20 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
 
     private fun showOnlineActionsDialog(note: Note) {
         val activity = activity ?: return
-        val options = arrayOf<CharSequence>(
-            getString(R.string.use_note),
-            getString(R.string.copy_note),
-            getString(R.string.cancel)
-        )
+        
+        // Pre-fetch strings
+        val strUseNote = getString(R.string.use_note)
+        val strCopyNote = getString(R.string.copy_note)
+        val strCancel = getString(R.string.cancel)
+        val strChoose = getString(R.string.choose)
+        
+        val options = arrayOf<CharSequence>(strUseNote, strCopyNote, strCancel)
 
         AlertDialog.Builder(activity)
-            .setTitle(getString(R.string.choose))
+            .setTitle(strChoose)
             .setItems(options) { _, which ->
+                if (!isAdded) return@setItems
+                
                 when (which) {
                     0 -> {
                         MyNoteListener.postNote(note.note)
@@ -570,11 +609,10 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
 
     private fun fetchOnlineNotes() {
         if (_binding == null) return
-        binding.progressBar.visibility = View.VISIBLE
+        _binding?.progressBar?.visibility = View.VISIBLE
         val languageCode = Locale.getDefault().language
 
         val isDebug = isAppDebuggable(context)
-
         var query: Query = firestore.collection(collectionPath)
 
         if(!isDebug) {
@@ -582,11 +620,10 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                 .whereArrayContainsAny("language", listOf("en", languageCode))
         }
 
-
         query.get()
             .addOnSuccessListener { snapshot ->
-                if (!isAdded || _binding == null) return@addOnSuccessListener
-                binding.progressBar.visibility = View.GONE
+                if (_binding == null || !isAdded) return@addOnSuccessListener
+                _binding?.progressBar?.visibility = View.GONE
 
                 val fetched = snapshot.documents.map { doc ->
                     Note().apply {
@@ -604,14 +641,19 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                 populateOnlineList(fetched)
             }
             .addOnFailureListener {
-                if (!isAdded || _binding == null) return@addOnFailureListener
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                if (_binding == null || !isAdded) return@addOnFailureListener
+                _binding?.progressBar?.visibility = View.GONE
+                
+                context?.let { ctx ->
+                    Toast.makeText(ctx, it.message, Toast.LENGTH_SHORT).show()
+                }
 
                 lifecycleScope.launch(Dispatchers.IO) {
                     val stale = readCache(ignoreExpiry = true)
                     withContext(Dispatchers.Main) {
-                        if (stale != null) populateOnlineList(stale)
+                        if (_binding != null && isAdded && stale != null) {
+                            populateOnlineList(stale)
+                        }
                     }
                 }
             }
@@ -619,48 +661,56 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
 
     private fun toggleOnlineNoteStatus(note: Note) {
         val docId = note.docId ?: return
+        val context = context ?: return
+        if (_binding == null) return
+        
         val currentStatus = note.status ?: "DRAFT"
         val newStatus = if (currentStatus == "published") "DRAFT" else "published"
 
-        binding.progressBar.visibility = View.VISIBLE
+        _binding?.progressBar?.visibility = View.VISIBLE
 
         firestore.collection(collectionPath).document(docId)
             .update("status", newStatus)
             .addOnSuccessListener {
-                if (!isAdded) return@addOnSuccessListener
-                binding.progressBar.visibility = View.GONE
+                if (_binding == null || !isAdded) return@addOnSuccessListener
+                _binding?.progressBar?.visibility = View.GONE
                 note.status = newStatus
                 onlineAdapter?.notifyDataSetChanged()
                 val msg = if (newStatus == "published") "Berhasil dipublish!" else "Dikembalikan ke Draft"
-                Toastic.toastic(requireContext(), msg, Toastic.LENGTH_SHORT, Toastic.SUCCESS, null, true).show()
+                Toastic.toastic(context, msg, Toastic.LENGTH_SHORT, Toastic.SUCCESS, null, true).show()
             }
             .addOnFailureListener {
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(requireContext(), "Gagal: ${it.message}", Toast.LENGTH_SHORT).show()
+                if (_binding == null || !isAdded) return@addOnFailureListener
+                _binding?.progressBar?.visibility = View.GONE
+                Toast.makeText(context, "Gagal: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun deleteOnlineNote(note: Note) {
         val docId = note.docId ?: return
-        val context = requireContext()
+        val context = context ?: return
+        if (_binding == null) return
 
         AlertDialog.Builder(context)
             .setTitle("Hapus Catatan Online?")
             .setMessage("Data ini akan dihapus permanen dari Firestore.")
             .setPositiveButton("Hapus") { _, _ ->
-                binding.progressBar.visibility = View.VISIBLE
+                if (_binding == null || !isAdded) return@setPositiveButton
+                
+                _binding?.progressBar?.visibility = View.VISIBLE
                 firestore.collection(collectionPath).document(docId)
                     .delete()
                     .addOnSuccessListener {
-                        if (!isAdded) return@addOnSuccessListener
-                        binding.progressBar.visibility = View.GONE
+                        if (_binding == null || !isAdded) return@addOnSuccessListener
+                        _binding?.progressBar?.visibility = View.GONE
                         onlineFullList = onlineFullList.filter { it.docId != docId }
                         onlineAdapter?.updateData(onlineFullList)
                         toggleEmptyView(onlineFullList.isEmpty())
                         Toastic.toastic(context, "Berhasil dihapus!", Toastic.LENGTH_SHORT, Toastic.SUCCESS, null, true).show()
                     }
                     .addOnFailureListener {
-                        binding.progressBar.visibility = View.GONE
+                        if (_binding == null || !isAdded) return@addOnFailureListener
+                        _binding?.progressBar?.visibility = View.GONE
                         Toast.makeText(context, "Gagal: ${it.message}", Toast.LENGTH_SHORT).show()
                     }
             }
@@ -691,10 +741,12 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                     }
                 }
                 withContext(Dispatchers.Main) {
-                    localNotesList.clear()
-                    localNotesList.addAll(filtered)
-                    localAdapter?.notifyDataSetChanged()
-                    toggleEmptyView(localNotesList.isEmpty())
+                    if (_binding != null && isAdded) {
+                        localNotesList.clear()
+                        localNotesList.addAll(filtered)
+                        localAdapter?.notifyDataSetChanged()
+                        toggleEmptyView(localNotesList.isEmpty())
+                    }
                 }
             } else {
                 val filtered = if (query.isBlank()) {
@@ -706,15 +758,18 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                     }
                 }
                 withContext(Dispatchers.Main) {
-                    onlineAdapter?.updateData(filtered)
-                    toggleEmptyView(filtered.isEmpty())
+                    if (_binding != null && isAdded) {
+                        onlineAdapter?.updateData(filtered)
+                        toggleEmptyView(filtered.isEmpty())
+                    }
                 }
             }
         }
     }
 
     private fun toggleEmptyView(isEmpty: Boolean) {
-        binding.emptyNotesView.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        if (_binding == null) return
+        _binding?.emptyNotesView?.visibility = if (isEmpty) View.VISIBLE else View.GONE
     }
 
     private fun readCache(ignoreExpiry: Boolean = false): List<Note>? {

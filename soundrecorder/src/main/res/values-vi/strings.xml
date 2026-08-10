@@ -468,4 +468,9 @@
 
     <string name="search_note">Tìm kiếm ghi chú...</string>
     <string name="copy_note">Sao chép ghi chú</string>
+
+    <string name="vibra">Rung</string>
+    <string name="on">Bật</string>
+    <string name="off">Tắt</string>
+    <string name="info_delay">Để tránh độ trễ âm thanh khi sử dụng tai nghe hoặc tai nghe có mic, không sử dụng thiết bị Bluetooth. Hãy sử dụng tai nghe có dây.</string>
 </resources>

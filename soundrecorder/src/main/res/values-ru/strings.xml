@@ -467,4 +467,9 @@
     <string name="search_note">Поиск заметок...</string>
     <string name="copy_note">Копировать заметку</string>
 
+    <string name="vibra">Вибрация</string>
+    <string name="on">Вкл.</string>
+    <string name="off">Выкл.</string>
+    <string name="info_delay">Чтобы избежать задержки звука при использовании гарнитуры или наушников, не используйте Bluetooth-гарнитуру или Bluetooth-наушники. Используйте проводную гарнитуру или наушники.</string>
+
 </resources>

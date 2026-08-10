@@ -470,4 +470,9 @@
     <string name="search_note">Buscar notas...</string>
     <string name="copy_note">Copiar nota</string>
 
+    <string name="vibra">Vibración</string>
+    <string name="on">Activado</string>
+    <string name="off">Desactivado</string>
+    <string name="info_delay">Para evitar retrasos en el sonido al usar manos libres o auriculares, no utilices dispositivos Bluetooth. Utiliza auriculares o manos libres con cable.</string>
+
 </resources>

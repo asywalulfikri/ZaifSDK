@@ -9,7 +9,8 @@ import android.view.View
 
 internal class PlayerWaveformView: View {
 
-    private lateinit var spikes: Array<RectF>
+    @Volatile
+    private var spikesToDraw: Array<RectF> = emptyArray()
     private lateinit var paintRead: Paint
     private var w : Int = 18
     private var d : Int = 4
@@ -48,7 +49,7 @@ internal class PlayerWaveformView: View {
     // indeed each constructor is called in a specific situation
     // and we want the View to de the same thing no matter what
     private fun init(attrs: AttributeSet?){
-        spikes = Array<RectF>(nbSpikes){ RectF() }
+        spikesToDraw = Array(nbSpikes){ RectF() }
 
         paintRead = Paint() //Paint.ANTI_ALIAS_FLAG
         paintRead.color = Color.rgb(244, 81, 30) // orange
@@ -68,27 +69,23 @@ internal class PlayerWaveformView: View {
 
         //var norm  = Math.min(amp/7, maxAmp) // 100*abs(Math.log10(1.0*amp/(sqrt(amp*1.0)+1)))
         val norm = amp
-        for(i in spikes.indices){
+        val newSpikes = Array(nbSpikes) { RectF() }
+        for(i in newSpikes.indices){
             val bottom : Float = (Math.random() * norm).toFloat()
             val top = delta - bottom
 
             val rectUp = RectF(i*(w+d)*1f, top, i*(w+d) + w*1f, bottom)
-            spikes[i] = rectUp
-
+            newSpikes[i] = rectUp
         }
-
-        invalidate()
+        spikesToDraw = newSpikes
+        postInvalidate()
     }
 
     override fun onDraw(canvas: Canvas) {
-        // this may be called several times on start or create
-        // therefore we shouldn't initialize objects here
-
-        spikes.forEach {
-            Log.d("waveform", it.bottom.toString())
-            canvas.drawRoundRect(it,10f, 10f, paintRead)
+        // Draw the last known snapshot without locking
+        val toDraw = spikesToDraw
+        toDraw.forEach {
+            canvas.drawRoundRect(it, 10f, 10f, paintRead)
         }
-        //Log.d("waveform", rect.bottom.toString())
-        //canvas?.drawRect(rect, paintRead)
     }
 }

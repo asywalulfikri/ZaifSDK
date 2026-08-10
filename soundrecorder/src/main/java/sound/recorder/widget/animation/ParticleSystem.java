@@ -46,7 +46,7 @@ public class ParticleSystem {
     private ParticleField mDrawingView;
 
     private final ArrayList<Particle> mParticles = new ArrayList<>();
-    private final List<Particle> mActiveParticles = Collections.synchronizedList(new ArrayList<Particle>());
+    private final ArrayList<Particle> mActiveParticles = new ArrayList<>();
     private long mTimeToLive;
     private long mCurrentTime = 0;
 
@@ -496,8 +496,15 @@ public class ParticleSystem {
         });
         mParentView.addView(mDrawingView);
         mEmittingTime = -1; // Meaning infinite
-        mDrawingView.setParticles (mActiveParticles);
+        
+        // Update before starting to avoid jump
         updateParticlesBeforeStartTime(particlesPerSecond);
+        
+        // Ensure old scheduler is gone
+        if (mScheduler != null) {
+            mScheduler.shutdownNow();
+        }
+        
         mScheduler = Executors.newSingleThreadScheduledExecutor();
         mScheduler.scheduleWithFixedDelay(mUpdateRunnable, 0, TIMER_TASK_INTERVAL, TimeUnit.MILLISECONDS);
     }
@@ -692,13 +699,14 @@ public class ParticleSystem {
     }
 
     private void onUpdate(long miliseconds) {
-        while (((mEmittingTime > 0 && miliseconds < mEmittingTime)|| mEmittingTime == -1) && // This point should emit
-                !mParticles.isEmpty() && // We have particles in the pool
-                mActivatedParticles < mParticlesPerMillisecond *miliseconds) { // and we are under the number of particles that should be launched
-            // Activate a new particle
-            activateParticle(miliseconds);
-        }
-        synchronized(mActiveParticles) {
+        synchronized (mActiveParticles) {
+            while (((mEmittingTime > 0 && miliseconds < mEmittingTime)|| mEmittingTime == -1) && // This point should emit
+                    !mParticles.isEmpty() && // We have particles in the pool
+                    mActivatedParticles < mParticlesPerMillisecond *miliseconds) { // and we are under the number of particles that should be launched
+                // Activate a new particle
+                activateParticle(miliseconds);
+            }
+
             for (int i = 0; i < mActiveParticles.size(); i++) {
                 boolean active = mActiveParticles.get(i).update(miliseconds);
                 if (!active) {
@@ -709,9 +717,12 @@ public class ParticleSystem {
                     }
                 }
             }
-        }
-        if (mDrawingView != null) {
-            mDrawingView.postInvalidate();
+            
+            // Create a snapshot for the UI thread to draw without locking
+            if (mDrawingView != null) {
+                mDrawingView.setParticles(new ArrayList<>(mActiveParticles));
+                mDrawingView.postInvalidate();
+            }
         }
     }
 

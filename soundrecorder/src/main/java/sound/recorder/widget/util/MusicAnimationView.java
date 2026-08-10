@@ -12,13 +12,16 @@ import android.view.View;
 import androidx.core.content.ContextCompat;
 
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import sound.recorder.widget.R;
 
 
 public class MusicAnimationView extends View {
 
-    private FallNotesThread mFallNotesThread;
+    private ScheduledExecutorService mScheduler;
     private Notes[] mNotes;
     private int mNotesIconHeight;
     private int mNotesViewWidth;
@@ -59,30 +62,34 @@ public class MusicAnimationView extends View {
     }
 
     public MusicAnimationView start(){
-
         this.postDelayed(() -> {
-            mFallNotesState = FallNotesState.START;
-
-            if (mFallNotesThread == null) {
-                mFallNotesThread = new FallNotesThread();
+            if (mScheduler != null) {
+                mScheduler.shutdownNow();
             }
+            mScheduler = Executors.newSingleThreadScheduledExecutor();
 
             mNotes = new Notes[mNotesCount];
             for (int i = 0; i < mNotes.length; i++) {
-                if(mNotes.length>0){
-                    mNotes[i] = new Notes();
-                }
+                mNotes[i] = new Notes();
             }
 
-            if (mFallNotesState == FallNotesState.START) {
-                if(!mFallNotesThread.isAlive()) {
-                    mFallNotesThread.start();
-                }
-                mFallNotesState = FallNotesState.RUNNING;
-
-            }
+            mFallNotesState = FallNotesState.RUNNING;
+            mScheduler.scheduleAtFixedRate(this::tick, 0, 30, TimeUnit.MILLISECONDS);
         }, 1000);
         return this;
+    }
+
+    private void tick() {
+        if (mFallNotesState == FallNotesState.RUNNING) {
+            calculateNotesNextAttr();
+            postInvalidate();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        stopNotesFall();
+        super.onDetachedFromWindow();
     }
     private void initAttrs(Context context, AttributeSet attrs, int defStyleAttr) {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.VusikAttr);
@@ -229,28 +236,20 @@ public class MusicAnimationView extends View {
 
 
     public void startNotesFall() {
-        this.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mFallNotesState = FallNotesState.START;
-
-                if (mFallNotesThread == null) {
-                    mFallNotesThread = new FallNotesThread();
-                }
-
-                mNotes = new Notes[mNotesCount];
-                for (int i = 0; i < mNotes.length; i++) {
-                    mNotes[i] = new Notes();
-                }
-
-                if (mFallNotesState == FallNotesState.START) {
-
-                    mFallNotesState = FallNotesState.RUNNING;
-
-                }
+        this.postDelayed(() -> {
+            if (mScheduler != null) {
+                mScheduler.shutdownNow();
             }
-        }, 1000);
+            mScheduler = Executors.newSingleThreadScheduledExecutor();
 
+            mNotes = new Notes[mNotesCount];
+            for (int i = 0; i < mNotes.length; i++) {
+                mNotes[i] = new Notes();
+            }
+
+            mFallNotesState = FallNotesState.RUNNING;
+            mScheduler.scheduleAtFixedRate(this::tick, 0, 30, TimeUnit.MILLISECONDS);
+        }, 1000);
     }
     //Use this to Pause the Animation
     public void pauseNotesFall() {
@@ -267,38 +266,9 @@ public class MusicAnimationView extends View {
     //Stop the animation
     public void stopNotesFall() {
         mFallNotesState = FallNotesState.STOP;
-        mFallNotesThread.interrupt();
-//        FallNotesThread.s
-    }
-
-    private class FallNotesThread extends Thread {
-        @Override
-        public void run() {
-            while (true) {
-                switch (mFallNotesState) {
-                    case RUNNING:
-                        calculateNotesNextAttr();
-                        postInvalidate();
-                        try {
-                            Thread.sleep(30);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case PAUSE:
-                        try {
-                            Thread.sleep(30);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case STOP:
-                        Thread.interrupted();
-                        break;
-                    default:
-                        break;
-                }
-            }
+        if (mScheduler != null) {
+            mScheduler.shutdownNow();
+            mScheduler = null;
         }
     }
 

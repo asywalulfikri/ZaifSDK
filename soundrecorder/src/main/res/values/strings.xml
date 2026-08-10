@@ -478,4 +478,10 @@
     <string name="copy_note">Copy Note</string>
 
 
+    <string name="vibra">Vibration</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="info_delay">To prevent sound delay when using hands-free or headphones, do not use Bluetooth hands-free or headphones. Use wired hands-free or headphones instead.</string>
+
+
 </resources>

@@ -471,5 +471,10 @@
     <string name="search_note">Maghanap ng Tala...</string>
     <string name="copy_note">Kopyahin ang Tala</string>
 
+    <string name="vibra">Vibration</string>
+    <string name="on">Naka-on</string>
+    <string name="off">Naka-off</string>
+    <string name="info_delay">Upang maiwasan ang sound delay kapag gumagamit ng hands-free o headset, huwag gumamit ng Bluetooth na hands-free o headset. Gumamit na lang ng wired na hands-free o headset.</string>
+
 
 </resources>

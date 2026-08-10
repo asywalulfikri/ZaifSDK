@@ -19,6 +19,7 @@ object SoundPlayUtils {
     private var mediaPlayer: MediaPlayer? = null
 
     private val instrumentSounds = mutableMapOf<String, MutableMap<String, Int>>()
+    private val activeStreams = mutableMapOf<String, Int>()
     private var volume = 1f
     private val audioExecutor = Executors.newSingleThreadExecutor()
 
@@ -115,16 +116,31 @@ object SoundPlayUtils {
     /**
      * Memainkan suara ketukan dari SoundPool.
      */
-    fun playSound(instrument: String, soundName: String) {
-        if (isLoaded.value != true) return // Hanya mainkan jika semua sudah dimuat
+    fun playSound(instrument: String, soundName: String): Int {
+        if (isLoaded.value != true) return -1 // Hanya mainkan jika semua sudah dimuat
         val soundId = instrumentSounds[instrument]?.get(soundName)
-        soundId?.let {
-            soundPool?.play(it, volume, volume, 1, 0, 1f)
+        return soundId?.let {
+            val streamId = soundPool?.play(it, volume, volume, 1, 0, 1f) ?: -1
+            if (streamId != -1) {
+                activeStreams["$instrument:$soundName"] = streamId
+            }
+            streamId
+        } ?: -1
+    }
+
+    /**
+     * Menghentikan suara spesifik dari SoundPool.
+     */
+    fun stopSpecificSound(instrument: String, soundName: String) {
+        val key = "$instrument:$soundName"
+        activeStreams[key]?.let { streamId ->
+            soundPool?.stop(streamId)
+            activeStreams.remove(key)
         }
     }
 
     /**
-     * Memainkan musik/track panjang dari MediaPlayer.
+     * Menghentikan musik/track panjang dari MediaPlayer.
      */
     fun playAudioTrack(context: Context, resId: Int) {
         // Gunakan executor agar tidak membebani sistem dengan thread baru terus menerus
@@ -154,6 +170,12 @@ object SoundPlayUtils {
                     it.release()
                 }
                 mediaPlayer = null
+                
+                // Stop all active SoundPool streams as well to prevent "hangs"
+                activeStreams.values.forEach { streamId ->
+                    soundPool?.stop(streamId)
+                }
+                activeStreams.clear()
             } catch (e: Exception) {
                 e.printStackTrace()
             }

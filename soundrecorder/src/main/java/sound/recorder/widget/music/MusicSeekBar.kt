@@ -61,7 +61,9 @@ class MusicSeekBar @JvmOverloads constructor(
     // ─── PAINT OBJECTS ───
     private val paint      = Paint(Paint.ANTI_ALIAS_FLAG)
     private val thumbPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val textPaint  = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val textPaint  = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+    }
 
     // ─── FIX #3: Cache untuk gradient agar tidak di-allocate tiap frame ───
     private var cachedProgressShader: LinearGradient? = null
@@ -162,12 +164,10 @@ class MusicSeekBar @JvmOverloads constructor(
         val elapsedStr   = formatMs(_progress.toLong())
         val remainingStr = "-${formatMs((max - _progress).toLong())}"
 
-        // FIX #4: Reset textAlign ke LEFT di awal agar state selalu bersih
         textPaint.apply {
             color     = Color.WHITE
             alpha     = 160
             textSize  = h * 0.22f
-            typeface  = Typeface.create("sans-serif-medium", Typeface.NORMAL)
             textAlign = Paint.Align.LEFT
         }
         canvas.drawText(elapsedStr, trackLeft, h - 2f, textPaint)

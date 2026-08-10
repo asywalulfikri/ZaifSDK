@@ -473,5 +473,10 @@
     <string name="search_note">Notizen suchen...</string>
     <string name="copy_note">Notiz kopieren</string>
 
+    <string name="vibra">Vibration</string>
+    <string name="on">Ein</string>
+    <string name="off">Aus</string>
+    <string name="info_delay">Um Tonverzögerungen bei der Verwendung von Freisprechgeräten oder Kopfhörern zu vermeiden, verwenden Sie keine Bluetooth-Freisprecheinrichtung oder Bluetooth-Kopfhörer. Verwenden Sie stattdessen kabelgebundene Geräte.</string>
+
 </resources>
 

@@ -464,4 +464,9 @@
     <string name="search_note">ノートを検索...</string>
     <string name="copy_note">ノートをコピー</string>
 
+    <string name="vibra">バイブレーション</string>
+    <string name="on">オン</string>
+    <string name="off">オフ</string>
+    <string name="info_delay">ハンズフリーやヘッドセット使用時の音声遅延を防ぐため、Bluetoothのハンズフリーやヘッドセットは使用せず、有線のものを使用してください。</string>
+
 </resources>

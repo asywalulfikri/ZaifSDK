@@ -470,4 +470,9 @@
     <string name="search_note">Pesquisar notas...</string>
     <string name="copy_note">Copiar Nota</string>
 
+    <string name="vibra">Vibração</string>
+    <string name="on">Ligado</string>
+    <string name="off">Desligado</string>
+    <string name="info_delay">Para evitar atrasos no som ao usar viva-voz ou fones de ouvido, não use dispositivos Bluetooth. Use viva-voz ou fones de ouvido com fio.</string>
+
 </resources>

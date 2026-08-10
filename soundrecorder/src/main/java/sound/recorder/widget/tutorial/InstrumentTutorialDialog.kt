@@ -72,6 +72,7 @@ class InstrumentTutorialDialog(
     // Host app handles sound playback — padIndex and metadata from the recorded event
     private val onPlayNote: (padIndex: Int, metadata: String) -> Unit = { _, _ -> },
     private val onStopNote: (padIndex: Int, metadata: String) -> Unit = { _, _ -> },
+    private val onStopAllNotes: () -> Unit = {},
 ) {
 
     private var mContext: Context? = null
@@ -1248,43 +1249,51 @@ class InstrumentTutorialDialog(
         if (lifecycleScope == null) return
         stopAll()
         playJob = lifecycleScope.launch {
-            val eventsResult = withContext(Dispatchers.Default) {
-                try {
-                    parseEvents(jsonNote)
-                } catch (e: Exception) {
-                    null
+            try {
+                val eventsResult = withContext(Dispatchers.Default) {
+                    try {
+                        val res = parseEvents(jsonNote)
+                        // Sorting critical for sustained instruments (Pianika) to ensure OFF follows ON
+                        Pair(res.first.sortedBy { it.timestamp }, res.second)
+                    } catch (e: Exception) {
+                        null
+                    }
                 }
-            }
-            val events = eventsResult?.first
-            if (events.isNullOrEmpty()) {
-                onToast(mContext?.getString(R.string.invalid_note_format) ?: "Invalid format")
-                return@launch
-            }
-            onPlaybackStatusChanged(true)
-
-            var lastTimestamp = 0L
-            events.forEach { event ->
-                val wait = event.timestamp - lastTimestamp
-                if (wait > 0) delay(wait)
-                lastTimestamp = event.timestamp
-
-                val metadata = event.metadata.orEmpty()
-                val isOff = metadata == "OFF"
-
-                // Filter by prefix if provided
-                val isCurrentInstrument = instrumentPrefix.isEmpty() || metadata.isEmpty() || metadata.startsWith(instrumentPrefix) || !metadata.contains("_")
-
-                if (isOff) {
-                    onStopNote(event.padIndex, metadata)
-                    onUnhighlight(event.padIndex)
-                } else if (isCurrentInstrument) {
-                    onTriggerAnim(event.padIndex)
-                    onPlayNote(event.padIndex, metadata)
+                val events = eventsResult?.first
+                if (events.isNullOrEmpty()) {
+                    onToast(mContext?.getString(R.string.invalid_note_format) ?: "Invalid format")
+                    return@launch
                 }
+                onPlaybackStatusChanged(true)
+
+                var lastTimestamp = 0L
+                events.forEach { event ->
+                    val wait = event.timestamp - lastTimestamp
+                    if (wait > 0) delay(wait)
+                    lastTimestamp = event.timestamp
+
+                    val metadata = event.metadata.orEmpty()
+                    val isOff = metadata == "OFF"
+
+                    // Filter by prefix if provided
+                    val isCurrentInstrument = instrumentPrefix.isEmpty() || metadata.isEmpty() || metadata.startsWith(instrumentPrefix) || !metadata.contains("_")
+
+                    if (isOff) {
+                        onStopNote(event.padIndex, metadata)
+                        onUnhighlight(event.padIndex)
+                    } else if (isCurrentInstrument) {
+                        onTriggerAnim(event.padIndex)
+                        onPlayNote(event.padIndex, metadata)
+                    }
+                }
+                delay(200L)
+            } catch (e: Exception) {
+                // Handle or log
+            } finally {
+                onClearHighlight()
+                onPlaybackStatusChanged(false)
+                onStopAllNotes()
             }
-            delay(200L)
-            onClearHighlight()
-            onPlaybackStatusChanged(false)
         }
     }
 
@@ -1358,6 +1367,7 @@ class InstrumentTutorialDialog(
         onClearHighlight()
         onLearnVisible(false)
         onPlaybackStatusChanged(false)
+        onStopAllNotes()
     }
 
     private fun publishNote(ctx: Context, note: NoteItem) {

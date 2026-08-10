@@ -482,6 +482,11 @@
     <string name="search_note">Cari Catatan...</string>
     <string name="copy_note">Salin Catatan</string>
 
+    <string name="vibra">Getaran</string>
+    <string name="on">Hidup</string>
+    <string name="off">Mati</string>
+    <string name="info_delay">Untuk mencegah delay suara jika kamu menggunakan handsfree atau headset, jangan gunakan handsfree atau headset Bluetooth. Gunakan handsfree atau headset kabel saja.</string>
+
 
 
 

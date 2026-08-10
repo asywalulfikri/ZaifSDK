@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 
 class ParticleField extends View {
 
-    private List<Particle> mParticles;
+    private volatile List<Particle> mParticles;
 
     public ParticleField(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -32,10 +32,14 @@ class ParticleField extends View {
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
-        // Draw all the particles
-        synchronized (mParticles) {
-            for (int i = 0; i < mParticles.size(); i++) {
-                mParticles.get(i).draw(canvas);
+        // Draw all the particles using a local reference to avoid mid-loop replacement issues
+        List<Particle> particles = mParticles;
+        if (particles == null) return;
+
+        for (int i = 0; i < particles.size(); i++) {
+            Particle p = particles.get(i);
+            if (p != null) {
+                p.draw(canvas);
             }
         }
     }

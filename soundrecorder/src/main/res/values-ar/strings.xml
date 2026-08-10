@@ -513,5 +513,10 @@
 
     <string name="search_note">البحث في الملاحظات...</string>
     <string name="copy_note">نسخ الملاحظة</string>
+
+    <string name="vibra">الاهتزاز</string>
+    <string name="on">تشغيل</string>
+    <string name="off">إيقاف</string>
+    <string name="info_delay">لمنع تأخر الصوت عند استخدام سماعة الرأس أو سماعة الأذن، لا تستخدم سماعات Bluetooth. استخدم سماعة سلكية بدلاً من ذلك.</string>
 </resources>
 

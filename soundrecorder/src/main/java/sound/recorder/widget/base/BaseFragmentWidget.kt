@@ -91,21 +91,15 @@ import sound.recorder.widget.ads.AdConfigProvider
 import sound.recorder.widget.animation.ParticleSystem
 import sound.recorder.widget.animation.modifiers.ScaleModifier
 import sound.recorder.widget.builder.AdmobSDKBuilder
-import sound.recorder.widget.builder.UnitySDKBuilder
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
-import sound.recorder.widget.builder.ZaifSDKStorage
-import sound.recorder.widget.databinding.WidgetRecordHorizontalZaifBinding
-import sound.recorder.widget.databinding.WidgetRecordVerticalZaifBinding
 import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.music.MusicPlayerManager
 import sound.recorder.widget.tools.showcase.GuideView
-import sound.recorder.widget.util.Constant
 import java.util.concurrent.TimeUnit
 import kotlin.apply
 import kotlin.text.toInt
 import kotlin.time.Duration.Companion.seconds
-import kotlin.times
 
 open class BaseFragmentWidget : Fragment() {
 
@@ -162,127 +156,6 @@ open class BaseFragmentWidget : Fragment() {
             0L
         }
     }
-
-    @SuppressLint("UseKtx")
-    fun setupWidget(builder : ZaifSDKConfig?, binding : WidgetRecordHorizontalZaifBinding?){
-        try {
-            builder?.backgroundWidgetColor?.let { colorString ->
-                if (colorString.isNotEmpty()) {
-                    try {
-                        val tintList = ColorStateList.valueOf(Color.parseColor(colorString))
-                        binding?.llBackground?.post {
-                            ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
-                        }
-                    } catch (e: IllegalArgumentException) {
-                        setToast("Invalid color value: $colorString")
-                    }
-                }
-            }
-        }catch (e : Exception){
-            //
-        }
-
-        binding?.ivChangeColor?.setOnClickListener {
-            activity?.let {
-                try {
-                    RecordingSDK.showDialogColorPicker(it)
-                } catch (e: Exception) {
-                    setToast(e.message.toString())
-                }
-            } ?: setToast("Activity is not available")
-        }
-
-        try {
-            binding?.ivNote?.visibility = if (builder?.showNote==true) View.VISIBLE else View.GONE
-            binding?.ivChangeColor?.visibility = if (builder?.showChangeColor==true) View.VISIBLE else View.GONE
-            binding?.ivSong?.visibility = if (builder?.showListSong==false) View.GONE else View.VISIBLE
-            binding?.ivVolume?.visibility = if (builder?.showVolume==false) View.GONE else View.VISIBLE
-        }catch (e : Exception){
-            //
-        }
-    }
-
-
-
-    @SuppressLint("UseKtx")
-    fun setupWidgetVertical(builder : ZaifSDKConfig?, binding : WidgetRecordVerticalZaifBinding?){
-        try {
-            builder?.backgroundWidgetColor?.let { colorString ->
-                if (colorString.isNotEmpty()) {
-                    try {
-                        val tintList = ColorStateList.valueOf(Color.parseColor(colorString))
-                        binding?.llBackground?.post {
-                            ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
-                        }
-                    } catch (e: IllegalArgumentException) {
-                        setToast("Invalid color value: $colorString")
-                    }
-                }
-            }
-        }catch (e : Exception){
-            //
-        }
-
-        binding?.ivChangeColor?.setOnClickListener {
-            activity?.let {
-                try {
-                    RecordingSDK.showDialogColorPicker(it)
-                } catch (e: Exception) {
-                    setToast(e.message.toString())
-                }
-            } ?: setToast("Activity is not available")
-        }
-
-        try {
-            binding?.ivNote?.visibility = if (builder?.showNote==true) View.VISIBLE else View.GONE
-            binding?.ivChangeColor?.visibility = if (builder?.showChangeColor==true) View.VISIBLE else View.GONE
-            binding?.ivSong?.visibility = if (builder?.showListSong==true) View.VISIBLE else View.GONE
-            binding?.ivVolume?.visibility = if (builder?.showVolume==true) View.VISIBLE else View.GONE
-        }catch (e : Exception){
-            //
-        }
-    }
-
-
-    @SuppressLint("UseKtx")
-    fun setupWidgetVeticalNull(builder : ZaifSDKConfig?, binding : WidgetRecordVerticalZaifBinding?){
-        try {
-            builder?.backgroundWidgetColor?.let { colorString ->
-                if (colorString.isNotEmpty()) {
-                    try {
-                        val tintList = ColorStateList.valueOf(Color.parseColor(colorString))
-                        binding?.llBackground?.post {
-                            ViewCompat.setBackgroundTintList(binding.llBackground, tintList)
-                        }
-                    } catch (e: IllegalArgumentException) {
-                        setToast("Invalid color value: $colorString")
-                    }
-                }
-            }
-        }catch (e : Exception){
-            //
-        }
-
-        binding?.ivChangeColor?.setOnClickListener {
-            activity?.let {
-                try {
-                    RecordingSDK.showDialogColorPicker(it)
-                } catch (e: Exception) {
-                    setToast(e.message.toString())
-                }
-            } ?: setToast("Activity is not available")
-        }
-
-        try {
-            binding?.ivNote?.visibility = if (builder?.showNote==true) View.VISIBLE else View.GONE
-            binding?.ivChangeColor?.visibility = if (builder?.showChangeColor==true) View.VISIBLE else View.GONE
-            binding?.ivSong?.visibility = if (builder?.showListSong==true) View.VISIBLE else View.GONE
-            binding?.ivVolume?.visibility = if (builder?.showVolume==true) View.VISIBLE else View.GONE
-        }catch (e : Exception){
-            //
-        }
-    }
-
 
     fun permissionSong(){
         try {

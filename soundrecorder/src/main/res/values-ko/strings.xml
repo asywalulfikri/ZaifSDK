@@ -471,4 +471,9 @@
     <string name="search_note">노트 검색...</string>
     <string name="copy_note">노트 복사</string>
 
+    <string name="vibra">진동</string>
+    <string name="on">켜기</string>
+    <string name="off">끄기</string>
+    <string name="info_delay">핸즈프리 또는 헤드셋 사용 시 소리 지연을 방지하려면 Bluetooth 핸즈프리나 헤드셋을 사용하지 마세요. 유선 핸즈프리 또는 헤드셋을 사용하세요.</string>
+
 </resources>

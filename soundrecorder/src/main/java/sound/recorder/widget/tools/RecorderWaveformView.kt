@@ -10,7 +10,9 @@ import kotlin.math.min
 internal class RecorderWaveformView: View {
 
     private lateinit var amplitudes: ArrayList<Int>
-    private lateinit var spikes: ArrayList<RectF>
+    @Volatile
+    private var spikesToDraw: List<RectF> = emptyList()
+    private val allSpikes = ArrayList<RectF>()
     private lateinit var paintRead: Paint
     private var w : Float = 9f
     private var d : Float = 4f
@@ -55,50 +57,44 @@ internal class RecorderWaveformView: View {
         sw = displayMetrics.widthPixels/3
 
         maxSpikes = (sw/(w+d)).toInt()
-        spikes = ArrayList()
+        allSpikes.clear()
+        spikesToDraw = emptyList()
     }
 
     fun reset(){
-        synchronized(spikes) {
-            amplitudes.clear()
-            spikes.clear()
-        }
+        amplitudes.clear()
+        allSpikes.clear()
+        spikesToDraw = emptyList()
         postInvalidate()
     }
 
     fun updateAmps(amp: Int?){
 
         if(amp!=null){
-            val norm  = min(amp/7, maxAmp) // 100*abs(Math.log10(1.0*amp/(sqrt(amp*1.0)+1)))
-            
-            synchronized(spikes) {
-                amplitudes.add(norm)
-                val amps = amplitudes.takeLast(maxSpikes)
+            val norm  = min(amp/7, maxAmp)
+            amplitudes.add(norm)
+            val amps = amplitudes.takeLast(maxSpikes)
 
-                spikes.clear()
+            val newSpikes = ArrayList<RectF>()
 
-                for(i in amps.indices){
-                    val delta = maxAmp.toFloat()
-                    val top = delta - amps[i]
-                    val bottom = top + amps[i] as Int
-                    val rectUp = RectF(sw-i*(w+d), top, sw-i*(w+d) - w, bottom)
-                    val rectDown = RectF(sw-i*(w+d), delta-2, sw-i*(w+d) - w, delta+amps[i])
-                    spikes.add(rectUp)
-                    spikes.add(rectDown)
-                }
+            for(i in amps.indices){
+                val deltaVal = maxAmp.toFloat()
+                val top = deltaVal - amps[i]
+                val bottom = top + amps[i]
+                
+                newSpikes.add(RectF(sw-i*(w+d), top, sw-i*(w+d) - w, bottom))
+                newSpikes.add(RectF(sw-i*(w+d), deltaVal-2, sw-i*(w+d) - w, deltaVal+amps[i]))
             }
+            spikesToDraw = newSpikes
             postInvalidate()
         }
     }
 
     override fun onDraw(canvas: Canvas) {
-        // this may be called several times on start or create
-        // therefore we shouldn't initialize objects here
-
-        synchronized(spikes) {
-            spikes.forEach {
-                canvas.drawRoundRect(it, 6f, 6f,paintRead)
-            }
+        // Draw the last known snapshot without locking
+        val toDraw = spikesToDraw
+        toDraw.forEach {
+            canvas.drawRoundRect(it, 6f, 6f, paintRead)
         }
     }
 }

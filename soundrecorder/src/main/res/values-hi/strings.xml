@@ -466,4 +466,9 @@
 
     <string name="search_note">नोट खोजें...</string>
     <string name="copy_note">नोट कॉपी करें</string>
+
+    <string name="vibra">कंपन</string>
+    <string name="on">चालू</string>
+    <string name="off">बंद</string>
+    <string name="info_delay">हैंड्स-फ़्री या हेडसेट का उपयोग करते समय आवाज़ में देरी से बचने के लिए Bluetooth हैंड्स-फ़्री या हेडसेट का उपयोग न करें। इसके बजाय वायर वाले हैंड्स-फ़्री या हेडसेट का उपयोग करें।</string>
 </resources>

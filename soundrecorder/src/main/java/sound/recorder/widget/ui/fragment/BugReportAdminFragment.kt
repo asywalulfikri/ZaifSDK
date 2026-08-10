@@ -52,6 +52,7 @@ class BugReportAdminFragment : Fragment() {
         val bugDescription: String,
         val requestedAt: Long,
         val status: String,
+        val deviceInfo: String = "-",
         val firebaseToken: String = ""
     )
 
@@ -110,6 +111,7 @@ class BugReportAdminFragment : Fragment() {
                         bugDescription  = d["bug_description"]   as? String ?: "-",
                         requestedAt = d["requested_at"] as? Long   ?: 0L,
                         status     = d["status"]       as? String ?: "pending",
+                        deviceInfo = d["deviceInfo"] as? String ?: "-",
                         firebaseToken = d["firebaseToken"] as? String ?: ""
                     )
                 })
@@ -178,6 +180,14 @@ class BugReportAdminFragment : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Gagal hapus: ${it.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun showDeviceInfoDialog(req: BugRequest) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Device Info")
+            .setMessage(req.deviceInfo)
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun showReplyDialog(req: BugRequest) {
@@ -360,6 +370,7 @@ class BugReportAdminFragment : Fragment() {
             val btnMarkDone: TextView? = view.findViewById(R.id.btnMarkDone)
             val btnDelete: TextView?   = view.findViewById(R.id.btnDelete)
             val btnReply: TextView?    = view.findViewById(R.id.btnReply)
+            val btnDeviceInfo: TextView? = view.findViewById(R.id.btnDeviceInfo)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -390,6 +401,7 @@ class BugReportAdminFragment : Fragment() {
 
             holder.btnMarkDone?.setOnClickListener { onMarkDone(item) }
             holder.btnDelete?.setOnClickListener   { onDelete(item) }
+            holder.btnDeviceInfo?.setOnClickListener { showDeviceInfoDialog(item) }
 
             if (item.firebaseToken.isNotEmpty()) {
                 holder.btnReply?.visibility = View.VISIBLE

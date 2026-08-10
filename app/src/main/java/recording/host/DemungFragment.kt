@@ -38,6 +38,7 @@ import sound.recorder.widget.music.VolumeDialogHelper
 import sound.recorder.widget.recording.InstrumentControlPanel
 import sound.recorder.widget.recording.InstrumentControlPanelNewDesign
 import sound.recorder.widget.recording.database.RecordedTap
+import sound.recorder.widget.ui.dialog.DelayInfoDialog
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.Constant
 import sound.recorder.widget.util.DataSession
@@ -96,6 +97,8 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
                 setupInitialData()
             }
 
+            context?.let { DelayInfoDialog.show(it) }
+
             setupControlPanel()
             setupTouchListener()
             setupMarquee()
@@ -152,6 +155,13 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
                 onPlayNote = { padIndex, metadata ->
                     val typeKey = metadata.ifEmpty { instrumentType + typePelog }
                     SoundPlayUtils.playSound(typeKey, "type${padIndex + 1}")
+                },
+                onStopNote = { padIndex, metadata ->
+                    val typeKey = if (metadata.contains(typeSlendro)) instrumentType + typeSlendro else instrumentType + typePelog
+                    SoundPlayUtils.stopSpecificSound(typeKey, "type${padIndex + 1}")
+                },
+                onStopAllNotes = {
+                    SoundPlayUtils.stopSound()
                 }
             )
 
