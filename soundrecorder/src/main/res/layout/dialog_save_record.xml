@@ -26,6 +26,7 @@
         android:background="@drawable/bg_edit_text"
         android:fontFamily="@font/campton_medium"
         android:textColor="@color/black_de"
+        android:textColorHint="#9E9E9E"
         android:textSize="@dimen/_13ssp" />
 
     <LinearLayout

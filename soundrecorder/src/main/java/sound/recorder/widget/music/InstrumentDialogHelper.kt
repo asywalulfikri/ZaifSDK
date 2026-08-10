@@ -103,6 +103,7 @@ object InstrumentDialogHelper {
         btnSave.text   = context.getString(R.string.save).uppercase()
         btnCancel.text = context.getString(R.string.cancel).uppercase()
         etName.setText("")
+        etName.setHintTextColor(Color.parseColor("#9E9E9E"))
         etName.hint = context.getString(R.string.input_record_title)
 
         btnSave.setOnClickListener {
