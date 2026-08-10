@@ -545,7 +545,7 @@ object RecordingListDialogHelper {
                     "language"       to getLanguageList(),
                     "appId"          to appId,
                     "status"         to "DRAFT",
-                    "isFree"         to true,
+                    "is_free"         to true,
                     "deviceInfo"     to getInfo(),
                     "submitted_at"   to System.currentTimeMillis()
                 )
