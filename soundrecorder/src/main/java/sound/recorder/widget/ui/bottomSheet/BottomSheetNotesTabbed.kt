@@ -320,7 +320,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         AlertDialog.Builder(activity)
             .setTitle(strChoose)
             .setItems(options) { _, which ->
-                if (!isAdded) return@setItems
+                if (!isAdded || position !in localNotesList.indices) return@setItems
                 
                 val selectedOption = options[which]
                 when (selectedOption) {
@@ -446,6 +446,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
     }
 
     private fun deleteLocalNote(position: Int) {
+        if (position !in localNotesList.indices) return
         dbHelper?.deleteNote(localNotesList[position])
         localNotesList.removeAt(position)
         localAdapter?.notifyItemRemoved(position)
