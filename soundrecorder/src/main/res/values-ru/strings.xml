@@ -472,4 +472,8 @@
     <string name="off">Выкл.</string>
     <string name="info_delay">Чтобы избежать задержки звука при использовании гарнитуры или наушников, не используйте Bluetooth-гарнитуру или Bluetooth-наушники. Используйте проводную гарнитуру или наушники.</string>
 
+    <string name="mallet">Анимация молоточка/палочки</string>
+    <string name="show_note_labels">Показывать названия нот</string>
+
+
 </resources>

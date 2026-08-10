@@ -475,4 +475,7 @@
     <string name="off">Desligado</string>
     <string name="info_delay">Para evitar atrasos no som ao usar viva-voz ou fones de ouvido, não use dispositivos Bluetooth. Use viva-voz ou fones de ouvido com fio.</string>
 
+    <string name="mallet">Animação de Baquetas/Palhetas</string>
+    <string name="show_note_labels">Mostrar Nomes das Notas</string>
+
 </resources>

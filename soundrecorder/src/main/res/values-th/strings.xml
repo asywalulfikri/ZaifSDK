@@ -473,4 +473,7 @@
     <string name="on">เปิด</string>
     <string name="off">ปิด</string>
     <string name="info_delay">เพื่อป้องกันเสียงล่าช้าเมื่อใช้แฮนด์ฟรีหรือหูฟัง โปรดอย่าใช้แฮนด์ฟรีหรือหูฟัง Bluetooth ให้ใช้แฮนด์ฟรีหรือหูฟังแบบมีสายแทน</string>
+
+    <string name="mallet">แอนิเมชันไม้ตี/ไม้เคาะ</string>
+    <string name="show_note_labels">แสดงชื่อโน้ต</string>
 </resources>

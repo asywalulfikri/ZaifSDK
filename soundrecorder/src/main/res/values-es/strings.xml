@@ -475,4 +475,7 @@
     <string name="off">Desactivado</string>
     <string name="info_delay">Para evitar retrasos en el sonido al usar manos libres o auriculares, no utilices dispositivos Bluetooth. Utiliza auriculares o manos libres con cable.</string>
 
+    <string name="mallet">Animación de mazas/palillos</string>
+    <string name="show_note_labels">Mostrar nombres de las notas</string>
+
 </resources>

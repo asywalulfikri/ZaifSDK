@@ -477,4 +477,8 @@
     <string name="on">Aan</string>
     <string name="off">Uit</string>
     <string name="info_delay">Gebruik geen Bluetooth-handsfree of Bluetooth-hoofdtelefoon om geluidsvertraging te voorkomen. Gebruik in plaats daarvan een bedrade handsfree of hoofdtelefoon.</string>
+
+    <string name="mallet">Mallet-/stokanimatie</string>
+    <string name="show_note_labels">Notennamen weergeven</string>
+
 </resources>

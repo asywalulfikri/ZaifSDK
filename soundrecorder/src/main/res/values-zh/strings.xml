@@ -473,5 +473,8 @@
     <string name="off">关闭</string>
     <string name="info_delay">为了防止使用免提设备或耳机时出现声音延迟，请不要使用蓝牙免提设备或蓝牙耳机。请使用有线免提设备或有线耳机。</string>
 
+    <string name="mallet">鼓槌/琴棒动画</string>
+    <string name="show_note_labels">显示音符名称</string>
+
 
 </resources>

@@ -476,4 +476,7 @@
     <string name="off">끄기</string>
     <string name="info_delay">핸즈프리 또는 헤드셋 사용 시 소리 지연을 방지하려면 Bluetooth 핸즈프리나 헤드셋을 사용하지 마세요. 유선 핸즈프리 또는 헤드셋을 사용하세요.</string>
 
+    <string name="mallet">말렛/스틱 애니메이션</string>
+    <string name="show_note_labels">음 이름 표시</string>
+
 </resources>

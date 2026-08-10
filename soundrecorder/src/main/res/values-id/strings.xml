@@ -487,6 +487,9 @@
     <string name="off">Mati</string>
     <string name="info_delay">Untuk mencegah delay suara jika kamu menggunakan handsfree atau headset, jangan gunakan handsfree atau headset Bluetooth. Gunakan handsfree atau headset kabel saja.</string>
 
+    <string name="mallet">Animasi Mallet/Stick</string>
+    <string name="show_note_labels">Tampilkan Not Nada</string>
+
 
 
 

@@ -476,4 +476,7 @@
     <string name="off">Mati</string>
     <string name="info_delay">Untuk mengelakkan kelewatan bunyi apabila menggunakan fon telinga atau headset, jangan gunakan fon telinga atau headset Bluetooth. Gunakan fon telinga atau headset berwayar sahaja.</string>
 
+    <string name="mallet">Animasi Mallet/Stick</string>
+    <string name="show_note_labels">Tunjukkan Nama Not</string>
+
 </resources>

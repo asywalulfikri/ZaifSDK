@@ -518,5 +518,8 @@
     <string name="on">تشغيل</string>
     <string name="off">إيقاف</string>
     <string name="info_delay">لمنع تأخر الصوت عند استخدام سماعة الرأس أو سماعة الأذن، لا تستخدم سماعات Bluetooth. استخدم سماعة سلكية بدلاً من ذلك.</string>
+
+    <string name="mallet">رسوم متحركة للمطرقة/العصا</string>
+    <string name="show_note_labels">إظهار أسماء النغمات</string>
 </resources>
 

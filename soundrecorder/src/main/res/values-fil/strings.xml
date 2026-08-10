@@ -476,5 +476,8 @@
     <string name="off">Naka-off</string>
     <string name="info_delay">Upang maiwasan ang sound delay kapag gumagamit ng hands-free o headset, huwag gumamit ng Bluetooth na hands-free o headset. Gumamit na lang ng wired na hands-free o headset.</string>
 
+    <string name="mallet">Animasyon ng Mallet/Stick</string>
+    <string name="show_note_labels">Ipakita ang mga pangalan ng nota</string>
+
 
 </resources>

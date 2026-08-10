@@ -476,4 +476,7 @@
     <string name="off">Désactivé</string>
     <string name="info_delay">Pour éviter les retards du son lorsque vous utilisez un kit mains libres ou des écouteurs, n utilisez pas de kit mains libres ou d écouteurs Bluetooth. Utilisez plutôt un modèle filaire.</string>
 
+    <string name="mallet">Animation des mailloches/baguettes</string>
+    <string name="show_note_labels">Afficher les noms des notes</string>
+
 </resources>

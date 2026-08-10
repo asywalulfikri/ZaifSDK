@@ -471,4 +471,7 @@
     <string name="on">चालू</string>
     <string name="off">बंद</string>
     <string name="info_delay">हैंड्स-फ़्री या हेडसेट का उपयोग करते समय आवाज़ में देरी से बचने के लिए Bluetooth हैंड्स-फ़्री या हेडसेट का उपयोग न करें। इसके बजाय वायर वाले हैंड्स-फ़्री या हेडसेट का उपयोग करें।</string>
+
+    <string name="mallet">मैलेट/स्टिक एनीमेशन</string>
+    <string name="show_note_labels">नोट के नाम दिखाएँ</string>
 </resources>

@@ -469,4 +469,7 @@
     <string name="off">オフ</string>
     <string name="info_delay">ハンズフリーやヘッドセット使用時の音声遅延を防ぐため、Bluetoothのハンズフリーやヘッドセットは使用せず、有線のものを使用してください。</string>
 
+    <string name="mallet">マレット/スティックアニメーション</string>
+    <string name="show_note_labels">音名を表示</string>
+
 </resources>
