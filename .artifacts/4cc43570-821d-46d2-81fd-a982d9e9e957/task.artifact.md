@@ -1,3 +1,6 @@
-- [x] Implement lifecycle-aware listener in `BaseFragment.kt`
-- [x] Manage listener lifecycle via `MusicPlayerManager.addListener/removeListener`
-- [x] Verify listener safety via Logcat
+- [/] Fix `DownloadManager` query crash and ANR in `MusicListDialogHelper.kt`
+    - [ ] Replace `Handler` polling with Coroutines on `Dispatchers.IO`
+    - [ ] Implement `try-catch` for `DownloadManager.query`
+    - [ ] Add fallback query projection if `local_filename` error occurs
+    - [ ] Ensure all UI updates are on `Dispatchers.Main`
+- [ ] Verify fix by code review and analysis

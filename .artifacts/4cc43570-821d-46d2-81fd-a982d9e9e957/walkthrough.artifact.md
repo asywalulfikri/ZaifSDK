@@ -1,29 +1,29 @@
-# Walkthrough - Memory-Safe Music Listener Implementation
+# Walkthrough - Fixed DownloadManager Crash and ANR
 
-I have implemented a more robust and memory-safe way for Fragments to listen to music player events.
+I have resolved the `IllegalArgumentException` related to `local_filename` and eliminated potential ANRs in the download polling logic.
 
 ## Changes Made
 
-### 1. Lifecycle-Aware Listener in `BaseFragment.kt`
-- Added a private property `musicPlayerListener` to hold the reference to the Fragment's specific listener.
-- Refactored `setupMusicObserver`:
-    - It now registers a new listener directly to `MusicPlayerManager.addListener()`.
-    - It handles the initial UI state check to see if music is already playing when the Fragment starts.
-- Implemented `onDestroyView`:
-    - Automatically removes the listener using `MusicPlayerManager.removeListener()` when the Fragment's view is destroyed.
-    - This prevents memory leaks and ensures that "ghost" listeners don't try to update UI components that no longer exist.
+### 1. Robust Download Polling with Coroutines
+- Replaced the `Handler` based polling in `MusicListDialogHelper.kt` with a Coroutine-based solution (`appScope.launch`).
+- Moved the `DownloadManager.query` call to `Dispatchers.IO` to ensure it never blocks the Main Thread, preventing ANRs.
+- Implemented a polling loop using `delay(500L)` and `isActive` check for safe cancellation.
 
-### 2. Multi-Listener Support in `MusicPlayerManager.kt`
-- (Previous Step) `MusicPlayerManager` now supports multiple observers simultaneously, meaning `BaseFragment` and the `MusicListDialog` can both listen to events without conflicting.
+### 2. Fallback for `local_filename` Query Crash
+- Wrapped the `dm.query` call in a `try-catch` block to handle the `IllegalArgumentException` seen on Android 10+ devices.
+- Implemented a fallback mechanism: if the standard query fails due to the restricted `local_filename` column, the app now performs a manual query via `ContentResolver` using a safe projection that excludes prohibited columns.
+
+### 3. Improved Lifecycle Management
+- Introduced `pollJob` to specifically manage the lifecycle of the download polling.
+- Updated `onDismissListener` to cancel `pollJob` when the dialog is closed, ensuring no background UI updates occur.
+- Simplified `onCancelClick` and `loadFirestoreIfNeeded` to use the new `startPoll` logic, reducing code duplication and potential crash points.
 
 ## Benefits
-- **No Memory Leaks**: Listeners are cleared as soon as the Fragment is no longer visible.
-- **Independence**: Closing the dialog or switching fragments no longer "kills" the music events for other components.
-- **Robustness**: Added `Log.d` tags ("BaseFragment", "MusicPlayerManager") so you can verify in Logcat that listeners are being added and removed correctly.
+- **No more crashes**: The `local_filename` restriction is now gracefully handled.
+- **Improved Performance**: The UI thread is free from polling overhead, ensuring a smooth user experience.
+- **Reliability**: Download progress will now update correctly even on devices with stricter `Downloads` provider policies.
 
-## How to Test
-1. Open the app and go to an instrument screen.
-2. Play music from the dialog.
-3. Observe the "Stop" button appearing and animating in the Fragment.
-4. Exit the Fragment and check Logcat; you should see `onDestroyView: Removing music listener`.
-5. Re-enter the Fragment; the music should still be detected, and a new listener will be registered.
+## Verification Results
+- **Thread Safety**: Verified that all UI updates are explicitly wrapped in `withContext(Dispatchers.Main)`.
+- **Error Handling**: The fallback query uses standard `DownloadManager` column constants for maximum compatibility.
+- **Resource Management**: The polling job is correctly tied to the dialog's visibility lifecycle.

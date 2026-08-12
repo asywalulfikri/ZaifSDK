@@ -16,7 +16,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Environment
-import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.text.Editable
@@ -79,6 +78,7 @@ object MusicListDialogHelper {
     private const val CACHE_DURATION = 60 * 60 * 1000L // 1 Jam
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var pollJob: Job? = null
 
     private val globalListener = object : MusicPlayerManager.PlayerListener {
         override fun onPlay(track: MusicPlayerManager.MusicTrack) {
@@ -410,81 +410,111 @@ object MusicListDialogHelper {
 
         // ─── ONLINE DATA & ADAPTER (hanya jika isDownload = true) ───
         if (isDownload) {
-            val downloadHandler = Handler(Looper.getMainLooper())
             val dm = themedContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
             fun startPoll(position: Int, downloadId: Long, songTitle: String) {
-                val startTime = System.currentTimeMillis()
-                val poll = object : Runnable {
-                    override fun run() {
-                        val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
-                        if (cursor == null) return
+                pollJob?.cancel()
+                pollJob = appScope.launch {
+                    val startTime = System.currentTimeMillis()
+                    while (isActive) {
+                        val result = withContext(Dispatchers.IO) {
+                            try {
+                                dm.query(DownloadManager.Query().setFilterById(downloadId))?.use { c ->
+                                    if (c.moveToFirst()) {
+                                        val statusIdx = c.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                                        val bytesIdx = c.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                                        val totalIdx = c.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
+                                        val reasonIdx = c.getColumnIndex(DownloadManager.COLUMN_REASON)
 
-                        var status = -1
-                        var bytes = 0L
-                        var total = 0L
-                        var reason = -1
-
-                        val hasData = try {
-                            cursor.use { c ->
-                                if (c.moveToFirst()) {
-                                    val statusIdx = c.getColumnIndex(DownloadManager.COLUMN_STATUS)
-                                    val bytesIdx = c.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
-                                    val totalIdx = c.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
-                                    val reasonIdx = c.getColumnIndex(DownloadManager.COLUMN_REASON)
-
-                                    status = if (statusIdx >= 0) c.getInt(statusIdx) else -1
-                                    bytes = if (bytesIdx >= 0) c.getLong(bytesIdx) else 0L
-                                    total = if (totalIdx >= 0) c.getLong(totalIdx) else 0L
-                                    reason = if (reasonIdx >= 0) c.getInt(reasonIdx) else -1
-                                    true
-                                } else false
+                                        val status = if (statusIdx >= 0) c.getInt(statusIdx) else -1
+                                        val bytes = if (bytesIdx >= 0) c.getLong(bytesIdx) else 0L
+                                        val total = if (totalIdx >= 0) c.getLong(totalIdx) else 0L
+                                        val reason = if (reasonIdx >= 0) c.getInt(reasonIdx) else -1
+                                        return@withContext Triple(true, status, Triple(bytes, total, reason))
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("MusicListDialogHelper", "Download query crash: ${e.message}")
+                                // Fallback for 'local_filename' issue on some Android versions
+                                if (e is IllegalArgumentException && e.message?.contains("local_filename") == true) {
+                                    try {
+                                        val projection = arrayOf(
+                                            DownloadManager.COLUMN_STATUS,
+                                            DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR,
+                                            DownloadManager.COLUMN_TOTAL_SIZE_BYTES,
+                                            DownloadManager.COLUMN_REASON
+                                        )
+                                        themedContext.contentResolver.query(
+                                            Uri.parse("content://downloads/my_downloads"),
+                                            projection,
+                                            "_id = ?",
+                                            arrayOf(downloadId.toString()),
+                                            null
+                                        )?.use { c ->
+                                            if (c.moveToFirst()) {
+                                                return@withContext Triple(true, c.getInt(0), Triple(c.getLong(1), c.getLong(2), c.getInt(3)))
+                                            }
+                                        }
+                                    } catch (e2: Exception) {
+                                        Log.e("MusicListDialogHelper", "Fallback query failed: ${e2.message}")
+                                    }
+                                }
                             }
-                        } catch (_: Exception) {
-                            false
+                            Triple(false, -1, Triple(0L, 0L, -1))
                         }
 
-                        if (!hasData) return
+                        val (hasData, status, data) = result
+                        val (bytes, total, reason) = data
 
-                        // Timeout 30 detik jika tidak ada progress (ga mulai-mulai)
+                        if (!hasData) {
+                            delay(1000L)
+                            continue
+                        }
+
+                        // Timeout 30 detik jika tidak ada progress
                         if (System.currentTimeMillis() - startTime > 30000 && bytes <= 0) {
-                            dm.remove(downloadId)
-                            activeDownloadId = -1L
-                            downloadingSongId = ""
-                            onlineAdapter?.clearDownloadState(position)
-                            Toast.makeText(themedContext, context.getString(R.string.download_failed), Toast.LENGTH_SHORT).show()
-                            return
+                            withContext(Dispatchers.Main) {
+                                try { dm.remove(downloadId) } catch (_: Exception) {}
+                                activeDownloadId = -1L
+                                downloadingSongId = ""
+                                onlineAdapter?.clearDownloadState(position)
+                                Toast.makeText(themedContext, themedContext.getString(R.string.download_failed), Toast.LENGTH_SHORT).show()
+                            }
+                            return@launch
                         }
 
                         val progress = if (total > 0) ((bytes * 100) / total).toInt() else 0
-                        onlineAdapter?.setDownloadState(position, progress)
-                        if (status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED) {
-                            activeDownloadId = -1L
-                            downloadingSongId = ""
-                            onlineAdapter?.clearDownloadState(position)
-                            if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                                onlineAdapter?.addDownloadedTitle(songTitle)
-                                refreshLocalTracks()
-                            } else {
-                                val errorMsg = when (reason) {
-                                    DownloadManager.ERROR_CANNOT_RESUME -> "Cannot resume"
-                                    DownloadManager.ERROR_DEVICE_NOT_FOUND -> "Storage not found"
-                                    DownloadManager.ERROR_FILE_ALREADY_EXISTS -> "File already exists"
-                                    DownloadManager.ERROR_FILE_ERROR -> "Storage error"
-                                    DownloadManager.ERROR_HTTP_DATA_ERROR -> "Network data error"
-                                    DownloadManager.ERROR_INSUFFICIENT_SPACE -> "Storage full"
-                                    DownloadManager.ERROR_TOO_MANY_REDIRECTS -> "Too many redirects"
-                                    DownloadManager.ERROR_UNHANDLED_HTTP_CODE -> "HTTP Error $reason"
-                                    else -> "Error code: $reason"
+                        
+                        withContext(Dispatchers.Main) {
+                            onlineAdapter?.setDownloadState(position, progress)
+                            if (status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED) {
+                                activeDownloadId = -1L
+                                downloadingSongId = ""
+                                onlineAdapter?.clearDownloadState(position)
+                                if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                                    onlineAdapter?.addDownloadedTitle(songTitle)
+                                    refreshLocalTracks()
+                                } else {
+                                    val errorMsg = when (reason) {
+                                        DownloadManager.ERROR_CANNOT_RESUME -> "Cannot resume"
+                                        DownloadManager.ERROR_DEVICE_NOT_FOUND -> "Storage not found"
+                                        DownloadManager.ERROR_FILE_ALREADY_EXISTS -> "File already exists"
+                                        DownloadManager.ERROR_FILE_ERROR -> "Storage error"
+                                        DownloadManager.ERROR_HTTP_DATA_ERROR -> "Network data error"
+                                        DownloadManager.ERROR_INSUFFICIENT_SPACE -> "Storage full"
+                                        DownloadManager.ERROR_TOO_MANY_REDIRECTS -> "Too many redirects"
+                                        DownloadManager.ERROR_UNHANDLED_HTTP_CODE -> "HTTP Error $reason"
+                                        else -> "Error code: $reason"
+                                    }
+                                    Toast.makeText(themedContext, "${themedContext.getString(R.string.download_failed)}: $errorMsg", Toast.LENGTH_SHORT).show()
                                 }
-                                Toast.makeText(themedContext, "${context.getString(R.string.download_failed)}: $errorMsg", Toast.LENGTH_SHORT).show()
                             }
-                            return
                         }
-                        downloadHandler.postDelayed(this, 500)
+
+                        if (status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED) return@launch
+                        delay(500L)
                     }
                 }
-                downloadHandler.post(poll)
             }
 
             fun renderOnlineList(query: String) {
@@ -511,8 +541,8 @@ object MusicListDialogHelper {
                 },
                 onCancelClick = { position ->
                     if (activeDownloadId != -1L) {
-                        dm.remove(activeDownloadId)
-                        downloadHandler.removeCallbacksAndMessages(null)
+                        try { dm.remove(activeDownloadId) } catch (_: Exception) {}
+                        pollJob?.cancel()
                         activeDownloadId = -1L
                         downloadingSongId = ""
                         onlineAdapter?.clearDownloadState(position)
@@ -670,15 +700,7 @@ object MusicListDialogHelper {
                         if (activeDownloadId != -1L) {
                             val pos = onlineCache.indexOfFirst { it.id == downloadingSongId }
                             if (pos >= 0) {
-                                val cursor = dm.query(DownloadManager.Query().setFilterById(activeDownloadId))
-                                val stillRunning = cursor?.use { it.moveToFirst() } ?: false
-                                if (stillRunning) {
-                                    onlineAdapter?.setDownloadState(pos, 0)
-                                    startPoll(pos, activeDownloadId, onlineCache[pos].title)
-                                } else {
-                                    activeDownloadId = -1L
-                                    downloadingSongId = ""
-                                }
+                                startPoll(pos, activeDownloadId, onlineCache[pos].title)
                             } else {
                                 activeDownloadId = -1L
                                 downloadingSongId = ""
@@ -734,7 +756,7 @@ object MusicListDialogHelper {
             activateTabLocal()
 
             dialog.setOnDismissListener {
-                downloadHandler.removeCallbacksAndMessages(null)
+                pollJob?.cancel()
                 MusicPlayerManager.removeListener(uiListener)
                 appScope.coroutineContext.cancelChildren()
             }
