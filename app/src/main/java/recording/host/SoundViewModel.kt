@@ -11,7 +11,7 @@ class SoundViewModel(application: Application) : AndroidViewModel(application) {
     val loadingProgress: LiveData<Int> = SoundPlayUtils.loadingProgress
     val isAllSoundsLoaded: LiveData<Boolean> = SoundPlayUtils.isLoaded
 
-    var isPremium: Boolean = true
+    var isPremium: Boolean = false
 
     var isMusicUnlocked: Boolean = true
     var isRecordUnlocked: Boolean = false

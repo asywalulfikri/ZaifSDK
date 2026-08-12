@@ -11,6 +11,7 @@ import android.webkit.WebView
 import android.widget.Toast
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import kotlinx.coroutines.*
@@ -33,13 +34,17 @@ open class MyApp : Application(), Configuration.Provider {
 
     companion object {
         private const val TAG                = "MyApp"
-        private const val FIREBASE_TIMEOUT_MS = 15_000L
         private const val ADMOB_TIMEOUT_MS    = 10_000L
+        private const val FIREBASE_INIT_TIMEOUT_MS = 10_000L
 
         @Volatile
         private var instance: MyApp? = null
 
-        fun getApplicationContext(): MyApp =
+        /**
+         * Mengembalikan instance MyApp. 
+         * Gunakan ini dengan hati-hati dan hanya jika benar-benar butuh instance spesifik MyApp.
+         */
+        fun getInstance(): MyApp =
             instance ?: throw IllegalStateException("MyApp not initialized")
 
         private val _areEssentialsInitialized = AtomicBoolean(false)
@@ -73,53 +78,60 @@ open class MyApp : Application(), Configuration.Provider {
         }
     }
 
+    @Volatile
+    private var isStartupPhase = true
+
     override fun onCreate() {
         super.onCreate()
         instance = this
 
-        // 1. PASANG JARING PENGAMAN CRASH WEBVIEW
-        // Menangkap UncaughtExceptionException dari internal Chromium/AdMob
+        // 0. MULTI-PROCESS GUARD
+        // Hanya jalankan inisialisasi berat di proses utama.
+        val processName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) getProcessName() else ""
+        val isMainProcess = processName.isEmpty() || packageName == processName
+
+        // 1. PASANG JARING PENGAMAN CRASH WEBVIEW (Selalu pasang untuk catching di semua proses jika perlu, 
+        // tapi log ke Crashlytics hanya jika initialized)
         setupWebViewCrashHandler()
 
         // 2. SETUP WEBVIEW SUFFIX SECEPAT MUNGKIN (SINKRON)
-        // Wajib sinkron di Main Thread untuk mencegah crash "UncaughtExceptionException" 
-        // pada engine Chromium jika ada multi-proses.
-        setupWebViewSuffix()
+        setupWebViewSuffix(processName)
 
-        // 3. INISIALISASI BERAT DI BACKGROUND
-        applicationScope.launch {
-            initializeEssentialSDKs()
+        if (isMainProcess) {
+            // 3. INISIALISASI BERAT DI BACKGROUND (Hanya di proses utama)
+            applicationScope.launch {
+                initializeEssentialSDKs()
+            }
+        } else {
+            // Bukan proses utama, tidak ada inisialisasi SDK yang perlu diproteksi.
+            isStartupPhase = false
         }
     }
 
     private suspend fun initializeEssentialSDKs() {
         supervisorScope {
-            // A. Firebase — jalan paralel di IO
+            // A. Firebase — Usahakan selesai pertama karena Crashlytics butuh ini.
+            // Gunakan timeout agar jika Firebase hang, SDK lain tetap bisa mencoba inisialisasi.
             val firebaseJob = launch(Dispatchers.IO) {
-                withTimeoutOrNull(FIREBASE_TIMEOUT_MS) {
-                    initializeFirebase()
-                } ?: Log.w(TAG, "Firebase initialization timed out")
+                initializeFirebase()
             }
+            withTimeoutOrNull(FIREBASE_INIT_TIMEOUT_MS) {
+                firebaseJob.join()
+            } ?: Log.w(TAG, "Firebase initialization join timed out")
 
-            // B. AdMob — Setelah WebView Suffix siap (karena dipanggil di onCreate, di sini sudah pasti siap)
+            // B. AdMob & WorkManager — Jalan paralel setelah Firebase
             val admobJob = launch(Dispatchers.IO) {
                 if (isWebViewAvailableSafely()) {
-                    val result = withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
+                    withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
                         initializeAdMob()
-                    }
-                    if (result == null) {
-                        Log.w(TAG, "AdMob initialization timed out")
-                        showDebugToast("AdMob timeout setelah ${ADMOB_TIMEOUT_MS / 1000}s")
-                    }
+                    } ?: Log.w(TAG, "AdMob initialization timed out")
                 } else {
                     Log.w(TAG, "WebView not available, skipping AdMob init")
                 }
             }
 
-            // C. WorkManager — Inisialisasi on-demand di background agar tidak block Main Thread
             val workManagerJob = launch(Dispatchers.IO) {
                 try {
-                    // Memicu inisialisasi di background thread
                     WorkManager.getInstance(this@MyApp)
                     Log.d(TAG, "WorkManager initialized in background")
                 } catch (e: Exception) {
@@ -127,26 +139,24 @@ open class MyApp : Application(), Configuration.Provider {
                 }
             }
 
-            // Tunggu semua selesai
-            joinAll(firebaseJob, admobJob, workManagerJob)
+            joinAll(admobJob, workManagerJob)
         }
 
         // Tandai selesai
+        isStartupPhase = false
         _areEssentialsInitialized.set(true)
         Log.d(TAG, "All essential SDKs initialized")
         notifyListeners(Sdk.ALL_ESSENTIALS)
     }
 
-    private fun setupWebViewSuffix() {
+    private fun setupWebViewSuffix(processName: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             try {
-                val processName = getProcessName()
-                if (packageName != processName) {
+                if (packageName != processName && processName.isNotEmpty()) {
                     WebView.setDataDirectorySuffix(processName)
                     Log.d(TAG, "WebView suffix set: $processName")
                 }
             } catch (e: Exception) {
-                // Jangan throw error di sini agar app tidak mati jika WebView sistem bermasalah
                 Log.e(TAG, "WebView suffix error: ${e.message}")
             }
         }
@@ -162,31 +172,29 @@ open class MyApp : Application(), Configuration.Provider {
     }
 
     private suspend fun initializeAdMob() {
-        // Inisialisasi CookieManager dan AdMob di Background Thread (IO).
-        // Memanggil CookieManager.getInstance() di Main Thread (UI) sangat berisiko menyebabkan ANR 
-        // karena engine Chromium mungkin memerlukan waktu untuk inisialisasi.
-        withContext(Dispatchers.IO) {
+        // 1. STAGGERED START: Beri jeda 1.5 detik agar tidak bertabrakan dengan startup awal aplikasi.
+        delay(1500)
+
+        // 2. Panggil API WebView-related di Main Thread.
+        // Memanggil CookieManager.getInstance() atau MobileAds.initialize di background thread 
+        // berisiko memicu IllegalStateException atau ANR sinkronisasi di beberapa versi OS.
+        withContext(Dispatchers.Main) {
             try {
-                // Pre-touch CookieManager di background agar engine WebView siap
+                // Touch CookieManager agar engine WebView siap
                 CookieManager.getInstance()
             } catch (e: Throwable) {
-                Log.e(TAG, "Pre-touch WebView error: ${e.message}")
+                Log.e(TAG, "CookieManager init error: ${e.message}")
             }
-
-            // STAGGERED START: Beri jeda agar tidak bertabrakan dengan inisialisasi library lain (seperti App Update)
-            // yang juga membebani Main Thread saat startup.
-            delay(1500)
 
             suspendCancellableCoroutine { cont ->
                 try {
                     MobileAds.initialize(this@MyApp) { status ->
-                        Log.d(TAG, "AdMob initialized: $status")
+                        Log.d(TAG, "AdMob initialized on Main Thread: $status")
                         showDebugToast("AdMob berhasil diinisialisasi")
                         if (cont.isActive) cont.resume(Unit)
                     }
                 } catch (e: Throwable) {
                     Log.e(TAG, "AdMob init error: ${e.message}")
-                    showDebugToast("AdMob gagal: ${e.message}")
                     if (cont.isActive) cont.resume(Unit)
                 }
             }
@@ -219,11 +227,22 @@ open class MyApp : Application(), Configuration.Provider {
     private fun setupWebViewCrashHandler() {
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            if (isWebViewChromiumCrash(throwable)) {
-                // Log saja, tidak crash ke user
-                Log.e(TAG, "WebView internal crash (ignored): ${throwable.message}")
+            // HANYA swallow crash Chromium jika masih dalam fase startup kritis.
+            // Setelah startup selesai, kita biarkan crash normal agar state app tetap konsisten.
+            if (isStartupPhase && isWebViewChromiumCrash(throwable)) {
+                // Log ke Logcat
+                Log.e(TAG, "Caught WebView-related crash DURING STARTUP (swallowed): ${throwable.message}")
+                
+                // LAPORKAN KE CRASHLYTICS agar kita punya visibility masalah di lapangan
+                try {
+                    FirebaseCrashlytics.getInstance().recordException(
+                        Exception("Swallowed Startup WebView Crash: ${throwable.message}", throwable)
+                    )
+                } catch (e: Exception) {
+                    // Firebase mungkin belum siap
+                }
             } else {
-                // Exception lain tetap di-handle normal
+                // Exception lain atau crash di luar fase startup tetap di-handle normal (app crash)
                 defaultHandler?.uncaughtException(thread, throwable)
             }
         }

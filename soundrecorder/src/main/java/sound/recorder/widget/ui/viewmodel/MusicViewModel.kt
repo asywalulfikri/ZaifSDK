@@ -337,7 +337,7 @@ class MusicViewModel : ViewModel() {
 
                         isPause = true
                     } else {
-                        showToast(MyApp.getApplicationContext().getString(R.string.device_not_support).toString())
+                        showToast(MyApp.getInstance().getString(R.string.device_not_support).toString())
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -442,7 +442,7 @@ class MusicViewModel : ViewModel() {
 
                 withContext(Dispatchers.Main) {
                     _saveRecord.value = Event(
-                        MyApp.getApplicationContext().getString(R.string.record_saved)
+                        MyApp.getInstance().getString(R.string.record_saved)
                     )
                     isPause = false
                 }

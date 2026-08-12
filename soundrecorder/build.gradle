@@ -76,7 +76,7 @@ dependencies {
   //  implementation("com.github.skydoves:balloon:1.7.1")
     implementation "com.google.android.gms:play-services-ads:25.4.0"// support android stable
     implementation 'com.google.android.gms:play-services-base:18.10.0'
-    implementation("androidx.work:work-runtime-ktx:2.11.2")
+    api("androidx.work:work-runtime-ktx:2.11.2")
 
 
     //use version 18 if min sdk  26
@@ -96,6 +96,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:34.17.0')
     implementation 'com.google.firebase:firebase-messaging:25.1.1'
     implementation 'com.google.firebase:firebase-firestore:26.5.0'
+    implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.code.gson:gson:2.14.0'
     implementation 'com.google.android.ump:user-messaging-platform:4.0.0'
     implementation 'com.google.android.play:app-update:2.1.0'
