@@ -1,0 +1,3 @@
+- [x] Implement lifecycle-aware listener in `BaseFragment.kt`
+- [x] Manage listener lifecycle via `MusicPlayerManager.addListener/removeListener`
+- [x] Verify listener safety via Logcat

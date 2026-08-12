@@ -26,6 +26,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -57,7 +58,6 @@ object MusicListDialogHelper {
         fun onMusicComplete()
         fun onMusicProgress(current: Int, max: Int) {}
     }
-
     var statusListener: MusicStatusListener? = null
 
     val isMusicPlaying: Boolean get() = MusicPlayerManager.isPlaying
@@ -79,6 +79,32 @@ object MusicListDialogHelper {
     private const val CACHE_DURATION = 60 * 60 * 1000L // 1 Jam
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    private val globalListener = object : MusicPlayerManager.PlayerListener {
+        override fun onPlay(track: MusicPlayerManager.MusicTrack) {
+            Log.d("MusicListDialogHelper", "globalListener: onPlay track=${track.title}")
+            statusListener?.onMusicPlay(track)
+        }
+        override fun onPause() {
+            Log.d("MusicListDialogHelper", "globalListener: onPause")
+            statusListener?.onMusicPause(currentTrack)
+        }
+        override fun onStop() {
+            Log.d("MusicListDialogHelper", "globalListener: onStop")
+            statusListener?.onMusicStop()
+        }
+        override fun onProgress(current: Int, max: Int) {
+            statusListener?.onMusicProgress(current, max)
+        }
+        override fun onComplete() {
+            Log.d("MusicListDialogHelper", "globalListener: onComplete")
+            statusListener?.onMusicComplete()
+        }
+    }
+
+    init {
+        MusicPlayerManager.addListener(globalListener)
+    }
 
     private const val COLOR_BG_DARK     = "#0A0E1A"
     private const val COLOR_BG_MEDIUM   = "#1A1F3A"
@@ -301,6 +327,38 @@ object MusicListDialogHelper {
             setMargins(playerMargin, 0, playerMargin, playerBottom)
         })
 
+        val uiListener = object : MusicPlayerManager.PlayerListener {
+            override fun onPlay(track: MusicPlayerManager.MusicTrack) {
+                val vol = loadMusicVolume(themedContext)
+                MusicPlayerManager.setVolume(vol, vol)
+                playerCard.visibility = View.VISIBLE
+                playerCard.findViewById<TextView>(101)?.text = track.title
+                playerCard.findViewById<ImageButton>(102)
+                    ?.setImageResource(android.R.drawable.ic_media_pause)
+            }
+            override fun onPause() {
+                playerCard.findViewById<ImageButton>(102)
+                    ?.setImageResource(android.R.drawable.ic_media_play)
+            }
+            override fun onStop() {
+                if (MusicPlayerManager.getCurrentTrack() == null) playerCard.visibility = View.GONE
+                localRecyclerView.adapter?.notifyDataSetChanged()
+                onlineRecyclerView?.adapter?.notifyDataSetChanged()
+            }
+            override fun onProgress(current: Int, max: Int) {
+                playerCard.findViewById<MusicSeekBar>(103)?.apply {
+                    this.max = max
+                    this.progress = current
+                }
+            }
+            override fun onComplete() {
+                playerCard.visibility = View.GONE
+                localRecyclerView.adapter?.notifyDataSetChanged()
+                onlineRecyclerView?.adapter?.notifyDataSetChanged()
+            }
+        }
+        MusicPlayerManager.addListener(uiListener)
+
         val dialog = AlertDialog.Builder(themedContext, R.style.FullScreenDialogTheme)
             .setView(rootContainer)
             .create()
@@ -324,6 +382,10 @@ object MusicListDialogHelper {
         fun renderLocalList(query: String) {
             val filtered = allTracks.filter { it.title.orEmpty().contains(query, true) }
             localAdapter.updateData(filtered)
+        }
+
+        fun setToast(message : String){
+            Toast.makeText(context, "$message.", Toast.LENGTH_SHORT).show()
         }
 
         var onlineAdapter: OnlineMusicAdapter? = null
@@ -534,7 +596,7 @@ object MusicListDialogHelper {
                         Toast.makeText(context, "Firebase not initialized", Toast.LENGTH_SHORT).show()
                         return
                     }
-                    
+
                     // Check again after attempt
                     if (FirebaseApp.getApps(context).isEmpty()) {
                         isLoadingOnline = false
@@ -599,7 +661,7 @@ object MusicListDialogHelper {
                         onlineLoadingLayout?.visibility = View.GONE
                         onlineRecyclerView?.visibility = View.VISIBLE
                         renderOnlineList(searchField.text?.toString().orEmpty())
-                        
+
                         if (allTracks.isNotEmpty()) {
                             val titles = allTracks.map { it.title.trim().lowercase() }.toSet()
                             onlineAdapter?.setDownloadedTitles(titles)
@@ -673,51 +735,15 @@ object MusicListDialogHelper {
 
             dialog.setOnDismissListener {
                 downloadHandler.removeCallbacksAndMessages(null)
-                MusicPlayerManager.setListener(null)
+                MusicPlayerManager.removeListener(uiListener)
                 appScope.coroutineContext.cancelChildren()
             }
         } else {
             dialog.setOnDismissListener {
-                MusicPlayerManager.setListener(null)
+                MusicPlayerManager.removeListener(uiListener)
                 appScope.coroutineContext.cancelChildren()
             }
         }
-
-        MusicPlayerManager.setListener(object : MusicPlayerManager.PlayerListener {
-            override fun onPlay(track: MusicPlayerManager.MusicTrack) {
-                val vol = loadMusicVolume(themedContext)
-                MusicPlayerManager.setVolume(vol, vol)
-                playerCard.visibility = View.VISIBLE
-                playerCard.findViewById<TextView>(101)?.text = track.title
-                playerCard.findViewById<ImageButton>(102)
-                    ?.setImageResource(android.R.drawable.ic_media_pause)
-                statusListener?.onMusicPlay(track)
-            }
-            override fun onPause() {
-                playerCard.findViewById<ImageButton>(102)
-                    ?.setImageResource(android.R.drawable.ic_media_play)
-                statusListener?.onMusicPause(currentTrack)
-            }
-            override fun onStop() {
-                if (MusicPlayerManager.getCurrentTrack() == null) playerCard.visibility = View.GONE
-                statusListener?.onMusicStop()
-                localRecyclerView.adapter?.notifyDataSetChanged()
-                onlineRecyclerView?.adapter?.notifyDataSetChanged()
-            }
-            override fun onProgress(current: Int, max: Int) {
-                playerCard.findViewById<MusicSeekBar>(103)?.apply {
-                    this.max = max
-                    this.progress = current
-                }
-                statusListener?.onMusicProgress(current, max)
-            }
-            override fun onComplete() {
-                playerCard.visibility = View.GONE
-                statusListener?.onMusicComplete()
-                localRecyclerView.adapter?.notifyDataSetChanged()
-                onlineRecyclerView?.adapter?.notifyDataSetChanged()
-            }
-        })
 
         searchField.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
@@ -765,7 +791,7 @@ object MusicListDialogHelper {
             val network = cm.activeNetwork ?: return false
             val caps    = cm.getNetworkCapabilities(network) ?: return false
             caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                    caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
         } else {
             cm.activeNetworkInfo?.isConnected == true
         }
@@ -778,7 +804,7 @@ object MusicListDialogHelper {
         }
         return try {
             var downloadUrl = song.link_download.trim()
-            
+
             // Konversi link Google Drive "view/share" ke link "direct download"
             if (downloadUrl.contains("drive.google.com")) {
                 val fileId = when {
@@ -1192,7 +1218,7 @@ object MusicListDialogHelper {
 
             val btnSize = context.sdp(SdpR.dimen._28sdp)
             val btnPad  = context.sdp(SdpR.dimen._4sdp)
-            
+
             val stopBtn = ImageButton(context).apply {
                 id = 105
                 background = null
@@ -1204,7 +1230,7 @@ object MusicListDialogHelper {
                 }
                 setPadding(btnPad, btnPad, btnPad, btnPad)
                 setOnClickListener {
-                     MusicPlayerManager.stop()
+                    MusicPlayerManager.stop()
                 }
             }
 

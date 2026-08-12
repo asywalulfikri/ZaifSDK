@@ -349,8 +349,6 @@ open class BaseFragmentWidget : Fragment() {
             adView?.destroy()
         }
         
-        // Final cleanup to prevent leaks
-        MusicListDialogHelper.statusListener = null
         mPanAnim?.setAnimationListener(null)
         mPanAnim?.cancel()
         mPanAnim = null

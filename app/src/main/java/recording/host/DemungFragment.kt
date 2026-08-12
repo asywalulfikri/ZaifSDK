@@ -32,11 +32,9 @@ import sound.recorder.widget.listener.MyCompleteMarqueeListener
 import sound.recorder.widget.listener.MyMusicListener
 import sound.recorder.widget.listener.MyNoteListener
 import sound.recorder.widget.listener.NoteListener
-import sound.recorder.widget.music.MusicListDialogHelper
 import sound.recorder.widget.music.MusicPlayerManager
 import sound.recorder.widget.music.VolumeDialogHelper
 import sound.recorder.widget.recording.InstrumentControlPanel
-import sound.recorder.widget.recording.InstrumentControlPanelNewDesign
 import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.ui.dialog.DelayInfoDialog
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
@@ -391,7 +389,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
     }
 
     fun musicStatus() {
-       musicStatusManager(binding?.ivStop)
+        setupMusicObserver(binding?.ivStop)
     }
 
     override fun onDestroyView() {
@@ -412,7 +410,6 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
 
         if (::userNoteHelper.isInitialized) userNoteHelper.stopAll()
         if (::tutorialDialog.isInitialized) tutorialDialog.stopAll()
-        MusicListDialogHelper.statusListener = null
         viewLifecycleOwner.lifecycleScope.coroutineContext.cancelChildren()
         sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
         ProgressDialogUtil.dismiss()
@@ -485,7 +482,6 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
         MyMusicListener.setMyListener(null)
         MyNoteListener.setMyListener(null)
         MyCompleteMarqueeListener.setMyListener(null)
-        MusicPlayerManager.setListener(null)
         super.onDestroy()
     }
 }

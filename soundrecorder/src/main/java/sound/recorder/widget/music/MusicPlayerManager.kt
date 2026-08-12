@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
+import android.util.Log
 import kotlinx.coroutines.*
 
 object MusicPlayerManager {
@@ -29,8 +30,8 @@ object MusicPlayerManager {
     }
 
     private var mediaPlayer: MediaPlayer? = null
+    private val listeners = java.util.concurrent.CopyOnWriteArrayList<PlayerListener>()
     private var currentTrack: MusicTrack? = null
-    private var listener: PlayerListener? = null
     private var progressJob: Job? = null
     private val managerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -43,8 +44,25 @@ object MusicPlayerManager {
     // Volume internal (0.0 – 1.0), tidak terhubung ke volume system
     private var currentVolume: Float = DEFAULT_VOLUME
 
+    fun addListener(l: PlayerListener) {
+        if (!listeners.contains(l)) {
+            Log.d("MusicPlayerManager", "Adding listener: $l")
+            listeners.add(l)
+        }
+    }
+
+    fun removeListener(l: PlayerListener) {
+        Log.d("MusicPlayerManager", "Removing listener: $l")
+        listeners.remove(l)
+    }
+
+    @Deprecated("Use addListener/removeListener", ReplaceWith("addListener(l)"))
     fun setListener(l: PlayerListener?) {
-        listener = l
+        if (l == null) {
+            // Keep it for safety, but usually we don't want to clear everything.
+        } else {
+            addListener(l)
+        }
     }
 
     // ── Volume API ────────────────────────────────────────────────────────────
@@ -111,13 +129,25 @@ object MusicPlayerManager {
                     _isPlaying = true
                     _isPaused = false
 
-                    listener?.onPlay(track)
+                    listeners.forEach { 
+                        try {
+                            it.onPlay(track)
+                        } catch (e: Exception) {
+                            Log.e("MusicPlayerManager", "Error in onPlay listener", e)
+                        }
+                    }
 
                     setOnCompletionListener {
                         _isPlaying = false
                         _isPaused = false
                         progressJob?.cancel()
-                        listener?.onComplete()
+                        listeners.forEach { 
+                            try {
+                                it.onComplete()
+                            } catch (e: Exception) {
+                                Log.e("MusicPlayerManager", "Error in onComplete listener", e)
+                            }
+                        }
                         stop()
                     }
 
@@ -134,7 +164,13 @@ object MusicPlayerManager {
                 it.pause()
                 _isPlaying = false
                 _isPaused = true
-                listener?.onPause()
+                listeners.forEach { 
+                    try {
+                        it.onPause()
+                    } catch (e: Exception) {
+                        Log.e("MusicPlayerManager", "Error in onPause listener", e)
+                    }
+                }
                 progressJob?.cancel()
             }
         }
@@ -148,7 +184,15 @@ object MusicPlayerManager {
                 it.setVolume(currentVolume, currentVolume)
                 _isPlaying = true
                 _isPaused = false
-                currentTrack?.let { track -> listener?.onPlay(track) }
+                currentTrack?.let { track -> 
+                    listeners.forEach { 
+                        try {
+                            it.onPlay(track)
+                        } catch (e: Exception) {
+                            Log.e("MusicPlayerManager", "Error in onPlay listener (resume)", e)
+                        }
+                    } 
+                }
                 startProgressTracking()
             }
         }
@@ -159,7 +203,7 @@ object MusicPlayerManager {
         progressJob = null
 
         val playerToRelease = mediaPlayer
-        mediaPlayer = null 
+        mediaPlayer = null
 
         managerScope.launch(Dispatchers.IO) {
             try {
@@ -175,14 +219,26 @@ object MusicPlayerManager {
         _isPlaying = false
         _isPaused = false
         currentTrack = null
-        listener?.onStop()
+        listeners.forEach { 
+            try {
+                it.onStop()
+            } catch (e: Exception) {
+                Log.e("MusicPlayerManager", "Error in onStop listener", e)
+            }
+        }
     }
 
     fun seekTo(ms: Int) {
         try {
             mediaPlayer?.seekTo(ms)
             if (!_isPlaying) {
-                listener?.onProgress(ms, getDuration())
+                listeners.forEach { 
+                    try {
+                        it.onProgress(ms, getDuration())
+                    } catch (e: Exception) {
+                        Log.e("MusicPlayerManager", "Error in onProgress listener (seek)", e)
+                    }
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -199,7 +255,15 @@ object MusicPlayerManager {
             while (_isPlaying) {
                 val current = mediaPlayer?.currentPosition ?: 0
                 val max = mediaPlayer?.duration ?: 0
-                if (max > 0) listener?.onProgress(current, max)
+                if (max > 0) {
+                    listeners.forEach { 
+                        try {
+                            it.onProgress(current, max)
+                        } catch (e: Exception) {
+                            Log.e("MusicPlayerManager", "Error in onProgress listener", e)
+                        }
+                    }
+                }
                 delay(500)
             }
         }
@@ -207,6 +271,6 @@ object MusicPlayerManager {
 
     fun release() {
         stop()
-        listener = null
+        listeners.clear()
     }
 }
