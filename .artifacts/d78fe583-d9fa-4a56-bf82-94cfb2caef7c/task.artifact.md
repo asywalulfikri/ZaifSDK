@@ -1,0 +1,4 @@
+- [x] Disable default WorkManager initialization in AndroidManifest.xml
+- [x] Implement `Configuration.Provider` in `MyApp.kt`
+- [x] Pre-initialize WorkManager in background (optional optimization)
+- [x] Verify build and functionality

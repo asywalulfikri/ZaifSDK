@@ -31,6 +31,11 @@
             tools:node="merge">
             <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer"
                 tools:node="remove"/>
+            <!-- Disable default WorkManager initializer to prevent ANR during startup -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
         </provider>
 
         <meta-data

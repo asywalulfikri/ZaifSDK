@@ -11,12 +11,14 @@ import android.webkit.WebView
 import android.widget.Toast
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import kotlinx.coroutines.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 
-open class MyApp : Application() {
+open class MyApp : Application(), Configuration.Provider {
 
     enum class Sdk {
         ALL_ESSENTIALS
@@ -114,8 +116,19 @@ open class MyApp : Application() {
                 }
             }
 
+            // C. WorkManager — Inisialisasi on-demand di background agar tidak block Main Thread
+            val workManagerJob = launch(Dispatchers.IO) {
+                try {
+                    // Memicu inisialisasi di background thread
+                    WorkManager.getInstance(this@MyApp)
+                    Log.d(TAG, "WorkManager initialized in background")
+                } catch (e: Exception) {
+                    Log.e(TAG, "WorkManager background init error: ${e.message}")
+                }
+            }
+
             // Tunggu semua selesai
-            joinAll(firebaseJob, admobJob)
+            joinAll(firebaseJob, admobJob, workManagerJob)
         }
 
         // Tandai selesai
@@ -229,6 +242,11 @@ open class MyApp : Application() {
             chromiumPackages.any { pkg -> element.className.startsWith(pkg) }
         } == true
     }
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.DEBUG else Log.ERROR)
+            .build()
 
     override fun onTerminate() {
         super.onTerminate()
