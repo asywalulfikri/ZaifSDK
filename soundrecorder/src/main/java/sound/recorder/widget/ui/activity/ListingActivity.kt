@@ -148,7 +148,9 @@ internal class ListingActivity : AppCompatActivity(), AudioRecorderAdapter.OnIte
     private fun fetchAll(){
         GlobalScope.launch {
             audioRecords = db.audioRecordDAO().getAll()
-            audioRecorderAdapter.setData(audioRecords)
+            runOnUiThread {
+                audioRecorderAdapter.setData(audioRecords)
+            }
         }
     }
 

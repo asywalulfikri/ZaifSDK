@@ -49,26 +49,31 @@ class AudioEngine(private val context: Context) {
     fun startMicRecording() {
         val fileName = "REC_${System.currentTimeMillis()}.mp3"
         currentAudioFile = File(context.filesDir, fileName)
-        try {
-            mediaRecorder = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                MediaRecorder(context)
-            } else {
-                @Suppress("DEPRECATION")
-                MediaRecorder()
-            }).apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setOutputFile(currentAudioFile?.absolutePath)
-                try {
-                    prepare()
-                    start()
-                } catch (e: IOException) {
-                    Log.e("AudioEngine", "MediaRecorder prepare/start failed: ${e.message}")
+        val outputPath = currentAudioFile?.absolutePath
+        // prepare()/start() melakukan I/O dan setup encoder secara sinkron,
+        // jalankan di background agar tidak memblokir main thread (potensi ANR).
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                mediaRecorder = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    MediaRecorder(context)
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaRecorder()
+                }).apply {
+                    setAudioSource(MediaRecorder.AudioSource.MIC)
+                    setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    setOutputFile(outputPath)
+                    try {
+                        prepare()
+                        start()
+                    } catch (e: IOException) {
+                        Log.e("AudioEngine", "MediaRecorder prepare/start failed: ${e.message}")
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e("AudioEngine", "MediaRecorder init failed: ${e.message}")
             }
-        } catch (e: Exception) {
-            Log.e("AudioEngine", "MediaRecorder init failed: ${e.message}")
         }
     }
 

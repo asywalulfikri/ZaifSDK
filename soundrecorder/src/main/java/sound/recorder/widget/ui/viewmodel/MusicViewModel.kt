@@ -420,8 +420,10 @@ class MusicViewModel : ViewModel() {
 
                 // Rename file jika diperlukan
                 if (isChange) {
-                    val newFile = File("$dirPath$newName.mp3")
-                    File(dirPath+originalName).renameTo(newFile)
+                    withContext(Dispatchers.IO) {
+                        val newFile = File("$dirPath$newName.mp3")
+                        File(dirPath + originalName).renameTo(newFile)
+                    }
                 }
 
                 // Ambil durasi audio di thread IO

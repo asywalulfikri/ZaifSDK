@@ -25,7 +25,7 @@ class PermissionManager {
         }
 
         fun isPermissionGranted(permission: String, app: Application) : Boolean {
-            val permissionStatus =  ContextCompat.checkSelfPermission(app, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            val permissionStatus = ContextCompat.checkSelfPermission(app, permission)
             return permissionStatus == PackageManager.PERMISSION_GRANTED
         }
     }

@@ -659,24 +659,28 @@ object RecordingListDialogHelper {
 
         val fileName = "Export_${rec.name.replace(Regex("[^a-zA-Z0-9]"), "_")}.json"
         val file = File(context.cacheDir, fileName)
-        try {
-            file.writeText(jsonContent)
-            val uri = FileProvider.getUriForFile(
-                context, "${context.packageName}.provider", file
-            )
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/json"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_SUBJECT, "JSON: ${rec.name}")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                // Specific for WhatsApp if you want, but general is better
-                // setPackage("com.whatsapp") // Optional: force WhatsApp
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    file.writeText(jsonContent)
+                }
+                val uri = FileProvider.getUriForFile(
+                    context, "${context.packageName}.provider", file
+                )
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/json"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    putExtra(Intent.EXTRA_SUBJECT, "JSON: ${rec.name}")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    // Specific for WhatsApp if you want, but general is better
+                    // setPackage("com.whatsapp") // Optional: force WhatsApp
+                }
+                context.startActivity(Intent.createChooser(shareIntent, "Share JSON via"))
+            } catch (e: Exception) {
+                android.widget.Toast.makeText(
+                    context, "Export Failed: ${e.message}", android.widget.Toast.LENGTH_SHORT
+                ).show()
             }
-            context.startActivity(Intent.createChooser(shareIntent, "Share JSON via"))
-        } catch (e: Exception) {
-            android.widget.Toast.makeText(
-                context, "Export Failed: ${e.message}", android.widget.Toast.LENGTH_SHORT
-            ).show()
         }
     }
 

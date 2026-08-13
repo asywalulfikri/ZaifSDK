@@ -447,10 +447,16 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
 
     private fun deleteLocalNote(position: Int) {
         if (position !in localNotesList.indices) return
-        dbHelper?.deleteNote(localNotesList[position])
-        localNotesList.removeAt(position)
-        localAdapter?.notifyItemRemoved(position)
-        toggleEmptyView(localNotesList.isEmpty())
+        val note = localNotesList[position]
+        lifecycleScope.launch(Dispatchers.IO) {
+            dbHelper?.deleteNote(note)
+            withContext(Dispatchers.Main) {
+                if (_binding == null || !isAdded) return@withContext
+                localNotesList.removeAt(position)
+                localAdapter?.notifyItemRemoved(position)
+                toggleEmptyView(localNotesList.isEmpty())
+            }
+        }
     }
 
     private fun showNoteDialog(shouldUpdate: Boolean, existingNote: Note?, position: Int) {

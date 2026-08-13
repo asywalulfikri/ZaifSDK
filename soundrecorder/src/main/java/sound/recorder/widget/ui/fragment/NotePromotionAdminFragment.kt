@@ -1461,33 +1461,37 @@ class NotePromotionAdminFragment : Fragment() {
             return
         }
         val ctx = requireContext()
-        try {
-            val fileName = "${note.recordName.replace(" ", "_")}_note.json"
-            val file = File(ctx.cacheDir, fileName).apply {
-                writeText(note.jsonNote)
-            }
-            val uri = FileProvider.getUriForFile(ctx, "${ctx.packageName}.provider", file)
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val fileName = "${note.recordName.replace(" ", "_")}_note.json"
+                val file = withContext(Dispatchers.IO) {
+                    File(ctx.cacheDir, fileName).apply {
+                        writeText(note.jsonNote)
+                    }
+                }
+                val uri = FileProvider.getUriForFile(ctx, "${ctx.packageName}.provider", file)
 
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/json"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/json"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
 
-            val waIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/json"
-                setPackage("com.whatsapp")
-                putExtra(Intent.EXTRA_STREAM, uri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
+                val waIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/json"
+                    setPackage("com.whatsapp")
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
 
-            if (waIntent.resolveActivity(ctx.packageManager) != null) {
-                startActivity(waIntent)
-            } else {
-                startActivity(Intent.createChooser(shareIntent, "Export JSON via..."))
+                if (waIntent.resolveActivity(ctx.packageManager) != null) {
+                    startActivity(waIntent)
+                } else {
+                    startActivity(Intent.createChooser(shareIntent, "Export JSON via..."))
+                }
+            } catch (e: Exception) {
+                Toast.makeText(ctx, "Gagal export: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-        } catch (e: Exception) {
-            Toast.makeText(ctx, "Gagal export: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
