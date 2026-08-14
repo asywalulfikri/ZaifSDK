@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
@@ -131,7 +132,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     private fun initHelpers() {
         loadCustomFont()
-        zaifSDKConfig = ZaifSDKBuilder.load(context)
+        loadZaifConfigAsync()
         audioEngine = AudioEngine(context)
         btnFactory  = ControlButtonFactory(context, config, globalTypeface)
         blinkManager = BlinkManager(
@@ -468,8 +469,49 @@ class InstrumentControlPanel @JvmOverloads constructor(
         else MusicListDialogHelper.show(context, isDownload = true)
     }
 
+    // Async: ResourcesCompat.getFont() dengan callback memanggil balik SEGERA (di thread
+    // pemanggil) kalau font sudah ter-cache, atau di background lalu post ke handler kalau
+    // belum — jadi tidak memblokir main thread saat panel pertama kali dirender (potensi ANR
+    // di device low-end saat first-load).
     private fun loadCustomFont() {
-        config.fontResId?.let { globalTypeface = ResourcesCompat.getFont(context, it) }
+        val fontResId = config.fontResId ?: return
+        ResourcesCompat.getFont(
+            context,
+            fontResId,
+            object : ResourcesCompat.FontCallback() {
+                override fun onFontRetrieved(typeface: Typeface) {
+                    globalTypeface = typeface
+                    if (::btnFactory.isInitialized) {
+                        btnFactory = ControlButtonFactory(context, config, globalTypeface)
+                    }
+                    applyTypefaceToButtons(typeface)
+                }
+                override fun onFontRetrievalFailed(reason: Int) {
+                    Log.w("InstrumentControlPanel", "Custom font load failed: reason=$reason")
+                }
+            },
+            timerHandler
+        )
+    }
+
+    private fun applyTypefaceToButtons(typeface: Typeface) {
+        if (::btnMusic.isInitialized) btnMusic.typeface = typeface
+        if (::btnRecord.isInitialized) btnRecord.typeface = typeface
+        if (::btnList.isInitialized) btnList.typeface = typeface
+        if (::btnNote.isInitialized) btnNote.typeface = typeface
+        if (::btnStop.isInitialized) btnStop.typeface = typeface
+        if (::btnVolume.isInitialized) btnVolume.typeface = typeface
+    }
+
+    // Async: baca SharedPreferences + parse JSON di IO thread. zaifSDKConfig hanya dipakai
+    // belakangan (mis. setUnlockedStatus), bukan pada render pertama, jadi aman ditunda.
+    private fun loadZaifConfigAsync() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val loaded = ZaifSDKBuilder.load(context)
+            withContext(Dispatchers.Main) {
+                zaifSDKConfig = loaded
+            }
+        }
     }
 
     private fun isNetworkAvailable(): Boolean {
