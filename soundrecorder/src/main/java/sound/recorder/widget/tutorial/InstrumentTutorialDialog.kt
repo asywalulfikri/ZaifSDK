@@ -4,12 +4,15 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.pm.ApplicationInfo
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -22,8 +25,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -54,6 +59,7 @@ import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.util.CoinManager
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.LinkedHashMap
 import java.util.Locale
 import com.intuit.sdp.R as SdpR
 
@@ -106,17 +112,17 @@ class InstrumentTutorialDialog(
         private const val MAX_MEMORY_CACHE = 5
 
         private data class CachedResult(val notes: List<NoteItem>, val fetchedAt: Long)
-        private val cache = object : java.util.LinkedHashMap<String, CachedResult>(MAX_MEMORY_CACHE, 0.75f, true) {
+        private val cache = object : LinkedHashMap<String, CachedResult>(MAX_MEMORY_CACHE, 0.75f, true) {
             override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, CachedResult>?): Boolean {
                 return size > MAX_MEMORY_CACHE
             }
         }
 
-    private fun isAppDebuggable(context: Context?): Boolean {
-        return context?.applicationInfo?.let {
-            (it.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        } ?: false
-    }
+        private fun isAppDebuggable(context: Context?): Boolean {
+            return context?.applicationInfo?.let {
+                (it.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+            } ?: false
+        }
 
         private suspend fun getCache(context: Context?, key: String): CachedResult? = withContext(Dispatchers.IO) {
             // 1. Cek Memory Cache
@@ -145,7 +151,7 @@ class InstrumentTutorialDialog(
                         ))
                     }
                     val result = CachedResult(notes, fetchedAt)
-                    cache[key] = result 
+                    cache[key] = result
                     return@withContext result
                 } catch (e: Exception) { }
             }
@@ -179,11 +185,11 @@ class InstrumentTutorialDialog(
             } catch (e: Exception) { }
         }
 
-    private fun isCacheValid(context: Context?, key: String): Boolean {
-        // Run in background and block if necessary, but better make it suspend
-        // For simplicity in this caller, I'll use a runBlocking or just change callers
-        return false // Default to invalid if not suspend-safe
-    }
+        private fun isCacheValid(context: Context?, key: String): Boolean {
+            // Run in background and block if necessary, but better make it suspend
+            // For simplicity in this caller, I'll use a runBlocking or just change callers
+            return false // Default to invalid if not suspend-safe
+        }
 
         private fun unlockKey(key: String) = "unlock_$key"
 
@@ -244,7 +250,7 @@ class InstrumentTutorialDialog(
         }
         lifecycleScope?.launch(Dispatchers.Main) {
             adapter.updateItems(filtered, isOfflinePagination)
-            
+
             if (filtered.isEmpty()) {
                 binding.progressContainer.visibility = View.VISIBLE
                 binding.progressBar.visibility = View.GONE
@@ -391,7 +397,7 @@ class InstrumentTutorialDialog(
                     SongItem.Local(song, HighScoreManager.getHighScore(context, song.name))
                 }
             }
-            
+
             withContext(Dispatchers.Main) {
                 allItems.addAll(processedLocal)
                 refreshList()
@@ -454,11 +460,11 @@ class InstrumentTutorialDialog(
 
     private fun isNetworkAvailable(context: Context?): Boolean {
         if (context == null) return false
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val network = connectivityManager.activeNetwork ?: return false
             val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-            return capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
         } else {
             @Suppress("DEPRECATION")
             return connectivityManager.activeNetworkInfo?.isConnected ?: false
@@ -474,7 +480,7 @@ class InstrumentTutorialDialog(
     ) {
         val root = binding.root
         val etSearch = binding.etSearch
-        
+
         // Cari posisi etSearch di layout
         val index = root.indexOfChild(etSearch)
         if (index == -1) return
@@ -495,21 +501,21 @@ class InstrumentTutorialDialog(
             layoutParams = LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._32sdp), 1f).apply {
                 marginEnd = context.sdp(SdpR.dimen._8sdp)
             }
-            
+
             // Tambahkan frame/background modern
             background = GradientDrawable().apply {
                 setColor(Color.parseColor("#1A1F3A")) // Latar belakang gelap
                 cornerRadius = context.sdpF(SdpR.dimen._20sdp) // Rounded penuh (Pill)
                 setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#252B47")) // Garis tepi halus
             }
-            
+
             // Tambahkan icon search di dalam
             setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_search, 0, 0, 0)
             compoundDrawablePadding = context.sdp(SdpR.dimen._8sdp)
-            
+
             // Beri warna pada icon search
             TextViewCompat.setCompoundDrawableTintList(
-                this, 
+                this,
                 ColorStateList.valueOf(Color.parseColor("#8B93B8"))
             )
 
@@ -542,12 +548,12 @@ class InstrumentTutorialDialog(
 
             // Sesuaikan padding agar tidak terlalu mepet ke kiri/kanan
             setPadding(
-                context.sdp(SdpR.dimen._12sdp), 
-                0, 
-                context.sdp(SdpR.dimen._12sdp), 
+                context.sdp(SdpR.dimen._12sdp),
+                0,
+                context.sdp(SdpR.dimen._12sdp),
                 0
             )
-            
+
             textSize = 12f
             setTextColor(Color.WHITE)
             setHintTextColor(Color.parseColor("#5C637F"))
@@ -560,7 +566,7 @@ class InstrumentTutorialDialog(
             height = context.sdp(SdpR.dimen._32sdp) // Samakan tinggi dengan search bar
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
             gravity = Gravity.CENTER
-            
+
             layoutParams = LinearLayout.LayoutParams(-2, context.sdp(SdpR.dimen._32sdp))
         }
 
@@ -625,7 +631,7 @@ class InstrumentTutorialDialog(
                 if (adminStatusFilter != newStatus) {
                     adminStatusFilter = newStatus
                     updateStatusFilterUI()
-                    
+
                     // Reload data
                     if (!appId.isNullOrEmpty()) {
                         lastDocument = null
@@ -643,7 +649,7 @@ class InstrumentTutorialDialog(
         fun updateFilterUI() {
             val colorAccent = Color.parseColor("#6C63FF")
             val colorBg = Color.parseColor("#1A1F3A")
-            
+
             if (filterAllLanguages) {
                 filterBtn.text = context.getString(R.string.filter_all_languages_label)
                 filterBtn.setTextColor(Color.WHITE)
@@ -671,12 +677,12 @@ class InstrumentTutorialDialog(
 
         filterBtn.setOnClickListener {
             if (isLoadingMore) return@setOnClickListener // Cegah klik saat sedang loading
-            
+
             filterAllLanguages = !filterAllLanguages
             updateFilterUI()
-            
+
             val msg = if (filterAllLanguages) context.getString(R.string.showing_all_tutorials)
-                      else context.getString(R.string.showing_recommended_tutorials)
+            else context.getString(R.string.showing_recommended_tutorials)
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
 
             // Reload data
@@ -693,12 +699,12 @@ class InstrumentTutorialDialog(
 
         updateFilterUI()
         updateStatusFilterUI()
-        
+
         searchRow.addView(etSearch)
         debugBtn?.let { searchRow.addView(it) }
         statusFilterBtn?.let { searchRow.addView(it) }
         searchRow.addView(filterBtn)
-        
+
         // Masukkan kembali ke root layout
         root.addView(searchRow, index)
     }
@@ -759,7 +765,7 @@ class InstrumentTutorialDialog(
         val tvLoading = binding.progressContainer.findViewById<TextView>(R.id.tvLoading)
         tvLoading?.visibility = View.VISIBLE
         tvLoading?.text = mContext?.getString(R.string.loading) ?: "Loading..."
-        
+
         // Safety check for Firebase initialization
         if (mContext != null && FirebaseApp.getApps(mContext!!).isEmpty()) {
             try {
@@ -777,7 +783,7 @@ class InstrumentTutorialDialog(
         var query = FirebaseFirestore.getInstance()
             .collection(appId)
             .whereEqualTo("category", instrumentType)
-            
+
         if (!isAppDebuggable(mContext)) {
             query = query.whereEqualTo("status", "published")
             if (!filterAllLanguages) {
@@ -793,7 +799,7 @@ class InstrumentTutorialDialog(
                 query = query.whereIn("status", listOf("DRAFT", "draft", "-", "pending"))
             }
         }
-        
+
         query
             .orderBy("submitted_at", Query.Direction.DESCENDING)
             .limit(PAGE_SIZE)
@@ -834,7 +840,7 @@ class InstrumentTutorialDialog(
                         language = (d["language"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
                     )
                 }
-                
+
                 // Only cache if we're in default "My Language" mode and NOT in debug mode
                 if (!filterAllLanguages && !isAppDebuggable(mContext)) {
                     val result = CachedResult(notes, System.currentTimeMillis())
@@ -843,7 +849,7 @@ class InstrumentTutorialDialog(
                         saveCacheToDisk(mContext, instrumentType, result)
                     }
                 }
-                
+
                 allItems.addAll(notes.map { SongItem.Remote(it) })
                 refreshList()
             }
@@ -860,7 +866,7 @@ class InstrumentTutorialDialog(
         allItems: MutableList<SongItem>
     ) {
         if (isLoadingMore || isLastPage) return
-        
+
         if (!isNetworkAvailable(mContext)) {
             isOfflinePagination = true
             refreshList()
@@ -887,7 +893,7 @@ class InstrumentTutorialDialog(
         var query = FirebaseFirestore.getInstance()
             .collection(appId)
             .whereEqualTo("category", instrumentType)
-            
+
         if (!isAppDebuggable(mContext)) {
             query = query.whereEqualTo("status", "published")
             if (!filterAllLanguages) {
@@ -906,7 +912,7 @@ class InstrumentTutorialDialog(
 
         val baseQuery = query.orderBy("submitted_at", Query.Direction.DESCENDING)
 
-        // Pagination Resume Logic: Use lastDocument if available, 
+        // Pagination Resume Logic: Use lastDocument if available,
         // fallback to last item's timestamp if reopened from cache.
         val paginatedQuery = when {
             lastDocument != null -> baseQuery.startAfter(lastDocument!!)
@@ -950,7 +956,7 @@ class InstrumentTutorialDialog(
                         language = (d["language"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
                     )
                 }
-                
+
                 // Only update cache if in default mode and NOT in debug mode
                 if (!filterAllLanguages && !isAppDebuggable(mContext)) {
                     lifecycleScope?.launch {
@@ -990,13 +996,13 @@ class InstrumentTutorialDialog(
             window.setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or 
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or 
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or 
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or 
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or 
-                View.SYSTEM_UI_FLAG_FULLSCREEN
-            )
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                            View.SYSTEM_UI_FLAG_FULLSCREEN
+                    )
         }
 
         // 2. Setup BottomSheet layout and behavior BEFORE show() if possible
@@ -1019,9 +1025,9 @@ class InstrumentTutorialDialog(
             else dismissShouldStop = true
             mContext = null
         }
-        
+
         binding.btnClose.setOnClickListener { dialog.dismiss() }
-        
+
         // 3. Finally show the dialog
         dialog.show()
 
@@ -1055,7 +1061,7 @@ class InstrumentTutorialDialog(
             val btnPublish: TextView = view.findViewById(R.id.btnPublish)
             val btnEdit: TextView = view.findViewById(R.id.btnEdit)
             val btnDelete: TextView = view.findViewById(R.id.btnDelete)
-            
+
             // Placeholder for admin play/stop
             var btnPlayAdmin: TextView? = null
             var btnStopAdmin: TextView? = null
@@ -1088,7 +1094,7 @@ class InstrumentTutorialDialog(
         @SuppressLint("SetTextI18n", "NotifyDataSetChanged")
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             if (holder is OfflineViewHolder) return
-            
+
             val item = items[position]
             val unlocked = isUnlocked(item)
             val lockSuffix = if (unlocked) "" else " 🔒"
@@ -1130,19 +1136,19 @@ class InstrumentTutorialDialog(
                         vh.btnPublish.visibility = if (item.note.status == "published") View.GONE else View.VISIBLE
                         vh.btnPublish.setOnClickListener { publishNote(vh.itemView.context, item.note) }
                         vh.btnDelete.setOnClickListener { deleteNote(vh.itemView.context, item.note) }
-                        
+
                         // Add Admin Play/Stop buttons if not already added
                         if (vh.btnPlayAdmin == null) {
                             val btnPlayAdmin = buildAdminButton(context, "PLAY ADMIN", "#BBDEFB", "#1976D2")
                             val btnStopAdmin = buildAdminButton(context, "STOP ADMIN", "#FFCDD2", "#D32F2F")
-                            
+
                             vh.layoutAdmin.addView(btnPlayAdmin, 0)
                             vh.layoutAdmin.addView(btnStopAdmin, 1)
-                            
+
                             vh.btnPlayAdmin = btnPlayAdmin
                             vh.btnStopAdmin = btnStopAdmin
                         }
-                        
+
                         vh.btnPlayAdmin?.setOnClickListener { playUserNote(item.note.jsonNote) }
                         vh.btnStopAdmin?.setOnClickListener { stopAll() }
                     } else {
@@ -1208,7 +1214,7 @@ class InstrumentTutorialDialog(
                     val padIndex = if (o.has("padIndex")) o.getInt("padIndex") else o.optInt("a", -1)
                     val timestamp = if (o.has("timestamp")) o.getLong("timestamp") else o.optLong("b", 0L)
                     val metadata = if (o.has("metadata")) o.optString("metadata", "") else o.optString("c", "")
-                    
+
                     if (instrumentPrefix.isEmpty() || metadata.isEmpty() || metadata.startsWith(instrumentPrefix) || !metadata.contains("_")) {
                         notes.add(InstrumentNote(padIndex, timestamp, 400L))
                     }
@@ -1499,7 +1505,7 @@ class InstrumentTutorialDialog(
         val root = buildEditRoot(ctx, "Edit JSON Note")
 
         // Bungkus EditText dalam ScrollView agar tombol tidak terdorong keluar layar
-        val scroll = android.widget.ScrollView(ctx).apply {
+        val scroll = ScrollView(ctx).apply {
             layoutParams = LinearLayout.LayoutParams(-1, 0, 1f).apply {
                 topMargin = ctx.sdp(SdpR.dimen._8sdp)
             }
@@ -1606,7 +1612,7 @@ class InstrumentTutorialDialog(
             }
     }
 
-    private fun applySyncTime(ctx: Context, input: android.widget.EditText, targetMs: Long) {
+    private fun applySyncTime(ctx: Context, input: EditText, targetMs: Long) {
         try {
             val jsonStr = input.text.toString()
             val obj = JSONObject(jsonStr)
@@ -1640,7 +1646,7 @@ class InstrumentTutorialDialog(
         }
     }
 
-    private fun tryFixJson(ctx: Context, input: android.widget.EditText) {
+    private fun tryFixJson(ctx: Context, input: EditText) {
         var json = input.text.toString().trim()
         if (json.isEmpty()) return
 
@@ -1697,7 +1703,7 @@ class InstrumentTutorialDialog(
         })
     }
 
-    private fun buildEditText(ctx: Context, initial: String, hintText: String, isMultiLine: Boolean = false) = android.widget.EditText(ctx).apply {
+    private fun buildEditText(ctx: Context, initial: String, hintText: String, isMultiLine: Boolean = false) = EditText(ctx).apply {
         setText(initial)
         hint = hintText
         setTextColor(Color.WHITE)
@@ -1724,11 +1730,11 @@ class InstrumentTutorialDialog(
         addView(buildDialogBtn(ctx, btnLabel, btnColor) { onSave() })
     }
 
-    private fun buildEditJsonActionRow(ctx: Context, d: AlertDialog, input: android.widget.EditText, onSave: () -> Unit) = LinearLayout(ctx).apply {
+    private fun buildEditJsonActionRow(ctx: Context, d: AlertDialog, input: EditText, onSave: () -> Unit) = LinearLayout(ctx).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.END
         setPadding(0, ctx.sdp(SdpR.dimen._12sdp), 0, 0)
-        
+
         // Tombol Fix JSON
         addView(buildDialogBtn(ctx, "FIX JSON", "A8D8A8") {
             tryFixJson(ctx, input)
@@ -1777,7 +1783,7 @@ class InstrumentTutorialDialog(
                     .addOnSuccessListener {
                         onToast("Data berhasil dihapus.")
                         clearCache(activity, instrumentType)
-                        
+
                         // Update local list & refresh
                         val index = allItems.indexOfFirst { it is SongItem.Remote && it.note.docId == note.docId }
                         if (index != -1) {
