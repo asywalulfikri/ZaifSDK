@@ -34,8 +34,12 @@ class GameActivity : BaseActivity(),
     private val binding get() = _binding
 
     companion object {
-        private const val ADS_INITIAL_DELAY_MS    = 1_200L
+        // Jeda sebelum banner mulai di-load, dihitung dari saat tryToSetupAds() dipanggil.
+        // Diperlebar dari 1.2s agar attach banner (addView -> onViewAttachedToWindow, yang berat
+        // di internal GMA SDK) tidak numpuk dengan load interstitial/rewarded yang start di t=0/700ms.
+        private const val ADS_INITIAL_DELAY_MS    = 3_000L
         private const val ADS_SECONDARY_DELAY_MS  = 10_000L
+        private const val ADS_STAGGER_DELAY_MS    = 700L
         private const val TAG                     = "GameActivity"
     }
 
@@ -97,8 +101,7 @@ class GameActivity : BaseActivity(),
 
         // Ensure ads are loaded when returning from background
         if (areBuildersReady && areEssentialAdsReady) {
-            loadInterstitial()
-            loadReward()
+            loadAdsStaggered()
         }
     }
 
@@ -208,8 +211,19 @@ class GameActivity : BaseActivity(),
         // Pre-load ads early only ONCE at app startup
         // This significantly improves Impression Rate by reducing redundant requests
         if (!soundViewModel.isPremium) {
-            loadInterstitial()
-            loadReward()
+            loadAdsStaggered()
+        }
+    }
+
+    // Beri jeda antara load interstitial & rewarded agar tidak ada 2 WebView iklan
+    // yang di-init bersamaan di main thread (kontributor ANR di WebView/Chromium).
+    private fun loadAdsStaggered() {
+        loadInterstitial()
+        lifecycleScope.launch {
+            delay(ADS_STAGGER_DELAY_MS)
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                loadReward()
+            }
         }
     }
 

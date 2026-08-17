@@ -1234,6 +1234,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun loadRewardedAd(isPremium: Boolean) {
         if (isPremium) return
+        if (rewardedAd != null) return
 
         val adId = admobSDKBuilder?.rewardId.orEmpty()
         if (adId.isEmpty()) return

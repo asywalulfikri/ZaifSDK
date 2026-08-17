@@ -175,9 +175,7 @@ open class MyApp : Application(), Configuration.Provider {
         // 1. STAGGERED START: Beri jeda 1.5 detik agar tidak bertabrakan dengan startup awal aplikasi.
         delay(1500)
 
-        // 2. Panggil API WebView-related di Main Thread.
-        // Memanggil CookieManager.getInstance() atau MobileAds.initialize di background thread 
-        // berisiko memicu IllegalStateException atau ANR sinkronisasi di beberapa versi OS.
+        // 2. Hanya API WebView-related yang wajib di Main Thread.
         withContext(Dispatchers.Main) {
             try {
                 // Touch CookieManager agar engine WebView siap
@@ -185,18 +183,22 @@ open class MyApp : Application(), Configuration.Provider {
             } catch (e: Throwable) {
                 Log.e(TAG, "CookieManager init error: ${e.message}")
             }
+        }
 
-            suspendCancellableCoroutine { cont ->
-                try {
-                    MobileAds.initialize(this@MyApp) { status ->
-                        Log.d(TAG, "AdMob initialized on Main Thread: $status")
-                        showDebugToast("AdMob berhasil diinisialisasi")
-                        if (cont.isActive) cont.resume(Unit)
-                    }
-                } catch (e: Throwable) {
-                    Log.e(TAG, "AdMob init error: ${e.message}")
+        // 3. MobileAds.initialize() adalah operasi berat (class loading, baca cache/config).
+        // Sejak Play Services Ads SDK 20.0.0+, aman dipanggil dari background thread —
+        // callback completion akan tetap di-dispatch ke main thread oleh SDK.
+        // Memanggilnya di main thread menyebabkan ANR di device low-end.
+        suspendCancellableCoroutine { cont ->
+            try {
+                MobileAds.initialize(this@MyApp) { status ->
+                    Log.d(TAG, "AdMob initialized: $status")
+                    showDebugToast("AdMob berhasil diinisialisasi")
                     if (cont.isActive) cont.resume(Unit)
                 }
+            } catch (e: Throwable) {
+                Log.e(TAG, "AdMob init error: ${e.message}")
+                if (cont.isActive) cont.resume(Unit)
             }
         }
     }
