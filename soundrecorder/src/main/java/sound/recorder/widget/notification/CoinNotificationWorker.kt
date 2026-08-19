@@ -31,47 +31,58 @@ class CoinNotificationWorker(
         fun schedule(context: Context) {
             // Jika sudah claim hari ini, jangan jadwalkan notif untuk hari ini
             if (!CoinManager.canClaimDaily(context)) {
-                // Opsional: Bisa jadwalkan untuk besok jam 20:00, 
+                // Opsional: Bisa jadwalkan untuk besok jam 20:00,
                 // tapi biasanya cukup panggil schedule() lagi setelah claim sukses.
-                return 
+                return
             }
 
-            val now = Calendar.getInstance()
-            val target = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, 20)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
+            try {
+                val now = Calendar.getInstance()
+                val target = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, 20)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+
+                // Jika sekarang sudah lewat jam 20:00, jadwalkan untuk besok jam 20:00
+                if (now.after(target)) {
+                    target.add(Calendar.DAY_OF_YEAR, 1)
+                }
+
+                val delay = target.timeInMillis - now.timeInMillis
+
+                WorkManager.getInstance(context).cancelAllWorkByTag(WORK_TAG)
+
+                val request = OneTimeWorkRequestBuilder<CoinNotificationWorker>()
+                    .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                    .addTag(WORK_TAG)
+                    .build()
+
+                WorkManager.getInstance(context).enqueue(request)
+            } catch (e: Throwable) {
+                // Lihat catatan di MyApp.kt: beberapa device Android 14 melempar
+                // NoSuchMethodError (Error, bukan Exception) dari WorkManager/JobScheduler.
             }
-
-            // Jika sekarang sudah lewat jam 20:00, jadwalkan untuk besok jam 20:00
-            if (now.after(target)) {
-                target.add(Calendar.DAY_OF_YEAR, 1)
-            }
-
-            val delay = target.timeInMillis - now.timeInMillis
-
-            WorkManager.getInstance(context).cancelAllWorkByTag(WORK_TAG)
-
-            val request = OneTimeWorkRequestBuilder<CoinNotificationWorker>()
-                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-                .addTag(WORK_TAG)
-                .build()
-
-            WorkManager.getInstance(context).enqueue(request)
         }
 
         fun cancel(context: Context) {
-            WorkManager.getInstance(context).cancelAllWorkByTag(WORK_TAG)
+            try {
+                WorkManager.getInstance(context).cancelAllWorkByTag(WORK_TAG)
+            } catch (e: Throwable) {
+            }
         }
 
         fun scheduleTest(context: Context) {
-            WorkManager.getInstance(context).cancelAllWorkByTag(WORK_TAG)
-            val request = OneTimeWorkRequestBuilder<CoinNotificationWorker>()
-                .setInitialDelay(5, TimeUnit.SECONDS)
-                .addTag(WORK_TAG)
-                .build()
-            WorkManager.getInstance(context).enqueue(request)
+            try {
+                WorkManager.getInstance(context).cancelAllWorkByTag(WORK_TAG)
+                val request = OneTimeWorkRequestBuilder<CoinNotificationWorker>()
+                    .setInitialDelay(5, TimeUnit.SECONDS)
+                    .addTag(WORK_TAG)
+                    .build()
+                WorkManager.getInstance(context).enqueue(request)
+            } catch (e: Throwable) {
+            }
         }
     }
 

@@ -134,7 +134,12 @@ open class MyApp : Application(), Configuration.Provider {
                 try {
                     WorkManager.getInstance(this@MyApp)
                     Log.d(TAG, "WorkManager initialized in background")
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
+                    // NoSuchMethodError/LinkageError terjadi di beberapa device Android 14
+                    // yang melaporkan SDK_INT 34 tapi framework.jar-nya tidak punya
+                    // JobScheduler.forNamespace() (custom ROM/OEM build tidak lengkap).
+                    // Ini adalah java.lang.Error, bukan Exception, jadi harus ditangkap terpisah
+                    // agar tidak jadi uncaught exception yang mem-fatal-kan seluruh app.
                     Log.e(TAG, "WorkManager background init error: ${e.message}")
                 }
             }
@@ -156,7 +161,7 @@ open class MyApp : Application(), Configuration.Provider {
                     WebView.setDataDirectorySuffix(processName)
                     Log.d(TAG, "WebView suffix set: $processName")
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.e(TAG, "WebView suffix error: ${e.message}")
             }
         }
@@ -166,7 +171,7 @@ open class MyApp : Application(), Configuration.Provider {
         try {
             FirebaseApp.initializeApp(this@MyApp)
             Log.d(TAG, "Firebase initialized successfully")
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e(TAG, "Firebase error: ${e.message}")
         }
     }
@@ -220,7 +225,7 @@ open class MyApp : Application(), Configuration.Provider {
             } else {
                 true
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e(TAG, "WebView check error: ${e.message}")
             false
         }
