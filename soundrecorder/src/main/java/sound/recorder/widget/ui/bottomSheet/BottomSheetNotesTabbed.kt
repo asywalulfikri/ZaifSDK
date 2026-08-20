@@ -66,7 +66,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
     private var onlineFullList = listOf<Note>()
     private var onlineAdapter: FirebaseNotesAdapter? = null
     private val firestore by lazy { FirebaseFirestore.getInstance() }
-    private val collectionPath = "not"
+    private var collectionPath = "not"
 
     private var isOnlineTab = false
     private var zaifSDKConfig: ZaifSDKConfig? = null
@@ -108,6 +108,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         zaifSDKConfig = ZaifSDKBuilder.load(requireContext())
+        collectionPath = collectionPath+"_"+zaifSDKConfig?.applicationId
         dbHelper = DatabaseHelper(requireContext())
 
         setupBottomSheet()
@@ -423,7 +424,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         // Pre-fetch success string
         val strSuccess = getString(R.string.send_note_success)
 
-        firestore.collection(collectionPath+"_"+zaifSDKConfig?.applicationId)
+        firestore.collection(collectionPath)
             .add(data)
             .addOnSuccessListener {
                 if (_binding == null || !isAdded) return@addOnSuccessListener
