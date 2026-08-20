@@ -67,7 +67,11 @@ open class FragmentSettings : BaseFragmentWidget() {
                     ), "Share via"
                 )
                 createChooser.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                startActivity(createChooser)
+                try {
+                    startActivity(createChooser)
+                } catch (e: ActivityNotFoundException) {
+                    setToast("Tidak ada aplikasi untuk membuka Play Store")
+                }
             }
 
             binding.llHelp.setOnClickListener {
