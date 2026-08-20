@@ -423,7 +423,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         // Pre-fetch success string
         val strSuccess = getString(R.string.send_note_success)
 
-        firestore.collection(collectionPath)
+        firestore.collection(collectionPath+"_"+zaifSDKConfig?.applicationId)
             .add(data)
             .addOnSuccessListener {
                 if (_binding == null || !isAdded) return@addOnSuccessListener

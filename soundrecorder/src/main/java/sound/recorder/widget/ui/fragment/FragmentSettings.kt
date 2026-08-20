@@ -70,7 +70,7 @@ open class FragmentSettings : BaseFragmentWidget() {
                 try {
                     startActivity(createChooser)
                 } catch (e: ActivityNotFoundException) {
-                    setToast("Tidak ada aplikasi untuk membuka Play Store")
+                    setToast("Play Store Not Found")
                 }
             }
 
