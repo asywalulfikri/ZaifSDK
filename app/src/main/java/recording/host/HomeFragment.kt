@@ -88,12 +88,15 @@ class HomeFragment : BaseFragmentWidget() {
             try {
 
                 if (!dataSession.isDoneRating()) {
-                    DialogSDK.newInstance(
-                        Constant.DialogType.RATING
-                    ) { result ->
-                        dataSession.saveDoneRating(result)
-                        requireActivity().finishAffinity()
-                    }.show(parentFragmentManager, "rating_dialog")
+                    val tag = Constant.DialogType.RATING
+                    if (parentFragmentManager.findFragmentByTag(tag) == null) {
+                        DialogSDK.newInstance(
+                            Constant.DialogType.RATING
+                        ) { result ->
+                            dataSession.saveDoneRating(result)
+                            requireActivity().finishAffinity()
+                        }.show(parentFragmentManager, tag)
+                    }
                 } else {
                     requireActivity().finishAffinity()
                 }

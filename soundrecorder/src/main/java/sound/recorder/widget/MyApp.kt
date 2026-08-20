@@ -180,13 +180,26 @@ open class MyApp : Application(), Configuration.Provider {
         // 1. STAGGERED START: Beri jeda 1.5 detik agar tidak bertabrakan dengan startup awal aplikasi.
         delay(1500)
 
-        // 2. Hanya API WebView-related yang wajib di Main Thread.
-        withContext(Dispatchers.Main) {
-            try {
-                // Touch CookieManager agar engine WebView siap
-                CookieManager.getInstance()
-            } catch (e: Throwable) {
-                Log.e(TAG, "CookieManager init error: ${e.message}")
+        // 2. Touch CookieManager agar engine WebView siap.
+        // Khusus Android 9 (API 28) WebView/CookieManager historisnya perlu disentuh
+        // di Main Thread dulu (kalau tidak, ada device yang crash). Tapi menyentuhnya
+        // di Main Thread secara umum berisiko ANR ("Panggilan Binder lambat") kalau
+        // engine WebView-nya lambat siap, jadi di versi lain jalankan di background (IO).
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            withContext(Dispatchers.Main) {
+                try {
+                    CookieManager.getInstance()
+                } catch (e: Throwable) {
+                    Log.e(TAG, "CookieManager init error: ${e.message}")
+                }
+            }
+        } else {
+            withContext(Dispatchers.IO) {
+                try {
+                    CookieManager.getInstance()
+                } catch (e: Throwable) {
+                    Log.e(TAG, "CookieManager init error: ${e.message}")
+                }
             }
         }
 

@@ -95,11 +95,13 @@ open class FragmentSettings : BaseFragmentWidget() {
 
             binding.llAddSong.setOnClickListener {
                 try {
-
-                    DialogSDK.newInstance(
-                        Constant.DialogType.ADD_SONG
-                    ) { result ->
-                    }.show(parentFragmentManager, Constant.DialogType.toString())
+                    val tag = Constant.DialogType.ADD_SONG
+                    if (parentFragmentManager.findFragmentByTag(tag) == null) {
+                        DialogSDK.newInstance(
+                            Constant.DialogType.ADD_SONG
+                        ) { result ->
+                        }.show(parentFragmentManager, tag)
+                    }
                 } catch (e: Exception) {
                     setToastTic(Toastic.ERROR, e.message.toString())
                 }

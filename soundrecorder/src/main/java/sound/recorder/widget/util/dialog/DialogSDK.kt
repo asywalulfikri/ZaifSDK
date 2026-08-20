@@ -41,11 +41,35 @@ class DialogSDK : DialogFragment() {
         dialogType = arguments?.getString(ARG_DIALOG_TYPE)
     }
 
-    // FIX: helper agar dismiss tidak crash setelah onSaveInstanceState
+    // dismiss() bersifat async: fragment ini baru benar-benar lepas dari
+    // FragmentManager setelah transaksi remove-nya dieksekusi. Selama jeda itu,
+    // kalau Activity sempat onStop()/onStart() lagi, FragmentManager masih akan
+    // memanggil onStart() ke fragment ini. Flag ini dipakai untuk menolak
+    // panggilan show() ulang tersebut dari sumbernya, bukan menangkap crash-nya.
+    private var isDismissRequested = false
+
     private fun safeDismiss() {
+        isDismissRequested = true
         if (isAdded && !isStateSaved) {
             dismiss()
         } else {
+            dismissAllowingStateLoss()
+        }
+    }
+
+    override fun onStart() {
+        // Dialog ini sudah diminta ditutup dan sedang menunggu dihapus dari
+        // FragmentManager -> jangan panggil super.onStart(), karena itu akan
+        // memanggil dialog.show() lagi pada Dialog yang sudah pernah dibuat
+        // (pemicu "SavedStateRegistry was already restored").
+        if (isDismissRequested) return
+
+        // Safety net: kalau tetap ada jalur race lain yang belum ketahuan
+        // (di luar yang sudah dicegah oleh flag di atas), jangan sampai
+        // Fragment ini bikin seluruh Activity crash.
+        try {
+            super.onStart()
+        } catch (e: IllegalStateException) {
             dismissAllowingStateLoss()
         }
     }
