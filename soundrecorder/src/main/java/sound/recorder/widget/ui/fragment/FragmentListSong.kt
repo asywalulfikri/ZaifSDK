@@ -23,9 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import sound.recorder.widget.R
 import sound.recorder.widget.RecordingSDK
 import sound.recorder.widget.databinding.BottomSheetSongBinding
@@ -463,25 +460,12 @@ class FragmentListSong(
 
     override fun onStart() {
         super.onStart()
-        EventBus.getDefault().register(this)
     }
 
     override fun onStop() {
-        EventBus.getDefault().unregister(this)
         super.onStop()
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.ASYNC)
-    fun onMessageEvent(songListResponse: ArrayList<Song>?) {
-        lifecycleScope.launch {
-            delay(500) // delay 2 detik (2000 ms)
-            if (isAdded && isVisible) {
-                if(!musicViewModel.songIsLoaded){
-                    songListResponse?.let { getSong(it) }
-                }
-            }
-        }
-    }
 
     override fun onResume() {
         super.onResume()

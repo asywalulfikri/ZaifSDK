@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-import org.greenrobot.eventbus.EventBus
 import sound.recorder.widget.colorpicker.ColorPicker
 import sound.recorder.widget.colorpicker.ColorPicker.OnChooseColorListener
 import sound.recorder.widget.model.Song
@@ -45,10 +44,6 @@ object RecordingSDK {
         return this
     }
 
-    fun addSong(context: Context,listSong :ArrayList<Song>){
-        DataSession(context).initiateSong(true)
-        EventBus.getDefault().postSticky(listSong)
-    }
 
     /*fun addInfo(context: Context,versionCode : Int,versionName : String, appId : String,appName : String,jsonName : String,backgroundSplashScreen : String, isNote : Boolean,showSong : Boolean, llRecordBackground : String){
         DataSession(context).setInfoApp(versionCode,versionName,appId,appName,jsonName,backgroundSplashScreen,isNote,showSong,llRecordBackground)

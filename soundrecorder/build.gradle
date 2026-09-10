@@ -70,9 +70,9 @@ dependencies {
     implementation 'com.karumi:dexter:6.2.3'
     implementation 'com.intuit.ssp:ssp-android:1.1.1'
     implementation 'com.intuit.sdp:sdp-android:1.1.1'
-    implementation 'androidx.room:room-runtime:2.8.4'
-    kapt 'androidx.room:room-compiler:2.8.4'
-    implementation 'androidx.room:room-ktx:2.8.4'
+    implementation 'androidx.room:room-runtime:2.8.5'
+    kapt 'androidx.room:room-compiler:2.8.5'
+    implementation 'androidx.room:room-ktx:2.8.5'
   //  implementation("com.github.skydoves:balloon:1.7.1")
     implementation "com.google.android.gms:play-services-ads:25.4.0"// support android stable
     implementation 'com.google.android.gms:play-services-base:18.10.0'
@@ -90,9 +90,6 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.9.8")
     // build.gradle
     implementation "androidx.security:security-crypto:1.1.0"
-
-
-    implementation 'org.greenrobot:eventbus:3.3.1'
 
     implementation platform('com.google.firebase:firebase-bom:34.15.0')
     implementation 'com.google.firebase:firebase-crashlytics'
