@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -13,6 +14,7 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -31,8 +33,12 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.core.widget.TextViewCompat
@@ -42,12 +48,14 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -57,6 +65,7 @@ import sound.recorder.widget.builder.ZaifSDKConfig
 import sound.recorder.widget.databinding.DialogTutorialSongListBinding
 import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.util.CoinManager
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.LinkedHashMap
@@ -382,6 +391,9 @@ class InstrumentTutorialDialog(
         // Setup Language Filter UI if enabled
         if (zaifSDKConfig?.isFilterTutorial == true) {
             setupLanguageFilterUI(context, binding, appId, instrumentType, adapter)
+        } else if (isAppDebuggable(context)) {
+            // Filter UI mati -> tetap sediakan tombol EXPORT di mode debug
+            setupDebugExportToolbar(context, binding, appId)
         }
         val layoutManager = LinearLayoutManager(context)
         binding.rvSongs.layoutManager = layoutManager
@@ -591,6 +603,10 @@ class InstrumentTutorialDialog(
             }
         } else null
 
+        // Tombol Debug: Export SEMUA data collection ke file JSON (Hanya di Debug Mode)
+        val exportBtn = if (isAppDebuggable(context)) buildExportButton(context, appId) else null
+        val importBtn = if (isAppDebuggable(context)) buildImportButton(context, appId) else null
+
         // Tombol Admin Status Filter
         val statusFilterBtn = if (isAppDebuggable(context)) {
             TextView(context).apply {
@@ -701,6 +717,8 @@ class InstrumentTutorialDialog(
         updateStatusFilterUI()
 
         searchRow.addView(etSearch)
+        exportBtn?.let { searchRow.addView(it) }
+        importBtn?.let { searchRow.addView(it) }
         debugBtn?.let { searchRow.addView(it) }
         statusFilterBtn?.let { searchRow.addView(it) }
         searchRow.addView(filterBtn)
@@ -732,6 +750,354 @@ class InstrumentTutorialDialog(
             .setMessage(msg)
             .setPositiveButton("OK", null)
             .show()
+    }
+
+    // Tombol EXPORT dipakai di 2 tempat: baris filter (setupLanguageFilterUI) & toolbar debug ringkas.
+    private fun buildExportButton(context: Context, appId: String?): TextView = TextView(context).apply {
+        text = "EXPORT"
+        textSize = 9f
+        setPadding(context.sdp(SdpR.dimen._8sdp), 0, context.sdp(SdpR.dimen._8sdp), 0)
+        height = context.sdp(SdpR.dimen._32sdp)
+        typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+        gravity = Gravity.CENTER
+        setTextColor(Color.WHITE)
+        background = GradientDrawable().apply {
+            setColor(Color.parseColor("#00695C")) // Teal Tua
+            cornerRadius = context.sdpF(SdpR.dimen._6sdp)
+        }
+        layoutParams = LinearLayout.LayoutParams(-2, context.sdp(SdpR.dimen._32sdp)).apply {
+            marginEnd = context.sdp(SdpR.dimen._6sdp)
+        }
+        setOnClickListener { exportAllData(context, appId) }
+    }
+
+    // Tombol IMPORT: pilih file JSON hasil export -> tulis balik ke Firestore.
+    private fun buildImportButton(context: Context, appId: String?): TextView = TextView(context).apply {
+        text = "IMPORT"
+        textSize = 9f
+        setPadding(context.sdp(SdpR.dimen._8sdp), 0, context.sdp(SdpR.dimen._8sdp), 0)
+        height = context.sdp(SdpR.dimen._32sdp)
+        typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+        gravity = Gravity.CENTER
+        setTextColor(Color.WHITE)
+        background = GradientDrawable().apply {
+            setColor(Color.parseColor("#4527A0")) // Ungu Tua
+            cornerRadius = context.sdpF(SdpR.dimen._6sdp)
+        }
+        layoutParams = LinearLayout.LayoutParams(-2, context.sdp(SdpR.dimen._32sdp)).apply {
+            marginEnd = context.sdp(SdpR.dimen._6sdp)
+        }
+        setOnClickListener { pickImportFile(context, appId) }
+    }
+
+    // Filter UI mati tapi app debuggable -> sisipkan baris kecil berisi tombol EXPORT di atas kolom search.
+    private fun setupDebugExportToolbar(
+        context: Context,
+        binding: DialogTutorialSongListBinding,
+        appId: String?
+    ) {
+        val root = binding.root
+        val index = root.indexOfChild(binding.etSearch)
+        if (index == -1) return
+
+        val row = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(-1, -2)
+            setPadding(context.sdp(SdpR.dimen._12sdp), context.sdp(SdpR.dimen._6sdp), context.sdp(SdpR.dimen._12sdp), 0)
+        }
+        row.addView(buildExportButton(context, appId))
+        row.addView(buildImportButton(context, appId))
+        root.addView(row, index)
+    }
+
+    // ─── Export SEMUA dokumen collection ke satu file JSON ────────────────────
+    // Format: { collection, exportedAt, count, docs:[ { id, data:{...raw firestore fields...} } ] }
+    // File bisa diimport di app lain -> loop docs -> collection(appId).document(id).set(data)
+    private fun exportAllData(ctx: Context, appId: String?) {
+        if (appId.isNullOrEmpty()) {
+            Toast.makeText(ctx, "applicationId kosong, tidak bisa export", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val scope = lifecycleScope
+        if (scope == null) {
+            Toast.makeText(ctx, "Scope tidak tersedia", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Safety check for Firebase initialization
+        if (FirebaseApp.getApps(ctx).isEmpty()) {
+            try { FirebaseApp.initializeApp(ctx) } catch (e: Exception) {}
+            if (FirebaseApp.getApps(ctx).isEmpty()) {
+                Toast.makeText(ctx, "Firebase belum siap", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+
+        val binding = mBinding
+        val tvLoading = binding?.progressContainer?.findViewById<TextView>(R.id.tvLoading)
+        binding?.progressContainer?.visibility = View.VISIBLE
+        binding?.progressBar?.visibility = View.VISIBLE
+        tvLoading?.visibility = View.VISIBLE
+        tvLoading?.text = "Exporting… 0"
+
+        scope.launch {
+            try {
+                val db = FirebaseFirestore.getInstance()
+                val pageSize = 500L
+                val docsArr = JSONArray()
+                var count = 0
+                var lastId: String? = null
+
+                while (true) {
+                    var q: Query = db.collection(appId)
+                        .orderBy(FieldPath.documentId())
+                        .limit(pageSize)
+                    if (lastId != null) q = q.startAfter(lastId)
+
+                    val snap = withContext(Dispatchers.IO) { q.get().await() }
+                    if (snap.isEmpty) break
+
+                    for (doc in snap.documents) {
+                        val entry = JSONObject()
+                        entry.put("id", doc.id)
+                        entry.put("data", mapToJson(doc.data ?: emptyMap()))
+                        docsArr.put(entry)
+                        count++
+                    }
+                    lastId = snap.documents.lastOrNull()?.id
+
+                    val progress = count
+                    withContext(Dispatchers.Main) { tvLoading?.text = "Exporting… $progress" }
+
+                    if (snap.size() < pageSize || lastId == null) break
+                }
+
+                val root = JSONObject().apply {
+                    put("collection", appId)
+                    put("exportedAt", System.currentTimeMillis())
+                    put("count", count)
+                    put("docs", docsArr)
+                }
+
+                val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                val fileName = "tutorial_export_${appId}_${count}_$stamp.json"
+                val file = withContext(Dispatchers.IO) {
+                    File(ctx.cacheDir, fileName).apply { writeText(root.toString()) }
+                }
+
+                withContext(Dispatchers.Main) {
+                    binding?.progressContainer?.visibility = View.GONE
+                    val uri = FileProvider.getUriForFile(ctx, "${ctx.packageName}.provider", file)
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/json"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    val chooser = Intent.createChooser(shareIntent, "Export $count data via…")
+                    val activity = getActivity(ctx)
+                    if (activity != null) {
+                        activity.startActivity(chooser)
+                    } else {
+                        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        ctx.startActivity(chooser)
+                    }
+                    Toast.makeText(ctx, "Berhasil export $count data", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    binding?.progressContainer?.visibility = View.GONE
+                    Toast.makeText(ctx, "Gagal export: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun mapToJson(map: Map<String, Any?>): JSONObject {
+        val obj = JSONObject()
+        for ((k, v) in map) obj.put(k, anyToJson(v))
+        return obj
+    }
+
+    private fun anyToJson(v: Any?): Any = when (v) {
+        null -> JSONObject.NULL
+        is Map<*, *> -> JSONObject().apply {
+            for ((k, vv) in v) put(k.toString(), anyToJson(vv))
+        }
+        is List<*> -> JSONArray().apply { v.forEach { put(anyToJson(it)) } }
+        is com.google.firebase.Timestamp -> JSONObject().apply {
+            put("__type__", "timestamp")
+            put("seconds", v.seconds)
+            put("nanoseconds", v.nanoseconds)
+        }
+        is Double -> if (v.isFinite()) v else JSONObject.NULL
+        is Float -> if (v.isFinite()) v.toDouble() else JSONObject.NULL
+        else -> v // String, Long, Int, Boolean, dll
+    }
+
+    // ─── IMPORT: baca file JSON hasil export -> tulis balik ke Firestore ─────────
+    // document(id).set(data) -> IDEMPOTENT (dokumen id sama akan ditimpa, tidak menggandakan).
+    private fun pickImportFile(ctx: Context, appId: String?) {
+        if (appId.isNullOrEmpty()) {
+            Toast.makeText(ctx, "applicationId kosong, tidak bisa import", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val activity = getActivity(ctx) as? ComponentActivity
+        if (activity == null) {
+            Toast.makeText(ctx, "Import butuh Activity berbasis androidx (AppCompat)", Toast.LENGTH_LONG).show()
+            return
+        }
+        val key = "zaif_tutorial_import_" + System.currentTimeMillis()
+        var launcher: ActivityResultLauncher<Array<String>>? = null
+        launcher = activity.activityResultRegistry.register(
+            key,
+            ActivityResultContracts.OpenDocument()
+        ) { uri ->
+            launcher?.unregister()
+            if (uri != null) confirmAndImport(ctx, appId, uri)
+        }
+        try {
+            launcher.launch(arrayOf("application/json", "text/json", "text/plain", "*/*"))
+        } catch (e: Exception) {
+            launcher.unregister()
+            Toast.makeText(ctx, "Tidak bisa membuka file picker: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun confirmAndImport(ctx: Context, appId: String, uri: Uri) {
+        val scope = lifecycleScope ?: return
+
+        if (FirebaseApp.getApps(ctx).isEmpty()) {
+            try { FirebaseApp.initializeApp(ctx) } catch (e: Exception) {}
+            if (FirebaseApp.getApps(ctx).isEmpty()) {
+                Toast.makeText(ctx, "Firebase belum siap", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+
+        val binding = mBinding
+        val tvLoading = binding?.progressContainer?.findViewById<TextView>(R.id.tvLoading)
+        binding?.progressContainer?.visibility = View.VISIBLE
+        binding?.progressBar?.visibility = View.VISIBLE
+        tvLoading?.visibility = View.VISIBLE
+        tvLoading?.text = "Membaca file…"
+
+        scope.launch {
+            try {
+                val raw = withContext(Dispatchers.IO) {
+                    ctx.contentResolver.openInputStream(uri)?.use { it.readBytes().toString(Charsets.UTF_8) }
+                } ?: throw IllegalStateException("File tidak terbaca")
+
+                val root = JSONObject(raw)
+                val docs = root.optJSONArray("docs") ?: throw IllegalStateException("Field \"docs\" tidak ditemukan")
+                val fileCollection = root.optString("collection").takeIf { it.isNotBlank() }
+                val total = docs.length()
+
+                withContext(Dispatchers.Main) {
+                    binding?.progressContainer?.visibility = View.GONE
+                    if (total == 0) {
+                        Toast.makeText(ctx, "File tidak berisi dokumen", Toast.LENGTH_LONG).show()
+                        return@withContext
+                    }
+                    val srcInfo = if (fileCollection != null && fileCollection != appId)
+                        "\n\nSumber file: $fileCollection\nDitulis ke: $appId"
+                    else "\n\nCollection: $appId"
+                    AlertDialog.Builder(ctx)
+                        .setTitle("Import $total dokumen?")
+                        .setMessage("Dokumen dengan ID yang sama akan DITIMPA di Firestore.$srcInfo")
+                        .setPositiveButton("Import") { _, _ -> runImport(ctx, appId, docs) }
+                        .setNegativeButton("Batal", null)
+                        .show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    binding?.progressContainer?.visibility = View.GONE
+                    Toast.makeText(ctx, "Gagal baca file: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun runImport(ctx: Context, targetCollection: String, docs: JSONArray) {
+        val scope = lifecycleScope ?: return
+        val binding = mBinding
+        val tvLoading = binding?.progressContainer?.findViewById<TextView>(R.id.tvLoading)
+        val total = docs.length()
+
+        binding?.progressContainer?.visibility = View.VISIBLE
+        binding?.progressBar?.visibility = View.VISIBLE
+        tvLoading?.visibility = View.VISIBLE
+        tvLoading?.text = "Importing… 0 / $total"
+
+        scope.launch {
+            var written = 0
+            var failed = 0
+            try {
+                val db = FirebaseFirestore.getInstance()
+                val batchSize = 500
+                var i = 0
+                while (i < total) {
+                    val end = minOf(i + batchSize, total)
+                    val batch = db.batch()
+                    var inBatch = 0
+                    for (j in i until end) {
+                        val entry = docs.optJSONObject(j) ?: continue
+                        val id = entry.optString("id").takeIf { it.isNotBlank() } ?: continue
+                        val dataObj = entry.optJSONObject("data") ?: continue
+                        batch.set(db.collection(targetCollection).document(id), jsonToMap(dataObj))
+                        inBatch++
+                    }
+                    if (inBatch > 0) {
+                        try {
+                            withContext(Dispatchers.IO) { batch.commit().await() }
+                            written += inBatch
+                        } catch (e: Exception) {
+                            failed += inBatch
+                        }
+                    }
+                    val done = end
+                    withContext(Dispatchers.Main) { tvLoading?.text = "Importing… $done / $total" }
+                    i = end
+                }
+
+                withContext(Dispatchers.Main) {
+                    binding?.progressContainer?.visibility = View.GONE
+                    clearCache()
+                    clearCache(ctx, instrumentType)
+                    Toast.makeText(ctx, "Import selesai: $written berhasil, $failed gagal", Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    binding?.progressContainer?.visibility = View.GONE
+                    Toast.makeText(ctx, "Import error: ${e.message} (tertulis $written)", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun jsonToMap(obj: JSONObject): Map<String, Any?> {
+        val map = HashMap<String, Any?>()
+        val keys = obj.keys()
+        while (keys.hasNext()) {
+            val k = keys.next()
+            map[k] = jsonToFirestore(obj.get(k))
+        }
+        return map
+    }
+
+    private fun jsonToFirestore(v: Any?): Any? = when (v) {
+        null, JSONObject.NULL -> null
+        is JSONObject -> {
+            if (v.optString("__type__") == "timestamp" && v.has("seconds")) {
+                com.google.firebase.Timestamp(v.getLong("seconds"), v.optInt("nanoseconds", 0))
+            } else {
+                jsonToMap(v)
+            }
+        }
+        is JSONArray -> (0 until v.length()).map { jsonToFirestore(v.get(it)) }
+        is Int -> v.toLong()          // samakan dengan Firestore (integer = Long)
+        is Long, is Double, is Boolean, is String -> v
+        else -> v.toString()
     }
 
     private fun fetchFirstPageRemote(appId: String, instrumentType: String, binding: DialogTutorialSongListBinding, allItems: MutableList<SongItem>) {
