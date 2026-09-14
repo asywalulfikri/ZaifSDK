@@ -37,14 +37,11 @@ class GoogleMobileAdsConsentManager private constructor(context: Context) {
         onConsentGatheringCompleteListener: OnConsentGatheringCompleteListener
     ) {
         // For testing purposes, you can force a DebugGeography of EEA or NOT_EEA.
-        val debugSettings =
-            ConsentDebugSettings.Builder(activity)
-                // .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
-                // Check your logcat output for the hashed device ID e.g.
-                // "Use new ConsentDebugSettings.Builder().addTestDeviceHashedId("ABCDEF012345")" to use
-                // the debug functionality.
-                .addTestDeviceHashedId("D48A46E523E6A96C8215178502423686")
-                .build()
+        val debugSettingsBuilder = ConsentDebugSettings.Builder(activity)
+        if (sound.recorder.widget.BuildConfig.DEBUG) {
+            debugSettingsBuilder.addTestDeviceHashedId("D48A46E523E6A96C8215178502423686")
+        }
+        val debugSettings = debugSettingsBuilder.build()
 
         val params = ConsentRequestParameters.Builder().setConsentDebugSettings(debugSettings).build()
 

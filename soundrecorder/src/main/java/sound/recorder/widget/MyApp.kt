@@ -1,19 +1,22 @@
 package sound.recorder.widget
 
+import android.app.ActivityManager
 import android.app.Application
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.Process
 import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebView
 import android.widget.Toast
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import androidx.work.Configuration
-import androidx.work.WorkManager
 import kotlinx.coroutines.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
@@ -29,21 +32,16 @@ open class MyApp : Application(), Configuration.Provider {
         fun onSdkInitialized(sdk: Sdk)
     }
 
-    // SupervisorJob di IO — child failure tidak cancel sibling
     private val applicationScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     companion object {
-        private const val TAG                = "MyApp"
-        private const val ADMOB_TIMEOUT_MS    = 10_000L
+        private const val TAG = "MyApp"
+        private const val ADMOB_TIMEOUT_MS = 10_000L
         private const val FIREBASE_INIT_TIMEOUT_MS = 10_000L
 
         @Volatile
         private var instance: MyApp? = null
 
-        /**
-         * Mengembalikan instance MyApp. 
-         * Gunakan ini dengan hati-hati dan hanya jika benar-benar butuh instance spesifik MyApp.
-         */
         fun getInstance(): MyApp =
             instance ?: throw IllegalStateException("MyApp not initialized")
 
@@ -52,15 +50,16 @@ open class MyApp : Application(), Configuration.Provider {
             get() = _areEssentialsInitialized.get()
 
         private val sdkListeners = CopyOnWriteArrayList<SdkInitializationListener>()
-        private val mainHandler  = Handler(Looper.getMainLooper())
+        private val mainHandler = Handler(Looper.getMainLooper())
 
         fun registerListener(listener: SdkInitializationListener) {
-            if (!sdkListeners.contains(listener)) sdkListeners.add(listener)
             if (_areEssentialsInitialized.get()) {
                 mainHandler.post {
                     try { listener.onSdkInitialized(Sdk.ALL_ESSENTIALS) }
                     catch (e: Exception) { Log.e(TAG, "Listener callback error: ${e.message}") }
                 }
+            } else {
+                sdkListeners.addIfAbsent(listener)
             }
         }
 
@@ -70,7 +69,9 @@ open class MyApp : Application(), Configuration.Provider {
 
         private fun notifyListeners(sdk: Sdk) {
             mainHandler.post {
-                sdkListeners.forEach { listener ->
+                val targets = ArrayList(sdkListeners)
+                sdkListeners.clear()
+                targets.forEach { listener ->
                     try { listener.onSdkInitialized(sdk) }
                     catch (e: Exception) { Log.e(TAG, "Listener error: ${e.message}") }
                 }
@@ -85,42 +86,49 @@ open class MyApp : Application(), Configuration.Provider {
         super.onCreate()
         instance = this
 
-        // 0. MULTI-PROCESS GUARD
-        // Hanya jalankan inisialisasi berat di proses utama.
-        val processName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) getProcessName() else ""
+        val processName = getProcessNameCompat()
         val isMainProcess = processName.isEmpty() || packageName == processName
 
-        // 1. PASANG JARING PENGAMAN CRASH WEBVIEW (Selalu pasang untuk catching di semua proses jika perlu, 
-        // tapi log ke Crashlytics hanya jika initialized)
         setupWebViewCrashHandler()
-
-        // 2. SETUP WEBVIEW SUFFIX SECEPAT MUNGKIN (SINKRON)
         setupWebViewSuffix(processName)
 
         if (isMainProcess) {
-            // 3. INISIALISASI BERAT DI BACKGROUND (Hanya di proses utama)
             applicationScope.launch {
                 initializeEssentialSDKs()
             }
         } else {
-            // Bukan proses utama, tidak ada inisialisasi SDK yang perlu diproteksi.
             isStartupPhase = false
         }
     }
 
+    private fun getProcessNameCompat(): String {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            return getProcessName()
+        }
+        try {
+            val pid = Process.myPid()
+            val am = getSystemService(ACTIVITY_SERVICE) as? ActivityManager
+            am?.runningAppProcesses?.forEach { processInfo ->
+                if (processInfo.pid == pid) {
+                    return processInfo.processName
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting process name: ${e.message}")
+        }
+        return packageName
+    }
+
     private suspend fun initializeEssentialSDKs() {
         supervisorScope {
-            // A. Firebase — Usahakan selesai pertama karena Crashlytics butuh ini.
-            // Gunakan timeout agar jika Firebase hang, SDK lain tetap bisa mencoba inisialisasi.
-            val firebaseJob = launch(Dispatchers.IO) {
+            val firebaseJob = launch {
                 initializeFirebase()
             }
             withTimeoutOrNull(FIREBASE_INIT_TIMEOUT_MS) {
                 firebaseJob.join()
             } ?: Log.w(TAG, "Firebase initialization join timed out")
 
-            // B. AdMob & WorkManager — Jalan paralel setelah Firebase
-            val admobJob = launch(Dispatchers.IO) {
+            val admobJob = launch {
                 if (isWebViewAvailableSafely()) {
                     withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
                         initializeAdMob()
@@ -130,16 +138,11 @@ open class MyApp : Application(), Configuration.Provider {
                 }
             }
 
-            val workManagerJob = launch(Dispatchers.IO) {
+            val workManagerJob = launch {
                 try {
                     WorkManager.getInstance(this@MyApp)
                     Log.d(TAG, "WorkManager initialized in background")
                 } catch (e: Throwable) {
-                    // NoSuchMethodError/LinkageError terjadi di beberapa device Android 14
-                    // yang melaporkan SDK_INT 34 tapi framework.jar-nya tidak punya
-                    // JobScheduler.forNamespace() (custom ROM/OEM build tidak lengkap).
-                    // Ini adalah java.lang.Error, bukan Exception, jadi harus ditangkap terpisah
-                    // agar tidak jadi uncaught exception yang mem-fatal-kan seluruh app.
                     Log.e(TAG, "WorkManager background init error: ${e.message}")
                 }
             }
@@ -147,7 +150,6 @@ open class MyApp : Application(), Configuration.Provider {
             joinAll(admobJob, workManagerJob)
         }
 
-        // Tandai selesai
         isStartupPhase = false
         _areEssentialsInitialized.set(true)
         Log.d(TAG, "All essential SDKs initialized")
@@ -158,8 +160,9 @@ open class MyApp : Application(), Configuration.Provider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             try {
                 if (packageName != processName && processName.isNotEmpty()) {
-                    WebView.setDataDirectorySuffix(processName)
-                    Log.d(TAG, "WebView suffix set: $processName")
+                    val safeSuffix = processName.replace(":", "_")
+                    WebView.setDataDirectorySuffix(safeSuffix)
+                    Log.d(TAG, "WebView suffix set: $safeSuffix")
                 }
             } catch (e: Throwable) {
                 Log.e(TAG, "WebView suffix error: ${e.message}")
@@ -177,14 +180,8 @@ open class MyApp : Application(), Configuration.Provider {
     }
 
     private suspend fun initializeAdMob() {
-        // 1. STAGGERED START: Beri jeda 1.5 detik agar tidak bertabrakan dengan startup awal aplikasi.
         delay(1500)
 
-        // 2. Touch CookieManager agar engine WebView siap.
-        // Khusus Android 9 (API 28) WebView/CookieManager historisnya perlu disentuh
-        // di Main Thread dulu (kalau tidak, ada device yang crash). Tapi menyentuhnya
-        // di Main Thread secara umum berisiko ANR ("Panggilan Binder lambat") kalau
-        // engine WebView-nya lambat siap, jadi di versi lain jalankan di background (IO).
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
             withContext(Dispatchers.Main) {
                 try {
@@ -203,10 +200,6 @@ open class MyApp : Application(), Configuration.Provider {
             }
         }
 
-        // 3. MobileAds.initialize() adalah operasi berat (class loading, baca cache/config).
-        // Sejak Play Services Ads SDK 20.0.0+, aman dipanggil dari background thread —
-        // callback completion akan tetap di-dispatch ke main thread oleh SDK.
-        // Memanggilnya di main thread menyebabkan ANR di device low-end.
         suspendCancellableCoroutine { cont ->
             try {
                 MobileAds.initialize(this@MyApp) { status ->
@@ -247,24 +240,15 @@ open class MyApp : Application(), Configuration.Provider {
     private fun setupWebViewCrashHandler() {
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            // HANYA swallow crash Chromium jika masih dalam fase startup kritis.
-            // Setelah startup selesai, kita biarkan crash normal agar state app tetap konsisten.
             if (isStartupPhase && isWebViewChromiumCrash(throwable)) {
-                // Log ke Logcat
-                Log.e(TAG, "Caught WebView-related crash DURING STARTUP (swallowed): ${throwable.message}")
-                
-                // LAPORKAN KE CRASHLYTICS agar kita punya visibility masalah di lapangan
+                Log.e(TAG, "Caught WebView crash DURING STARTUP: ${throwable.message}")
                 try {
                     FirebaseCrashlytics.getInstance().recordException(
-                        Exception("Swallowed Startup WebView Crash: ${throwable.message}", throwable)
+                        Exception("Startup WebView Crash: ${throwable.message}", throwable)
                     )
-                } catch (e: Exception) {
-                    // Firebase mungkin belum siap
-                }
-            } else {
-                // Exception lain atau crash di luar fase startup tetap di-handle normal (app crash)
-                defaultHandler?.uncaughtException(thread, throwable)
+                } catch (e: Exception) { }
             }
+            defaultHandler?.uncaughtException(thread, throwable)
         }
     }
 
@@ -274,12 +258,14 @@ open class MyApp : Application(), Configuration.Provider {
             "com.android.webview",
             "android.webkit"
         )
-        // Cek stack trace apakah berasal dari Chromium
-        return throwable.stackTrace.any { element ->
-            chromiumPackages.any { pkg -> element.className.startsWith(pkg) }
-        } || throwable.cause?.stackTrace?.any { element ->
-            chromiumPackages.any { pkg -> element.className.startsWith(pkg) }
-        } == true
+        var current: Throwable? = throwable
+        while (current != null) {
+            if (current.stackTrace.any { element -> chromiumPackages.any { pkg -> element.className.startsWith(pkg) } }) {
+                return true
+            }
+            current = current.cause
+        }
+        return false
     }
 
     override val workManagerConfiguration: Configuration
@@ -289,9 +275,8 @@ open class MyApp : Application(), Configuration.Provider {
 
     override fun onTerminate() {
         super.onTerminate()
-        applicationScope.cancel()
         clearAllListeners()
         instance = null
-        Log.d(TAG, "Application terminated, scope cancelled")
+        Log.d(TAG, "Application terminated")
     }
 }

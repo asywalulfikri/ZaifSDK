@@ -51,6 +51,7 @@ class GameActivity : BaseActivity(),
     private val songsLoaded       = AtomicBoolean(false) // ← guard loadSongsOnce
     private var areBuildersReady      = false
     private var areEssentialAdsReady  = false
+    private var isGdprConsentGathered = false
 
     /** =====================
      *  NETWORK CALLBACK
@@ -88,7 +89,15 @@ class GameActivity : BaseActivity(),
 
         permissionNotification()
 
-        setupGDPR()
+        setupGDPR { canRequestAds ->
+            isGdprConsentGathered = true
+            if (canRequestAds) {
+                tryToSetupAds()
+                if (!soundViewModel.isPremium) {
+                    loadAdsStaggered()
+                }
+            }
+        }
 
         if (BuildConfig.hasSong) {
             loadSongsOnce()
@@ -100,7 +109,7 @@ class GameActivity : BaseActivity(),
         registerNetworkCallbackSafe()
 
         // Ensure ads are loaded when returning from background
-        if (areBuildersReady && areEssentialAdsReady) {
+        if (areBuildersReady && areEssentialAdsReady && canRequestAdsSafely()) {
             loadAdsStaggered()
         }
     }
@@ -200,18 +209,22 @@ class GameActivity : BaseActivity(),
     override fun onSdkInitialized(sdk: MyApp.Sdk) {
         if (sdk == MyApp.Sdk.ALL_ESSENTIALS) {
             areEssentialAdsReady = true
-            tryToSetupAds()
+            if (isGdprConsentGathered && canRequestAdsSafely()) {
+                tryToSetupAds()
+            }
         }
     }
 
     override fun onInitializationComplete() {
         areBuildersReady = true
-        tryToSetupAds()
+        if (isGdprConsentGathered && canRequestAdsSafely()) {
+            tryToSetupAds()
 
-        // Pre-load ads early only ONCE at app startup
-        // This significantly improves Impression Rate by reducing redundant requests
-        if (!soundViewModel.isPremium) {
-            loadAdsStaggered()
+            // Pre-load ads early only ONCE at app startup
+            // This significantly improves Impression Rate by reducing redundant requests
+            if (!soundViewModel.isPremium) {
+                loadAdsStaggered()
+            }
         }
     }
 

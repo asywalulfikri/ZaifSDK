@@ -236,6 +236,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     protected fun loadBannerHome(container: FrameLayout?) {
+        if (!canRequestAdsSafely()) return
         val bannerId = admobSDKBuilder?.bannerHomeId.orEmpty()
         if (container == null || bannerId.isBlank()) return
         if (isBannerLoaded || isLoading) return
@@ -474,11 +475,19 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
     
 
-    fun setupGDPR() {
-        if (!isAdMobAvailable()) return
+    fun canRequestAdsSafely(): Boolean {
+        return ::consentInformation.isInitialized && consentInformation.canRequestAds()
+    }
+
+    fun setupGDPR(onComplete: (canRequestAds: Boolean) -> Unit = {}) {
+        if (!isAdMobAvailable()) {
+            onComplete(false)
+            return
+        }
 
         // Gunakan lifecycleScope agar otomatis dibatalkan saat Activity destroy
         lifecycleScope.launch {
+            var canRequest = false
             try {
                 val params = ConsentRequestParameters.Builder()
                     .setTagForUnderAgeOfConsent(false)
@@ -524,8 +533,9 @@ open class BaseActivityWidget : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(TAG, "setupGDPR error: ${e.message}")
             } finally {
+                canRequest = canRequestAdsSafely()
                 // 4. Inisialisasi MobileAds hanya jika belum diinisialisasi oleh MyApp
-                if (::consentInformation.isInitialized && consentInformation.canRequestAds()) {
+                if (canRequest) {
                     if (!sound.recorder.widget.MyApp.areEssentialsInitialized) {
                         // Jalankan di Background untuk menghindari blokir Main Thread
                         val context = this@BaseActivityWidget.applicationContext
@@ -538,6 +548,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         }
                     }
                 }
+                onComplete(canRequest)
             }
         }
     }
@@ -687,7 +698,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         frameLayout: FrameLayout?,
         modePortrait: Boolean = false
     ) {
-        if (frameLayout == null) return
+        if (frameLayout == null || !canRequestAdsSafely()) return
 
         lifecycleScope.launch {
             try {
@@ -1106,7 +1117,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     fun loadInterstitialIfNeeded(isPremium: Boolean) {
-        if (isPremium) return
+        if (isPremium || !canRequestAdsSafely()) return
 
         if (mInterstitialAd != null) return
         if (isFinishing || isDestroyed) return
@@ -1233,7 +1244,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var retryRewardRunnable: Runnable? = null
 
     fun loadRewardedAd(isPremium: Boolean) {
-        if (isPremium) return
+        if (isPremium || !canRequestAdsSafely()) return
         if (rewardedAd != null) return
 
         val adId = admobSDKBuilder?.rewardId.orEmpty()
