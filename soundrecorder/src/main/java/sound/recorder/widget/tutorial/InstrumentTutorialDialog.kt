@@ -227,6 +227,7 @@ class InstrumentTutorialDialog(
     }
 
     private var playJob: Job? = null
+    private val activeNotes = java.util.concurrent.ConcurrentHashMap<Int, String>()
     private val playHandler = Handler(Looper.getMainLooper())
     private var currentDialog: BottomSheetDialog? = null
     private var currentAdapter: SongListAdapter? = null
@@ -1617,6 +1618,18 @@ class InstrumentTutorialDialog(
         }
     }
 
+    private fun stopActiveNotes() {
+        if (activeNotes.isNotEmpty()) {
+            val activeSnapshot = java.util.HashMap(activeNotes)
+            activeNotes.clear()
+            activeSnapshot.forEach { (padIndex, savedMetadata) ->
+                onStopNote(padIndex, savedMetadata)
+                onStopNote(padIndex, "OFF")
+                onUnhighlight(padIndex)
+            }
+        }
+    }
+
     private fun playUserNote(jsonNote: String) {
         if (lifecycleScope == null) return
         stopAll()
@@ -1651,9 +1664,14 @@ class InstrumentTutorialDialog(
                     val isCurrentInstrument = instrumentPrefix.isEmpty() || metadata.isEmpty() || metadata.startsWith(instrumentPrefix) || !metadata.contains("_")
 
                     if (isOff) {
+                        val originalMeta = activeNotes.remove(event.padIndex)
                         onStopNote(event.padIndex, metadata)
+                        if (originalMeta != null && originalMeta != metadata) {
+                            onStopNote(event.padIndex, originalMeta)
+                        }
                         onUnhighlight(event.padIndex)
                     } else if (isCurrentInstrument) {
+                        activeNotes[event.padIndex] = metadata
                         onTriggerAnim(event.padIndex)
                         onPlayNote(event.padIndex, metadata)
                     }
@@ -1662,6 +1680,7 @@ class InstrumentTutorialDialog(
             } catch (e: Exception) {
                 // Handle or log
             } finally {
+                stopActiveNotes()
                 onClearHighlight()
                 onPlaybackStatusChanged(false)
                 onStopAllNotes()
@@ -1736,6 +1755,7 @@ class InstrumentTutorialDialog(
         isLearning = false
         learnEvents = emptyList()
         learnStep = 0
+        stopActiveNotes()
         onClearHighlight()
         onLearnVisible(false)
         onPlaybackStatusChanged(false)
