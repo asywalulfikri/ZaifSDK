@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -51,7 +52,7 @@ class AudioEngine(private val context: Context) {
     }
 
     // ─── MIC RECORDER ───
-    fun startMicRecording() {
+    fun startMicRecording(onError: (() -> Unit)? = null) {
         stopMicRecording()
         recordingRequested = true
         val fileName = "REC_${System.currentTimeMillis()}.3gp"
@@ -60,8 +61,9 @@ class AudioEngine(private val context: Context) {
         // prepare()/start() melakukan I/O dan setup encoder secara sinkron,
         // jalankan di background agar tidak memblokir main thread (potensi ANR).
         recordingJob = audioScope.launch {
+            var recorder: MediaRecorder? = null
             try {
-                val recorder = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                recorder = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     MediaRecorder(context)
                 } else {
                     @Suppress("DEPRECATION")
@@ -78,9 +80,20 @@ class AudioEngine(private val context: Context) {
                     mediaRecorder = recorder
                 } else {
                     recorder.release()
+                    recorder = null
                 }
+            } catch (_: CancellationException) {
+                // Cancellation is expected when recording is stopped immediately.
             } catch (e: Exception) {
                 Log.e("AudioEngine", "MediaRecorder init failed: ${e.message}")
+                if (recordingRequested) {
+                    syncHandler.post { onError?.invoke() }
+                }
+            } finally {
+                // Prevent a recorder created before cancellation/failure from leaking.
+                if (recorder != null && mediaRecorder !== recorder) {
+                    try { recorder?.release() } catch (_: Exception) { }
+                }
             }
         }
     }

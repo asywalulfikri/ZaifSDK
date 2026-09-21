@@ -84,7 +84,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     private var recordingStartTime = 0L
     private val timerHandler = Handler(Looper.getMainLooper())
-    private val panelScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var panelScopeJob = SupervisorJob()
+    private var panelScope = CoroutineScope(panelScopeJob + Dispatchers.Main.immediate)
     private val timerRunnable = object : Runnable {
         override fun run() {
             if (!isRecording) return
@@ -136,6 +137,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private fun initHelpers() {
         loadCustomFont()
         loadZaifConfigAsync()
+        if (::audioEngine.isInitialized) audioEngine.release()
         audioEngine = AudioEngine(context)
         btnFactory  = ControlButtonFactory(context, config, globalTypeface)
         blinkManager = BlinkManager(
@@ -318,11 +320,25 @@ class InstrumentControlPanel @JvmOverloads constructor(
     }
 
     fun startRecording(useMic: Boolean) {
+        if (useMic && ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            onRequestAudioPermissionMic?.invoke()
+            return
+        }
         isRecording = true
         isMicMode = useMic
         isEarphoneWhenRecording = if (useMic) audioEngine.isEarphonePlugged() else false
         listener?.onMuteControl(false)
-        if (useMic) audioEngine.startMicRecording()
+        if (useMic) {
+            audioEngine.startMicRecording {
+                if (!isRecording) return@startMicRecording
+                isRecording = false
+                timerHandler.removeCallbacks(timerRunnable)
+                blinkManager.resetRecordBtn()
+                listener?.onMuteControl(false)
+                listener?.onRecordStatusChanged(false)
+                setToast("Recording failed")
+            }
+        }
         recorderManager.startRecording()
         listener?.onRecordStatusChanged(true)
         blinkManager.startRecordBlink()
@@ -446,8 +462,16 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         releaseAndStop()
-        panelScope.cancel()
+        panelScopeJob.cancel()
         super.onDetachedFromWindow()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (!panelScopeJob.isActive) {
+            panelScopeJob = SupervisorJob()
+            panelScope = CoroutineScope(panelScopeJob + Dispatchers.Main.immediate)
+        }
     }
 
     // ─── HELPERS ───

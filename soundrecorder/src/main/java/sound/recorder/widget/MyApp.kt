@@ -50,16 +50,22 @@ open class MyApp : Application(), Configuration.Provider {
             get() = _areEssentialsInitialized.get()
 
         private val sdkListeners = CopyOnWriteArrayList<SdkInitializationListener>()
+        private val listenerLock = Any()
         private val mainHandler = Handler(Looper.getMainLooper())
 
         fun registerListener(listener: SdkInitializationListener) {
-            if (_areEssentialsInitialized.get()) {
+            val initialized = synchronized(listenerLock) {
+                if (!_areEssentialsInitialized.get()) {
+                    sdkListeners.addIfAbsent(listener)
+                }
+                _areEssentialsInitialized.get()
+            }
+
+            if (initialized) {
                 mainHandler.post {
                     try { listener.onSdkInitialized(Sdk.ALL_ESSENTIALS) }
                     catch (e: Exception) { Log.e(TAG, "Listener callback error: ${e.message}") }
                 }
-            } else {
-                sdkListeners.addIfAbsent(listener)
             }
         }
 
@@ -69,8 +75,9 @@ open class MyApp : Application(), Configuration.Provider {
 
         private fun notifyListeners(sdk: Sdk) {
             mainHandler.post {
-                val targets = ArrayList(sdkListeners)
-                sdkListeners.clear()
+                val targets = synchronized(listenerLock) {
+                    ArrayList(sdkListeners).also { sdkListeners.clear() }
+                }
                 targets.forEach { listener ->
                     try { listener.onSdkInitialized(sdk) }
                     catch (e: Exception) { Log.e(TAG, "Listener error: ${e.message}") }
@@ -126,10 +133,16 @@ open class MyApp : Application(), Configuration.Provider {
             }
             withTimeoutOrNull(FIREBASE_INIT_TIMEOUT_MS) {
                 firebaseJob.join()
-            } ?: Log.w(TAG, "Firebase initialization join timed out")
+            } ?: run {
+                firebaseJob.cancel()
+                Log.w(TAG, "Firebase initialization timed out")
+            }
 
             val admobJob = launch {
-                if (isWebViewAvailableSafely()) {
+                val webViewAvailable = withContext(Dispatchers.Main) {
+                    isWebViewAvailableSafely()
+                }
+                if (webViewAvailable) {
                     withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
                         initializeAdMob()
                     } ?: Log.w(TAG, "AdMob initialization timed out")
@@ -182,34 +195,25 @@ open class MyApp : Application(), Configuration.Provider {
     private suspend fun initializeAdMob() {
         delay(1500)
 
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
-            withContext(Dispatchers.Main) {
-                try {
-                    CookieManager.getInstance()
-                } catch (e: Throwable) {
-                    Log.e(TAG, "CookieManager init error: ${e.message}")
-                }
-            }
-        } else {
-            withContext(Dispatchers.IO) {
-                try {
-                    CookieManager.getInstance()
-                } catch (e: Throwable) {
-                    Log.e(TAG, "CookieManager init error: ${e.message}")
-                }
-            }
-        }
-
-        suspendCancellableCoroutine { cont ->
+        withContext(Dispatchers.Main) {
             try {
-                MobileAds.initialize(this@MyApp) { status ->
-                    Log.d(TAG, "AdMob initialized: $status")
-                    showDebugToast("AdMob berhasil diinisialisasi")
+                // WebView and CookieManager APIs must be touched from the main thread.
+                CookieManager.getInstance()
+            } catch (e: Throwable) {
+                Log.e(TAG, "CookieManager init error: ${e.message}")
+            }
+
+            suspendCancellableCoroutine { cont ->
+                try {
+                    MobileAds.initialize(this@MyApp) { status ->
+                        Log.d(TAG, "AdMob initialized: $status")
+                        showDebugToast("AdMob berhasil diinisialisasi")
+                        if (cont.isActive) cont.resume(Unit)
+                    }
+                } catch (e: Throwable) {
+                    Log.e(TAG, "AdMob init error: ${e.message}")
                     if (cont.isActive) cont.resume(Unit)
                 }
-            } catch (e: Throwable) {
-                Log.e(TAG, "AdMob init error: ${e.message}")
-                if (cont.isActive) cont.resume(Unit)
             }
         }
     }

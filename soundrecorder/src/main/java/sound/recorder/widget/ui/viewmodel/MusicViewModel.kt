@@ -17,7 +17,6 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -414,12 +413,8 @@ class MusicViewModel : ViewModel() {
     fun saveRecord(activity: Activity, dirPath : String, filePath: String, originalName : String,newName: String, isChange: Boolean) {
         viewModelScope.launch {
             try {
-                // Inisialisasi database (bisa dipindah ke singleton untuk efisiensi)
-                val db = Room.databaseBuilder(
-                    activity,
-                    AppDatabase::class.java,
-                    "audioRecords"
-                ).build()
+                // Reuse the existing database instance; database version remains unchanged.
+                val db = AppDatabase.getInstance(activity.applicationContext)
 
                 // Rename file jika diperlukan
                 if (isChange) {

@@ -4,9 +4,8 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import java.lang.ref.WeakReference
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -15,15 +14,18 @@ class NetworkUtils {
     companion object {
 
         // Fungsi untuk mengecek apakah perangkat terhubung ke internet
-        fun isInternetConnected(context: Context, callback: (Boolean) -> Unit) {
-            val weakContext = WeakReference(context)  // Menyimpan referensi ke context secara lemah untuk mencegah memory leak
+        fun isInternetConnected(
+            context: Context,
+            scope: CoroutineScope,
+            callback: (Boolean) -> Unit
+        ) {
+            val appContext = context.applicationContext
 
             // Menjalankan pengecekan koneksi di background thread
-            GlobalScope.launch(Dispatchers.Main) {
+            scope.launch(Dispatchers.Main.immediate) {
                 val isConnected = withContext(Dispatchers.IO) {
-                    val context = weakContext.get() ?: return@withContext false  // Cek apakah context masih ada
                     val connectivityManager =
-                        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                        appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         val networkCapabilities = connectivityManager.activeNetwork ?: return@withContext false

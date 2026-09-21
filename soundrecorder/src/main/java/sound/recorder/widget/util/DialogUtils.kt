@@ -7,6 +7,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sound.recorder.widget.R
@@ -73,9 +75,11 @@ class DialogUtils {
 
             builder.setView(dialogView)
             val dialog = builder.create()
+            val dialogScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+            dialog.setOnDismissListener { dialogScope.cancel() }
 
             btnYes.setOnClickListener {
-                CoroutineScope(Dispatchers.IO).launch {
+                dialogScope.launch(Dispatchers.IO) {
                     File(dirPath + fileName).delete()
                     withContext(Dispatchers.Main) {
                         stopRecordingAudio(context.getString(R.string.record_canceled))
@@ -108,6 +112,11 @@ class DialogUtils {
             val seekBarMusic = dialogView.findViewById<SeekBar>(R.id.seekBarMusic)
             val seekBarAudio = dialogView.findViewById<SeekBar>(R.id.seekBarAudio)
 
+            builder.setView(dialogView)
+            val dialog = builder.create()
+            val dialogScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+            dialog.setOnDismissListener { dialogScope.cancel() }
+
             seekBarMusic.progress = (initialVolumeMusic * 100).toInt()
             seekBarAudio.progress = (initialVolumeAudio * 100).toInt()
 
@@ -115,7 +124,7 @@ class DialogUtils {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     val newVolumeMusic = progress / 100f
                     onVolumeMusicChanged(newVolumeMusic)
-                    CoroutineScope(Dispatchers.IO).launch {
+                    dialogScope.launch(Dispatchers.IO) {
                         DataSession(context).saveVolumeMusic(newVolumeMusic)
                     }
                 }
@@ -128,7 +137,7 @@ class DialogUtils {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     val newVolumeAudio = progress / 100f
                     onVolumeAudioChanged(newVolumeAudio)
-                    CoroutineScope(Dispatchers.IO).launch {
+                    dialogScope.launch(Dispatchers.IO) {
                         DataSession(context).saveVolumeAudio(newVolumeAudio)
                     }
                 }
@@ -137,9 +146,6 @@ class DialogUtils {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}
             })
 
-            builder.setView(dialogView)
-
-            val dialog = builder.create()
             dialog.show()
         } catch (e: Exception) {
             e.printStackTrace()

@@ -75,19 +75,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Note.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
-        if (cursor != null)
-            cursor.moveToFirst();
+        if (cursor == null) return null;
 
-        // prepare note object
-        @SuppressLint("Range") Note note = new Note(
-                cursor.getInt(cursor.getColumnIndex(Note.COLUMN_ID)),
-                cursor.getString(cursor.getColumnIndex(Note.COLUMN_NOTE)),
-                cursor.getString(cursor.getColumnIndex(Note.COLUMN_TIMESTAMP)));
+        try (Cursor safeCursor = cursor) {
+            if (!safeCursor.moveToFirst()) return null;
 
-        // close the db connection
-        cursor.close();
-
-        return note;
+            @SuppressLint("Range") Note note = new Note(
+                    safeCursor.getInt(safeCursor.getColumnIndex(Note.COLUMN_ID)),
+                    safeCursor.getString(safeCursor.getColumnIndex(Note.COLUMN_NOTE)),
+                    safeCursor.getString(safeCursor.getColumnIndex(Note.COLUMN_TIMESTAMP)));
+            return note;
+        }
     }
 
     @SuppressLint("Range")
@@ -99,22 +97,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Note.COLUMN_TIMESTAMP + " DESC";
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+        try (Cursor cursor = db.rawQuery(selectQuery, null)) {
+            if (cursor.moveToFirst()) {
+                do {
+                    Note note = new Note();
+                    note.setId(cursor.getInt(cursor.getColumnIndex(Note.COLUMN_ID)));
+                    note.setNote(cursor.getString(cursor.getColumnIndex(Note.COLUMN_NOTE)));
+                    note.setTimestamp(cursor.getString(cursor.getColumnIndex(Note.COLUMN_TIMESTAMP)));
 
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                Note note = new Note();
-                note.setId(cursor.getInt(cursor.getColumnIndex(Note.COLUMN_ID)));
-                note.setNote(cursor.getString(cursor.getColumnIndex(Note.COLUMN_NOTE)));
-                note.setTimestamp(cursor.getString(cursor.getColumnIndex(Note.COLUMN_TIMESTAMP)));
-
-                notes.add(note);
-            } while (cursor.moveToNext());
+                    notes.add(note);
+                } while (cursor.moveToNext());
+            }
         }
-
-        // close db connection
-        db.close();
 
         // return notes list
         return notes;
@@ -123,14 +117,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public int getNotesCount() {
         String countQuery = "SELECT  * FROM " + Note.TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
-
-        int count = cursor.getCount();
-        cursor.close();
-
-
-        // return count
-        return count;
+        try (Cursor cursor = db.rawQuery(countQuery, null)) {
+            return cursor.getCount();
+        }
     }
 
     public int updateNote(Note note) {
@@ -140,9 +129,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Note.COLUMN_NOTE, note.getNote());
         //values.put(Note.COLUMN_TITLE, note.getTitle());
 
-        // updating row
-        return db.update(Note.TABLE_NAME, values, Note.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(note.getId())});
+        try {
+            return db.update(Note.TABLE_NAME, values, Note.COLUMN_ID + " = ?",
+                    new String[]{String.valueOf(note.getId())});
+        } finally {
+            db.close();
+        }
     }
 
     public void deleteNote(Note note) {

@@ -109,7 +109,7 @@ class HomeFragment : BaseFragmentWidget() {
 
 
         binding?.btnVideo?.setOnClickListener {
-            NetworkUtils.isInternetConnected(requireContext()) { isConnected ->
+            NetworkUtils.isInternetConnected(requireContext(), viewLifecycleOwner.lifecycleScope) { isConnected ->
                 if (isConnected) {
                     try {
                         MyAdsListener.setBanner(false)
@@ -124,7 +124,7 @@ class HomeFragment : BaseFragmentWidget() {
         }
 
         binding?.btnListBug?.setOnClickListener {
-            NetworkUtils.isInternetConnected(requireContext()) { isConnected ->
+            NetworkUtils.isInternetConnected(requireContext(), viewLifecycleOwner.lifecycleScope) { isConnected ->
                 if (isConnected) {
                     try {
                         MyAdsListener.setBanner(false)

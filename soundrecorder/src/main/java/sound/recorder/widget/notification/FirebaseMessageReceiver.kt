@@ -11,9 +11,6 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import sound.recorder.widget.R
 
 class FirebaseMessageReceiver : FirebaseMessagingService() {
@@ -25,14 +22,11 @@ class FirebaseMessageReceiver : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d("ResponseNotification", remoteMessage.toString())
-        // Gunakan Coroutine untuk memproses pesan di background
-        CoroutineScope(Dispatchers.IO).launch {
-            if (remoteMessage.data.isNotEmpty() || remoteMessage.notification != null) {
-                showNotification(
-                    remoteMessage.notification?.title.toString(),
-                    remoteMessage.notification?.body.toString()
-                )
-            }
+        if (remoteMessage.data.isNotEmpty() || remoteMessage.notification != null) {
+            showNotification(
+                remoteMessage.notification?.title,
+                remoteMessage.notification?.body
+            )
         }
     }
 
