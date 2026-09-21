@@ -110,6 +110,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
                     val wrapper = VideoWrapper()
                     wrapper.list = ArrayList(videoCache!!)
                     withContext(Dispatchers.Main) {
+                        if (!isAdded || view == null || !::binding.isInitialized) return@withContext
                         binding.progressBar.visibility = View.GONE
                         result(wrapper, loadMore)
                         mAdapter?.notifyDataSetChanged()
@@ -154,6 +155,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
                     }
                 } else {
                     withContext(Dispatchers.Main) {
+                        if (!isAdded || view == null || !::binding.isInitialized) return@withContext
                         // If failed and have cache, fallback to cache
                         if (videoCache != null) {
                             val wrapper = VideoWrapper()
@@ -167,6 +169,7 @@ class FragmentVideo : BaseFragmentWidget(), VideoListAdapter.OnItemClickListener
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+                    if (!isAdded || view == null || !::binding.isInitialized) return@withContext
                     if (videoCache != null) {
                         val wrapper = VideoWrapper()
                         wrapper.list = ArrayList(videoCache!!)

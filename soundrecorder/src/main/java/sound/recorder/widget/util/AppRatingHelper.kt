@@ -4,10 +4,6 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 
 class AppRatingHelper(context: Context) {
@@ -21,30 +17,16 @@ class AppRatingHelper(context: Context) {
 
         val appPackageName = context.packageName
 
-        // Menjalankan kode di background untuk mencegah ANR
-        GlobalScope.launch(Dispatchers.Main) {
-            // Menggunakan coroutine untuk menjalankan task di background
-            try {
-                withContext(Dispatchers.IO) {
-                    // Mencoba membuka halaman aplikasi di Google Play Store menggunakan URI khusus
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("market://details?id=$appPackageName")
-                        )
-                    )
-                }
-            } catch (e: ActivityNotFoundException) {
-                // Jika tidak ada aplikasi Play Store, membuka halaman aplikasi di browser
-                withContext(Dispatchers.IO) {
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName")
-                        )
-                    )
-                }
-            }
+        try {
+            context.startActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appPackageName"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        } catch (e: ActivityNotFoundException) {
+            context.startActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
         }
     }
 

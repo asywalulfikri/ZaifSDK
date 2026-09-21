@@ -12,12 +12,14 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import sound.recorder.widget.R
 import sound.recorder.widget.adapter.AudioRecorderAdapter
 import sound.recorder.widget.databinding.ActivityListingBinding
@@ -35,8 +37,8 @@ internal class ListingActivity : AppCompatActivity(), AudioRecorderAdapter.OnIte
     private lateinit var binding: ActivityListingBinding
     private val colorDisabled = "#CFCFCF"
     private val colorText = "#2B2B2B"
+    private var searchJob: Job? = null
 
-    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,15 +107,15 @@ internal class ListingActivity : AppCompatActivity(), AudioRecorderAdapter.OnIte
             val toDelete : List<AudioRecord> = audioRecords.filter { it.isChecked }
             audioRecords = audioRecords.filter { !it.isChecked }
 
-            GlobalScope.launch {
-                //db.audioRecordDAO().delete(toDelete)
-                db.audioRecordDAO().deleteAll()
-                if(audioRecords.isEmpty()){
-                    fetchAll()
-                }else{
-                    runOnUiThread(Runnable {
-                        audioRecorderAdapter.setData(audioRecords)
-                    })
+            if (toDelete.isEmpty()) return@setOnClickListener
+            lifecycleScope.launch(Dispatchers.IO) {
+                db.audioRecordDAO().delete(toDelete)
+                val records = db.audioRecordDAO().getAll()
+                withContext(Dispatchers.Main) {
+                    if (!isFinishing && !isDestroyed) {
+                        audioRecords = records
+                        audioRecorderAdapter.setData(records)
+                    }
                 }
             }
         }
@@ -144,22 +146,27 @@ internal class ListingActivity : AppCompatActivity(), AudioRecorderAdapter.OnIte
         finish()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun fetchAll(){
-        GlobalScope.launch {
-            audioRecords = db.audioRecordDAO().getAll()
-            runOnUiThread {
-                audioRecorderAdapter.setData(audioRecords)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val records = db.audioRecordDAO().getAll()
+            withContext(Dispatchers.Main) {
+                if (!isFinishing && !isDestroyed) {
+                    audioRecords = records
+                    audioRecorderAdapter.setData(records)
+                }
             }
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun searchDatabase(query: String){
-        GlobalScope.launch {
-            audioRecords = db.audioRecordDAO().searchDatabase(query)
-            runOnUiThread{
-                audioRecorderAdapter.setData(audioRecords)
+        searchJob?.cancel()
+        searchJob = lifecycleScope.launch(Dispatchers.IO) {
+            val records = db.audioRecordDAO().searchDatabase(query)
+            withContext(Dispatchers.Main) {
+                if (!isFinishing && !isDestroyed) {
+                    audioRecords = records
+                    audioRecorderAdapter.setData(records)
+                }
             }
         }
     }

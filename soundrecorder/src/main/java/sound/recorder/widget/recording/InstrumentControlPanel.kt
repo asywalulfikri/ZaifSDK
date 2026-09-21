@@ -22,6 +22,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sound.recorder.widget.R
@@ -82,6 +84,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     private var recordingStartTime = 0L
     private val timerHandler = Handler(Looper.getMainLooper())
+    private val panelScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val timerRunnable = object : Runnable {
         override fun run() {
             if (!isRecording) return
@@ -347,7 +350,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
                     val audioPath = if (isMicMode) audioEngine.currentAudioFile?.absolutePath else null
                     val earphoneUsed = isEarphoneWhenRecording
                     
-                    CoroutineScope(Dispatchers.IO).launch {
+                    panelScope.launch(Dispatchers.IO) {
                         try {
                             val json = recorderManager.getEventsAsString(events)
                             AppDatabase.getInstance(context.applicationContext).recordingDao().insert(
@@ -396,7 +399,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 btnStop.visibility = VISIBLE
                 blinkManager.startStopBlink()
 
-                CoroutineScope(Dispatchers.Main).launch {
+                panelScope.launch {
                     val events = recorderManager.parseJson(entity.eventsJson)
                     val hasAudio = !entity.audioPath.isNullOrEmpty()
 
@@ -443,6 +446,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         releaseAndStop()
+        panelScope.cancel()
         super.onDetachedFromWindow()
     }
 
@@ -506,7 +510,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     // Async: baca SharedPreferences + parse JSON di IO thread. zaifSDKConfig hanya dipakai
     // belakangan (mis. setUnlockedStatus), bukan pada render pertama, jadi aman ditunda.
     private fun loadZaifConfigAsync() {
-        CoroutineScope(Dispatchers.IO).launch {
+        panelScope.launch(Dispatchers.IO) {
             val loaded = ZaifSDKBuilder.load(context)
             withContext(Dispatchers.Main) {
                 zaifSDKConfig = loaded

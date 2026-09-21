@@ -77,11 +77,13 @@ class BottomSheetVideo(private var firestore: FirebaseFirestore? = FirebaseFires
         firestore?.collection("videos")
             ?.get()
             ?.addOnCompleteListener { task ->
+                if (!isAdded || !::binding.isInitialized || view == null) return@addOnCompleteListener
                 if (task.isSuccessful) {
+                    val snapshot = task.result ?: return@addOnCompleteListener
                     val wrapper = VideoWrapper()
                     wrapper.list = ArrayList()
                     var rowList = 1
-                    for (doc in task.result!!) {
+                    for (doc in snapshot) {
                         if (rowList <= mPage * 50 && rowList > (mPage - 1) * 50) {
                             val video = Video()
                             video.datepublish = doc.getString("datepublish")
@@ -97,7 +99,7 @@ class BottomSheetVideo(private var firestore: FirebaseFirestore? = FirebaseFires
                     if (wrapper.list.size != 0) {
                         result(wrapper, loadMore)
                         mAdapter?.notifyDataSetChanged()
-                    } else if (task.result!!.size() == 0) {
+                    } else if (snapshot.isEmpty) {
                         setToastInfo(activity,"No Data")
                     }
                 } else {

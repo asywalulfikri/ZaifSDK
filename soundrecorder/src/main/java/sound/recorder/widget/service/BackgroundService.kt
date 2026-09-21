@@ -8,11 +8,12 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import sound.recorder.widget.ui.activity.ListingActivity
 
 class BackgroundService : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         createNotificationChannel()
-        val intent1 = Intent(this, this.applicationContext.javaClass)
+        val intent1 = Intent(this, ListingActivity::class.java)
         val pendingIntent1 =
             PendingIntent.getActivity(this, 0, intent1, PendingIntent.FLAG_IMMUTABLE)
         val notification1 = NotificationCompat.Builder(this, "ScreenRecorder")

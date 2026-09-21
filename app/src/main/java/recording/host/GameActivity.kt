@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Job
 import recording.host.cons.Constants.SongConstants.rawList
 import recording.host.databinding.ActivityGameBinding
 import sound.recorder.widget.MyApp
@@ -49,6 +50,7 @@ class GameActivity : BaseActivity(),
     private val adsSetupCalled    = AtomicBoolean(false)
     private val adsFirstLoadIsOff = AtomicBoolean(false)
     private val songsLoaded       = AtomicBoolean(false) // ← guard loadSongsOnce
+    private var adsStaggerJob: Job? = null
     private var areBuildersReady      = false
     private var areEssentialAdsReady  = false
     private var isGdprConsentGathered = false
@@ -123,6 +125,7 @@ class GameActivity : BaseActivity(),
         MyAdsListener.setMyListener(null)
         GameApp.unregisterListener(this)
         MyApp.unregisterListener(this)
+        adsStaggerJob?.cancel()
         _binding = null
         super.onDestroy()
     }
@@ -228,11 +231,13 @@ class GameActivity : BaseActivity(),
         }
     }
 
+
     // Beri jeda antara load interstitial & rewarded agar tidak ada 2 WebView iklan
     // yang di-init bersamaan di main thread (kontributor ANR di WebView/Chromium).
     private fun loadAdsStaggered() {
+        adsStaggerJob?.cancel()
         loadInterstitial()
-        lifecycleScope.launch {
+        adsStaggerJob = lifecycleScope.launch {
             delay(ADS_STAGGER_DELAY_MS)
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                 loadReward()

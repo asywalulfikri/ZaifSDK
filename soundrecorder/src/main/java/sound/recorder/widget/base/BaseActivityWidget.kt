@@ -90,6 +90,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 open class BaseActivityWidget : AppCompatActivity() {
 
     private var mInterstitialAd: InterstitialAd? = null
+    private var isInterstitialLoading = false
     private var isLoad = false
     private var isLoadInterstitialReward = false
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
@@ -124,6 +125,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var loadTimeoutRunnable: Runnable? = null
 
     private var rewardedAd: RewardedAd? = null
+    private var isRewardedLoading = false
 
 
     //banner home
@@ -1119,11 +1121,12 @@ open class BaseActivityWidget : AppCompatActivity() {
     fun loadInterstitialIfNeeded(isPremium: Boolean) {
         if (isPremium || !canRequestAdsSafely()) return
 
-        if (mInterstitialAd != null) return
+        if (mInterstitialAd != null || isInterstitialLoading) return
         if (isFinishing || isDestroyed) return
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return
 
         val adId = admobSDKBuilder?.interstitialId ?: return
+        isInterstitialLoading = true
 
         try {
             // WeakReference agar Activity bisa di-GC meski callback belum dipanggil
@@ -1135,9 +1138,11 @@ open class BaseActivityWidget : AppCompatActivity() {
                 AdRequest.Builder().build(),
                 object : InterstitialAdLoadCallback() {
                     override fun onAdLoaded(ad: InterstitialAd) {
+                        isInterstitialLoading = false
                         val activity = weakActivity.get()
                         // Activity sudah mati → buang iklan, tidak update state
-                        if (activity == null || activity.isDestroyed || activity.isFinishing) {
+                        if (activity == null || activity.isDestroyed || activity.isFinishing ||
+                            !activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                             ad.fullScreenContentCallback = null
                             return
                         }
@@ -1148,6 +1153,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
 
                     override fun onAdFailedToLoad(error: LoadAdError) {
+                        isInterstitialLoading = false
                         val activity = weakActivity.get()
                         if (activity == null || activity.isDestroyed || activity.isFinishing) return
                         activity.mInterstitialAd = null
@@ -1245,13 +1251,14 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     fun loadRewardedAd(isPremium: Boolean) {
         if (isPremium || !canRequestAdsSafely()) return
-        if (rewardedAd != null) return
+        if (rewardedAd != null || isRewardedLoading) return
 
         val adId = admobSDKBuilder?.rewardId.orEmpty()
         if (adId.isEmpty()) return
         if (isFinishing || isDestroyed) return
 
         val adRequest = AdRequest.Builder().build()
+        isRewardedLoading = true
 
         try {
             // WeakReference agar Activity bisa di-GC meski callback belum terpanggil
@@ -1264,6 +1271,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 object : RewardedAdLoadCallback() {
 
                     override fun onAdFailedToLoad(adError: LoadAdError) {
+                        isRewardedLoading = false
                         val activity = weakActivity.get()
                         // Activity sudah mati → tidak perlu lakukan apapun
                         if (activity == null || activity.isDestroyed || activity.isFinishing) return
@@ -1288,9 +1296,11 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
 
                     override fun onAdLoaded(ad: RewardedAd) {
+                        isRewardedLoading = false
                         val activity = weakActivity.get()
                         // Activity sudah mati saat iklan baru selesai load → buang iklan
-                        if (activity == null || activity.isDestroyed || activity.isFinishing) {
+                        if (activity == null || activity.isDestroyed || activity.isFinishing ||
+                            !activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                             ad.fullScreenContentCallback = null
                             return
                         }
@@ -1439,18 +1449,21 @@ open class BaseActivityWidget : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
 
+        retryJob?.cancel()
+        reloadJob?.cancel()
+        retryHandler.removeCallbacksAndMessages(null)
+
         // Layar mati / app background → BUANG INTERSTITIAL
         mInterstitialAd?.fullScreenContentCallback = null
         mInterstitialAd = null
+        releaseRewardedAd()
     }
 
 
-    fun getRawDurationSafe(resId: Int): Long {
-        return try {
-            val mp = MediaPlayer.create(this, resId)
-            val duration = mp?.duration?.toLong() ?: 0L
-            mp?.release()
-            duration
+    suspend fun getRawDurationSafe(resId: Int): Long = withContext(Dispatchers.IO) {
+        try {
+            val player = MediaPlayer.create(this@BaseActivityWidget, resId)
+            try { player?.duration?.toLong() ?: 0L } finally { player?.release() }
         } catch (e: Exception) {
             0L
         }

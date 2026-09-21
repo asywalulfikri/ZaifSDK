@@ -102,6 +102,8 @@ class ColorPicker(context: Activity) {
         for (i in 0 until ta!!.length()) {
             colors!!.add(ColorPal(ta!!.getColor(i, 0), false))
         }
+        ta?.recycle()
+        ta = null
         return this
     }
 
@@ -235,15 +237,16 @@ class ColorPicker(context: Activity) {
         if (mDialog == null) {
             return
         }
-        val dialog: Dialog? = mDialog!!.get()
+        val dialog: Dialog? = mDialog?.get()
         if (dialog != null && !context.isFinishing) {
             dialog.show()
             //Keep mDialog open when rotate
             val lp = WindowManager.LayoutParams()
-            lp.copyFrom(dialog.window!!.attributes)
+            val window = dialog.window ?: return
+            lp.copyFrom(window.attributes)
             lp.width = WindowManager.LayoutParams.WRAP_CONTENT
             lp.height = WindowManager.LayoutParams.WRAP_CONTENT
-            dialog.window!!.attributes = lp
+            window.attributes = lp
         }
     }
 
@@ -444,7 +447,7 @@ class ColorPicker(context: Activity) {
      * @return CustomDialog
      */
     fun getmDialog(): CustomDialog? {
-        return if (mDialog == null) null else mDialog!!.get()
+        return mDialog?.get()
     }
 
     /**
@@ -470,7 +473,7 @@ class ColorPicker(context: Activity) {
      */
     fun dismissDialog() {
         if (mDialog == null) return
-        val dialog: Dialog? = mDialog!!.get()
+        val dialog: Dialog? = mDialog?.get()
         if (dialog != null && dialog.isShowing) {
             dialog.dismiss()
         }
@@ -517,6 +520,8 @@ class ColorPicker(context: Activity) {
         for (i in 0 until ta!!.length()) {
             colors!!.add(ColorPal(ta!!.getColor(i, 0), false))
         }
+        ta?.recycle()
+        ta = null
         return this
     }
 

@@ -12,15 +12,20 @@ import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 
 class AudioEngine(private val context: Context) {
 
-    private var mediaRecorder: MediaRecorder? = null
+    @Volatile private var mediaRecorder: MediaRecorder? = null
     private var audioPlayer: MediaPlayer? = null
     private val syncHandler = Handler(Looper.getMainLooper())
+    private val audioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
+    private var recordingJob: Job? = null
+    @Volatile private var recordingRequested = false
 
     var currentAudioFile: File? = null
         private set
@@ -47,14 +52,16 @@ class AudioEngine(private val context: Context) {
 
     // ─── MIC RECORDER ───
     fun startMicRecording() {
-        val fileName = "REC_${System.currentTimeMillis()}.mp3"
+        stopMicRecording()
+        recordingRequested = true
+        val fileName = "REC_${System.currentTimeMillis()}.3gp"
         currentAudioFile = File(context.filesDir, fileName)
         val outputPath = currentAudioFile?.absolutePath
         // prepare()/start() melakukan I/O dan setup encoder secara sinkron,
         // jalankan di background agar tidak memblokir main thread (potensi ANR).
-        CoroutineScope(Dispatchers.IO).launch {
+        recordingJob = audioScope.launch {
             try {
-                mediaRecorder = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val recorder = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     MediaRecorder(context)
                 } else {
                     @Suppress("DEPRECATION")
@@ -64,12 +71,13 @@ class AudioEngine(private val context: Context) {
                     setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
                     setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                     setOutputFile(outputPath)
-                    try {
-                        prepare()
-                        start()
-                    } catch (e: IOException) {
-                        Log.e("AudioEngine", "MediaRecorder prepare/start failed: ${e.message}")
-                    }
+                }
+                recorder.prepare()
+                if (recordingRequested) {
+                    recorder.start()
+                    mediaRecorder = recorder
+                } else {
+                    recorder.release()
                 }
             } catch (e: Exception) {
                 Log.e("AudioEngine", "MediaRecorder init failed: ${e.message}")
@@ -78,9 +86,12 @@ class AudioEngine(private val context: Context) {
     }
 
     fun stopMicRecording() {
+        recordingRequested = false
+        recordingJob?.cancel()
+        recordingJob = null
         val recorder = mediaRecorder
         mediaRecorder = null
-        CoroutineScope(Dispatchers.IO).launch {
+        audioScope.launch {
             try {
                 recorder?.apply { stop(); release() }
             } catch (e: Exception) {
@@ -93,27 +104,26 @@ class AudioEngine(private val context: Context) {
     fun startPlayingAudioSync(path: String, onComplete: (() -> Unit)? = null) {
         stopPlayingAudio()
         val prepareStartTime = System.currentTimeMillis()
-        try {
-            audioPlayer = MediaPlayer().apply {
-                setDataSource(path)
-                setOnPreparedListener { mp ->
-                    val prepareElapsed = System.currentTimeMillis() - prepareStartTime
-                    Log.d("AudioEngine", "prepareElapsed=${prepareElapsed}ms")
-                    try { mp.seekTo(prepareElapsed.toInt()) } catch (e: Exception) {
-                        Log.e("AudioEngine", "seekTo failed: ${e.message}")
+        syncHandler.post {
+            try {
+                audioPlayer = MediaPlayer().apply {
+                    setDataSource(path)
+                    setOnPreparedListener { mp ->
+                        val prepareElapsed = System.currentTimeMillis() - prepareStartTime
+                        Log.d("AudioEngine", "prepareElapsed=${prepareElapsed}ms")
+                        mp.start()
                     }
-                    mp.start()
+                    setOnCompletionListener { stopPlayingAudio(); onComplete?.invoke() }
+                    setOnErrorListener { _, what, extra ->
+                        Log.e("AudioEngine", "MediaPlayer error: what=$what extra=$extra")
+                        stopPlayingAudio(); onComplete?.invoke(); true
+                    }
+                    prepareAsync()
                 }
-                setOnCompletionListener { stopPlayingAudio(); onComplete?.invoke() }
-                setOnErrorListener { _, what, extra ->
-                    Log.e("AudioEngine", "MediaPlayer error: what=$what extra=$extra")
-                    stopPlayingAudio(); onComplete?.invoke(); true
-                }
-                prepareAsync()
+            } catch (e: Exception) {
+                Log.e("AudioEngine", "Failed to play audio: ${e.message}")
+                onComplete?.invoke()
             }
-        } catch (e: Exception) {
-            Log.e("AudioEngine", "Failed to play audio: ${e.message}")
-            onComplete?.invoke()
         }
     }
 
@@ -121,7 +131,7 @@ class AudioEngine(private val context: Context) {
         syncHandler.removeCallbacksAndMessages(null)
         val player = audioPlayer
         audioPlayer = null
-        CoroutineScope(Dispatchers.IO).launch {
+        syncHandler.post {
             try {
                 player?.apply { if (isPlaying) stop(); release() }
             } catch (e: Exception) {

@@ -32,6 +32,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sound.recorder.widget.R
@@ -64,6 +66,7 @@ object RecordingListDialogHelper {
     private const val KEY_LAST_PROMO_DATE = "last_promo_date"
     private const val KEY_PROMO_COUNT_TODAY = "promo_count_today"
     private const val MAX_DAILY_PROMOS   = 5
+    private val actionScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     // ─── Helper shorthand ───
     private fun Context.sdp(id: Int) = resources.getDimensionPixelSize(id)
@@ -176,7 +179,9 @@ object RecordingListDialogHelper {
 
         dialog.setView(rootLayout)
 
-        CoroutineScope(Dispatchers.Main).launch {
+        val dialogScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        dialog.setOnDismissListener { dialogScope.cancel() }
+        dialogScope.launch {
             val recordings = withContext(Dispatchers.IO) {
                 AppDatabase.getInstance(context).recordingDao().getAll()
             }
@@ -335,7 +340,7 @@ object RecordingListDialogHelper {
         addAction("✏", context.getString(R.string.edit_note), COLOR_GOLD) { showRenameDialog(context, rec, nameTv) }
 
         addAction("🗑", context.getString(R.string.delete), COLOR_DANGER) {
-            CoroutineScope(Dispatchers.Main).launch {
+            actionScope.launch {
                 withContext(Dispatchers.IO) {
                     rec.audioPath?.let { path -> File(path).takeIf { it.exists() }?.delete() }
                     AppDatabase.getInstance(context).recordingDao().delete(rec)
@@ -518,7 +523,7 @@ object RecordingListDialogHelper {
             val appId = zaifSDKConfig?.applicationId ?: return@addOnSuccessListener
 
             // Jalankan sinkronisasi di Background Thread (Dispatchers.Default) agar tidak ANR jika note sangat panjang
-            CoroutineScope(Dispatchers.Main).launch {
+            actionScope.launch {
                 val syncedEvents = withContext(Dispatchers.Default) {
                     sound.recorder.widget.util.Utils.syncJsonNoteTimestamps(rec.eventsJson, 500L)
                 }
@@ -659,7 +664,7 @@ object RecordingListDialogHelper {
 
         val fileName = "Export_${rec.name.replace(Regex("[^a-zA-Z0-9]"), "_")}.json"
         val file = File(context.cacheDir, fileName)
-        CoroutineScope(Dispatchers.Main).launch {
+        actionScope.launch {
             try {
                 withContext(Dispatchers.IO) {
                     file.writeText(jsonContent)
@@ -797,7 +802,7 @@ object RecordingListDialogHelper {
         })
         btnRow.addView(buildTextButton(context, context.getString(R.string.save), COLOR_GOLD) {
             val newName = nameInput.text.toString().trim().ifEmpty { rec.name }
-            CoroutineScope(Dispatchers.Main).launch {
+            actionScope.launch {
                 withContext(Dispatchers.IO) {
                     AppDatabase.getInstance(context).recordingDao().updateName(rec.id, newName)
                 }

@@ -34,6 +34,7 @@ object MusicPlayerManager {
     private var currentTrack: MusicTrack? = null
     private var progressJob: Job? = null
     private val managerScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var playGeneration = 0L
 
     private var _isPlaying = false
     val isPlaying: Boolean get() = _isPlaying
@@ -106,6 +107,7 @@ object MusicPlayerManager {
 
     fun play(context: Context, track: MusicTrack) {
         stop()
+        val generation = playGeneration
         currentTrack = track
         currentVolume = loadMusicVolume(context)
 
@@ -115,13 +117,18 @@ object MusicPlayerManager {
                     if (track.isRaw) {
                         MediaPlayer.create(context, track.rawResId)
                     } else {
+                        val uri = track.deviceUri ?: return@withContext null
                         MediaPlayer().apply {
-                            setDataSource(context, track.deviceUri!!)
+                            setDataSource(context, uri)
                             prepare()
                         }
                     }
                 }
 
+                if (generation != playGeneration) {
+                    player?.release()
+                    return@launch
+                }
                 mediaPlayer = player
                 mediaPlayer?.apply {
                     setVolume(currentVolume, currentVolume)
@@ -199,21 +206,20 @@ object MusicPlayerManager {
     }
 
     fun stop() {
+        playGeneration++
         progressJob?.cancel()
         progressJob = null
 
         val playerToRelease = mediaPlayer
         mediaPlayer = null
 
-        managerScope.launch(Dispatchers.IO) {
-            try {
-                playerToRelease?.let {
-                    if (it.isPlaying) it.stop()
-                    it.release()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+        try {
+            playerToRelease?.let {
+                if (it.isPlaying) it.stop()
+                it.release()
             }
+        } catch (e: Exception) {
+            Log.e("MusicPlayerManager", "Error releasing player", e)
         }
 
         _isPlaying = false

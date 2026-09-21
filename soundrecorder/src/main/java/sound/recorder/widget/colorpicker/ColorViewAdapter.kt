@@ -82,7 +82,7 @@ class ColorViewAdapter : RecyclerView.Adapter<ColorViewAdapter.ViewHolder> {
 
     private fun dismissDialog() {
         if (mDialog == null) return
-        val dialog: Dialog? = mDialog!!.get()
+        val dialog: Dialog? = mDialog?.get()
         if (dialog != null && dialog.isShowing) {
             dialog.dismiss()
         }

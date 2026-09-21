@@ -23,6 +23,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
@@ -82,10 +83,10 @@ import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.Toastic
 import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import sound.recorder.widget.BuildConfig
 import sound.recorder.widget.ads.AdConfigProvider
 import sound.recorder.widget.animation.ParticleSystem
@@ -145,13 +146,11 @@ open class BaseFragmentWidget : Fragment() {
 
     }
 
-    fun getRawDurationSafe(resId: Int): Long {
-        return try {
-            val context = context ?: return 0L // Hindari requireActivity() di background
-            val mp = MediaPlayer.create(context, resId)
-            val duration = mp?.duration?.toLong() ?: 0L
-            mp?.release()
-            duration
+    suspend fun getRawDurationSafe(resId: Int): Long = withContext(Dispatchers.IO) {
+        try {
+            val context = context ?: return@withContext 0L
+            val player = MediaPlayer.create(context, resId)
+            try { player?.duration?.toLong() ?: 0L } finally { player?.release() }
         } catch (e: Exception) {
             0L
         }
@@ -624,12 +623,13 @@ open class BaseFragmentWidget : Fragment() {
             dialogLoading?.setContentView(R.layout.loading_layout)
             dialogLoading?.setCancelable(false)
 
+            if (!isAdded || activity?.isFinishing == true) return
             dialogLoading?.show()
 
-            val handler = Handler()
+            val handler = Handler(Looper.getMainLooper())
             handler.postDelayed({
                 val dialog = dialogLoading
-                if (dialog != null && dialog.isShowing) {
+                if (dialog != null && dialog.isShowing && !isDetached) {
                     dialog.dismiss()
                     dialogLoading = null // Release the dialog instance
                 }

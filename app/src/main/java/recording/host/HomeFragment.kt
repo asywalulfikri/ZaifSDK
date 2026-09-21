@@ -191,6 +191,9 @@ class HomeFragment : BaseFragmentWidget() {
 
     override fun onResume() {
         super.onResume()
+        // Musik dari dialog lagu bersifat global (singleton). Pastikan saat
+        // user kembali ke Home, playback tidak terus berjalan di background.
+        MusicPlayerManager.stop()
         registerMusicAsync()
     }
 

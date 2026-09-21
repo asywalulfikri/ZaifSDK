@@ -17,12 +17,15 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import sound.recorder.widget.CustomAppBarLayoutBehavior
 import sound.recorder.widget.adapter.AudioRecorderAdapter
 import sound.recorder.widget.base.BaseFragmentWidget
@@ -52,7 +55,6 @@ class FragmentListRecord : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("NotifyDataSetChanged")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -139,14 +141,14 @@ class FragmentListRecord : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
             val toDelete : List<AudioRecord> = audioRecords.filter { it.isChecked }
             audioRecords = audioRecords.filter { !it.isChecked }
 
-            GlobalScope.launch {
+            if (toDelete.isEmpty()) return@setOnClickListener
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 db.audioRecordDAO().delete(toDelete)
-                if(audioRecords.isEmpty()){
-                    fetchAll()
-                }else{
-                    activity?.runOnUiThread {
-                        audioRecorderAdapter.setData(audioRecords)
-
+                val records = db.audioRecordDAO().getAllByDateDESC()
+                withContext(Dispatchers.Main) {
+                    if (isAdded) {
+                        audioRecords = records
+                        audioRecorderAdapter.setData(records)
                     }
                 }
             }
@@ -186,21 +188,26 @@ class FragmentListRecord : BaseFragmentWidget(), AudioRecorderAdapter.OnItemClic
 
 
     private fun fetchAll(){
-        MainScope().launch {
-            withContext(Dispatchers.Default) {
-                audioRecords = db.audioRecordDAO().getAllByDateDESC()
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val records = db.audioRecordDAO().getAllByDateDESC()
+            withContext(Dispatchers.Main) {
+                if (isAdded) {
+                    audioRecords = records
+                    audioRecorderAdapter.setData(records)
+                }
             }
-            audioRecorderAdapter.setData(audioRecords)
         }
 
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun searchDatabase(query: String){
-        GlobalScope.launch {
-            audioRecords = db.audioRecordDAO().searchDatabase(query)
-            activity?.runOnUiThread{
-                audioRecorderAdapter.setData(audioRecords)
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val records = db.audioRecordDAO().searchDatabase(query)
+            withContext(Dispatchers.Main) {
+                if (isAdded) {
+                    audioRecords = records
+                    audioRecorderAdapter.setData(records)
+                }
             }
         }
     }

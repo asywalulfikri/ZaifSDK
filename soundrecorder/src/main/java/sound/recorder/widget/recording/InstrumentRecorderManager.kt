@@ -15,6 +15,11 @@ class InstrumentRecorderManager(
     private var startTime = 0L
     private val recordedEvents = mutableListOf<RecordedTap>()
     private val playbackHandler = Handler(Looper.getMainLooper())
+    private var playbackToken = 0L
+    private var playbackEvents: List<RecordedTap> = emptyList()
+    private var playbackIndex = 0
+    private var playbackStartedAt = 0L
+    private var playbackComplete: (() -> Unit)? = null
 
     // Inisialisasi Gson untuk konversi JSON
     private val gson = Gson()
@@ -46,19 +51,53 @@ class InstrumentRecorderManager(
             return
         }
 
-        events.forEach { event ->
-            playbackHandler.postDelayed({
-                onTriggerNote(event)
-            }, event.timestamp)
-        }
-
-        // Tambahkan delay sedikit setelah not terakhir selesai agar tidak terputus kasar
-        val totalDuration = (events.lastOrNull()?.timestamp ?: 0L) + 200L
-        playbackHandler.postDelayed({ onComplete() }, totalDuration)
+        playbackEvents = events.sortedBy { it.timestamp }
+        playbackIndex = 0
+        playbackStartedAt = System.currentTimeMillis()
+        playbackComplete = onComplete
+        val token = playbackToken
+        scheduleNextEvent(token)
     }
 
     fun stopPlayback() {
+        playbackToken++
         playbackHandler.removeCallbacksAndMessages(null)
+        playbackEvents = emptyList()
+        playbackIndex = 0
+        playbackComplete = null
+    }
+
+    private fun scheduleNextEvent(token: Long) {
+        if (token != playbackToken || playbackIndex >= playbackEvents.size) {
+            if (token == playbackToken) {
+                val callback = playbackComplete
+                playbackComplete = null
+                playbackEvents = emptyList()
+                callback?.invoke()
+            }
+            return
+        }
+
+        val event = playbackEvents[playbackIndex]
+        val elapsed = System.currentTimeMillis() - playbackStartedAt
+        val delay = (event.timestamp - elapsed).coerceAtLeast(0L)
+        playbackHandler.postDelayed({
+            if (token != playbackToken) return@postDelayed
+            onTriggerNote(event)
+            playbackIndex++
+            if (playbackIndex >= playbackEvents.size) {
+                playbackHandler.postDelayed({
+                    if (token == playbackToken) {
+                        val callback = playbackComplete
+                        playbackComplete = null
+                        playbackEvents = emptyList()
+                        callback?.invoke()
+                    }
+                }, 200L)
+            } else {
+                scheduleNextEvent(token)
+            }
+        }, delay)
     }
 
     // --- PENYESUAIAN PENTING: MENGGUNAKAN GSON ---

@@ -38,7 +38,8 @@ class MusicViewModel : ViewModel() {
     private var mediaPlayer: MediaPlayer? = null
     var recorder: MediaRecorder? = null
 
-    private lateinit var handler: Handler
+    private val handler = Handler(Looper.getMainLooper())
+    private val recorderLock = Any()
 
     private val _currentPosition = MutableLiveData<Int>()
     val currentPosition: LiveData<Int> = _currentPosition
@@ -175,7 +176,6 @@ class MusicViewModel : ViewModel() {
 
     @SuppressLint("UseKtx")
     fun playMusic(context: Context, filePath: String) {
-        handler = Handler(Looper.getMainLooper())
         stopMusic()
         try {
             mediaPlayer = MediaPlayer()
@@ -227,18 +227,17 @@ class MusicViewModel : ViewModel() {
     }
 
     fun stopMusic() {
-        viewModelScope.launch {
-            try {
-                mediaPlayer?.apply {
-                    stop()
-                    reset()
-                    release()
-                    mediaPlayer = null
-                    setIsPlaying(false,false)
-                }
-            } catch (e: Exception) {
-                setLog(e.message)
+        handler.removeCallbacks(updateProgressRunnable)
+        try {
+            mediaPlayer?.apply {
+                if (isPlaying) stop()
+                reset()
+                release()
             }
+            mediaPlayer = null
+            setIsPlaying(false,false)
+        } catch (e: Exception) {
+            setLog(e.message)
         }
     }
 
@@ -293,47 +292,47 @@ class MusicViewModel : ViewModel() {
     }
 
     fun recordAudioStart(fileName: String, dirPath: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            synchronized(recorderLock) {
             try {
+                if (recorder != null) return@synchronized
                 val dir = File(dirPath)
                 if (!dir.exists()) dir.mkdirs()
 
                 val outputFile = "$dirPath$fileName"
-                recorder = MediaRecorder().apply {
+                val recorderInstance = MediaRecorder().apply {
                     setAudioSource(MediaRecorder.AudioSource.MIC)
                     setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
                     setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
                     setOutputFile(outputFile)
-
-                    try {
-                        withContext(Dispatchers.IO) {
-                            prepare() // sync  di background
-                        }
-                        start() // Start main thread
-
-                        _setRecord.postValue(true) // Notify UI
-                    } catch (e: Exception) {
-                        setLog(e.message)
-                        showToast(e.message ?: "Prepare/start error")
-                    }
+                }
+                try {
+                    recorderInstance.prepare()
+                    recorderInstance.start()
+                    recorder = recorderInstance
+                    _setRecord.postValue(true)
+                } catch (e: Exception) {
+                    try { recorderInstance.release() } catch (_: Exception) { }
+                    setLog(e.message)
+                    showToast(e.message ?: "Prepare/start error")
                 }
             } catch (e: Exception) {
                 setLog(e.message)
                 showToast(e.message ?: "Recorder init error")
+            }
             }
         }
     }
 
 
     fun pauseRecord(){
-        viewModelScope.launch{
+        viewModelScope.launch(Dispatchers.IO){
+            synchronized(recorderLock) {
             if (recorder != null) {
                 try {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         recorder?.pause()
-                        withContext(Dispatchers.Main) {
-                            _pauseRecord.postValue(true)
-                        }
+                        _pauseRecord.postValue(true)
 
                         isPause = true
                     } else {
@@ -344,20 +343,20 @@ class MusicViewModel : ViewModel() {
                     setLog(e.message)
                 }
             }
+            }
         }
     }
 
     fun resumeRecord(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            synchronized(recorderLock) {
             if(recorder!=null){
                 try {
                     recorder?.apply {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             resume()
-                            withContext(Dispatchers.Main) {
-                                _resumeRecord.value = Event(true)
-                                _pauseRecord.postValue(false)
-                            }
+                            _resumeRecord.postValue(Event(true))
+                            _pauseRecord.postValue(false)
                             isPause = false
                         }
                     }
@@ -368,40 +367,44 @@ class MusicViewModel : ViewModel() {
                 }
 
             }
+            }
         }
     }
 
 
     fun stopRecord() {
-        try {
-            recorder?.apply {
-                stop()
-                reset()
-                release()
+        viewModelScope.launch(Dispatchers.IO) {
+            synchronized(recorderLock) {
+            try {
+                recorder?.apply {
+                    stop()
+                    reset()
+                    release()
+                }
+                recorder = null
+                _stopRecord.postValue(Event(true))
+                _setRecord.postValue(false)
+            } catch (e: Exception) {
+                setLog(e.message)
             }
-            recorder = null
-            _stopRecord.value = Event(true)
-            _setRecord.postValue(false)
-
-        } catch (e: Exception) {
-            setLog(e.message)
+            }
         }
     }
 
     fun cancelRecord() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            synchronized(recorderLock) {
             try {
                 recorder?.let {
                     it.stop()
                     it.reset()
                     it.release()
                     recorder = null
-                    withContext(Dispatchers.Main) {
-                        _cancelRecord.value = Event(true)
-                    }
+                    _cancelRecord.postValue(Event(true))
                 }
             } catch (e: Exception) {
                 setLog(e.message)
+            }
             }
         }
     }
@@ -483,6 +486,19 @@ class MusicViewModel : ViewModel() {
 
     fun setLog(message : String? =null){
         Log.e("error_sdk", message ?: "Unknown error")
+    }
+
+    override fun onCleared() {
+        handler.removeCallbacksAndMessages(null)
+        try {
+            mediaPlayer?.release()
+        } catch (_: Exception) { }
+        try {
+            recorder?.release()
+        } catch (_: Exception) { }
+        mediaPlayer = null
+        recorder = null
+        super.onCleared()
     }
 
 }

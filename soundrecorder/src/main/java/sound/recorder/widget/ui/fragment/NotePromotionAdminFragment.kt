@@ -37,10 +37,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
 import org.json.JSONObject
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
@@ -1125,7 +1125,7 @@ class NotePromotionAdminFragment : Fragment() {
             JSONObject(serviceAccountJson).getString("project_id")
         } catch (e: Exception) { return }
 
-        CoroutineScope(Dispatchers.IO).launch {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val accessToken = getOAuthToken(serviceAccountJson) ?: return@launch
 
@@ -1190,7 +1190,7 @@ class NotePromotionAdminFragment : Fragment() {
             return
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val accessToken = getOAuthToken(serviceAccountJson)
                 if (accessToken == null) {
@@ -1461,7 +1461,7 @@ class NotePromotionAdminFragment : Fragment() {
             return
         }
         val ctx = requireContext()
-        CoroutineScope(Dispatchers.Main).launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val fileName = "${note.recordName.replace(" ", "_")}_note.json"
                 val file = withContext(Dispatchers.IO) {

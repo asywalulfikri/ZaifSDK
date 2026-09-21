@@ -40,7 +40,7 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
         val filename = intent.getStringExtra("filename")
 
 
-        if(filePath!=null||filePath!=""){
+        if (!filePath.isNullOrBlank()) {
             binding.tvFilename.text = filename
 
 
@@ -48,7 +48,12 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
                 mediaPlayer = MediaPlayer()
                 mediaPlayer.apply {
                     setDataSource(this@PlayerActivityWidget, Uri.parse(filePath))
-                    mediaPlayer.prepare()
+                    setOnPreparedListener { player ->
+                        binding.seekBar.max = player.duration
+                        playPausePlayer()
+                    }
+                    setOnCompletionListener { stopPlayer() }
+                    prepareAsync()
                 }
             } catch (e: IOException) {
                 setToastTic(Toastic.ERROR,e.message.toString())
@@ -58,19 +63,17 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
                 setToastTic(Toastic.ERROR,e.message.toString())
             }
 
+            if (!::mediaPlayer.isInitialized) {
+                finish()
+                return
+            }
+
             /*mediaPlayer = MediaPlayer()
             mediaPlayer.apply {
                 setDataSource(filePath)
                 prepare()
             }*/
-            binding.seekBar.max = mediaPlayer.duration
-
             handler = Handler(Looper.getMainLooper())
-            playPausePlayer()
-
-            mediaPlayer.setOnCompletionListener {
-                stopPlayer()
-            }
 
             binding.btnPlay.setOnClickListener {
                 playPausePlayer()
@@ -78,7 +81,7 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
 
             binding.btnForward.setOnClickListener {
 
-                if(mediaPlayer!=null){
+                if (::mediaPlayer.isInitialized) {
                     try {
                         mediaPlayer.apply {
                             seekTo(mediaPlayer.currentPosition + 1000)
@@ -96,7 +99,7 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
 
             binding.btnBackward.setOnClickListener {
 
-                if(mediaPlayer!=null){
+                if (::mediaPlayer.isInitialized) {
                     try {
                         mediaPlayer.apply {
                             seekTo(mediaPlayer.currentPosition - 1000)
@@ -191,9 +194,7 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
-
-        if(mediaPlayer!=null){
+        if (::mediaPlayer.isInitialized) {
             try {
                 mediaPlayer.apply {
                     stop()
@@ -208,5 +209,14 @@ internal class PlayerActivityWidget : BaseActivityWidget() {
                 setToastTic(Toastic.ERROR,e.message.toString())
             }
         }
+        super.onBackPressed()
+    }
+
+    override fun onDestroy() {
+        if (::handler.isInitialized) handler.removeCallbacksAndMessages(null)
+        if (::mediaPlayer.isInitialized) {
+            try { mediaPlayer.release() } catch (_: Exception) { }
+        }
+        super.onDestroy()
     }
 }

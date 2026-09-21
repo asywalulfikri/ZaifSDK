@@ -41,6 +41,12 @@ object SoundPlayUtils {
     fun init(context: Context) {
         if (isInitialized) return
         isInitialized = true
+        totalSounds = 0
+        loadedSounds = 0
+        instrumentSounds.clear()
+        activeStreams.clear()
+        _loadingProgress.postValue(0)
+        _isLoaded.postValue(false)
 
         // Inisialisasi SoundPool
         soundPool = SoundPool.Builder()
@@ -183,8 +189,14 @@ object SoundPlayUtils {
     }
 
     fun setVolume(newVolume: Float) {
-        this.volume = newVolume
-        mediaPlayer?.setVolume(newVolume, newVolume)
+        this.volume = newVolume.coerceIn(0f, 1f)
+        audioExecutor.execute {
+            try {
+                mediaPlayer?.setVolume(this.volume, this.volume)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     fun release() {

@@ -22,10 +22,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
 import org.json.JSONObject
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
@@ -242,7 +242,7 @@ class BugReportAdminFragment : Fragment() {
             return
         }
 
-        CoroutineScope(Dispatchers.IO).launch {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val accessToken = getOAuthToken(serviceAccountJson)
                 if (accessToken == null) {

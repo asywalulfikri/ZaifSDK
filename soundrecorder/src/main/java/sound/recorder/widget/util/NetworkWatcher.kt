@@ -38,7 +38,11 @@ class NetworkWatcher(private val owner: LifecycleOwner, private val onAvailable:
         // 3. Cleanup otomatis saat owner hancur
         owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
-                connectivityManager?.unregisterNetworkCallback(networkCallback)
+                try {
+                    connectivityManager?.unregisterNetworkCallback(networkCallback)
+                } catch (_: IllegalArgumentException) {
+                    // Callback was never registered or was already removed.
+                }
                 connectivityManager = null
                 super.onDestroy(owner)
             }
