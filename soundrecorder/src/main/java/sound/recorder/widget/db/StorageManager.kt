@@ -16,13 +16,19 @@ class StorageManager(private var app: Application) {
     }
 
     fun createRecordingFile(fileName: String): ParcelFileDescriptor? {
-        val uri = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        val contentValues = ContentValues().apply {
-            put(MediaStore.Audio.Media.DISPLAY_NAME, fileName)
-            put(MediaStore.Audio.Media.RELATIVE_PATH, "Music/$RECORDINGDS_FOLDER_NAME")
+        return try {
+            val uri = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Audio.Media.DISPLAY_NAME, fileName)
+                put(MediaStore.Audio.Media.RELATIVE_PATH, "Music/$RECORDINGDS_FOLDER_NAME")
+            }
+            val newFileUri = resolver.insert(uri, contentValues)
+            newFileUri?.let { resolver.openFileDescriptor(it, "rw") }
+        } catch (_: IllegalArgumentException) {
+            null
+        } catch (_: SecurityException) {
+            null
         }
-        val newFileUri = resolver.insert(uri, contentValues)
-        return newFileUri?.let { resolver.openFileDescriptor(it, "rw") }
     }
 
     fun getRecordings() : List<Recording> {
@@ -41,14 +47,20 @@ class StorageManager(private var app: Application) {
         val selection = MediaStore.Audio.AudioColumns.RELATIVE_PATH + " like ?"
         val selectionArgs = arrayOf("%$RECORDINGDS_FOLDER_NAME%");
 
-        val recordingsCursor = resolver.query(
-            uri,
-            projection,
-            selection,
-            selectionArgs,
-            MediaStore.Audio.AudioColumns.DATE_ADDED + " DESC",
+        val recordingsCursor = try {
+            resolver.query(
+                uri,
+                projection,
+                selection,
+                selectionArgs,
+                MediaStore.Audio.AudioColumns.DATE_ADDED + " DESC",
+                null
+            )
+        } catch (_: IllegalArgumentException) {
             null
-        )
+        } catch (_: SecurityException) {
+            null
+        }
 
 
         recordingsCursor?.use { cursor ->

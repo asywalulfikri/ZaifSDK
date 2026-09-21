@@ -1383,31 +1383,48 @@ object MusicListDialogHelper {
         if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED)
             return tracks
 
-        val uri        = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val projection = arrayOf(
             MediaStore.Audio.Media.TITLE,
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media._ID
         )
-        context.contentResolver.query(
-            uri, projection,
-            "${MediaStore.Audio.Media.IS_MUSIC} != 0", null, null
-        )?.use { cursor ->
-            while (cursor.moveToNext()) {
-                val titleIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-                val durIndex   = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
-                val idIndex    = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
+        val candidateUris = buildList {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                add(MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL))
+            }
+            add(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+        }
 
-                val title = if (titleIndex >= 0) cursor.getString(titleIndex) ?: "Unknown" else "Unknown"
-                val dur   = if (durIndex >= 0) cursor.getLong(durIndex) else 0L
-                val id    = if (idIndex >= 0) cursor.getLong(idIndex) else continue
+        for (uri in candidateUris.distinct()) {
+            try {
+                context.contentResolver.query(
+                    uri, projection,
+                    "${MediaStore.Audio.Media.IS_MUSIC} != 0", null, null
+                )?.use { cursor ->
+                    while (cursor.moveToNext()) {
+                        val titleIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+                        val durIndex   = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
+                        val idIndex    = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
 
-                tracks.add(
-                    MusicPlayerManager.MusicTrack(
-                        title, dur, false, 0,
-                        Uri.withAppendedPath(uri, id.toString())
-                    )
-                )
+                        val title = if (titleIndex >= 0) cursor.getString(titleIndex) ?: "Unknown" else "Unknown"
+                        val dur   = if (durIndex >= 0) cursor.getLong(durIndex) else 0L
+                        val id    = if (idIndex >= 0) cursor.getLong(idIndex) else continue
+
+                        tracks.add(
+                            MusicPlayerManager.MusicTrack(
+                                title, dur, false, 0,
+                                Uri.withAppendedPath(uri, id.toString())
+                            )
+                        )
+                    }
+                }
+                return tracks
+            } catch (e: IllegalArgumentException) {
+                Log.w("MusicListDialogHelper", "Unsupported MediaStore volume: $uri", e)
+                tracks.clear()
+            } catch (e: SecurityException) {
+                Log.w("MusicListDialogHelper", "MediaStore permission denied", e)
+                return tracks
             }
         }
         return tracks

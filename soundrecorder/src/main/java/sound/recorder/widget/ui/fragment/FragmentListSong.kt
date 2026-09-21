@@ -289,17 +289,34 @@ class FragmentListSong(
                     tempNote.add(song.note.orEmpty())
                 }
 
-                val uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-                val cursor = requireContext().contentResolver.query(
-                    uri,
-                    arrayOf(
-                        MediaStore.Audio.Media.TITLE,
-                        MediaStore.Audio.Media.DATA
-                    ),
-                    null,
-                    null,
-                    null
-                )
+                val resolver = requireContext().contentResolver
+                val candidateUris = buildList {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        add(MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL))
+                    }
+                    add(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+                }
+                var cursor: android.database.Cursor? = null
+                for (uri in candidateUris.distinct()) {
+                    try {
+                        cursor = resolver.query(
+                            uri,
+                            arrayOf(
+                                MediaStore.Audio.Media.TITLE,
+                                MediaStore.Audio.Media.DATA
+                            ),
+                            null,
+                            null,
+                            null
+                        )
+                        break
+                    } catch (e: IllegalArgumentException) {
+                        Log.w("FragmentListSong", "Unsupported MediaStore volume: $uri", e)
+                    } catch (e: SecurityException) {
+                        Log.w("FragmentListSong", "MediaStore permission denied", e)
+                        break
+                    }
+                }
 
                 cursor?.use {
                     val titleIdx = it.getColumnIndex(MediaStore.Audio.Media.TITLE)
