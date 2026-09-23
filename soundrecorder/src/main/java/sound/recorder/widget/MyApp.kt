@@ -9,7 +9,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Process
 import android.util.Log
-import android.webkit.CookieManager
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.work.Configuration
@@ -20,7 +19,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.*
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.resume
 
 open class MyApp : Application(), Configuration.Provider {
 
@@ -36,7 +34,6 @@ open class MyApp : Application(), Configuration.Provider {
 
     companion object {
         private const val TAG = "MyApp"
-        private const val ADMOB_TIMEOUT_MS = 10_000L
         private const val FIREBASE_INIT_TIMEOUT_MS = 10_000L
 
         @Volatile
@@ -52,6 +49,8 @@ open class MyApp : Application(), Configuration.Provider {
         private val sdkListeners = CopyOnWriteArrayList<SdkInitializationListener>()
         private val listenerLock = Any()
         private val mainHandler = Handler(Looper.getMainLooper())
+
+        private val adMobInitializationStarted = AtomicBoolean(false)
 
         fun registerListener(listener: SdkInitializationListener) {
             val initialized = synchronized(listenerLock) {
@@ -138,19 +137,6 @@ open class MyApp : Application(), Configuration.Provider {
                 Log.w(TAG, "Firebase initialization timed out")
             }
 
-            val admobJob = launch {
-                val webViewAvailable = withContext(Dispatchers.Main) {
-                    isWebViewAvailableSafely()
-                }
-                if (webViewAvailable) {
-                    withTimeoutOrNull(ADMOB_TIMEOUT_MS) {
-                        initializeAdMob()
-                    } ?: Log.w(TAG, "AdMob initialization timed out")
-                } else {
-                    Log.w(TAG, "WebView not available, skipping AdMob init")
-                }
-            }
-
             val workManagerJob = launch {
                 try {
                     WorkManager.getInstance(this@MyApp)
@@ -160,7 +146,13 @@ open class MyApp : Application(), Configuration.Provider {
                 }
             }
 
-            joinAll(admobJob, workManagerJob)
+            // AdMob must not delay the application's essential startup. Its
+            // initialization may touch Google Play services/WebView and can
+            // block on vendor devices. Ads are loaded later by the Activity
+            // when a valid ad container is available.
+            initializeAdMobInBackground()
+
+            workManagerJob.join()
         }
 
         isStartupPhase = false
@@ -192,28 +184,21 @@ open class MyApp : Application(), Configuration.Provider {
         }
     }
 
-    private suspend fun initializeAdMob() {
-        delay(1500)
+    private fun initializeAdMobInBackground() {
+        if (!adMobInitializationStarted.compareAndSet(false, true)) return
 
-        withContext(Dispatchers.Main) {
+        applicationScope.launch(Dispatchers.IO) {
+            // Give the first Activity a chance to render before Google Play
+            // services/AdMob performs its one-time initialization.
+            delay(1500)
             try {
-                // WebView and CookieManager APIs must be touched from the main thread.
-                CookieManager.getInstance()
-            } catch (e: Throwable) {
-                Log.e(TAG, "CookieManager init error: ${e.message}")
-            }
-
-            suspendCancellableCoroutine { cont ->
-                try {
-                    MobileAds.initialize(this@MyApp) { status ->
-                        Log.d(TAG, "AdMob initialized: $status")
-                        showDebugToast("AdMob berhasil diinisialisasi")
-                        if (cont.isActive) cont.resume(Unit)
-                    }
-                } catch (e: Throwable) {
-                    Log.e(TAG, "AdMob init error: ${e.message}")
-                    if (cont.isActive) cont.resume(Unit)
+                MobileAds.initialize(applicationContext) { status ->
+                    Log.d(TAG, "AdMob initialized: $status")
+                    showDebugToast("AdMob berhasil diinisialisasi")
                 }
+            } catch (e: Throwable) {
+                // Advertising must never prevent the host app from starting.
+                Log.e(TAG, "AdMob init error: ${e.message}", e)
             }
         }
     }
@@ -224,20 +209,6 @@ open class MyApp : Application(), Configuration.Provider {
             mainHandler.post {
                 Toast.makeText(this@MyApp, message, Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-    private fun isWebViewAvailableSafely(): Boolean {
-        return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                WebView.getCurrentWebViewPackage() != null ||
-                        packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_WEBVIEW)
-            } else {
-                true
-            }
-        } catch (e: Throwable) {
-            Log.e(TAG, "WebView check error: ${e.message}")
-            false
         }
     }
 

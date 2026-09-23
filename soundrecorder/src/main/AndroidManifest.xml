@@ -42,6 +42,15 @@
             android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
             android:value="true"/>
 
+        <!-- Keep Google Mobile Ads initialization and ad loading off the UI
+             thread where the SDK supports it. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
+            android:value="true"/>
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
+            android:value="true"/>
+
         <service
             android:name=".notification.FirebaseMessageReceiver"
             android:exported="false">
