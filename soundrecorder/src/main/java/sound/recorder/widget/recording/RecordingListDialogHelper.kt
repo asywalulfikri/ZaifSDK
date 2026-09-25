@@ -621,28 +621,38 @@ object RecordingListDialogHelper {
 
     private fun shareAudioFile(context: Context, rec: RecordingEntity) {
         val path = rec.audioPath ?: return
-        val file = File(path)
-        if (!file.exists()) {
-            android.widget.Toast.makeText(
-                context, context.getString(R.string.file_not_found), android.widget.Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-        try {
-            val uri = FileProvider.getUriForFile(
-                context, "${context.packageName}.provider", file
-            )
-            val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                type = "audio/mp4"
-                putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_SUBJECT, rec.name)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        actionScope.launch {
+            try {
+                val uri = withContext(Dispatchers.IO) {
+                    val file = File(path)
+                    if (!file.exists() || !file.isFile) return@withContext null
+
+                    // FileProvider may inspect provider roots and touch the filesystem.
+                    // Keep that work off the main thread, especially on Android 14+.
+                    FileProvider.getUriForFile(
+                        context, "${context.packageName}.provider", file
+                    )
+                }
+
+                if (uri == null) {
+                    Toast.makeText(
+                        context, context.getString(R.string.file_not_found), Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
+
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "audio/mp4"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    putExtra(Intent.EXTRA_SUBJECT, rec.name)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                context.startActivity(Intent.createChooser(shareIntent, rec.name))
+            } catch (e: Exception) {
+                Toast.makeText(
+                    context, context.getString(R.string.share_failed), Toast.LENGTH_SHORT
+                ).show()
             }
-            context.startActivity(Intent.createChooser(shareIntent, rec.name))
-        } catch (e: Exception) {
-            android.widget.Toast.makeText(
-                context, context.getString(R.string.share_failed), android.widget.Toast.LENGTH_SHORT
-            ).show()
         }
     }
 
