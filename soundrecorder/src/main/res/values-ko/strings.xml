@@ -523,4 +523,8 @@
     <string name="record_overdub">겹쳐 녹음</string>
     <string name="record_overdub_hint">녹음이 재생돼요 — 패드를 눌러 새 레이어를 추가하세요</string>
     <string name="record_overdub_name">%1$s + 레이어</string>
+    <string name="record_failed">녹음에 실패했습니다</string>
+    <string name="music_source_asset">내장</string>
+    <string name="music_source_storage">저장소</string>
+    <string name="export_first_free">오늘 1회 무료 내보내기, 광고 없음</string>
 </resources>

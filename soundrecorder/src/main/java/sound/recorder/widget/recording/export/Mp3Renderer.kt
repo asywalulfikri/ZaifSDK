@@ -221,7 +221,7 @@ internal class Mp3Renderer(private val context: Context) {
             val sample = resolver.resolveSample(setName, tap) ?: continue
             val stereo = cache.getOrPut(sample.cacheKey) {
                 try {
-                    toStereo44k(PcmDecoder.decodeSample(context, sample, isCancelled))
+                    toStereo44k(PcmDecoder.decodeSample(context, sample, isCancelled), sample.safeRate)
                 } catch (e: Exception) {
                     android.util.Log.e("Mp3Renderer", "Gagal decode sampel ${sample.cacheKey}: ${e.message}")
                     null
@@ -268,12 +268,13 @@ internal class Mp3Renderer(private val context: Context) {
         }
     }
 
-    private fun toStereo44k(pcm: DecodedPcm): StereoSample {
+    /** @param rate > 1 = nada lebih tinggi & lebih pendek (seperti rate di SoundPool). */
+    private fun toStereo44k(pcm: DecodedPcm, rate: Float = 1f): StereoSample {
         val ch = pcm.channels
         val srcFrames = pcm.frames
         if (srcFrames == 0) return StereoSample(FloatArray(0))
-        val outFrames = (srcFrames.toLong() * OUT_RATE / pcm.sampleRate).toInt().coerceAtLeast(1)
-        val ratio = pcm.sampleRate.toDouble() / OUT_RATE
+        val ratio = pcm.sampleRate.toDouble() * rate / OUT_RATE
+        val outFrames = (srcFrames / ratio).toInt().coerceAtLeast(1)
         val out = FloatArray(outFrames * 2)
         for (i in 0 until outFrames) {
             val srcPos = i * ratio

@@ -38,13 +38,18 @@ interface RecordingExportResolver {
  * Sumber suara satu ketukan. Isi salah satu: [resId] (res/raw) atau [assetPath] (assets/).
  * @param loop true untuk instrumen tiup/sustain: sampel diulang sampai event "OFF".
  * @param gain volume relatif 0..1.
+ * @param rate kecepatan putar sampel, sama dengan `rate` di `SoundPool.play()` / engine host
+ *        (1 = asli, 2 = satu oktaf lebih tinggi). Untuk nada hasil geser pitch: `2^(semitone / 12)`.
  */
 @Keep
 data class ExportSample(
     @RawRes val resId: Int = 0,
     val assetPath: String? = null,
     val loop: Boolean = false,
-    val gain: Float = 1f
+    val gain: Float = 1f,
+    val rate: Float = 1f
 ) {
-    internal val cacheKey: String get() = if (resId != 0) "res:$resId" else "asset:$assetPath"
+    /** Rate yang aman dipakai (batas sama dengan SoundPool: 0.5–2, diperlebar untuk engine host lain). */
+    internal val safeRate: Float get() = if (rate.isFinite() && rate > 0f) rate.coerceIn(0.25f, 4f) else 1f
+    internal val cacheKey: String get() = (if (resId != 0) "res:$resId" else "asset:$assetPath") + "@$safeRate"
 }

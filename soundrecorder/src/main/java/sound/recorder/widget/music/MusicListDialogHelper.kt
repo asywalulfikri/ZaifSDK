@@ -1062,8 +1062,10 @@ object MusicListDialogHelper {
                 )
             }
 
-            holder.metaTv.text = if (track.isRaw) "ASSET • ${formatMs(track.duration)}"
-            else "STORAGE • ${formatMs(track.duration)}"
+            val source = holder.metaTv.context.getString(
+                if (track.isRaw) R.string.music_source_asset else R.string.music_source_storage
+            )
+            holder.metaTv.text = "$source • ${formatMs(track.duration)}"
 
             // Lagu aktif sudah ditandai equalizer; lainnya tampilkan tombol play bulat
             holder.playIcon.visibility = if (isPlaying) View.INVISIBLE else View.VISIBLE

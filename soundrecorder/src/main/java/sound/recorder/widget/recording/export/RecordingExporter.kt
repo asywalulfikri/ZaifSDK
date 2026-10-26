@@ -58,6 +58,41 @@ object RecordingExporter {
     var mp3BitrateKbps = 128
 
     /**
+     * Jumlah export gratis tanpa rewarded ad per hari (reset tiap ganti tanggal, waktu lokal HP).
+     * 0 = setiap export wajib nonton iklan. Hanya berlaku jika host memasang iklan export.
+     */
+    @JvmStatic
+    var freeExportsPerDay = 1
+
+    private const val PREFS_EXPORT = "zaif_recording_export"
+    private const val KEY_FREE_DAY = "free_export_day"
+    private const val KEY_FREE_USED = "free_exports_used"
+
+    private fun exportPrefs(context: Context) =
+        context.applicationContext.getSharedPreferences(PREFS_EXPORT, Context.MODE_PRIVATE)
+
+    /** Tanggal lokal hari ini, contoh 20261026. */
+    private fun today(): Int {
+        val cal = java.util.Calendar.getInstance()
+        return cal.get(java.util.Calendar.YEAR) * 10_000 +
+            (cal.get(java.util.Calendar.MONTH) + 1) * 100 + cal.get(java.util.Calendar.DAY_OF_MONTH)
+    }
+
+    private fun usedToday(context: Context): Int {
+        val prefs = exportPrefs(context)
+        return if (prefs.getInt(KEY_FREE_DAY, 0) == today()) prefs.getInt(KEY_FREE_USED, 0) else 0
+    }
+
+    /** true jika hari ini masih ada jatah export gratis. */
+    internal fun hasFreeExport(context: Context): Boolean = usedToday(context) < freeExportsPerDay
+
+    /** Pakai satu jatah export gratis hari ini (dipanggil setelah export berhasil dibuat). */
+    internal fun consumeFreeExport(context: Context) {
+        val used = usedToday(context) + 1
+        exportPrefs(context).edit().putInt(KEY_FREE_DAY, today()).putInt(KEY_FREE_USED, used).apply()
+    }
+
+    /**
      * Jumlah maksimal suara pad yang berbunyi bersamaan saat render MP3.
      * Samakan dengan `SoundPool.Builder().setMaxStreams(n)` di host app agar hasil MP3 = yang terdengar di app.
      * 0 = tanpa batas.
