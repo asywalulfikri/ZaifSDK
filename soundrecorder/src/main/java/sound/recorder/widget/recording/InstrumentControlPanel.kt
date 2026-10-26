@@ -31,6 +31,9 @@ import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
 import sound.recorder.widget.music.InstrumentDialogHelper
 import sound.recorder.widget.music.MusicListDialogHelper
+import sound.recorder.widget.recording.database.RecordedMusicSegment
+import java.io.File
+import sound.recorder.widget.music.MusicPlayerManager
 import sound.recorder.widget.recording.database.AppDatabase
 import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.recording.database.RecordingEntity
@@ -71,6 +74,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     var isMusicUnlocked = false
     var isListRecordUnlocked = false
     var showPromotButton = true
+    private var isPremium = false
 
     // ─── TIMER RECORDING ───
     // Dipanggil setiap detik saat recording berjalan.
@@ -83,6 +87,16 @@ class InstrumentControlPanel @JvmOverloads constructor(
     var onRecordingStopped: ((isSaved: Boolean) -> Unit)? = null
 
     private var recordingStartTime = 0L
+    private var recordingStartedAtWall = 0L
+    private var draftTick = 0
+    private var pendingRecording: PendingRecording? = null
+    // Lagu dari daftar musik yang berbunyi selama rekaman (dicatat) & diputar ulang bersama rekaman
+    private val musicTracker = MusicRecordTracker(context)
+    private val musicPlayer = RecordingMusicPlayer(context)
+    /** Rekaman dasar saat rekam lapis (overdub); null = rekaman biasa. */
+    private var overdub: OverdubSession? = null
+    /** true selama ketukan hasil putar ulang dikirim ke host. */
+    private var dispatchingPlayback = false
     private val timerHandler = Handler(Looper.getMainLooper())
     private var panelScopeJob = SupervisorJob()
     private var panelScope = CoroutineScope(panelScopeJob + Dispatchers.Main.immediate)
@@ -92,6 +106,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
             val elapsed = System.currentTimeMillis() - recordingStartTime
             val formatted = formatDuration(elapsed)
             onRecordingTick?.invoke(elapsed, formatted)
+            // Draft tiap 5 detik → rekaman bisa dipulihkan kalau proses app mati mendadak
+            if (++draftTick % 5 == 0) writeDraftNow()
             timerHandler.postDelayed(this, 1000)
         }
     }
@@ -109,7 +125,13 @@ class InstrumentControlPanel @JvmOverloads constructor(
     private lateinit var blinkManager: BlinkManager
 
     private val recorderManager = InstrumentRecorderManager { event ->
-        listener?.onPlaybackEvent(event)
+        // Saat rekam lapis, host bisa saja memanggil recordEvent dari onPlaybackEvent → itu bukan ketukan user
+        dispatchingPlayback = true
+        try {
+            listener?.onPlaybackEvent(event)
+        } finally {
+            dispatchingPlayback = false
+        }
     }
 
     // ─── BUTTONS ───
@@ -163,9 +185,12 @@ class InstrumentControlPanel @JvmOverloads constructor(
         this.orientation = orientation
         initHelpers()
         renderUI()
+        // Rekaman dari sesi sebelumnya yang terputus (app mati saat merekam) → masukkan ke daftar
+        RecordingAutosave.recoverIfAny(context)
     }
 
     fun setUnlockedStatus(isPremium: Boolean, musicUnlocked: Boolean, listRecordUnlocked: Boolean) {
+        this.isPremium = isPremium
         isMusicUnlocked = isPremium || musicUnlocked
         isListRecordUnlocked = isPremium || listRecordUnlocked || zaifSDKConfig?.isLockRec == false
         refreshStatusLabels()
@@ -281,6 +306,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         btnStop.setOnClickListener {
             recorderManager.stopPlayback()
             audioEngine.stopPlayingAudio()
+            musicPlayer.stop()
             blinkManager.stopStopBlink()
             btnStop.visibility = GONE
             listener?.onStopAll()
@@ -324,6 +350,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
             onRequestAudioPermissionMic?.invoke()
             return
         }
+        overdub = null
         isRecording = true
         isMicMode = useMic
         isEarphoneWhenRecording = if (useMic) audioEngine.isEarphonePlugged() else false
@@ -332,6 +359,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
             audioEngine.startMicRecording {
                 if (!isRecording) return@startMicRecording
                 isRecording = false
+                musicTracker.cancel()
                 timerHandler.removeCallbacks(timerRunnable)
                 blinkManager.resetRecordBtn()
                 listener?.onMuteControl(false)
@@ -340,10 +368,14 @@ class InstrumentControlPanel @JvmOverloads constructor(
             }
         }
         recorderManager.startRecording()
+        // Mic lewat speaker sudah menangkap suara lagu → jangan dicatat (kalau diputar lagi jadi dobel)
+        if (!useMic || isEarphoneWhenRecording) musicTracker.start(recorderManager.recordingStartElapsed)
         listener?.onRecordStatusChanged(true)
         blinkManager.startRecordBlink()
         // Mulai timer tick
         recordingStartTime = System.currentTimeMillis()
+        recordingStartedAtWall = recordingStartTime
+        draftTick = 0
         timerHandler.post(timerRunnable)
     }
 
@@ -356,52 +388,231 @@ class InstrumentControlPanel @JvmOverloads constructor(
         blinkManager.resetRecordBtn()
         listener?.onRecordStatusChanged(false)
 
-        val events = recorderManager.stopRecording()
+        if (overdub != null) stopOverdubPlayback()
+        val rawEvents = recorderManager.stopRecording()
+        // Mode mic: samakan 0 ms ketukan dengan awal file audio
+        val events = if (isMicMode) recorderManager.alignToMicStart(rawEvents, audioEngine.micStartedAtElapsed) else rawEvents
+        val music = alignedMusic(musicTracker.stop())
+        val pending = buildPending(events, music)
+        overdub = null
+        // Rekam lapis tanpa ketukan baru = tidak ada yang ditambahkan → sama dengan batal
         if (events.isNotEmpty()) {
+            pendingRecording = pending
+            // Draft final: kalau app mati saat dialog simpan masih tampil, rekaman tetap bisa dipulihkan
+            writeDraftOf(pending)
             activeDialog = InstrumentDialogHelper.showSaveRecordDialog(
                 context = context,
                 onSave = { name ->
                     // User pilih SAVE
+                    pendingRecording = null
                     onRecordingStopped?.invoke(true)
-                    val audioPath = if (isMicMode) audioEngine.currentAudioFile?.absolutePath else null
-                    val earphoneUsed = isEarphoneWhenRecording
-                    
-                    panelScope.launch(Dispatchers.IO) {
-                        try {
-                            val json = recorderManager.getEventsAsString(events)
-                            AppDatabase.getInstance(context.applicationContext).recordingDao().insert(
-                                RecordingEntity(
-                                    name = name,
-                                    setName = instrumentType,
-                                    eventsJson = json,
-                                    durationMs = events.last().timestamp,
-                                    audioPath = audioPath,
-                                    isEarphoneRecording = earphoneUsed
-                                )
-                            )
-                            withContext(Dispatchers.Main) {
-                                setToast(context.getString(R.string.record_saved))
-                            }
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                setToast("Error saving: ${e.message}")
-                            }
-                        }
-                    }
+                    savePending(pending, name)
                 },
                 onCancel = {
                     // User pilih CANCEL / discard
+                    pendingRecording = null
+                    RecordingAutosave.clearDraft(context)
+                    // File mic rekaman yang dibuang tidak dirujuk database mana pun → hapus agar tidak menumpuk.
+                    // Rekam lapis: audio milik rekaman dasar → JANGAN dihapus.
+                    if (!pending.audioShared) RecordingAutosave.discardAudio(context, pending.audioPath)
                     onRecordingStopped?.invoke(false)
                 }
-            )
+            ).apply {
+                setOnDismissListener {
+                    // Ditutup tanpa Save/Batal (Back, tap di luar, panel dilepas) → simpan otomatis, jangan hilang
+                    if (pendingRecording === pending) {
+                        pendingRecording = null
+                        onRecordingStopped?.invoke(true)
+                        savePending(pending, null)
+                    }
+                }
+            }
         } else {
             // Tidak ada event sama sekali → langsung anggap cancel
+            RecordingAutosave.clearDraft(context)
+            if (isMicMode) RecordingAutosave.discardAudio(context, audioEngine.currentAudioFile?.absolutePath)
             onRecordingStopped?.invoke(false)
         }
     }
 
+    // ─── AUTOSAVE ───
+    /** Rekaman yang sudah di-stop tapi belum dipilih Save/Batal. */
+    private class PendingRecording(
+        val events: List<RecordedTap>,
+        val audioPath: String?,
+        val isEarphoneRecording: Boolean,
+        val startedAtWall: Long,
+        val music: List<RecordedMusicSegment>,
+        /** true = audioPath milik rekaman dasar (rekam lapis) → disalin saat disimpan, tidak pernah dihapus. */
+        val audioShared: Boolean = false,
+        /** Nama jika user tidak mengisi (null = nama otomatis). */
+        val defaultName: String? = null
+    )
+
+    /** Rekaman dasar untuk rekam lapis. */
+    private class OverdubSession(
+        /** Ketukan dasar yang diputar & ikut disimpan. Kosong jika sudah terekam di audio mic (lewat speaker). */
+        val baseTaps: List<RecordedTap>,
+        val music: List<RecordedMusicSegment>,
+        val audioPath: String?,
+        /** Nilai isEarphoneRecording hasil: true = suara pad tidak ada di audio → ketukan diputar saat playback. */
+        val padsNotInAudio: Boolean,
+        val name: String
+    )
+
+    /** Hasil rekaman (biasa atau lapis) dari ketukan baru yang sudah di-align. */
+    private fun buildPending(newTaps: List<RecordedTap>, music: List<RecordedMusicSegment>): PendingRecording {
+        val od = overdub ?: return PendingRecording(
+            events = newTaps,
+            audioPath = if (isMicMode) audioEngine.currentAudioFile?.absolutePath else null,
+            isEarphoneRecording = isEarphoneWhenRecording,
+            startedAtWall = recordingStartedAtWall,
+            music = music
+        )
+        return PendingRecording(
+            events = (od.baseTaps + newTaps).sortedBy { it.timestamp },
+            audioPath = od.audioPath,
+            isEarphoneRecording = od.padsNotInAudio,
+            startedAtWall = recordingStartedAtWall,
+            music = od.music,
+            audioShared = od.audioPath != null,
+            defaultName = od.name
+        )
+    }
+
+    private fun writeDraftOf(p: PendingRecording) {
+        RecordingAutosave.writeDraft(
+            context, p.startedAtWall, instrumentType, p.audioPath, p.isEarphoneRecording, p.events, p.music,
+            p.audioShared, p.defaultName
+        )
+    }
+
+    // ─── REKAM LAPIS (OVERDUB) ───
+    /** Rekaman dasar diputar, ketukan baru direkam di atasnya → disimpan sebagai rekaman BARU (dasar tidak berubah). */
+    private fun startOverdub(base: RecordingEntity) {
+        if (isRecording) return
+        stopPlayback()
+        activeDialog = InstrumentDialogHelper.showCountdownDialog(context) { beginOverdub(base) }
+    }
+
+    private fun beginOverdub(base: RecordingEntity) {
+        panelScope.launch {
+            val taps = recorderManager.parseJson(base.eventsJson)
+            val music = withContext(Dispatchers.Default) { RecordedMusicJson.parse(base.musicJson) }
+            val audio = base.audioPath?.takeIf { path ->
+                withContext(Dispatchers.IO) { File(path).let { it.exists() && it.length() > 0 } }
+            }
+            // Mic lewat speaker: suara pad sudah ada di audio → tidak diputar ulang (pad user tidak perlu di-mute)
+            val padsInAudio = audio != null && !base.isEarphoneRecording
+            val session = OverdubSession(
+                baseTaps = if (padsInAudio) emptyList() else taps,
+                music = music,
+                audioPath = audio,
+                padsNotInAudio = if (padsInAudio) true else base.isEarphoneRecording,
+                name = context.getString(R.string.record_overdub_name, base.name)
+            )
+            overdub = session
+
+            val startWithAudio = {
+                if (audio != null) {
+                    audioEngine.startPlayingAudioSync(audio, {
+                        // Audio gagal sebelum mulai → rekam lapis dibatalkan
+                        if (!isRecording && overdub === session) {
+                            overdub = null
+                            musicPlayer.stop()
+                            setToast("Recording failed")
+                        }
+                    }) { beginOverdubLayer(session) }
+                } else beginOverdubLayer(session)
+            }
+            if (music.isEmpty()) startWithAudio() else {
+                if (MusicPlayerManager.isPlaying) MusicPlayerManager.pause()
+                musicPlayer.prepare(music) { startWithAudio() }
+            }
+        }
+    }
+
+    /** Dipanggil tepat saat rekaman dasar mulai berbunyi → jam rekam & putar ulang dimulai bersamaan. */
+    private fun beginOverdubLayer(session: OverdubSession) {
+        if (overdub !== session || isRecording) {
+            // Dibatalkan / diganti rekaman biasa selama persiapan → hentikan audio & lagu dasar
+            if (overdub == null || overdub === session) {
+                audioEngine.stopPlayingAudio()
+                musicPlayer.stop()
+                if (overdub === session) overdub = null
+            }
+            return
+        }
+        isRecording = true
+        isMicMode = false
+        isEarphoneWhenRecording = false
+        listener?.onMuteControl(false)
+        recorderManager.startRecording()
+        if (session.music.isNotEmpty()) musicPlayer.start {}
+        if (session.baseTaps.isNotEmpty()) recorderManager.play(session.baseTaps) { post { invalidate() } }
+        listener?.onRecordStatusChanged(true)
+        blinkManager.startRecordBlink()
+        recordingStartTime = System.currentTimeMillis()
+        recordingStartedAtWall = recordingStartTime
+        draftTick = 0
+        timerHandler.post(timerRunnable)
+        setToast(context.getString(R.string.record_overdub_hint))
+    }
+
+    private fun stopOverdubPlayback() {
+        recorderManager.stopPlayback()
+        audioEngine.stopPlayingAudio()
+        musicPlayer.stop()
+    }
+
+    /** Mode mic: potongan lagu digeser sama seperti ketukan agar 0 ms = awal audio mic. */
+    private fun alignedMusic(segments: List<RecordedMusicSegment>): List<RecordedMusicSegment> {
+        val micStart = audioEngine.micStartedAtElapsed
+        if (!isMicMode || micStart <= 0L || segments.isEmpty()) return segments
+        return MusicRecordTracker.align(segments, micStart - recorderManager.recordingStartElapsed)
+    }
+
+    /** @param name null → nama otomatis. Pakai applicationContext: aman walau panel sudah dilepas. */
+    private fun savePending(p: PendingRecording, name: String?) {
+        val app = context.applicationContext
+        RecordingAutosave.save(
+            app, name ?: p.defaultName, p.startedAtWall, instrumentType, p.events, p.audioPath, p.isEarphoneRecording,
+            p.music, p.audioShared
+        ) { saved, error ->
+            val msg = if (saved) app.getString(R.string.record_saved) else "Error saving: $error"
+            Toast.makeText(app, msg, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun writeDraftNow() {
+        val snapshot = recorderManager.snapshotEvents()
+        val events = if (isMicMode) recorderManager.alignToMicStart(snapshot, audioEngine.micStartedAtElapsed) else snapshot
+        // Rekam lapis tanpa ketukan baru: jangan buat draft (kalau dipulihkan hanya jadi salinan rekaman dasar)
+        if (overdub != null && events.isEmpty()) return
+        writeDraftOf(buildPending(events, alignedMusic(musicTracker.snapshot())))
+    }
+
+    /** Panel dilepas saat masih merekam: hentikan dengan benar lalu simpan otomatis. */
+    private fun autosaveActiveRecording() {
+        isRecording = false
+        timerHandler.removeCallbacks(timerRunnable)
+        if (isMicMode) audioEngine.stopMicRecording()
+        if (overdub != null) stopOverdubPlayback()
+        val rawEvents = recorderManager.stopRecording()
+        val events = if (isMicMode) recorderManager.alignToMicStart(rawEvents, audioEngine.micStartedAtElapsed) else rawEvents
+        val music = alignedMusic(musicTracker.stop())
+        val pending = buildPending(events, music)
+        overdub = null
+        if (events.isEmpty()) {
+            RecordingAutosave.clearDraft(context)
+            if (isMicMode) RecordingAutosave.discardAudio(context, audioEngine.currentAudioFile?.absolutePath)
+            return
+        }
+        savePending(pending, null)
+    }
+
     fun recordEvent(index: Int, metadata: String) {
-        if (isRecording) recorderManager.onNoteEvent(index, metadata)
+        if (isRecording && !dispatchingPlayback) recorderManager.onNoteEvent(index, metadata)
     }
 
     fun setPromotButtonVisible(isVisible: Boolean) {
@@ -410,26 +621,71 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     // ─── PLAYBACK ───
     private fun openRecordList() {
-        RecordingListDialogHelper.show(context, instrumentType, showPromotButton) { entity ->
+        // Export rekaman wajib nonton rewarded ad (tipe "export"), kecuali user premium
+        val exportReward: ((onRewarded: () -> Unit) -> Unit)? =
+            if (isPremium || adRequestListener == null) null
+            else { onRewarded ->
+                if (isNetworkAvailable()) adRequestListener?.onShowRewardedAd("export", onRewarded)
+                else setToast(context.getString(R.string.no_internet_connection))
+            }
+        RecordingListDialogHelper.show(
+            context, instrumentType, showPromotButton, exportReward,
+            onOverdub = { base -> startOverdub(base) }
+        ) { entity ->
             if (entity.eventsJson.isNotEmpty()) {
                 btnStop.visibility = VISIBLE
                 blinkManager.startStopBlink()
 
                 panelScope.launch {
                     val events = recorderManager.parseJson(entity.eventsJson)
+                    val music = withContext(Dispatchers.Default) { RecordedMusicJson.parse(entity.musicJson) }
                     val hasAudio = !entity.audioPath.isNullOrEmpty()
 
+                    // Selesai setelah ketukan/audio DAN lagu (jika ada) selesai
+                    var remaining = if (music.isEmpty()) 1 else 2
+                    var musicStarted = false
                     val onFinish: () -> Unit = {
-                        post { blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate() }
+                        if (--remaining == 0) {
+                            post { blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate() }
+                        }
+                    }
+                    val startMusic = {
+                        if (music.isNotEmpty()) {
+                            musicStarted = true
+                            musicPlayer.start(onFinish)
+                        }
                     }
 
-                    if (hasAudio) {
-                        listener?.onMuteControl(!entity.isEarphoneRecording)
-                        recorderManager.play(events) { post { invalidate() } }
-                        audioEngine.startPlayingAudioSync(entity.audioPath!!, onFinish)
+                    val startPlayback = {
+                        if (hasAudio) {
+                            listener?.onMuteControl(!entity.isEarphoneRecording)
+                            val onAudioFinish: () -> Unit = {
+                                // Audio gagal diputar sebelum mulai → lagu tidak pernah jalan, jangan tunggu
+                                if (music.isNotEmpty() && !musicStarted) {
+                                    musicPlayer.stop()
+                                    remaining = 1
+                                }
+                                onFinish()
+                            }
+                            // Ketukan (dan lagu) dimulai saat audio benar-benar mulai, bukan sebelum prepareAsync selesai
+                            audioEngine.startPlayingAudioSync(entity.audioPath!!, onAudioFinish) {
+                                startMusic()
+                                recorderManager.play(events) { post { invalidate() } }
+                            }
+                        } else {
+                            listener?.onMuteControl(false)
+                            startMusic()
+                            recorderManager.play(events) { onFinish() }
+                        }
+                    }
+
+                    if (music.isEmpty()) {
+                        startPlayback()
                     } else {
-                        listener?.onMuteControl(false)
-                        recorderManager.play(events) { post { blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate() } }
+                        // Lagu di daftar musik dijeda agar tidak bertabrakan dengan lagu rekaman
+                        if (MusicPlayerManager.isPlaying) MusicPlayerManager.pause()
+                        // Lagu disiapkan & di-seek dulu, baru semua dimulai bersamaan → sinkron
+                        musicPlayer.prepare(music) { startPlayback() }
                     }
                 }
             }
@@ -440,6 +696,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
     fun stopPlayback() {
         recorderManager.stopPlayback()
         audioEngine.stopPlayingAudio()
+        musicPlayer.stop()
         blinkManager.stopStopBlink()
         if (::btnStop.isInitialized) btnStop.visibility = GONE
         listener?.onMuteControl(false)
@@ -447,9 +704,19 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     // ─── LIFECYCLE ───
     fun releaseAndStop() {
+        if (isRecording) autosaveActiveRecording()
+        // Dialog simpan masih terbuka → simpan otomatis sekarang (OnDismissListener jalan asinkron,
+        // jadi jangan diandalkan saat panel dilepas). Callback host tidak dipanggil: view host sedang dihancurkan.
+        pendingRecording?.let { pending ->
+            pendingRecording = null
+            savePending(pending, null)
+        }
         isRecording = false
         isMicMode = false
         isEarphoneWhenRecording = false
+        musicTracker.cancel()
+        musicPlayer.stop()
+        overdub = null
         timerHandler.removeCallbacks(timerRunnable)
         audioEngine.release()
         blinkManager.removeAllCallbacks()

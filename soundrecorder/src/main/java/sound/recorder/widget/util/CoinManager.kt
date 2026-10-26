@@ -1,6 +1,7 @@
 package sound.recorder.widget.util
 
 import android.content.Context
+import sound.recorder.widget.notification.CoinNotificationWorker
 
 object CoinManager {
     private const val PREFS_NAME        = "zaif_coins"
@@ -43,6 +44,8 @@ object CoinManager {
         if (!canClaimDaily(context)) return false
         prefs(context).edit().putLong(KEY_LAST_DAILY, System.currentTimeMillis()).apply()
         addCoins(context, DAILY_COINS)
+        // Jadwalkan pengingat untuk claim berikutnya (siapa pun pemanggil claim-nya)
+        CoinNotificationWorker.schedule(context)
         return true
     }
 

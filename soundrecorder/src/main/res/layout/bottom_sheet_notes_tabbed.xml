@@ -1,105 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Warna diatur dari kode (BottomSheetNotesTabbed.applySheetStyle) mengikuti RecordingDialogStyle:
+    terang/gelap ikut sistem, warna aksen dari colorPrimary aplikasi.
+    ID lama (ivClose, progressBar, tabStrip, tabLocal, tabOnline, etSearch, recycler_view,
+    empty_notes_view, fab) dipertahankan karena dipakai oleh logic.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sheetRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_bottom_sheet_dark"
     android:orientation="vertical">
 
-    <!-- Bottom Sheet Handle -->
+    <!-- Handle -->
     <View
-        android:layout_width="@dimen/_40sdp"
-        android:layout_height="@dimen/_4sdp"
+        android:id="@+id/sheetHandle"
+        android:layout_width="@dimen/_32sdp"
+        android:layout_height="@dimen/_3sdp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/_6sdp"
+        android:layout_marginTop="@dimen/_8sdp"
         android:background="#33FFFFFF" />
 
-    <RelativeLayout
+    <!-- Header: judul + loading + tutup -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/_16sdp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/_16sdp"
+        android:paddingTop="@dimen/_8sdp"
+        android:paddingEnd="@dimen/_10sdp"
+        android:paddingBottom="@dimen/_10sdp">
 
-        <ImageView
-            android:id="@+id/ivClose"
-            android:layout_width="@dimen/_24sdp"
-            android:layout_height="@dimen/_24sdp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:padding="@dimen/_4sdp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/app_name"
-            app:srcCompat="@drawable/ic_close"
-            app:tint="#8888AA"/>
+        <TextView
+            android:id="@+id/tvSheetTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/note"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleSmall"
-            android:layout_width="@dimen/_18sdp"
-            android:layout_height="@dimen/_18sdp"
-            android:layout_toStartOf="@+id/ivClose"
-            android:layout_centerVertical="true"
+            android:layout_width="@dimen/_16sdp"
+            android:layout_height="@dimen/_16sdp"
             android:layout_marginEnd="@dimen/_8sdp"
             android:visibility="gone" />
 
-    </RelativeLayout>
+        <ImageView
+            android:id="@+id/ivClose"
+            android:layout_width="@dimen/_28sdp"
+            android:layout_height="@dimen/_28sdp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/close"
+            android:padding="@dimen/_6sdp"
+            app:srcCompat="@drawable/zaif_rec_ic_close"
+            app:tint="#8888AA" />
+    </LinearLayout>
 
-    <!-- TAB STRIP -->
+    <!-- Tab (segmented) -->
     <LinearLayout
         android:id="@+id/tabStrip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/_16sdp"
+        android:layout_marginBottom="@dimen/_10sdp"
         android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/_16sdp"
-        android:paddingBottom="@dimen/_8sdp">
+        android:padding="@dimen/_3sdp">
 
         <TextView
             android:id="@+id/tabLocal"
             android:layout_width="0dp"
-            android:layout_height="@dimen/_28sdp"
+            android:layout_height="@dimen/_30sdp"
             android:layout_weight="1"
+            android:ellipsize="end"
             android:gravity="center"
+            android:maxLines="1"
+            android:paddingHorizontal="@dimen/_6sdp"
             android:text="@string/my_song_notes"
             android:textColor="@color/white"
-            android:textSize="@dimen/_10ssp"
-            android:textStyle="bold"
-            android:background="@drawable/bg_btn_tutorial_learn" />
-
-        <View
-            android:layout_width="@dimen/_10sdp"
-            android:layout_height="0dp" />
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tabOnline"
             android:layout_width="0dp"
-            android:layout_height="@dimen/_28sdp"
+            android:layout_height="@dimen/_30sdp"
             android:layout_weight="1"
+            android:ellipsize="end"
             android:gravity="center"
+            android:maxLines="1"
+            android:paddingHorizontal="@dimen/_6sdp"
             android:text="@string/online_song_notes"
             android:textColor="#8888AA"
-            android:textSize="@dimen/_10ssp"
-            android:textStyle="bold"
-            android:background="@drawable/bg_edittext_game" />
+            android:textSize="12sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- SEARCH BAR -->
-    <EditText
-        android:id="@+id/etSearch"
+    <!-- Pencarian -->
+    <LinearLayout
+        android:id="@+id/searchContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/_36sdp"
         android:layout_marginHorizontal="@dimen/_16sdp"
         android:layout_marginBottom="@dimen/_8sdp"
-        android:background="@drawable/bg_edittext_game"
-        android:hint="@string/enter_note_title"
-        android:padding="@dimen/_10sdp"
-        android:textColor="@color/white"
-        android:textColorHint="#8888AA"
-        android:textSize="@dimen/_12ssp"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:inputType="text"
-        android:autofillHints="name"
-        android:imeOptions="actionSearch" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/_10sdp">
+
+        <ImageView
+            android:id="@+id/ivSearch"
+            android:layout_width="@dimen/_16sdp"
+            android:layout_height="@dimen/_16sdp"
+            android:importantForAccessibility="no"
+            app:srcCompat="@drawable/zaif_rec_ic_search"
+            app:tint="#8888AA" />
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:layout_weight="1"
+            android:autofillHints="name"
+            android:background="@null"
+            android:hint="@string/enter_note_title"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textColorHint="#8888AA"
+            android:textSize="13sp" />
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -111,37 +150,57 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingBottom="@dimen/_60sdp"
-            android:overScrollMode="never" />
+            android:overScrollMode="never"
+            android:paddingHorizontal="@dimen/_12sdp"
+            android:paddingTop="@dimen/_2sdp"
+            android:paddingBottom="@dimen/_72sdp" />
 
+        <!-- Tampilan kosong -->
         <LinearLayout
             android:id="@+id/empty_notes_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:gravity="center"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
             android:visibility="gone">
 
+            <FrameLayout
+                android:id="@+id/emptyIconBg"
+                android:layout_width="@dimen/_56sdp"
+                android:layout_height="@dimen/_56sdp">
+
+                <ImageView
+                    android:id="@+id/ivEmpty"
+                    android:layout_width="@dimen/_26sdp"
+                    android:layout_height="@dimen/_26sdp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    app:srcCompat="@drawable/zaif_rec_ic_queue_music"
+                    app:tint="#8888AA" />
+            </FrameLayout>
+
             <TextView
+                android:id="@+id/tvEmpty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:text="@string/note_empty"
                 android:textColor="#66FFFFFF"
-                android:textSize="@dimen/_14ssp" />
+                android:textSize="14sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_16sdp"
             android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/_16sdp"
             android:contentDescription="@string/add"
             app:backgroundTint="@color/colorPrimary"
-            app:tint="@android:color/white"
-            app:srcCompat="@drawable/baseline_add_24"/>
+            app:srcCompat="@drawable/zaif_rec_ic_add"
+            app:tint="@android:color/white" />
 
     </FrameLayout>
 

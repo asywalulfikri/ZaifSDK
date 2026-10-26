@@ -1,12 +1,14 @@
 package sound.recorder.widget.music
 
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.graphics.ColorUtils
 import kotlin.math.max
 
 /**
@@ -67,6 +69,12 @@ class SmoothSeekBar @JvmOverloads constructor(
     var progressColor: Int  = Color.parseColor("#6C4FD4")  // ungu solid
     var thumbColor: Int     = Color.WHITE
     var thumbShadowColor: Int = Color.parseColor("#33000000")
+    /** Warna awal gradien progress (kiri). null = progress warna solid [progressColor]. */
+    var progressStartColor: Int? = null
+    /** Cincin warna di tepi thumb. null = tanpa cincin. */
+    var thumbRingColor: Int? = null
+    /** Halo warna progress di sekitar thumb saat digeser. */
+    var glowOnDrag: Boolean = false
 
     // ─── PAINTS ───────────────────────────────────────────────────────────────
     private val paintTrack    = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -76,6 +84,13 @@ class SmoothSeekBar @JvmOverloads constructor(
 
     private var cachedBlurFilter: BlurMaskFilter? = null
     private var lastBlurRadius: Float = -1f
+    private val paintGlow = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val paintRing = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val specPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#30FFFFFF") }
+
+    // 0 = diam, 1 = sedang digeser (untuk animasi glow + thumb membesar)
+    private var dragFraction = 0f
+    private var dragAnimator: ValueAnimator? = null
 
     // ─── STATE ────────────────────────────────────────────────────────────────
     private var isDragging = false
@@ -92,11 +107,14 @@ class SmoothSeekBar @JvmOverloads constructor(
         val h = height.toFloat()
         if (w <= 0f || h <= 0f) return
 
-        val thumbRadius = h * 0.42f
-        val trackLeft   = thumbRadius
-        val trackRight  = w - thumbRadius
+        val baseRadius  = h * 0.42f
+        // Inset setengah tinggi supaya glow/thumb membesar tidak terpotong di 0% / 100%
+        val trackLeft   = h / 2f
+        val trackRight  = w - h / 2f
         val trackWidth  = trackRight - trackLeft
         if (trackWidth <= 0f) return
+        // Thumb sedikit membesar saat digeser, tetap muat di tinggi view
+        val thumbRadius = baseRadius * (1f + 0.12f * dragFraction)
 
         val trackH      = h * 0.22f   // tinggi track — tipis seperti screenshot
         val trackTop    = h / 2f - trackH / 2f
@@ -115,7 +133,17 @@ class SmoothSeekBar @JvmOverloads constructor(
         if (thumbX > trackLeft) {
             paintProgress.color = progressColor
             paintProgress.style = Paint.Style.FILL
+            val start = progressStartColor
+            paintProgress.shader = if (start != null)
+                LinearGradient(trackLeft, 0f, trackRight, 0f, start, progressColor, Shader.TileMode.CLAMP)
+            else null
             canvas.drawRoundRect(trackLeft, trackTop, thumbX, trackBot, trackRadius, trackRadius, paintProgress)
+        }
+
+        // ── 2b. Glow saat digeser ────────────────────────────────────────────
+        if (glowOnDrag && dragFraction > 0f) {
+            paintGlow.color = ColorUtils.setAlphaComponent(progressColor, (0x40 * dragFraction).toInt())
+            canvas.drawCircle(thumbX, h / 2f, baseRadius * (1f + 0.15f * dragFraction), paintGlow)
         }
 
         // ── 3. Thumb shadow (lingkaran abu transparan di belakang thumb) ──────
@@ -134,11 +162,13 @@ class SmoothSeekBar @JvmOverloads constructor(
         paintThumb.color = thumbColor
         paintThumb.style = Paint.Style.FILL
         canvas.drawCircle(thumbX, h / 2f, thumbRadius, paintThumb)
+        thumbRingColor?.let {
+            paintRing.color = it
+            paintRing.strokeWidth = thumbRadius * 0.22f
+            canvas.drawCircle(thumbX, h / 2f, thumbRadius - paintRing.strokeWidth / 2f, paintRing)
+        }
 
         // ── 5. Spekuler kecil di thumb (kesan 3D subtle) ──────────────────────
-        val specPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#30FFFFFF")
-        }
         canvas.drawCircle(
             thumbX - thumbRadius * 0.22f,
             h / 2f - thumbRadius * 0.22f,
@@ -153,6 +183,7 @@ class SmoothSeekBar @JvmOverloads constructor(
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 isDragging = true
+                animateDrag(true)
                 parent?.requestDisallowInterceptTouchEvent(true)
                 updateFromTouch(event.x)
                 listener?.onStartTrackingTouch()
@@ -164,6 +195,7 @@ class SmoothSeekBar @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 isDragging = false
+                animateDrag(false)
                 parent?.requestDisallowInterceptTouchEvent(false)
                 listener?.onStopTrackingTouch()
                 return true
@@ -172,12 +204,29 @@ class SmoothSeekBar @JvmOverloads constructor(
         return super.onTouchEvent(event)
     }
 
+    private fun animateDrag(dragging: Boolean) {
+        if (!glowOnDrag) return
+        dragAnimator?.cancel()
+        dragAnimator = ValueAnimator.ofFloat(dragFraction, if (dragging) 1f else 0f).apply {
+            duration = 160
+            addUpdateListener {
+                dragFraction = it.animatedValue as Float
+                invalidate()
+            }
+            start()
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        dragAnimator?.cancel()
+        super.onDetachedFromWindow()
+    }
+
     private fun updateFromTouch(touchX: Float) {
         if (width <= 0 || height <= 0 || max <= 0) return
 
-        val thumbRadius = height * 0.42f
-        val trackLeft   = thumbRadius
-        val trackRight  = width - thumbRadius
+        val trackLeft   = height / 2f
+        val trackRight  = width - height / 2f
         if (trackRight <= trackLeft) return
 
         val clamped     = touchX.coerceIn(trackLeft, trackRight)

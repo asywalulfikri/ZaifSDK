@@ -12,5 +12,6 @@ data class RecordingEntity(
     val audioPath: String? = null, // KOLOM BARU: Alamat file audio mp4/wav
     val createdAt: Long = System.currentTimeMillis(),
     val durationMs: Long = 0,
-    val isEarphoneRecording: Boolean = false
+    val isEarphoneRecording: Boolean = false,
+    val musicJson: String? = null // v6: JSON List<RecordedMusicSegment>, null = tanpa lagu
 )

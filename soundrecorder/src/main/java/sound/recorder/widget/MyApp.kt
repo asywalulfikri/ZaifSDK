@@ -13,6 +13,9 @@ import android.webkit.WebView
 import android.widget.Toast
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import sound.recorder.widget.builder.ZaifSDKBuilder
+import sound.recorder.widget.notification.AppReminderWorker
+import sound.recorder.widget.notification.CoinNotificationWorker
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -141,6 +144,11 @@ open class MyApp : Application(), Configuration.Provider {
                 try {
                     WorkManager.getInstance(this@MyApp)
                     Log.d(TAG, "WorkManager initialized in background")
+                    // Pengingat buka aplikasi tiap 2 hari (jadwal lama dipertahankan)
+                    AppReminderWorker.schedule(this@MyApp)
+                    if (ZaifSDKBuilder.load(this@MyApp)?.isCoin == true) {
+                        CoinNotificationWorker.schedule(this@MyApp)
+                    }
                 } catch (e: Throwable) {
                     Log.e(TAG, "WorkManager background init error: ${e.message}")
                 }

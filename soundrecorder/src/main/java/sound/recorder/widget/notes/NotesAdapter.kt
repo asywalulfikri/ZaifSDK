@@ -18,6 +18,10 @@ class NotesAdapter(
     private val onItemClick: (Int) -> Unit
 ) :
     RecyclerView.Adapter<MyViewHolder>() {
+
+    /** Warna baris (hanya tampilan). null = warna bawaan layout. */
+    internal var palette: sound.recorder.widget.recording.RecordingDialogPalette? = null
+
     class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var tvNoteDesc: TextView
         var timestamp: TextView
@@ -37,6 +41,7 @@ class NotesAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.note_list_row, parent, false)
+        palette?.let { NoteRowStyle.apply(itemView, it) }
         return MyViewHolder(itemView)
     }
 

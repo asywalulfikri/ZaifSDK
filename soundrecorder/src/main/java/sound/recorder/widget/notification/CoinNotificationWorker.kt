@@ -1,5 +1,6 @@
 package sound.recorder.widget.notification
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -7,11 +8,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import sound.recorder.widget.R
+import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.util.CoinManager
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -28,16 +31,16 @@ class CoinNotificationWorker(
         private const val KEY_TARGET_CLASS  = "target_class"
         private const val KEY_NOTIF_TITLE   = "notif_title"
 
+        /**
+         * Jadwalkan notif jam 20:00 pertama setelah koin harian bisa di-claim lagi.
+         * Dipanggil saat aplikasi dibuka (MyApp, jika isCoin) dan otomatis setelah claim sukses.
+         */
         fun schedule(context: Context) {
-            // Jika sudah claim hari ini, jangan jadwalkan notif untuk hari ini
-            if (!CoinManager.canClaimDaily(context)) {
-                // Opsional: Bisa jadwalkan untuk besok jam 20:00,
-                // tapi biasanya cukup panggil schedule() lagi setelah claim sukses.
-                return
-            }
-
             try {
                 val now = Calendar.getInstance()
+                // Dulu: kalau belum bisa claim langsung return — padahal schedule() dipanggil
+                // setelah claim, jadi notif berikutnya tidak pernah terjadwal.
+                val claimableAt = now.timeInMillis + CoinManager.nextClaimInMs(context)
                 val target = Calendar.getInstance().apply {
                     set(Calendar.HOUR_OF_DAY, 20)
                     set(Calendar.MINUTE, 0)
@@ -45,8 +48,8 @@ class CoinNotificationWorker(
                     set(Calendar.MILLISECOND, 0)
                 }
 
-                // Jika sekarang sudah lewat jam 20:00, jadwalkan untuk besok jam 20:00
-                if (now.after(target)) {
+                // Majukan ke jam 20:00 berikutnya sampai tidak di masa lalu dan koin sudah bisa di-claim
+                while (!target.after(now) || target.timeInMillis < claimableAt) {
                     target.add(Calendar.DAY_OF_YEAR, 1)
                 }
 
@@ -86,21 +89,29 @@ class CoinNotificationWorker(
         }
     }
 
+    @SuppressLint("MissingPermission") // dicek lewat areNotificationsEnabled()
     override fun doWork(): Result {
+        // Sudah di-claim sejak dijadwalkan → tidak perlu diingatkan
+        if (!CoinManager.canClaimDaily(context)) return Result.success()
+        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return Result.success()
         createChannel()
 
-        val className = inputData.getString(KEY_TARGET_CLASS) ?: return Result.failure()
-        val targetClass = runCatching { Class.forName(className) }.getOrNull() ?: return Result.failure()
-
-        val intent = Intent(context, targetClass).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
+        // Dulu wajib inputData target_class/notif_title yang tidak pernah diisi oleh schedule()
+        // → selalu Result.failure(). Sekarang opsional: default buka launcher activity host app.
+        val targetClass = inputData.getString(KEY_TARGET_CLASS)
+            ?.let { runCatching { Class.forName(it) }.getOrNull() }
+        val intent = (if (targetClass != null) Intent(context, targetClass)
+            else context.packageManager.getLaunchIntentForPackage(context.packageName))
+            ?.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK }
+            ?: return Result.success()
         val pendingIntent = PendingIntent.getActivity(
             context, 0, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notifTitle = inputData.getString(KEY_NOTIF_TITLE) ?: ""
+        val notifTitle = inputData.getString(KEY_NOTIF_TITLE)
+            ?: runCatching { ZaifSDKBuilder.load(context)?.appName }.getOrNull()?.takeIf { it.isNotBlank() }
+            ?: context.applicationInfo.loadLabel(context.packageManager).toString()
         val notification = NotificationCompat.Builder(context,
             CHANNEL_ID
         )
@@ -111,8 +122,7 @@ class CoinNotificationWorker(
             .setContentIntent(pendingIntent)
             .build()
 
-        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.notify(NOTIF_ID, notification)
+        NotificationManagerCompat.from(context).notify(NOTIF_ID, notification)
 
         return Result.success()
     }

@@ -12,6 +12,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sound.recorder.widget.R
+import sound.recorder.widget.music.VolumeDialogHelper
 import java.io.File
 import java.lang.ref.WeakReference
 
@@ -105,50 +106,21 @@ class DialogUtils {
         onVolumeMusicChanged: (Float) -> Unit,
         onVolumeAudioChanged: (Float) -> Unit
     ) {
-        try {
-            val builder = AlertDialog.Builder(context)
-            val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_volume_control, null)
-
-            val seekBarMusic = dialogView.findViewById<SeekBar>(R.id.seekBarMusic)
-            val seekBarAudio = dialogView.findViewById<SeekBar>(R.id.seekBarAudio)
-
-            builder.setView(dialogView)
-            val dialog = builder.create()
-            val dialogScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-            dialog.setOnDismissListener { dialogScope.cancel() }
-
-            seekBarMusic.progress = (initialVolumeMusic * 100).toInt()
-            seekBarAudio.progress = (initialVolumeAudio * 100).toInt()
-
-            seekBarMusic.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    val newVolumeMusic = progress / 100f
-                    onVolumeMusicChanged(newVolumeMusic)
-                    dialogScope.launch(Dispatchers.IO) {
-                        DataSession(context).saveVolumeMusic(newVolumeMusic)
-                    }
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            })
-
-            seekBarAudio.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    val newVolumeAudio = progress / 100f
-                    onVolumeAudioChanged(newVolumeAudio)
-                    dialogScope.launch(Dispatchers.IO) {
-                        DataSession(context).saveVolumeAudio(newVolumeAudio)
-                    }
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            })
-
-            dialog.show()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        // Dulu layout ini dibaca sebagai SeekBar padahal isinya SmoothSeekBar → ClassCastException
+        // (tertangkap try/catch sehingga dialog tidak pernah muncul). Sekarang pakai dialog volume bersama.
+        val session = DataSession(context)
+        VolumeDialogHelper.show(
+            context = context,
+            musicVolume = initialVolumeMusic,
+            audioVolume = initialVolumeAudio,
+            onMusicChanged = { v ->
+                onVolumeMusicChanged(v)
+                session.saveVolumeMusic(v)
+            },
+            onAudioChanged = { v ->
+                onVolumeAudioChanged(v)
+                session.saveVolumeAudio(v)
+            }
+        )
     }
 }

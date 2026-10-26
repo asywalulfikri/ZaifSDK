@@ -2,6 +2,8 @@ package sound.recorder.widget.recording
 
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
@@ -26,10 +28,14 @@ class InstrumentRecorderManager(
 
     fun isRecording() = isRecording
 
+    /** SystemClock.elapsedRealtime saat rekaman dimulai (jam yang dipakai timestamp ketukan). */
+    val recordingStartElapsed: Long get() = startTime
+
     fun startRecording() {
         isRecording = true
         recordedEvents.clear()
-        startTime = System.currentTimeMillis()
+        // Jam monotonic: tidak lompat walau jam HP disinkron ulang saat merekam
+        startTime = SystemClock.elapsedRealtime()
     }
 
     fun stopRecording(): List<RecordedTap> {
@@ -37,11 +43,27 @@ class InstrumentRecorderManager(
         return ArrayList(recordedEvents) // Mengembalikan salinan list
     }
 
+    /** Salinan ketukan yang sudah terekam sejauh ini (untuk draft autosave). */
+    fun snapshotEvents(): List<RecordedTap> = ArrayList(recordedEvents)
+
     fun onNoteEvent(padIndex: Int, metadata: String? = null) {
         if (isRecording) {
-            val ts = System.currentTimeMillis() - startTime
+            val ts = SystemClock.elapsedRealtime() - startTime
             recordedEvents.add(RecordedTap(padIndex, ts, metadata))
         }
+    }
+
+    /**
+     * Geser ketukan supaya 0 ms = awal audio mic (mic baru mulai setelah prepare/start di background).
+     * Ketukan sebelum mic mulai tidak punya audio → ditaruh di 0. Format data tidak berubah.
+     * @param micStartedAtElapsed [AudioEngine.micStartedAtElapsed]; 0 = mic tidak jalan → tidak digeser.
+     */
+    fun alignToMicStart(events: List<RecordedTap>, micStartedAtElapsed: Long): List<RecordedTap> {
+        if (micStartedAtElapsed <= 0L) return events
+        val offset = micStartedAtElapsed - startTime
+        Log.d("RecordSync", "mic offset=${offset}ms events=${events.size}")
+        if (offset == 0L) return events
+        return events.map { it.copy(timestamp = (it.timestamp - offset).coerceAtLeast(0L)) }
     }
 
     fun play(events: List<RecordedTap>, onComplete: () -> Unit = {}) {

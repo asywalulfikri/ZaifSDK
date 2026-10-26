@@ -32,7 +32,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.*
@@ -112,6 +114,81 @@ object MusicListDialogHelper {
     private const val COLOR_ACCENT      = "#6C63FF"
     private const val COLOR_TEXT_BRIGHT = "#FFFFFF"
     private const val COLOR_TEXT_DIM    = "#8B93B8"
+    private const val COLOR_ACCENT_LIGHT = "#9D8CFF"
+    private const val COLOR_BG_TOP      = "#161B36"
+    private const val COLOR_ROW         = "#131833"
+    private const val COLOR_DANGER      = "#FF6B6B"
+    private const val COLOR_SUCCESS     = "#4ADE80"
+
+    private fun accentGradient(context: Context, radiusDimen: Int) =
+        GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            intArrayOf(Color.parseColor(COLOR_ACCENT_LIGHT), Color.parseColor(COLOR_ACCENT))
+        ).apply { cornerRadius = context.sdp(radiusDimen).toFloat() }
+
+    private fun roundedBg(context: Context, color: Int, radiusDimen: Int, strokeColor: Int? = null) =
+        GradientDrawable().apply {
+            setColor(color)
+            cornerRadius = context.sdp(radiusDimen).toFloat()
+            strokeColor?.let { setStroke(context.sdp(SdpR.dimen._1sdp), it) }
+        }
+
+    private fun ripple(content: android.graphics.drawable.Drawable?, mask: android.graphics.drawable.Drawable? = content) =
+        RippleDrawable(ColorStateList.valueOf(Color.parseColor("#26FFFFFF")), content, mask)
+
+    private fun tintedIcon(context: Context, res: Int, color: Int) = ImageView(context).apply {
+        setImageResource(res)
+        imageTintList = ColorStateList.valueOf(color)
+        scaleType = ImageView.ScaleType.FIT_CENTER
+    }
+
+    /** Tombol bulat dengan ikon (dipakai di player card). */
+    private fun roundIconButton(context: Context, viewId: Int, iconRes: Int, bg: GradientDrawable, iconColor: Int) =
+        ImageButton(context).apply {
+            id = viewId
+            bg.shape = GradientDrawable.OVAL
+            background = ripple(bg)
+            setImageResource(iconRes)
+            setColorFilter(iconColor)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            val p = context.sdp(SdpR.dimen._8sdp)
+            setPadding(p, p, p, p)
+        }
+
+    /** Kartu baris lagu: wadah RecyclerView berisi kartu rounded dengan ripple. */
+    private fun rowCard(ctx: Context): Pair<FrameLayout, LinearLayout> {
+        val outer = FrameLayout(ctx).apply {
+            layoutParams = RecyclerView.LayoutParams(-1, -2)
+            setPadding(ctx.sdp(SdpR.dimen._12sdp), ctx.sdp(SdpR.dimen._3sdp), ctx.sdp(SdpR.dimen._12sdp), ctx.sdp(SdpR.dimen._3sdp))
+        }
+        val card = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val p = ctx.sdp(SdpR.dimen._8sdp)
+            setPadding(p, p, ctx.sdp(SdpR.dimen._10sdp), p)
+        }
+        outer.addView(card, FrameLayout.LayoutParams(-1, -2))
+        return outer to card
+    }
+
+    /** Kotak ikon kiri baris: ikon not musik, atau equalizer saat lagu itu sedang aktif. */
+    private fun rowIconTile(ctx: Context): Triple<FrameLayout, ImageView, EqualizerBarsView> {
+        val size = ctx.sdp(SdpR.dimen._34sdp)
+        val note = tintedIcon(ctx, R.drawable.zaif_rec_ic_music, Color.parseColor(COLOR_ACCENT_LIGHT))
+        val eq = EqualizerBarsView(ctx).apply {
+            barColor = Color.WHITE
+            mutedColor = Color.WHITE
+            level = 0.85f
+            visibility = View.GONE
+        }
+        val tile = FrameLayout(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(size, size)
+            val icon = ctx.sdp(SdpR.dimen._16sdp)
+            addView(note, FrameLayout.LayoutParams(icon, icon, Gravity.CENTER))
+            addView(eq, FrameLayout.LayoutParams(ctx.sdp(SdpR.dimen._16sdp), ctx.sdp(SdpR.dimen._14sdp), Gravity.CENTER))
+        }
+        return Triple(tile, note, eq)
+    }
 
     data class FirestoreSong(
         val id: String = "",
@@ -159,7 +236,10 @@ object MusicListDialogHelper {
         val rootContainer = FrameLayout(themedContext).apply {
             layoutParams = FrameLayout.LayoutParams(-1, -1)
             minimumHeight = displayHeight
-            setBackgroundColor(Color.parseColor(COLOR_BG_DARK))
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(Color.parseColor(COLOR_BG_TOP), Color.parseColor(COLOR_BG_DARK), Color.parseColor(COLOR_BG_DARK))
+            )
         }
 
         val mainLayout = LinearLayout(themedContext).apply {
@@ -168,42 +248,55 @@ object MusicListDialogHelper {
         }
 
         // ─── HEADER ───
-        val headerContainer = RelativeLayout(themedContext).apply {
+        val headerContainer = LinearLayout(themedContext).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
             setPadding(
                 themedContext.sdp(SdpR.dimen._12sdp),
-                themedContext.sdp(SdpR.dimen._8sdp),
+                themedContext.sdp(SdpR.dimen._10sdp),
                 themedContext.sdp(SdpR.dimen._12sdp),
-                themedContext.sdp(SdpR.dimen._4sdp)
+                themedContext.sdp(SdpR.dimen._8sdp)
+            )
+        }
+
+        val headerTileSize = themedContext.sdp(SdpR.dimen._32sdp)
+        val headerTile = FrameLayout(themedContext).apply {
+            background = accentGradient(themedContext, SdpR.dimen._10sdp)
+            elevation = themedContext.sdp(SdpR.dimen._3sdp).toFloat()
+            val icon = themedContext.sdp(SdpR.dimen._18sdp)
+            addView(
+                tintedIcon(themedContext, R.drawable.zaif_rec_ic_queue_music, Color.WHITE),
+                FrameLayout.LayoutParams(icon, icon, Gravity.CENTER)
             )
         }
 
         val titleView = TextView(themedContext).apply {
-            text = themedContext.getString(R.string.list_music).uppercase()
-            setTextColor(Color.parseColor(COLOR_ACCENT))
-            textSize = themedContext.sspSp(SspR.dimen._11ssp)
-            letterSpacing = 0.1f
-            typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
+            text = themedContext.getString(R.string.list_music)
+            setTextColor(Color.parseColor(COLOR_TEXT_BRIGHT))
+            textSize = themedContext.sspSp(SspR.dimen._15ssp)
+            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+            setPadding(themedContext.sdp(SdpR.dimen._10sdp), 0, themedContext.sdp(SdpR.dimen._8sdp), 0)
         }
 
-        val closeBtnSize = themedContext.sdp(SdpR.dimen._24sdp)
+        val closeBtnSize = themedContext.sdp(SdpR.dimen._30sdp)
         val closeBtn = FrameLayout(themedContext).apply {
-            layoutParams = RelativeLayout.LayoutParams(closeBtnSize, closeBtnSize).apply {
-                addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
-                addRule(RelativeLayout.CENTER_VERTICAL)
-            }
-            background = RippleDrawable(
-                ColorStateList.valueOf(Color.parseColor("#20FFFFFF")), null, null
-            )
-            addView(TextView(themedContext).apply {
-                text = "✕"
-                setTextColor(Color.parseColor(COLOR_TEXT_DIM))
-                textSize = themedContext.sspSp(SspR.dimen._14ssp)
-                gravity = Gravity.CENTER
+            background = ripple(GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor(COLOR_BG_MEDIUM))
             })
+            contentDescription = themedContext.getString(R.string.close)
+            val icon = themedContext.sdp(SdpR.dimen._14sdp)
+            addView(
+                tintedIcon(themedContext, R.drawable.zaif_rec_ic_close, Color.parseColor(COLOR_TEXT_DIM)),
+                FrameLayout.LayoutParams(icon, icon, Gravity.CENTER)
+            )
         }
 
-        headerContainer.addView(titleView)
-        headerContainer.addView(closeBtn)
+        headerContainer.addView(headerTile, LinearLayout.LayoutParams(headerTileSize, headerTileSize))
+        headerContainer.addView(titleView, LinearLayout.LayoutParams(0, -2, 1f))
+        headerContainer.addView(closeBtn, LinearLayout.LayoutParams(closeBtnSize, closeBtnSize))
         mainLayout.addView(headerContainer)
 
         // ─── TAB STRIP (hanya jika isDownload = true) ───
@@ -215,36 +308,34 @@ object MusicListDialogHelper {
                 textSize = themedContext.sspSp(SspR.dimen._10ssp)
                 gravity = Gravity.CENTER
                 typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-                layoutParams = LinearLayout.LayoutParams(0, themedContext.sdp(SdpR.dimen._24sdp), 1f)
-                background = GradientDrawable().apply {
-                    setColor(Color.parseColor(COLOR_BG_MEDIUM))
-                    cornerRadius = themedContext.sdp(SdpR.dimen._12sdp).toFloat()
-                }
+                layoutParams = LinearLayout.LayoutParams(0, themedContext.sdp(SdpR.dimen._28sdp), 1f)
             }
             tabLocal  = makeTabButton(context.getString(R.string.local_song))
             tabOnline = makeTabButton(context.getString(R.string.online_song))
+            // Segmented control: satu pill gelap, tab aktif diisi gradien aksen
             val tabStrip = LinearLayout(themedContext).apply {
                 orientation = LinearLayout.HORIZONTAL
-                setPadding(
-                    themedContext.sdp(SdpR.dimen._12sdp), 0,
-                    themedContext.sdp(SdpR.dimen._12sdp), themedContext.sdp(SdpR.dimen._4sdp)
-                )
+                val p = themedContext.sdp(SdpR.dimen._3sdp)
+                setPadding(p, p, p, p)
+                background = roundedBg(themedContext, Color.parseColor(COLOR_BG_MEDIUM), SdpR.dimen._20sdp)
             }
             tabStrip.addView(tabLocal)
-            tabStrip.addView(View(themedContext).apply {
-                layoutParams = LinearLayout.LayoutParams(themedContext.sdp(SdpR.dimen._8sdp), 0)
-            })
             tabStrip.addView(tabOnline)
-            mainLayout.addView(tabStrip)
+            mainLayout.addView(tabStrip, LinearLayout.LayoutParams(-1, -2).apply {
+                setMargins(
+                    themedContext.sdp(SdpR.dimen._12sdp), 0,
+                    themedContext.sdp(SdpR.dimen._12sdp), themedContext.sdp(SdpR.dimen._8sdp)
+                )
+            })
         }
 
         // ─── SEARCH BAR ───
         val searchContainer = FrameLayout(themedContext).apply {
             setPadding(
                 themedContext.sdp(SdpR.dimen._12sdp),
-                themedContext.sdp(SdpR.dimen._2sdp),
+                0,
                 themedContext.sdp(SdpR.dimen._12sdp),
-                themedContext.sdp(SdpR.dimen._4sdp)
+                themedContext.sdp(SdpR.dimen._6sdp)
             )
         }
 
@@ -253,17 +344,24 @@ object MusicListDialogHelper {
             setHintTextColor(Color.parseColor(COLOR_TEXT_DIM))
             setTextColor(Color.WHITE)
             textSize = themedContext.sspSp(SspR.dimen._10ssp)
+            maxLines = 1
+            isSingleLine = true
             setPadding(
-                themedContext.sdp(SdpR.dimen._10sdp),
-                themedContext.sdp(SdpR.dimen._6sdp),
-                themedContext.sdp(SdpR.dimen._10sdp),
-                themedContext.sdp(SdpR.dimen._6sdp)
+                themedContext.sdp(SdpR.dimen._12sdp),
+                themedContext.sdp(SdpR.dimen._8sdp),
+                themedContext.sdp(SdpR.dimen._12sdp),
+                themedContext.sdp(SdpR.dimen._8sdp)
             )
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor(COLOR_BG_MEDIUM))
-                setStroke(themedContext.sdp(SdpR.dimen._1sdp), Color.parseColor(COLOR_BG_LIGHT))
-                cornerRadius = themedContext.sdp(SdpR.dimen._16sdp).toFloat()
+            ContextCompat.getDrawable(themedContext, R.drawable.zaif_rec_ic_search)?.mutate()?.let { d ->
+                val s = themedContext.sdp(SdpR.dimen._14sdp)
+                d.setBounds(0, 0, s, s)
+                d.setTint(Color.parseColor(COLOR_TEXT_DIM))
+                setCompoundDrawablesRelative(d, null, null, null)
+                compoundDrawablePadding = themedContext.sdp(SdpR.dimen._8sdp)
             }
+            background = roundedBg(
+                themedContext, Color.parseColor(COLOR_BG_MEDIUM), SdpR.dimen._20sdp, Color.parseColor(COLOR_BG_LIGHT)
+            )
         }
         searchContainer.addView(searchField)
         mainLayout.addView(searchContainer)
@@ -334,11 +432,16 @@ object MusicListDialogHelper {
                 playerCard.visibility = View.VISIBLE
                 playerCard.findViewById<TextView>(101)?.text = track.title
                 playerCard.findViewById<ImageButton>(102)
-                    ?.setImageResource(android.R.drawable.ic_media_pause)
+                    ?.setImageResource(R.drawable.zaif_rec_ic_pause)
+                playerCard.findViewById<EqualizerBarsView>(106)?.continuous = true
+                // Refresh tampilan: equalizer di baris lagu aktif ikut bergerak
+                localRecyclerView.adapter?.notifyDataSetChanged()
             }
             override fun onPause() {
                 playerCard.findViewById<ImageButton>(102)
-                    ?.setImageResource(android.R.drawable.ic_media_play)
+                    ?.setImageResource(R.drawable.zaif_rec_ic_play)
+                playerCard.findViewById<EqualizerBarsView>(106)?.continuous = false
+                localRecyclerView.adapter?.notifyDataSetChanged()
             }
             override fun onStop() {
                 if (MusicPlayerManager.getCurrentTrack() == null) playerCard.visibility = View.GONE
@@ -366,7 +469,10 @@ object MusicListDialogHelper {
         closeBtn.setOnClickListener { dialog.dismiss() }
 
         ViewCompat.setOnApplyWindowInsetsListener(rootContainer) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Bar tersembunyi → inset-nya 0; tetap jaga konten dari notch / poni kamera
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
             view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
@@ -561,18 +667,19 @@ object MusicListDialogHelper {
             )
             onlineRecyclerView?.adapter = onlineAdapter
 
+            fun styleTab(tab: TextView?, selected: Boolean) {
+                tab ?: return
+                tab.setTextColor(if (selected) Color.WHITE else Color.parseColor(COLOR_TEXT_DIM))
+                tab.background = if (selected) accentGradient(themedContext, SdpR.dimen._20sdp).apply {
+                    orientation = GradientDrawable.Orientation.LEFT_RIGHT
+                } else null
+                tab.elevation = if (selected) themedContext.sdp(SdpR.dimen._2sdp).toFloat() else 0f
+            }
+
             fun activateTabLocal() {
                 isOnlineTab = false
-                tabLocal?.setTextColor(Color.WHITE)
-                tabLocal?.background = GradientDrawable().apply {
-                    setColor(Color.parseColor(COLOR_ACCENT))
-                    cornerRadius = themedContext.sdp(SdpR.dimen._20sdp).toFloat()
-                }
-                tabOnline?.setTextColor(Color.parseColor(COLOR_TEXT_DIM))
-                tabOnline?.background = GradientDrawable().apply {
-                    setColor(Color.parseColor(COLOR_BG_MEDIUM))
-                    cornerRadius = themedContext.sdp(SdpR.dimen._20sdp).toFloat()
-                }
+                styleTab(tabLocal, true)
+                styleTab(tabOnline, false)
                 localRecyclerView.visibility = View.VISIBLE
                 onlineRecyclerView?.visibility = View.GONE
                 onlineLoadingLayout?.visibility = View.GONE
@@ -737,16 +844,8 @@ object MusicListDialogHelper {
 
             fun activateTabOnline() {
                 isOnlineTab = true
-                tabOnline?.setTextColor(Color.WHITE)
-                tabOnline?.background = GradientDrawable().apply {
-                    setColor(Color.parseColor(COLOR_ACCENT))
-                    cornerRadius = themedContext.sdp(SdpR.dimen._20sdp).toFloat()
-                }
-                tabLocal?.setTextColor(Color.parseColor(COLOR_TEXT_DIM))
-                tabLocal?.background = GradientDrawable().apply {
-                    setColor(Color.parseColor(COLOR_BG_MEDIUM))
-                    cornerRadius = themedContext.sdp(SdpR.dimen._20sdp).toFloat()
-                }
+                styleTab(tabOnline, true)
+                styleTab(tabLocal, false)
                 localRecyclerView.visibility = View.GONE
                 loadFirestoreIfNeeded()
             }
@@ -787,6 +886,14 @@ object MusicListDialogHelper {
         dialog.window?.apply {
             setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             decorView.setPadding(0, 0, 0, 0)
+
+            // Immersive: sembunyikan navigation bar (tombol back/home) & status bar;
+            // swipe dari tepi layar memunculkannya sementara. Tombol back fisik/gesture tetap menutup dialog.
+            WindowCompat.setDecorFitsSystemWindows(this, false)
+            WindowCompat.getInsetsController(this, decorView).apply {
+                hide(WindowInsetsCompat.Type.systemBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
         }
 
         playerCard.viewTreeObserver.addOnGlobalLayoutListener {
@@ -878,98 +985,75 @@ object MusicListDialogHelper {
             notifyDataSetChanged()
         }
 
-        class VH(view: View) : RecyclerView.ViewHolder(view)
+        class VH(
+            view: View,
+            val card: LinearLayout,
+            val iconBox: FrameLayout,
+            val noteIcon: ImageView,
+            val eq: EqualizerBarsView,
+            val titleTv: TextView,
+            val metaTv: TextView,
+            val playIcon: ImageView
+        ) : RecyclerView.ViewHolder(view)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-            val themedContext = parent.context
-            val itemRow = LinearLayout(themedContext).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setPadding(
-                    themedContext.sdp(SdpR.dimen._12sdp),
-                    themedContext.sdp(SdpR.dimen._6sdp),
-                    themedContext.sdp(SdpR.dimen._12sdp),
-                    themedContext.sdp(SdpR.dimen._6sdp)
-                )
-                gravity = Gravity.CENTER_VERTICAL
-                background = RippleDrawable(
-                    ColorStateList.valueOf(Color.parseColor("#15FFFFFF")), null, null
-                )
-                layoutParams = ViewGroup.LayoutParams(-1, -2)
-            }
+            val ctx = parent.context
+            val (outer, card) = rowCard(ctx)
+            val (iconBox, noteIcon, eq) = rowIconTile(ctx)
 
-            val iconBoxSize = themedContext.sdp(SdpR.dimen._28sdp)
-            val iconBox = FrameLayout(themedContext).apply {
-                id = View.generateViewId()
-                layoutParams = LinearLayout.LayoutParams(iconBoxSize, iconBoxSize)
-            }
-            iconBox.addView(TextView(themedContext).apply {
-                id = View.generateViewId()
-                text = "♪"
-                textSize = themedContext.sspSp(SspR.dimen._11ssp)
-                gravity = Gravity.CENTER
-            })
-
-            val textStack = LinearLayout(themedContext).apply {
+            val textStack = LinearLayout(ctx).apply {
                 orientation = LinearLayout.VERTICAL
-                setPadding(themedContext.sdp(SdpR.dimen._8sdp), 0, 0, 0)
+                setPadding(ctx.sdp(SdpR.dimen._10sdp), 0, ctx.sdp(SdpR.dimen._8sdp), 0)
                 layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
             }
-
-            textStack.addView(TextView(themedContext).apply {
-                id = View.generateViewId()
-                textSize = themedContext.sspSp(SspR.dimen._11ssp)
+            val titleTv = TextView(ctx).apply {
+                textSize = ctx.sspSp(SspR.dimen._11ssp)
                 maxLines = 1
                 ellipsize = TextUtils.TruncateAt.END
-            })
+            }
+            val metaTv = TextView(ctx).apply {
+                textSize = ctx.sspSp(SspR.dimen._8ssp)
+                setTextColor(Color.parseColor(COLOR_TEXT_DIM))
+                letterSpacing = 0.04f
+                setPadding(0, ctx.sdp(SdpR.dimen._1sdp), 0, 0)
+            }
+            textStack.addView(titleTv)
+            textStack.addView(metaTv)
 
-            textStack.addView(TextView(themedContext).apply {
-                id = View.generateViewId()
-                textSize = themedContext.sspSp(SspR.dimen._8ssp)
-            })
-
-            itemRow.addView(iconBox)
-            itemRow.addView(textStack)
-
-            val container = LinearLayout(themedContext).apply {
-                orientation = LinearLayout.VERTICAL
-                addView(itemRow)
-                addView(View(themedContext).apply {
-                    layoutParams = LinearLayout.LayoutParams(-1, 1).apply {
-                        setMargins(themedContext.sdp(SdpR.dimen._16sdp), 0, themedContext.sdp(SdpR.dimen._16sdp), 0)
-                    }
-                    setBackgroundColor(Color.parseColor("#156C63FF"))
-                })
+            val playSize = ctx.sdp(SdpR.dimen._26sdp)
+            val playIcon = tintedIcon(ctx, R.drawable.zaif_rec_ic_play, Color.WHITE).apply {
+                val p = ctx.sdp(SdpR.dimen._6sdp)
+                setPadding(p, p, p, p)
+                layoutParams = LinearLayout.LayoutParams(playSize, playSize)
             }
 
-            return VH(container)
+            card.addView(iconBox)
+            card.addView(textStack)
+            card.addView(playIcon)
+
+            return VH(outer, card, iconBox, noteIcon, eq, titleTv, metaTv, playIcon)
         }
 
         override fun onBindViewHolder(holder: VH, position: Int) {
             val track = items[position]
-            val themedContext = holder.itemView.context
+            val ctx = holder.itemView.context
             val isPlaying = MusicPlayerManager.getCurrentTrack()?.title == track.title
 
-            val container = holder.itemView as LinearLayout
-            val itemRow   = container.getChildAt(0) as LinearLayout
-            val iconBox   = itemRow.getChildAt(0) as FrameLayout
-            val iconTv    = iconBox.getChildAt(0) as TextView
-            val textStack = itemRow.getChildAt(1) as LinearLayout
-            val titleTv   = textStack.getChildAt(0) as TextView
-            val metaTv    = textStack.getChildAt(1) as TextView
+            holder.card.background = ripple(
+                if (isPlaying) roundedBg(ctx, Color.parseColor("#2A6C63FF"), SdpR.dimen._12sdp, Color.parseColor("#806C63FF"))
+                else roundedBg(ctx, Color.parseColor(COLOR_ROW), SdpR.dimen._12sdp)
+            )
+            holder.iconBox.background =
+                if (isPlaying) accentGradient(ctx, SdpR.dimen._10sdp)
+                else roundedBg(ctx, Color.parseColor(COLOR_BG_LIGHT), SdpR.dimen._10sdp)
+            holder.noteIcon.visibility = if (isPlaying) View.GONE else View.VISIBLE
+            holder.eq.visibility = if (isPlaying) View.VISIBLE else View.GONE
+            holder.eq.continuous = isPlaying && MusicPlayerManager.isPlaying
 
-            iconBox.background = GradientDrawable().apply {
-                setColor(
-                    if (isPlaying) Color.parseColor(COLOR_ACCENT)
-                    else Color.parseColor(COLOR_BG_MEDIUM)
-                )
-                cornerRadius = themedContext.sdp(SdpR.dimen._8sdp).toFloat()
-            }
-            iconTv.setTextColor(if (isPlaying) Color.WHITE else Color.parseColor(COLOR_ACCENT))
-
-            titleTv.apply {
-                text = track.title.orEmpty().uppercase()
+            holder.titleTv.apply {
+                text = track.title
                 setTextColor(
-                    if (isPlaying) Color.parseColor(COLOR_ACCENT)
+                    if (isPlaying) Color.parseColor(COLOR_ACCENT_LIGHT)
                     else Color.parseColor(COLOR_TEXT_BRIGHT)
                 )
                 typeface = Typeface.create(
@@ -978,13 +1062,18 @@ object MusicListDialogHelper {
                 )
             }
 
-            metaTv.apply {
-                text = if (track.isRaw) "ASSET • ${formatMs(track.duration)}"
-                else "STORAGE • ${formatMs(track.duration)}"
-                setTextColor(Color.parseColor(COLOR_TEXT_DIM))
-            }
+            holder.metaTv.text = if (track.isRaw) "ASSET • ${formatMs(track.duration)}"
+            else "STORAGE • ${formatMs(track.duration)}"
 
-            itemRow.setOnClickListener { onTrackClick(track) }
+            // Lagu aktif sudah ditandai equalizer; lainnya tampilkan tombol play bulat
+            holder.playIcon.visibility = if (isPlaying) View.INVISIBLE else View.VISIBLE
+            holder.playIcon.background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor(COLOR_BG_LIGHT))
+            }
+            holder.playIcon.imageTintList = ColorStateList.valueOf(Color.parseColor(COLOR_ACCENT_LIGHT))
+
+            holder.card.setOnClickListener { onTrackClick(track) }
         }
 
         override fun getItemCount() = items.size
@@ -1033,38 +1122,27 @@ object MusicListDialogHelper {
             notifyItemChanged(position)
         }
 
-        class VH(view: View) : RecyclerView.ViewHolder(view)
+        class VH(
+            view: View,
+            val card: LinearLayout,
+            val iconBox: FrameLayout,
+            val noteIcon: ImageView,
+            val titleTv: TextView,
+            val downloadBtn: View,
+            val progressLayout: LinearLayout,
+            val progressBar: ProgressBar,
+            val progressTv: TextView,
+            val cancelTv: TextView,
+            val downloadedTv: TextView
+        ) : RecyclerView.ViewHolder(view)
 
         @SuppressLint("UseKtx")
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val ctx = parent.context
-
-            val itemRow = LinearLayout(ctx).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setPadding(
-                    ctx.sdp(SdpR.dimen._12sdp),
-                    ctx.sdp(SdpR.dimen._6sdp),
-                    ctx.sdp(SdpR.dimen._12sdp),
-                    ctx.sdp(SdpR.dimen._6sdp)
-                )
-                gravity = Gravity.CENTER_VERTICAL
-                layoutParams = ViewGroup.LayoutParams(-1, -2)
-            }
-
-            val iconBoxSize = ctx.sdp(SdpR.dimen._28sdp)
-            val iconBox = FrameLayout(ctx).apply {
-                layoutParams = LinearLayout.LayoutParams(iconBoxSize, iconBoxSize)
-            }
-            iconBox.addView(TextView(ctx).apply {
-                text = "♪"
-                textSize = ctx.sspSp(SspR.dimen._11ssp)
-                gravity = Gravity.CENTER
-                setTextColor(Color.parseColor(COLOR_ACCENT))
-            })
-            iconBox.background = GradientDrawable().apply {
-                setColor(Color.parseColor(COLOR_BG_MEDIUM))
-                cornerRadius = ctx.sdp(SdpR.dimen._6sdp).toFloat()
-            }
+            val (outer, card) = rowCard(ctx)
+            card.background = roundedBg(ctx, Color.parseColor(COLOR_ROW), SdpR.dimen._12sdp)
+            val (iconBox, noteIcon, _) = rowIconTile(ctx)
+            iconBox.background = roundedBg(ctx, Color.parseColor(COLOR_BG_LIGHT), SdpR.dimen._10sdp)
 
             val titleTv = TextView(ctx).apply {
                 textSize = ctx.sspSp(SspR.dimen._11ssp)
@@ -1073,28 +1151,25 @@ object MusicListDialogHelper {
                 maxLines = 1
                 ellipsize = TextUtils.TruncateAt.END
                 layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
-                    setMargins(ctx.sdp(SdpR.dimen._8sdp), 0, ctx.sdp(SdpR.dimen._6sdp), 0)
+                    setMargins(ctx.sdp(SdpR.dimen._10sdp), 0, ctx.sdp(SdpR.dimen._8sdp), 0)
                 }
             }
 
-            // Download button ("Download" text)
-            val downloadBtn = TextView(ctx).apply {
-                text = context.getString(R.string.download)
-                textSize = ctx.sspSp(SspR.dimen._9ssp)
-                gravity = Gravity.CENTER
-                setTextColor(Color.parseColor(COLOR_ACCENT))
-                typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-                background = GradientDrawable().apply {
-                    setColor(Color.TRANSPARENT)
-                    setStroke(ctx.sdp(SdpR.dimen._1sdp), Color.parseColor(COLOR_ACCENT))
-                    cornerRadius = ctx.sdp(SdpR.dimen._10sdp).toFloat()
-                }
-                setPadding(
-                    ctx.sdp(SdpR.dimen._6sdp),
-                    ctx.sdp(SdpR.dimen._3sdp),
-                    ctx.sdp(SdpR.dimen._6sdp),
-                    ctx.sdp(SdpR.dimen._3sdp)
-                )
+            // Tombol download: pill gradien aksen dengan ikon
+            val downloadBtn = LinearLayout(ctx).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                background = ripple(accentGradient(ctx, SdpR.dimen._14sdp))
+                setPadding(ctx.sdp(SdpR.dimen._8sdp), ctx.sdp(SdpR.dimen._4sdp), ctx.sdp(SdpR.dimen._10sdp), ctx.sdp(SdpR.dimen._4sdp))
+                val icon = ctx.sdp(SdpR.dimen._12sdp)
+                addView(tintedIcon(ctx, R.drawable.zaif_rec_ic_download, Color.WHITE), LinearLayout.LayoutParams(icon, icon))
+                addView(TextView(ctx).apply {
+                    text = context.getString(R.string.download)
+                    textSize = ctx.sspSp(SspR.dimen._9ssp)
+                    setTextColor(Color.WHITE)
+                    typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+                    setPadding(ctx.sdp(SdpR.dimen._4sdp), 0, 0, 0)
+                })
             }
 
             // Progress layout (shown while downloading)
@@ -1102,29 +1177,32 @@ object MusicListDialogHelper {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
                 visibility = View.GONE
-                layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._60sdp), -2)
+                layoutParams = LinearLayout.LayoutParams(ctx.sdp(SdpR.dimen._70sdp), -2)
             }
             val progressBar = ProgressBar(ctx, null, android.R.attr.progressBarStyleHorizontal).apply {
                 layoutParams = LinearLayout.LayoutParams(-1, ctx.sdp(SdpR.dimen._4sdp))
                 max = 100
                 progress = 0
+                progressTintList = ColorStateList.valueOf(Color.parseColor(COLOR_ACCENT_LIGHT))
+                progressBackgroundTintList = ColorStateList.valueOf(Color.parseColor(COLOR_BG_LIGHT))
             }
             val bottomRow = LinearLayout(ctx).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
-                layoutParams = LinearLayout.LayoutParams(-1, -2)
+                layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = ctx.sdp(SdpR.dimen._3sdp) }
             }
             val progressTv = TextView(ctx).apply {
                 text = "0%"
                 textSize = ctx.sspSp(SspR.dimen._8ssp)
-                setTextColor(Color.parseColor(COLOR_ACCENT))
+                setTextColor(Color.parseColor(COLOR_ACCENT_LIGHT))
+                typeface = Typeface.DEFAULT_BOLD
                 gravity = Gravity.START
                 layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
             }
             val cancelTv = TextView(ctx).apply {
                 text = context.getString(R.string.cancel)
                 textSize = ctx.sspSp(SspR.dimen._8ssp)
-                setTextColor(Color.parseColor("#FF6B6B"))
+                setTextColor(Color.parseColor(COLOR_DANGER))
                 typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
                 gravity = Gravity.END
             }
@@ -1133,68 +1211,62 @@ object MusicListDialogHelper {
             progressLayout.addView(progressBar)
             progressLayout.addView(bottomRow)
 
+            // Sudah diunduh: pill hijau lembut
             val downloadedTv = TextView(ctx).apply {
                 text = "✓ " + context.getString(R.string.downloaded)
                 textSize = ctx.sspSp(SspR.dimen._8ssp)
-                setTextColor(Color.parseColor("#4CAF50"))
+                setTextColor(Color.parseColor(COLOR_SUCCESS))
                 typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
                 gravity = Gravity.CENTER
+                background = roundedBg(ctx, Color.parseColor("#1F4ADE80"), SdpR.dimen._14sdp)
+                setPadding(ctx.sdp(SdpR.dimen._8sdp), ctx.sdp(SdpR.dimen._4sdp), ctx.sdp(SdpR.dimen._8sdp), ctx.sdp(SdpR.dimen._4sdp))
                 visibility = View.GONE
             }
 
-            itemRow.addView(iconBox)
-            itemRow.addView(titleTv)
-            itemRow.addView(downloadBtn)
-            itemRow.addView(progressLayout)
-            itemRow.addView(downloadedTv)
+            card.addView(iconBox)
+            card.addView(titleTv)
+            card.addView(downloadBtn)
+            card.addView(progressLayout)
+            card.addView(downloadedTv)
 
-            val container = LinearLayout(ctx).apply {
-                orientation = LinearLayout.VERTICAL
-                addView(itemRow)
-                addView(View(ctx).apply {
-                    layoutParams = LinearLayout.LayoutParams(-1, 1).apply {
-                        setMargins(ctx.sdp(SdpR.dimen._16sdp), 0, ctx.sdp(SdpR.dimen._16sdp), 0)
-                    }
-                    setBackgroundColor(Color.parseColor("#156C63FF"))
-                })
-            }
-
-            return VH(container)
+            return VH(outer, card, iconBox, noteIcon, titleTv, downloadBtn, progressLayout, progressBar, progressTv, cancelTv, downloadedTv)
         }
 
         override fun onBindViewHolder(holder: VH, position: Int) {
             val song           = items[position]
-            val container      = holder.itemView as LinearLayout
-            val itemRow        = container.getChildAt(0) as LinearLayout
-            val titleTv        = itemRow.getChildAt(1) as TextView
-            val downloadBtn    = itemRow.getChildAt(2) as TextView
-            val progressLayout = itemRow.getChildAt(3) as LinearLayout
-            val progressBar    = progressLayout.getChildAt(0) as ProgressBar
-            val bottomRow      = progressLayout.getChildAt(1) as LinearLayout
-            val progressTv     = bottomRow.getChildAt(0) as TextView
-            val cancelTv       = bottomRow.getChildAt(1) as TextView
-            val downloadedTv   = itemRow.getChildAt(4) as TextView
+            val ctx            = holder.itemView.context
 
             val isDownloading  = downloadingPosition == position
             val isDownloaded   = song.title.trim().lowercase() in downloadedTitles
 
-            titleTv.text = song.title.uppercase()
+            holder.titleTv.text = song.title
 
-            downloadBtn.visibility    = if (!isDownloaded && !isDownloading) View.VISIBLE else View.GONE
-            progressLayout.visibility = if (isDownloading) View.VISIBLE else View.GONE
-            downloadedTv.visibility   = if (isDownloaded && !isDownloading) View.VISIBLE else View.GONE
+            holder.downloadBtn.visibility    = if (!isDownloaded && !isDownloading) View.VISIBLE else View.GONE
+            holder.progressLayout.visibility = if (isDownloading) View.VISIBLE else View.GONE
+            holder.downloadedTv.visibility   = if (isDownloaded && !isDownloading) View.VISIBLE else View.GONE
+
+            // Lagu yang sudah ada di perangkat: kotak ikon hijau supaya mudah dikenali
+            holder.iconBox.background = roundedBg(
+                ctx, Color.parseColor(if (isDownloaded) "#1F4ADE80" else COLOR_BG_LIGHT), SdpR.dimen._10sdp
+            )
+            holder.noteIcon.imageTintList = ColorStateList.valueOf(
+                Color.parseColor(if (isDownloaded) COLOR_SUCCESS else COLOR_ACCENT_LIGHT)
+            )
 
             if (isDownloading) {
-                progressBar.progress = downloadProgress
-                progressTv.text      = "$downloadProgress%"
+                holder.progressBar.progress = downloadProgress
+                holder.progressTv.text      = "$downloadProgress%"
             }
-            downloadBtn.setOnClickListener { onDownloadClick(song, position) }
-            cancelTv.setOnClickListener   { onCancelClick(position) }
+            holder.downloadBtn.setOnClickListener { onDownloadClick(song, position) }
+            holder.cancelTv.setOnClickListener   { onCancelClick(position) }
 
             if (isDownloaded && !isDownloading) {
-                itemRow.setOnClickListener { onPlayClick(song.title) }
+                holder.card.background = ripple(roundedBg(ctx, Color.parseColor(COLOR_ROW), SdpR.dimen._12sdp))
+                holder.card.setOnClickListener { onPlayClick(song.title) }
             } else {
-                itemRow.setOnClickListener(null)
+                holder.card.background = roundedBg(ctx, Color.parseColor(COLOR_ROW), SdpR.dimen._12sdp)
+                holder.card.setOnClickListener(null)
+                holder.card.isClickable = false
             }
         }
 
@@ -1211,21 +1283,36 @@ object MusicListDialogHelper {
         return LinearLayout(context).apply {
             id = 100
             orientation = LinearLayout.VERTICAL
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor(COLOR_BG_MEDIUM))
-                cornerRadius = context.sdp(SdpR.dimen._12sdp).toFloat()
-                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor(COLOR_ACCENT))
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                intArrayOf(Color.parseColor("#2B2560"), Color.parseColor(COLOR_BG_MEDIUM))
+            ).apply {
+                cornerRadius = context.sdp(SdpR.dimen._16sdp).toFloat()
+                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#666C63FF"))
             }
-            elevation = context.sdp(SdpR.dimen._4sdp).toFloat()
+            elevation = context.sdp(SdpR.dimen._8sdp).toFloat()
 
             val topRow = LinearLayout(context).apply {
                 setPadding(
-                    context.sdp(SdpR.dimen._12sdp),
-                    context.sdp(SdpR.dimen._6sdp),
-                    context.sdp(SdpR.dimen._12sdp),
+                    context.sdp(SdpR.dimen._10sdp),
+                    context.sdp(SdpR.dimen._10sdp),
+                    context.sdp(SdpR.dimen._10sdp),
                     0
                 )
                 gravity = Gravity.CENTER_VERTICAL
+            }
+
+            // Kotak "now playing": equalizer bergerak selama lagu diputar
+            val tileSize = context.sdp(SdpR.dimen._34sdp)
+            val nowPlayingTile = FrameLayout(context).apply {
+                background = accentGradient(context, SdpR.dimen._10sdp)
+                layoutParams = LinearLayout.LayoutParams(tileSize, tileSize)
+                addView(EqualizerBarsView(context).apply {
+                    id = 106
+                    barColor = Color.WHITE
+                    level = 0.85f
+                    continuous = MusicPlayerManager.isPlaying
+                }, FrameLayout.LayoutParams(context.sdp(SdpR.dimen._16sdp), context.sdp(SdpR.dimen._14sdp), Gravity.CENTER))
             }
 
             val titleTv = TextView(context).apply {
@@ -1233,47 +1320,48 @@ object MusicListDialogHelper {
                 textSize = context.sspSp(SspR.dimen._11ssp)
                 setTextColor(Color.parseColor(COLOR_TEXT_BRIGHT))
                 typeface = Typeface.DEFAULT_BOLD
-                layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+                layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                    setMargins(context.sdp(SdpR.dimen._10sdp), 0, context.sdp(SdpR.dimen._6sdp), 0)
+                }
                 maxLines = 1
-                ellipsize = TextUtils.TruncateAt.END
+                ellipsize = TextUtils.TruncateAt.MARQUEE
+                marqueeRepeatLimit = -1
+                isSelected = true
             }
 
-            val btnSize = context.sdp(SdpR.dimen._28sdp)
-            val btnPad  = context.sdp(SdpR.dimen._4sdp)
-
-            val stopBtn = ImageButton(context).apply {
-                id = 105
-                background = null
-                setImageResource(R.drawable.ic_baseline_stop_24)
-                setColorFilter(Color.parseColor("#FF6B6B"))
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                layoutParams = LinearLayout.LayoutParams(btnSize, btnSize).apply {
-                    setMargins(0, 0, context.sdp(SdpR.dimen._4sdp), 0)
+            val stopSize = context.sdp(SdpR.dimen._30sdp)
+            val stopBtn = roundIconButton(
+                context, 105, R.drawable.zaif_rec_ic_stop,
+                GradientDrawable().apply { setColor(Color.parseColor("#26FF6B6B")) },
+                Color.parseColor(COLOR_DANGER)
+            ).apply {
+                layoutParams = LinearLayout.LayoutParams(stopSize, stopSize).apply {
+                    setMargins(0, 0, context.sdp(SdpR.dimen._8sdp), 0)
                 }
-                setPadding(btnPad, btnPad, btnPad, btnPad)
                 setOnClickListener {
                     MusicPlayerManager.stop()
                 }
             }
 
-            val playBtn = ImageButton(context).apply {
-                id = 102
-                background = null
-                setColorFilter(Color.parseColor(COLOR_ACCENT))
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                layoutParams = LinearLayout.LayoutParams(btnSize, btnSize)
-                setPadding(btnPad, btnPad, btnPad, btnPad)
+            val playSize = context.sdp(SdpR.dimen._36sdp)
+            val playBtn = roundIconButton(
+                context, 102, R.drawable.zaif_rec_ic_play,
+                accentGradient(context, SdpR.dimen._18sdp), Color.WHITE
+            ).apply {
+                layoutParams = LinearLayout.LayoutParams(playSize, playSize)
+                elevation = context.sdp(SdpR.dimen._3sdp).toFloat()
                 setOnClickListener {
                     if (MusicPlayerManager.isPlaying) {
                         MusicPlayerManager.pause()
-                        setImageResource(android.R.drawable.ic_media_play)
+                        setImageResource(R.drawable.zaif_rec_ic_play)
                     } else {
                         MusicPlayerManager.resume()
-                        setImageResource(android.R.drawable.ic_media_pause)
+                        setImageResource(R.drawable.zaif_rec_ic_pause)
                     }
                 }
             }
 
+            topRow.addView(nowPlayingTile)
             topRow.addView(titleTv)
             topRow.addView(stopBtn)
             topRow.addView(playBtn)
@@ -1283,10 +1371,10 @@ object MusicListDialogHelper {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 setPadding(
-                    context.sdp(SdpR.dimen._12sdp),
-                    context.sdp(SdpR.dimen._4sdp),
-                    context.sdp(SdpR.dimen._12sdp),
-                    context.sdp(SdpR.dimen._8sdp)
+                    context.sdp(SdpR.dimen._10sdp),
+                    context.sdp(SdpR.dimen._6sdp),
+                    context.sdp(SdpR.dimen._10sdp),
+                    context.sdp(SdpR.dimen._10sdp)
                 )
             }
 
@@ -1320,7 +1408,7 @@ object MusicListDialogHelper {
             val volIconSize   = context.sdp(SdpR.dimen._16sdp)
             val volIconMargin = context.sdp(SdpR.dimen._8sdp)
             val volIcon = ImageView(context).apply {
-                setImageResource(android.R.drawable.ic_lock_silent_mode_off)
+                setImageResource(R.drawable.zaif_rec_ic_volume_up)
                 setColorFilter(Color.parseColor(COLOR_TEXT_DIM))
                 layoutParams = LinearLayout.LayoutParams(volIconSize, volIconSize).apply {
                     setMargins(volIconMargin, 0, volIconMargin, 0)
@@ -1368,9 +1456,10 @@ object MusicListDialogHelper {
         if (track != null) {
             card.findViewById<TextView>(101)?.text = track.title
             card.findViewById<ImageButton>(102)?.setImageResource(
-                if (MusicPlayerManager.isPlaying) android.R.drawable.ic_media_pause
-                else android.R.drawable.ic_media_play
+                if (MusicPlayerManager.isPlaying) R.drawable.zaif_rec_ic_pause
+                else R.drawable.zaif_rec_ic_play
             )
+            card.findViewById<EqualizerBarsView>(106)?.continuous = MusicPlayerManager.isPlaying
             card.findViewById<DJSeekBar>(104)?.progress = (loadMusicVolume(context) * 100).toInt()
         }
     }
