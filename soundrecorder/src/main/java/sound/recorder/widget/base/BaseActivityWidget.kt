@@ -1138,8 +1138,10 @@ open class BaseActivityWidget : AppCompatActivity() {
                 AdRequest.Builder().build(),
                 object : InterstitialAdLoadCallback() {
                     override fun onAdLoaded(ad: InterstitialAd) {
-                        isInterstitialLoading = false
+                        // Jangan akses field Activity langsung di callback ini: itu membuat callback
+                        // menyimpan referensi kuat ke Activity (this$0) dan WeakReference jadi tidak berguna.
                         val activity = weakActivity.get()
+                        activity?.isInterstitialLoading = false
                         // Activity sudah mati → buang iklan, tidak update state
                         if (activity == null || activity.isDestroyed || activity.isFinishing ||
                             !activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
@@ -1153,8 +1155,8 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
 
                     override fun onAdFailedToLoad(error: LoadAdError) {
-                        isInterstitialLoading = false
                         val activity = weakActivity.get()
+                        activity?.isInterstitialLoading = false
                         if (activity == null || activity.isDestroyed || activity.isFinishing) return
                         activity.mInterstitialAd = null
                         activity.scheduleRetry(isPremium)
@@ -1271,8 +1273,9 @@ open class BaseActivityWidget : AppCompatActivity() {
                 object : RewardedAdLoadCallback() {
 
                     override fun onAdFailedToLoad(adError: LoadAdError) {
-                        isRewardedLoading = false
+                        // Akses lewat weakActivity saja (lihat catatan di loadInterstitialIfNeeded)
                         val activity = weakActivity.get()
+                        activity?.isRewardedLoading = false
                         // Activity sudah mati → tidak perlu lakukan apapun
                         if (activity == null || activity.isDestroyed || activity.isFinishing) return
 
@@ -1296,8 +1299,8 @@ open class BaseActivityWidget : AppCompatActivity() {
                     }
 
                     override fun onAdLoaded(ad: RewardedAd) {
-                        isRewardedLoading = false
                         val activity = weakActivity.get()
+                        activity?.isRewardedLoading = false
                         // Activity sudah mati saat iklan baru selesai load → buang iklan
                         if (activity == null || activity.isDestroyed || activity.isFinishing ||
                             !activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {

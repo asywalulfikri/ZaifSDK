@@ -45,6 +45,21 @@ object MusicPlayerManager {
     // Volume internal (0.0 – 1.0), tidak terhubung ke volume system
     private var currentVolume: Float = DEFAULT_VOLUME
 
+    /**
+     * Dipakai fitur rekam untuk mencatat kapan lagu diputar/dijeda/digeser/dihentikan (internal SDK).
+     * Dipanggil di main thread setelah status berubah; baca [isPlaying], [getCurrentTrack], [getCurrentPosition].
+     */
+    private val timelineObservers = java.util.concurrent.CopyOnWriteArrayList<() -> Unit>()
+
+    internal fun addTimelineObserver(o: () -> Unit) { timelineObservers.addIfAbsent(o) }
+    internal fun removeTimelineObserver(o: () -> Unit) { timelineObservers.remove(o) }
+
+    private fun notifyTimeline() {
+        timelineObservers.forEach {
+            try { it() } catch (e: Exception) { Log.e("MusicPlayerManager", "Error in timeline observer", e) }
+        }
+    }
+
     fun addListener(l: PlayerListener) {
         if (!listeners.contains(l)) {
             Log.d("MusicPlayerManager", "Adding listener: $l")
@@ -135,6 +150,7 @@ object MusicPlayerManager {
                     start()
                     _isPlaying = true
                     _isPaused = false
+                    notifyTimeline()
 
                     listeners.forEach { 
                         try {
@@ -171,6 +187,7 @@ object MusicPlayerManager {
                 it.pause()
                 _isPlaying = false
                 _isPaused = true
+                notifyTimeline()
                 listeners.forEach { 
                     try {
                         it.onPause()
@@ -191,6 +208,7 @@ object MusicPlayerManager {
                 it.setVolume(currentVolume, currentVolume)
                 _isPlaying = true
                 _isPaused = false
+                notifyTimeline()
                 currentTrack?.let { track -> 
                     listeners.forEach { 
                         try {
@@ -225,6 +243,7 @@ object MusicPlayerManager {
         _isPlaying = false
         _isPaused = false
         currentTrack = null
+        notifyTimeline()
         listeners.forEach { 
             try {
                 it.onStop()
@@ -237,6 +256,7 @@ object MusicPlayerManager {
     fun seekTo(ms: Int) {
         try {
             mediaPlayer?.seekTo(ms)
+            if (mediaPlayer != null) notifyTimeline()
             if (!_isPlaying) {
                 listeners.forEach { 
                     try {

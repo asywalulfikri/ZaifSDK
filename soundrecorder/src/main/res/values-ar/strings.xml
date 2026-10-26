@@ -521,5 +521,49 @@
 
     <string name="mallet">رسوم متحركة للمطرقة/العصا</string>
     <string name="show_note_labels">إظهار أسماء النغمات</string>
-</resources>
 
+    <string name="export_title">تصدير</string>
+    <string name="export_mp3_hint">ملف صوتي يعمل على أي هاتف ويمكن إرساله إلى واتساب أو وسائل التواصل الاجتماعي.</string>
+    <string name="export_midi_hint">ملف نوتات (.mid) يمكن فتحه في تطبيقات الموسيقى مثل FL Studio أو GarageBand أو MuseScore.</string>
+    <string name="export_mp3_unavailable">صيغة MP3 غير متاحة لهذا التسجيل</string>
+    <string name="export_save_device">حفظ</string>
+    <string name="export_saved_to">تم الحفظ في %1$s</string>
+    <string name="export_failed">فشل التصدير، يرجى المحاولة مرة أخرى</string>
+    <string name="export_whatsapp_not_installed">واتساب غير مثبت</string>
+    <string name="export_permission_denied">يلزم إذن التخزين لحفظ الملف</string>
+    <string name="export_dialog_title">تصدير التسجيل</string>
+    <string name="export_preparing">جارٍ تجهيز الأصوات…</string>
+    <string name="export_rendering">جارٍ إنشاء %1$s…</string>
+    <string name="export_progress_percent">%1$d%%</string>
+    <string name="export_progress_eta">%1$d%% · متبقٍ حوالي %2$s</string>
+    <string name="export_eta_sec">%1$d ث</string>
+    <string name="export_eta_min">%1$d د %2$d ث</string>
+    <string name="export_cancelled">تم إلغاء التصدير</string>
+    <string name="export_keep_open">أبقِ التطبيق مفتوحًا حتى ينتهي</string>
+    <string name="export_reward_title">شاهد إعلانًا للتصدير</string>
+    <string name="export_reward_message">شاهد إعلانًا قصيرًا لتصدير هذا التسجيل. يبدأ التصدير فور انتهاء الإعلان.</string>
+    <string name="export_reward_watch">مشاهدة الإعلان</string>
+    <string name="list_count">عدد التسجيلات: %1$d</string>
+    <string name="list_empty_hint">اضغط على زر التسجيل لإنشاء أول تسجيل لك.</string>
+    <string name="list_delete_title">حذف التسجيل؟</string>
+    <string name="list_delete_message">سيتم حذف “%1$s” نهائيًا ولا يمكن استعادته.</string>
+    <string name="list_rename">إعادة التسمية</string>
+    <string name="volume_instrument">مستوى صوت الآلة</string>
+    <string name="volume_mute_hint">اضغط على أيقونة السماعة لكتم الصوت أو تشغيله.</string>
+    <string name="add">إضافة</string>
+    <string name="already_promoted">تم الترويج لهذه النوتة من قبل. عدّلها لترويجها مرة أخرى!</string>
+    <string name="approve">موافقة</string>
+    <string name="my_song_notes">نوتات أغنياتي</string>
+    <string name="online_song_notes">نوتات الأغاني عبر الإنترنت</string>
+    <string name="record_autosave_name">حفظ تلقائي %1$s</string>
+    <string name="record_recovered">تم حفظ آخر تسجيل لم يكتمل تلقائيًا</string>
+    <string name="record_trim">قص</string>
+    <string name="record_trim_title">قص التسجيل</string>
+    <string name="record_trim_hint">اسحب الطرفين لاختيار الجزء الذي تريد الاحتفاظ به. يبقى التسجيل الأصلي كما هو.</string>
+    <string name="record_trim_copy_name">%1$s (مقصوص)</string>
+    <string name="record_trim_saved">تم حفظ الجزء المقصوص كتسجيل جديد</string>
+    <string name="record_trim_failed">تعذّر قص التسجيل</string>
+    <string name="record_overdub">تسجيل طبقة</string>
+    <string name="record_overdub_hint">يتم تشغيل التسجيل — انقر على الأزرار لإضافة طبقة جديدة</string>
+    <string name="record_overdub_name">%1$s + طبقة</string>
+</resources>

@@ -46,6 +46,10 @@ import sound.recorder.widget.notes.DatabaseHelper
 import sound.recorder.widget.notes.Note
 import sound.recorder.widget.notes.NotesAdapter
 import sound.recorder.widget.notes.utils.RecyclerTouchListener
+import sound.recorder.widget.recording.RecordingDialogPalette
+import sound.recorder.widget.recording.RecordingDialogStyle
+import sound.recorder.widget.recording.RecordingDialogViews
+import sound.recorder.widget.recording.RecordingDialogViews.SheetItem
 import sound.recorder.widget.tutorial.InstrumentTutorialDialog
 import sound.recorder.widget.util.Toastic
 import java.text.SimpleDateFormat
@@ -78,6 +82,10 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
     private val KEY_TIMESTAMP = "cache_timestamp"
     private val CACHE_DURATION_MS = 6 * 60 * 60 * 1000L // 6 jam
 
+    // Warna tampilan. Pakai context Activity agar colorPrimary diambil dari tema aplikasi,
+    // bukan dari tema dialog (FullScreenDialogTheme).
+    private val palette by lazy { RecordingDialogPalette(requireActivity(), RecordingDialogStyle.default) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Gunakan FullScreenDialogTheme agar bisa mentok sampai status bar
@@ -109,8 +117,9 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         zaifSDKConfig = ZaifSDKBuilder.load(requireContext())
         collectionPath = collectionPath+"_"+zaifSDKConfig?.applicationId
-        dbHelper = DatabaseHelper(requireContext())
+        dbHelper = DatabaseHelper.getInstance(requireContext())
 
+        applySheetStyle()
         setupBottomSheet()
         setupCommonActions()
         setupTabs()
@@ -193,35 +202,39 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
 
     private fun updateTabUI() {
         val context = requireContext()
-        val accentColor = Color.parseColor("#6C63FF")
-        val bgMedium = Color.parseColor("#1A1F3A")
-        val cornerRadius = context.resources.getDimension(SdpR.dimen._14sdp)
+        val c = palette
+        val radius = SdpR.dimen._8sdp
+        val active = if (!isOnlineTab) binding.tabLocal else binding.tabOnline
+        val inactive = if (!isOnlineTab) binding.tabOnline else binding.tabLocal
+        active.setTextColor(c.onAccent)
+        active.background = RecordingDialogViews.rounded(context, c.accent, radius)
+        inactive.setTextColor(c.textSecondary)
+        inactive.background = null
+    }
 
-        if (!isOnlineTab) {
-            // Local Active
-            binding.tabLocal.setTextColor(Color.WHITE)
-            binding.tabLocal.background = GradientDrawable().apply {
-                setColor(accentColor)
-                this.cornerRadius = cornerRadius
-            }
-            binding.tabOnline.setTextColor(Color.parseColor("#8888AA"))
-            binding.tabOnline.background = GradientDrawable().apply {
-                setColor(bgMedium)
-                this.cornerRadius = cornerRadius
-            }
-        } else {
-            // Online Active
-            binding.tabOnline.setTextColor(Color.WHITE)
-            binding.tabOnline.background = GradientDrawable().apply {
-                setColor(accentColor)
-                this.cornerRadius = cornerRadius
-            }
-            binding.tabLocal.setTextColor(Color.parseColor("#8888AA"))
-            binding.tabLocal.background = GradientDrawable().apply {
-                setColor(bgMedium)
-                this.cornerRadius = cornerRadius
-            }
+    /** Warna sheet, header, tab, pencarian, tampilan kosong & tombol tambah (hanya tampilan). */
+    private fun applySheetStyle() {
+        val context = requireContext()
+        val c = palette
+        binding.sheetRoot.background = GradientDrawable().apply {
+            setColor(c.surface)
+            val r = context.resources.getDimension(SdpR.dimen._16sdp)
+            cornerRadii = floatArrayOf(r, r, r, r, 0f, 0f, 0f, 0f)
         }
+        binding.sheetHandle.background = RecordingDialogViews.rounded(context, c.outline, SdpR.dimen._2sdp)
+        binding.tvSheetTitle.setTextColor(c.text)
+        binding.ivClose.imageTintList = android.content.res.ColorStateList.valueOf(c.textSecondary)
+        binding.progressBar.indeterminateTintList = android.content.res.ColorStateList.valueOf(c.accent)
+        binding.tabStrip.background = RecordingDialogViews.rounded(context, c.surfaceAlt, SdpR.dimen._10sdp)
+        binding.searchContainer.background = RecordingDialogViews.rounded(context, c.surfaceAlt, SdpR.dimen._10sdp, c.outline)
+        binding.ivSearch.imageTintList = android.content.res.ColorStateList.valueOf(c.textSecondary)
+        binding.etSearch.setTextColor(c.text)
+        binding.etSearch.setHintTextColor(c.textSecondary)
+        binding.emptyIconBg.background = RecordingDialogViews.circle(c.accentSoft)
+        binding.ivEmpty.imageTintList = android.content.res.ColorStateList.valueOf(c.accent)
+        binding.tvEmpty.setTextColor(c.textSecondary)
+        binding.fab.backgroundTintList = android.content.res.ColorStateList.valueOf(c.accent)
+        binding.fab.imageTintList = android.content.res.ColorStateList.valueOf(c.onAccent)
     }
 
     // ─── Local Notes Logic ────────────────────────────────────────────────────
@@ -278,6 +291,9 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
             }
         )
 
+        localAdapter?.palette = palette
+        onlineAdapter?.palette = palette
+
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             itemAnimator = DefaultItemAnimator()
@@ -318,11 +334,9 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
 
         val options = optionsList.toTypedArray()
 
-        AlertDialog.Builder(activity)
-            .setTitle(strChoose)
-            .setItems(options) { _, which ->
-                if (!isAdded || position !in localNotesList.indices) return@setItems
-                
+        fun onOptionSelected(which: Int) {
+                if (!isAdded || position !in localNotesList.indices) return
+
                 val selectedOption = options[which]
                 when (selectedOption) {
                     strUseNote -> {
@@ -342,8 +356,21 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                     strDeleteNote -> deleteLocalNote(position)
                     strPromote -> showPromoteConfirmation(localNotesList[position])
                 }
-            }
-            .show()
+        }
+
+        val icons = mapOf<CharSequence, Int>(
+            strUseNote to R.drawable.zaif_rec_ic_play,
+            strEditNote to R.drawable.zaif_rec_ic_edit,
+            strDeleteNote to R.drawable.zaif_rec_ic_delete,
+            strPromote to R.drawable.zaif_rec_ic_star
+        )
+        RecordingDialogViews.actionSheet(activity, palette, strChoose, options.mapIndexed { which, option ->
+            SheetItem(
+                icon = icons[option] ?: R.drawable.zaif_rec_ic_queue_music,
+                label = option.toString(),
+                color = if (option == strDeleteNote) palette.error else null
+            ) { onOptionSelected(which) }
+        })
     }
 
     private fun showPromoteConfirmation(note: Note) {
@@ -379,14 +406,15 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
             return
         }
 
-        AlertDialog.Builder(context)
-            .setTitle(strPromote)
-            .setMessage(strPromoteInfo)
-            .setPositiveButton(strSend) { _, _ ->
-                promoteNoteToOnline(note, today, count, currentSignature)
-            }
-            .setNegativeButton(strCancel, null)
-            .show()
+        RecordingDialogViews.confirmDialog(
+            context, palette,
+            title = strPromote,
+            message = strPromoteInfo,
+            positiveLabel = strSend,
+            negativeLabel = strCancel
+        ) {
+            promoteNoteToOnline(note, today, count, currentSignature)
+        }
     }
 
     private fun getCleanNoteData(note: Note): Pair<String, String> {
@@ -486,16 +514,22 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
             }
         }
 
+        val btnCancel = view.findViewById<TextView>(R.id.btnNoteCancel)
+        val btnSave = view.findViewById<TextView>(R.id.btnNoteSave)
+        styleNoteDialog(view, dialogTitle, inputTitle, inputNote, btnCancel, btnSave)
+        btnSave.setText(if (shouldUpdate) R.string.update else R.string.save)
+
         val dialog = AlertDialog.Builder(activity)
             .setView(view)
             .setCancelable(false)
-            .setPositiveButton(if (shouldUpdate) R.string.update else R.string.save) { _, _ -> }
-            .setNegativeButton(R.string.cancel) { d, _ -> d.cancel() }
             .create()
 
-        dialog.show()
+        btnCancel.setOnClickListener { dialog.cancel() }
 
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+        dialog.show()
+        RecordingDialogViews.applyWindow(dialog, activity, 0.90, 0.60)
+
+        btnSave.setOnClickListener {
             if (!isAdded) return@setOnClickListener
             
             val titleText = inputTitle.text.toString().trim()
@@ -518,6 +552,29 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                 createLocalNote(jsonInput, titleText)
             }
             dialog.dismiss()
+        }
+    }
+
+    /** Warna dialog tambah/edit not (hanya tampilan). */
+    private fun styleNoteDialog(
+        root: View,
+        dialogTitle: TextView,
+        inputTitle: EditText,
+        inputNote: EditText,
+        btnCancel: TextView,
+        btnSave: TextView
+    ) {
+        val context = root.context
+        val c = palette
+        root.background = RecordingDialogViews.rounded(context, c.surface, SdpR.dimen._12sdp)
+        dialogTitle.setTextColor(c.text)
+        RecordingDialogViews.styleInput(context, c, inputTitle)
+        RecordingDialogViews.styleInput(context, c, inputNote)
+        listOf(btnCancel to c.textSecondary, btnSave to c.accent).forEach { (btn, color) ->
+            btn.setTextColor(color)
+            btn.background = android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(c.ripple), null, null
+            )
         }
     }
 
@@ -559,16 +616,13 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         // Pre-fetch strings
         val strUseNote = getString(R.string.use_note)
         val strCopyNote = getString(R.string.copy_note)
-        val strCancel = getString(R.string.cancel)
         val strChoose = getString(R.string.choose)
         
-        val options = arrayOf<CharSequence>(strUseNote, strCopyNote, strCancel)
+        // Opsi ke-3 lama ("Batal", tidak melakukan apa-apa) kini jadi tombol Tutup di bawah dialog
 
-        AlertDialog.Builder(activity)
-            .setTitle(strChoose)
-            .setItems(options) { _, which ->
-                if (!isAdded) return@setItems
-                
+        fun onOptionSelected(which: Int) {
+                if (!isAdded) return
+
                 when (which) {
                     0 -> {
                         MyNoteListener.postNote(note.note)
@@ -581,8 +635,12 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                         Toastic.toastic(activity, "Berhasil disalin ke clipboard", Toastic.LENGTH_SHORT, Toastic.SUCCESS, null, true).show()
                     }
                 }
-            }
-            .show()
+        }
+
+        RecordingDialogViews.actionSheet(activity, palette, strChoose, listOf(
+            SheetItem(R.drawable.zaif_rec_ic_play, strUseNote) { onOptionSelected(0) },
+            SheetItem(R.drawable.zaif_rec_ic_copy, strCopyNote) { onOptionSelected(1) }
+        ))
     }
 
     private fun loadOnlineNotes() {
@@ -699,11 +757,15 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         val context = context ?: return
         if (_binding == null) return
 
-        AlertDialog.Builder(context)
-            .setTitle("Hapus Catatan Online?")
-            .setMessage("Data ini akan dihapus permanen dari Firestore.")
-            .setPositiveButton("Hapus") { _, _ ->
-                if (_binding == null || !isAdded) return@setPositiveButton
+ RecordingDialogViews.confirmDialog(
+            context, palette,
+            title = "Hapus Catatan Online?",
+            message = "Data ini akan dihapus permanen dari Firestore.",
+            positiveLabel = "Hapus",
+            negativeLabel = "Batal",
+            destructive = true
+        ) {
+                if (_binding == null || !isAdded) return@confirmDialog
                 
                 _binding?.progressBar?.visibility = View.VISIBLE
                 firestore.collection(collectionPath).document(docId)
@@ -721,9 +783,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
                         _binding?.progressBar?.visibility = View.GONE
                         Toast.makeText(context, "Gagal: ${it.message}", Toast.LENGTH_SHORT).show()
                     }
-            }
-            .setNegativeButton("Batal", null)
-            .show()
+        }
     }
 
 

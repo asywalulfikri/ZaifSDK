@@ -39,3 +39,6 @@
 -keepclassmembers class * extends android.webkit.WebViewClient {
     public android.webkit.WebResourceResponse *(android.webkit.WebView, android.webkit.WebResourceRequest);
 }
+
+# okhttp3 (dibawa Picasso dari SDK) mereferensikan Conscrypt secara opsional
+-dontwarn org.conscrypt.**

@@ -490,8 +490,43 @@
     <string name="mallet">Animasi Mallet/Stick</string>
     <string name="show_note_labels">Tampilkan Not Nada</string>
 
-
-
-
-
+    <string name="export_title">Ekspor</string>
+    <string name="export_mp3_hint">File audio yang bisa diputar di semua HP dan dikirim ke WhatsApp atau media sosial.</string>
+    <string name="export_midi_hint">File not (.mid) yang bisa dibuka di aplikasi musik / DAW seperti FL Studio, GarageBand atau MuseScore.</string>
+    <string name="export_mp3_unavailable">MP3 tidak tersedia untuk rekaman ini</string>
+    <string name="export_save_device">Simpan</string>
+    <string name="export_saved_to">Tersimpan di %1$s</string>
+    <string name="export_failed">Ekspor gagal, silakan coba lagi</string>
+    <string name="export_whatsapp_not_installed">WhatsApp tidak terpasang</string>
+    <string name="export_permission_denied">Izin penyimpanan dibutuhkan untuk menyimpan file</string>
+    <string name="export_dialog_title">Ekspor Rekaman</string>
+    <string name="export_preparing">Menyiapkan suara…</string>
+    <string name="export_rendering">Membuat %1$s…</string>
+    <string name="export_progress_percent">%1$d%%</string>
+    <string name="export_progress_eta">%1$d%% · sisa ±%2$s</string>
+    <string name="export_eta_sec">%1$d dtk</string>
+    <string name="export_eta_min">%1$d mnt %2$d dtk</string>
+    <string name="export_cancelled">Ekspor dibatalkan</string>
+    <string name="export_keep_open">Biarkan aplikasi tetap terbuka sampai selesai</string>
+    <string name="export_reward_title">Tonton iklan untuk ekspor</string>
+    <string name="export_reward_message">Tonton iklan singkat untuk mengekspor rekaman ini. Ekspor langsung berjalan setelah iklan selesai.</string>
+    <string name="export_reward_watch">Tonton iklan</string>
+    <string name="list_count">Jumlah rekaman: %1$d</string>
+    <string name="list_empty_hint">Tekan tombol rekam untuk membuat rekaman pertamamu.</string>
+    <string name="list_delete_title">Hapus rekaman?</string>
+    <string name="list_delete_message">“%1$s” akan dihapus permanen dan tidak bisa dikembalikan.</string>
+    <string name="list_rename">Ubah nama</string>
+    <string name="volume_instrument">Volume Instrumen</string>
+    <string name="volume_mute_hint">Ketuk ikon speaker untuk membisukan atau menyalakan suara.</string>
+    <string name="record_autosave_name">Simpan otomatis %1$s</string>
+    <string name="record_recovered">Rekaman terakhir yang belum tersimpan sudah disimpan otomatis</string>
+    <string name="record_trim">Potong</string>
+    <string name="record_trim_title">Potong Rekaman</string>
+    <string name="record_trim_hint">Geser kedua ujung untuk memilih bagian yang disimpan. Rekaman asli tidak berubah.</string>
+    <string name="record_trim_copy_name">%1$s (potongan)</string>
+    <string name="record_trim_saved">Potongan disimpan sebagai rekaman baru</string>
+    <string name="record_trim_failed">Gagal memotong rekaman</string>
+    <string name="record_overdub">Rekam lapis</string>
+    <string name="record_overdub_hint">Rekaman lama diputar — ketuk pad untuk menambah lapisan baru</string>
+    <string name="record_overdub_name">%1$s + lapis</string>
 </resources>

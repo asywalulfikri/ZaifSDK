@@ -19,6 +19,8 @@ object SoundPlayUtils {
     private var mediaPlayer: MediaPlayer? = null
 
     private val instrumentSounds = mutableMapOf<String, MutableMap<String, Int>>()
+    // instrument -> (soundName -> R.raw id), dipakai untuk render export MP3
+    private val instrumentRawRes = mutableMapOf<String, Map<String, Int>>()
     private val activeStreams = mutableMapOf<String, Int>()
     private var volume = 1f
     private val audioExecutor = Executors.newSingleThreadExecutor()
@@ -117,7 +119,11 @@ object SoundPlayUtils {
             soundMap[name] = soundId
         }
         instrumentSounds[instrument] = soundMap
+        instrumentRawRes[instrument] = sounds.toMap()
     }
+
+    /** R.raw id untuk suara tertentu (sama dengan yang diputar [playSound]). */
+    fun getRawResId(instrument: String, soundName: String): Int? = instrumentRawRes[instrument]?.get(soundName)
 
     /**
      * Memainkan suara ketukan dari SoundPool.

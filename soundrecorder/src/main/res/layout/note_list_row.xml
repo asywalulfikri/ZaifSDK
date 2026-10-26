@@ -1,143 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    Satu baris not (lokal & online). Warna diatur dari kode (NoteRowStyle) mengikuti RecordingDialogStyle.
+    ID lama (ivIcon, tvNoteTitle, tvStatus, timestamp, tvNoteDesc, layoutAdminActions,
+    btnApprove, btnDeleteOnline) dipertahankan karena dipakai adapter.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/noteRowCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/_10sdp"
-    android:layout_marginVertical="@dimen/_6sdp"
-    app:cardBackgroundColor="#1A1A3A"
-    app:cardCornerRadius="@dimen/_12sdp"
-    app:cardElevation="0dp"
-    android:foreground="?attr/selectableItemBackground">
+    android:layout_marginVertical="@dimen/_4sdp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingVertical="@dimen/_8sdp"
+    android:paddingStart="@dimen/_8sdp"
+    android:paddingEnd="@dimen/_4sdp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingVertical="@dimen/_5sdp"
-        android:paddingHorizontal="@dimen/_10sdp">
+    <FrameLayout
+        android:id="@+id/noteIconBg"
+        android:layout_width="@dimen/_30sdp"
+        android:layout_height="@dimen/_30sdp"
+        android:layout_gravity="top">
 
         <ImageView
             android:id="@+id/ivIcon"
-            android:layout_width="@dimen/_32sdp"
-            android:layout_height="@dimen/_32sdp"
-            android:background="@drawable/piring"
-            android:backgroundTint="#2D2D5A"
-            android:padding="@dimen/_6sdp"
-            android:src="@drawable/icon_music"
-            app:tint="#4A90D9"
-            android:contentDescription="@string/app_name" />
+            android:layout_width="@dimen/_16sdp"
+            android:layout_height="@dimen/_16sdp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/note"
+            android:src="@drawable/zaif_rec_ic_queue_music"
+            app:tint="#4A90D9" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_12sdp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/tvNoteTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/ooredoo"
-                    android:maxLines="1"
-                    android:text="Song Title"
-                    android:textColor="#FFFFFF"
-                    android:textSize="@dimen/_13ssp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toEndOf="@+id/tvNoteTitle"
-                    android:layout_marginStart="@dimen/_4sdp"
-                    android:paddingHorizontal="@dimen/_6sdp"
-                    android:paddingVertical="@dimen/_2sdp"
-                    android:text="DRAFT"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/_8ssp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/timestamp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:alpha="0.7"
-                    android:text="14 Mei"
-                    android:textColor="#8888AA"
-                    android:textSize="@dimen/_9ssp" />
-            </RelativeLayout>
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tvNoteDesc"
-                android:layout_width="match_parent"
+                android:id="@+id/tvNoteTitle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_weight="1"
                 android:ellipsize="end"
-                android:fontFamily="@font/campton_medium"
-                android:maxLines="2"
-                android:text="Mari Lah Kemari hei hei kemari bermain bersama"
-                android:textColor="#8888AA"
-                android:textSize="@dimen/_10ssp" />
+                android:maxLines="1"
+                tools:text="Song Title"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
 
-            <!-- Admin Actions Container -->
-            <LinearLayout
-                android:id="@+id/layoutAdminActions"
+            <TextView
+                android:id="@+id/tvStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_6sdp"
-                android:orientation="horizontal"
-                android:visibility="gone">
+                android:layout_marginStart="@dimen/_4sdp"
+                android:paddingHorizontal="@dimen/_6sdp"
+                android:paddingVertical="@dimen/_1sdp"
+                tools:text="DRAFT"
+                android:textColor="@color/white"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
-                <TextView
-                    android:id="@+id/btnApprove"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_btn_tutorial_learn"
-                    android:paddingHorizontal="@dimen/_12sdp"
-                    android:paddingVertical="@dimen/_4sdp"
-                    android:text="@string/approve"
-                    android:textColor="#4CAF50"
-                    android:textSize="@dimen/_9ssp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/btnDeleteOnline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_8sdp"
-                    android:background="@drawable/bg_btn_tutorial_play"
-                    android:paddingHorizontal="@dimen/_12sdp"
-                    android:paddingVertical="@dimen/_4sdp"
-                    android:text="@string/delete_not"
-                    android:textColor="#FF5252"
-                    android:textSize="@dimen/_9ssp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
+            <TextView
+                android:id="@+id/timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_6sdp"
+                tools:text="14 Mei"
+                android:textColor="#8888AA"
+                android:textSize="10sp" />
         </LinearLayout>
 
-        <ImageView
-            android:layout_width="@dimen/_20sdp"
-            android:layout_height="@dimen/_20sdp"
-            android:layout_marginStart="@dimen/_4sdp"
-            android:src="@drawable/ic_chevron_right"
-            app:tint="#444466"
-            android:contentDescription="@string/app_name" />
+        <TextView
+            android:id="@+id/tvNoteDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:ellipsize="end"
+            android:lineSpacingMultiplier="1.15"
+            android:maxLines="2"
+            tools:text="Mari Lah Kemari hei hei kemari bermain bersama"
+            android:textColor="#8888AA"
+            android:textSize="11sp" />
+
+        <!-- Aksi admin (hanya build debug, tab online) -->
+        <LinearLayout
+            android:id="@+id/layoutAdminActions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_6sdp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/btnApprove"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/_10sdp"
+                android:paddingVertical="@dimen/_4sdp"
+                android:text="@string/approve"
+                android:textColor="#4CAF50"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnDeleteOnline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_6sdp"
+                android:paddingHorizontal="@dimen/_10sdp"
+                android:paddingVertical="@dimen/_4sdp"
+                android:text="@string/delete_not"
+                android:textColor="#FF5252"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+    <ImageView
+        android:id="@+id/ivChevron"
+        android:layout_width="@dimen/_18sdp"
+        android:layout_height="@dimen/_18sdp"
+        android:layout_marginStart="@dimen/_2sdp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/zaif_rec_ic_chevron"
+        app:tint="#444466" />
+
+</LinearLayout>

@@ -9,6 +9,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,16 @@ class AudioEngine(private val context: Context) {
     private var recordingJob: Job? = null
     @Volatile private var recordingRequested = false
 
+    @Volatile
     var currentAudioFile: File? = null
+        private set
+
+    /**
+     * Waktu (SystemClock.elapsedRealtime) saat mic benar-benar mulai merekam, 0 jika belum/gagal.
+     * prepare()/start() jalan di background, jadi mic mulai lebih lambat dari tombol rekam — dipakai untuk sinkron ketukan.
+     */
+    @Volatile
+    var micStartedAtElapsed: Long = 0L
         private set
 
     // ─── EARPHONE CHECK ───
@@ -55,28 +65,29 @@ class AudioEngine(private val context: Context) {
     fun startMicRecording(onError: (() -> Unit)? = null) {
         stopMicRecording()
         recordingRequested = true
-        val fileName = "REC_${System.currentTimeMillis()}.3gp"
-        currentAudioFile = File(context.filesDir, fileName)
-        val outputPath = currentAudioFile?.absolutePath
+        micStartedAtElapsed = 0L
+        val stamp = System.currentTimeMillis()
+        // Path awal = format kualitas tinggi; diganti ke .3gp kalau device harus pakai fallback
+        currentAudioFile = File(context.filesDir, "REC_$stamp.m4a")
         // prepare()/start() melakukan I/O dan setup encoder secara sinkron,
         // jalankan di background agar tidak memblokir main thread (potensi ANR).
         recordingJob = audioScope.launch {
             var recorder: MediaRecorder? = null
             try {
-                recorder = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    MediaRecorder(context)
-                } else {
-                    @Suppress("DEPRECATION")
-                    MediaRecorder()
-                }).apply {
-                    setAudioSource(MediaRecorder.AudioSource.MIC)
-                    setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                    setOutputFile(outputPath)
+                val hqFile = File(context.filesDir, "REC_$stamp.m4a")
+                recorder = try {
+                    openRecorder(hqFile, highQuality = true)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // Sebagian device tidak mendukung 44.1 kHz / bitrate ini → pakai setelan lama (pasti jalan seperti dulu)
+                    Log.w("AudioEngine", "HQ recorder failed, fallback to legacy: ${e.message}")
+                    hqFile.delete()
+                    val legacyFile = File(context.filesDir, "REC_$stamp.3gp")
+                    currentAudioFile = legacyFile
+                    openRecorder(legacyFile, highQuality = false)
                 }
-                recorder.prepare()
                 if (recordingRequested) {
-                    recorder.start()
                     mediaRecorder = recorder
                 } else {
                     recorder.release()
@@ -98,6 +109,54 @@ class AudioEngine(private val context: Context) {
         }
     }
 
+    /** prepare + start (jika masih diminta). Gagal di tahap mana pun → recorder di-release lalu dilempar. */
+    private fun openRecorder(file: File, highQuality: Boolean): MediaRecorder {
+        val recorder = prepareRecorder(file, highQuality)
+        if (recordingRequested) {
+            try {
+                recorder.start()
+                micStartedAtElapsed = SystemClock.elapsedRealtime()
+            } catch (e: Exception) {
+                try { recorder.release() } catch (_: Exception) { }
+                throw e
+            }
+        }
+        return recorder
+    }
+
+    /**
+     * highQuality: AAC 44.1 kHz 128 kbps mono dalam .m4a — cocok untuk alat musik (nada tinggi pianika/angklung tidak hilang).
+     * Legacy: 3GP + AAC tanpa setelan (default device, sering 8 kHz) — persis seperti versi lama.
+     * Recorder yang gagal di-release di sini supaya tidak bocor sebelum fallback.
+     */
+    private fun prepareRecorder(file: File, highQuality: Boolean): MediaRecorder {
+        val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            MediaRecorder(context)
+        } else {
+            @Suppress("DEPRECATION")
+            MediaRecorder()
+        }
+        try {
+            recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+            if (highQuality) {
+                recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                recorder.setAudioSamplingRate(44_100)
+                recorder.setAudioEncodingBitRate(128_000)
+                recorder.setAudioChannels(1)
+            } else {
+                recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            }
+            recorder.setOutputFile(file.absolutePath)
+            recorder.prepare()
+            return recorder
+        } catch (e: Exception) {
+            try { recorder.release() } catch (_: Exception) { }
+            throw e
+        }
+    }
+
     fun stopMicRecording() {
         recordingRequested = false
         recordingJob?.cancel()
@@ -114,7 +173,14 @@ class AudioEngine(private val context: Context) {
     }
 
     // ─── MEDIA PLAYER ───
-    fun startPlayingAudioSync(path: String, onComplete: (() -> Unit)? = null) {
+    fun startPlayingAudioSync(path: String, onComplete: (() -> Unit)? = null) =
+        startPlayingAudioSync(path, onComplete, null)
+
+    /**
+     * @param onStarted dipanggil (main thread) tepat setelah audio mulai diputar — mulai putar ketukan di sini
+     * supaya tidak mendahului audio selama prepareAsync().
+     */
+    fun startPlayingAudioSync(path: String, onComplete: (() -> Unit)?, onStarted: (() -> Unit)?) {
         stopPlayingAudio()
         val prepareStartTime = System.currentTimeMillis()
         syncHandler.post {
@@ -124,7 +190,10 @@ class AudioEngine(private val context: Context) {
                     setOnPreparedListener { mp ->
                         val prepareElapsed = System.currentTimeMillis() - prepareStartTime
                         Log.d("AudioEngine", "prepareElapsed=${prepareElapsed}ms")
+                        // Sudah di-stop selama prepare → jangan mulai audio / ketukan
+                        if (audioPlayer !== mp) return@setOnPreparedListener
                         mp.start()
+                        onStarted?.invoke()
                     }
                     setOnCompletionListener { stopPlayingAudio(); onComplete?.invoke() }
                     setOnErrorListener { _, what, extra ->

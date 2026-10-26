@@ -39,6 +39,9 @@ import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.ui.dialog.DelayInfoDialog
 import sound.recorder.widget.ui.viewmodel.MusicViewModel
 import sound.recorder.widget.util.Constant
+import sound.recorder.widget.recording.export.ExportSample
+import sound.recorder.widget.recording.export.RecordingExportResolver
+import sound.recorder.widget.recording.export.RecordingExporter
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.ProgressDialogUtil
 import sound.recorder.widget.util.SpeedMarquee
@@ -97,6 +100,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
 
             context?.let { DelayInfoDialog.show(it) }
 
+            setupExportResolver()
             setupControlPanel()
             setupTouchListener()
             setupMarquee()
@@ -314,6 +318,22 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
         if (::tutorialDialog.isInitialized) tutorialDialog.stopAll()
     }
 
+    // ─── EXPORT MP3/MIDI: beri tahu SDK sampel suara tiap pad (sama dengan onPlaybackEvent) ───
+    private fun setupExportResolver() {
+        // Salin ke lokal: resolver disimpan statis di SDK, jangan sampai menahan Fragment ini (memory leak)
+        val defaultTypeKey = instrumentType + typePelog
+        RecordingExporter.resolver = object : RecordingExportResolver {
+            override fun resolveSample(setName: String, tap: RecordedTap): ExportSample? {
+                val typeKey = tap.metadata?.takeIf { it.isNotEmpty() } ?: defaultTypeKey
+                val resId = SoundPlayUtils.getRawResId(typeKey, "type${tap.padIndex + 1}") ?: return null
+                return ExportSample(resId = resId)
+            }
+
+            // 11 = Vibraphone, paling dekat dengan bilah gamelan di General MIDI
+            override fun midiProgram(setName: String): Int = 11
+        }
+    }
+
     override fun onPlaybackEvent(event: RecordedTap) {
         val b = binding ?: return
         val metadata = event.metadata ?: ""
@@ -401,6 +421,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
             panel.releaseAndStop()
         }
         rewardedAdListener = null
+        RecordingExporter.resolver = null
 
         // Cleanup marquee via MarqueeControlView
         binding?.marqueeControl?.apply {

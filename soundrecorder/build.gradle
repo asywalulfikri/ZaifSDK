@@ -18,6 +18,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -96,6 +97,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.code.gson:gson:2.14.0'
+    // Encoder MP3 pure-Java (port LAME, LGPL) untuk fitur export rekaman
+    implementation 'de.sciss:jump3r:1.0.5'
     implementation 'com.google.android.ump:user-messaging-platform:4.0.0'
     implementation 'com.google.android.play:app-update:2.1.0'
     implementation 'com.google.android.play:app-update-ktx:2.1.0'
@@ -116,7 +119,7 @@ project.afterEvaluate {
                 from components.release
                 groupId = 'com.sound.recorder' // Update with your reverse domain
                 artifactId = 'recording-sdk'
-                version = '0.0.64'
+                version = '0.0.65'
 
                 // Include additional artifacts like source/javadoc JARs (optional)
                // artifact("$buildDir/outputs/aar/${project.name}-release.aar")

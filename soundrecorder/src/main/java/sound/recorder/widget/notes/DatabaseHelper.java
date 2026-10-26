@@ -24,8 +24,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "notes_db";
 
 
+    private static volatile DatabaseHelper instance;
+
+    /**
+     * Satu instance untuk seluruh aplikasi (pola standar SQLiteOpenHelper).
+     * Koneksi dibiarkan terbuka & dipakai bersama; jangan di-close per operasi,
+     * karena query di thread lain bisa sedang memakainya ("attempt to re-open an already-closed object").
+     */
+    public static DatabaseHelper getInstance(Context context) {
+        DatabaseHelper local = instance;
+        if (local == null) {
+            synchronized (DatabaseHelper.class) {
+                local = instance;
+                if (local == null) {
+                    local = new DatabaseHelper(context.getApplicationContext());
+                    instance = local;
+                }
+            }
+        }
+        return local;
+    }
+
+    /** Dipertahankan untuk kompatibilitas; gunakan {@link #getInstance(Context)}. */
+    @Deprecated
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context.getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     // Creating Tables
@@ -57,13 +80,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
        // values.put(Note.COLUMN_TITLE,title);
 
         // insert row
-        long id = db.insert(Note.TABLE_NAME, null, values);
-
-        // close db connection
-        db.close();
-
         // return newly inserted row id
-        return id;
+        return db.insert(Note.TABLE_NAME, null, values);
     }
 
     public Note getNote(long id) {
@@ -129,18 +147,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(Note.COLUMN_NOTE, note.getNote());
         //values.put(Note.COLUMN_TITLE, note.getTitle());
 
-        try {
-            return db.update(Note.TABLE_NAME, values, Note.COLUMN_ID + " = ?",
-                    new String[]{String.valueOf(note.getId())});
-        } finally {
-            db.close();
-        }
+        return db.update(Note.TABLE_NAME, values, Note.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(note.getId())});
     }
 
     public void deleteNote(Note note) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(Note.TABLE_NAME, Note.COLUMN_ID + " = ?",
                 new String[]{String.valueOf(note.getId())});
-        db.close();
     }
 }

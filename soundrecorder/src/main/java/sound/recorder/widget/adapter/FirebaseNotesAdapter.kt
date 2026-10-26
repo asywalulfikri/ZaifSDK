@@ -16,6 +16,9 @@ class FirebaseNotesAdapter(
     private val onItemClick: (Note) -> Unit
 ) : RecyclerView.Adapter<FirebaseNotesAdapter.ViewHolder>() {
 
+    /** Warna baris (hanya tampilan). null = warna bawaan layout. */
+    internal var palette: sound.recorder.widget.recording.RecordingDialogPalette? = null
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitle: TextView = view.findViewById(R.id.tvNoteTitle)
         val tvDesc: TextView  = view.findViewById(R.id.tvNoteDesc)
@@ -29,6 +32,7 @@ class FirebaseNotesAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.note_list_row, parent, false)
+        palette?.let { sound.recorder.widget.notes.NoteRowStyle.apply(view, it) }
         return ViewHolder(view)
     }
 

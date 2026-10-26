@@ -7,8 +7,6 @@ import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.text.Editable
@@ -18,16 +16,17 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
-import androidx.cardview.widget.CardView
 import androidx.core.content.FileProvider
+import androidx.core.graphics.ColorUtils
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
@@ -39,26 +38,35 @@ import kotlinx.coroutines.withContext
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
+import sound.recorder.widget.recording.RecordingDialogViews.applyWindow
+import sound.recorder.widget.recording.RecordingDialogViews.body
+import sound.recorder.widget.recording.RecordingDialogViews.circle
+import sound.recorder.widget.recording.RecordingDialogViews.dialogRoot
+import sound.recorder.widget.recording.RecordingDialogViews.footer
+import sound.recorder.widget.recording.RecordingDialogViews.icon
+import sound.recorder.widget.recording.RecordingDialogViews.iconButton
+import sound.recorder.widget.recording.RecordingDialogViews.rounded
+import sound.recorder.widget.recording.RecordingDialogViews.textButton
+import sound.recorder.widget.recording.RecordingDialogViews.title
+import sound.recorder.widget.recording.RecordingDialogViews.vSpace
 import sound.recorder.widget.recording.database.AppDatabase
 import sound.recorder.widget.recording.database.RecordingEntity
+import sound.recorder.widget.recording.export.RecordingExportDialog
+import sound.recorder.widget.recording.export.RecordingExporter
 import java.io.File
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.intuit.sdp.R as SdpR
 
+/**
+ * Daftar rekaman tersimpan per instrumen.
+ * Tiap kartu: ▶ Mainkan + tombol berlabel Ekspor, Ubah nama, Promosikan, Hapus.
+ * Share audio dilakukan lewat Ekspor (MP3/MIDI) agar melewati gate rewarded ad.
+ * Tampilan mengikuti [RecordingDialogStyle.default].
+ */
 object RecordingListDialogHelper {
-
-    private const val COLOR_WOOD_DARK  = "1A0F09"
-    private const val COLOR_WOOD_MED   = "2D1B10"
-    private const val COLOR_GOLD       = "D2B48C"
-    private const val COLOR_IVORY      = "F5F5DC"
-    private const val COLOR_GOLD_DIM   = "8A7456"
-    private const val COLOR_DANGER     = "CF6679"
-    private const val COLOR_WOOD_LIGHT = "3E2717"
-    private const val COLOR_SHARE      = "4A9EBF"
-    private const val COLOR_JSON       = "81C784"
-    private const val COLOR_PROMOTE    = "FFB347"
 
     private const val MAX_NAME_LENGTH  = 30
     private const val PREFS_PROMOTED      = "zaif_promoted_notes"
@@ -68,9 +76,7 @@ object RecordingListDialogHelper {
     private const val MAX_DAILY_PROMOS   = 5
     private val actionScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
-    // ─── Helper shorthand ───
     private fun Context.sdp(id: Int) = resources.getDimensionPixelSize(id)
-    private fun Context.sdpF(id: Int) = resources.getDimension(id)
 
     private fun todayString() = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
@@ -100,84 +106,71 @@ object RecordingListDialogHelper {
     }
     var zaifSDKConfig : ZaifSDKConfig? =null
 
-    fun show(context: Context, instrumentFilter: String, showPromot: Boolean = true, onPlay: (RecordingEntity) -> Unit) {
+    /**
+     * @param onRequestExportReward jika diisi, user harus nonton rewarded ad sebelum export
+     *        (panggil `onRewarded` setelah iklan selesai). null = export tanpa iklan.
+     *
+     * @JvmOverloads menjaga signature lama `show(Context, String, Boolean, (RecordingEntity) -> Unit)`
+     * tetap ada di bytecode, agar kode/library yang di-compile dengan SDK versi lama tidak NoSuchMethodError.
+     */
+    @JvmOverloads
+    fun show(
+        context: Context,
+        instrumentFilter: String,
+        showPromot: Boolean = true,
+        onRequestExportReward: ((onRewarded: () -> Unit) -> Unit)? = null,
+        style: RecordingDialogStyle = RecordingDialogStyle.default,
+        /** Rekam lapis (overdub) di atas rekaman ini. null = tombol tidak ditampilkan. */
+        onOverdub: ((RecordingEntity) -> Unit)? = null,
+        onPlay: (RecordingEntity) -> Unit
+    ) {
         zaifSDKConfig = ZaifSDKBuilder.load(context)
-        val rootLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#$COLOR_WOOD_DARK"))
-                cornerRadius = context.sdpF(SdpR.dimen._14sdp)
-                setStroke(
-                    context.sdp(SdpR.dimen._1sdp),
-                    Color.parseColor("#22D2B48C")
-                )
-            }
-        }
-
-        val headerContainer = FrameLayout(context)
-        val headerPad = context.sdp(SdpR.dimen._16sdp)
-        val headerPadB = context.sdp(SdpR.dimen._8sdp)
-        val headerTextLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(headerPad, headerPad, headerPad, headerPadB)
-        }
-
-        headerTextLayout.addView(TextView(context).apply {
-            text = context.getString(R.string.record_saved)
-            setTextColor(Color.parseColor("#$COLOR_GOLD"))
-            textSize = 15f
-            typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-        })
-
-        headerTextLayout.addView(TextView(context).apply {
-            text = context.getString(R.string.list_record_result)
-            setTextColor(Color.parseColor("#$COLOR_GOLD_DIM"))
-            textSize = 10f
-        })
-
+        val c = RecordingDialogPalette(context, style)
         val dialog = AlertDialog.Builder(context).create()
 
-        val closeBtnSize = context.sdp(SdpR.dimen._32sdp)
-        val closeBtnMargin = context.sdp(SdpR.dimen._8sdp)
-        val closeBtn = FrameLayout(context).apply {
-            layoutParams = FrameLayout.LayoutParams(closeBtnSize, closeBtnSize).apply {
-                gravity = Gravity.TOP or Gravity.END
-                setMargins(0, closeBtnMargin, closeBtnMargin, 0)
-            }
-            background = RippleDrawable(
-                ColorStateList.valueOf(Color.parseColor("#20FFFFFF")), null, null
-            )
-            addView(TextView(context).apply {
-                text = "✕"
-                setTextColor(Color.parseColor("#$COLOR_GOLD_DIM"))
-                textSize = 16f
-                gravity = Gravity.CENTER
+        val root = dialogRoot(context, c)
+
+        // ── Header ──
+        val countTv = body(context, c, "")
+        root.addView(FrameLayout(context).apply {
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(0, 0, context.sdp(SdpR.dimen._36sdp), 0)
+                addView(title(context, c, context.getString(R.string.list_record_result)))
+                addView(countTv)
             })
-            setOnClickListener { dialog.dismiss() }
-        }
+            val size = context.sdp(SdpR.dimen._30sdp)
+            addView(
+                iconButton(context, c, R.drawable.zaif_rec_ic_close, context.getString(R.string.close)) {
+                    dialog.dismiss()
+                },
+                FrameLayout.LayoutParams(size, size, Gravity.END or Gravity.TOP)
+            )
+        })
+        root.addView(vSpace(context, SdpR.dimen._12sdp))
 
-        headerContainer.addView(headerTextLayout)
-        headerContainer.addView(closeBtn)
-        rootLayout.addView(headerContainer)
-
-        val scrollView = ScrollView(context).apply {
+        // ── Daftar (tinggi mengikuti isi, maksimal 70% layar) ──
+        val maxHeight = (context.resources.displayMetrics.heightPixels * 0.70).toInt()
+        val scrollView = object : ScrollView(context) {
+            override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+                super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(maxHeight, MeasureSpec.AT_MOST))
+            }
+        }.apply {
             isVerticalScrollBarEnabled = false
             overScrollMode = View.OVER_SCROLL_NEVER
         }
-
-        val listPadH = context.sdp(SdpR.dimen._12sdp)
-        val listPadV = context.sdp(SdpR.dimen._8sdp)
-        val listLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(listPadH, listPadV, listPadH, listPadV)
-        }
+        val listLayout = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
         scrollView.addView(listLayout)
+        root.addView(scrollView, LinearLayout.LayoutParams(-1, -2))
+        root.addView(vSpace(context, SdpR.dimen._8sdp))
 
-        val displayMetrics = context.resources.displayMetrics
-        val maxHeight = (displayMetrics.heightPixels * 0.75).toInt()
-        rootLayout.addView(scrollView, LinearLayout.LayoutParams(-1, maxHeight))
+        dialog.setView(root)
 
-        dialog.setView(rootLayout)
+        val items = mutableListOf<RecordingEntity>()
+        fun refreshCount() {
+            countTv.text = context.getString(R.string.list_count, items.size)
+            if (items.isEmpty() && listLayout.childCount == 0) listLayout.addView(emptyState(context, c))
+        }
 
         val dialogScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         dialog.setOnDismissListener { dialogScope.cancel() }
@@ -185,338 +178,451 @@ object RecordingListDialogHelper {
             val recordings = withContext(Dispatchers.IO) {
                 AppDatabase.getInstance(context).recordingDao().getAll()
             }
-
-            val filtered = recordings.filter {
-                it.setName.equals(instrumentFilter, ignoreCase = true)
+            items += recordings.filter { it.setName.equals(instrumentFilter, ignoreCase = true) }
+            fun addRow(rec: RecordingEntity, atTop: Boolean) {
+                lateinit var row: View
+                row = buildRow(
+                    context, c, rec, showPromot, onRequestExportReward,
+                    onPlay = { current -> dialog.dismiss(); onPlay(current) },
+                    onDeleted = {
+                        listLayout.removeView(row)
+                        items.remove(rec)
+                        refreshCount()
+                    },
+                    onAdded = { added ->
+                        // Hasil potong = rekaman baru → tampil paling atas
+                        items.add(0, added)
+                        addRow(added, atTop = true)
+                        refreshCount()
+                        scrollView.smoothScrollTo(0, 0)
+                    },
+                    onOverdub = onOverdub?.let { cb -> { current -> dialog.dismiss(); cb(current) } }
+                )
+                if (atTop) listLayout.addView(row, 0) else listLayout.addView(row)
             }
-
-            if (filtered.isEmpty()) {
-                listLayout.addView(showEmptyState(context))
-            } else {
-                val spacerH = context.sdp(SdpR.dimen._8sdp)
-                filtered.forEach { rec ->
-                    listLayout.addView(
-                        buildRecordingCard(context, rec, dialog, onPlay, listLayout, filtered.toMutableList(), showPromot)
-                    )
-                    listLayout.addView(View(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(-1, spacerH)
-                    })
-                }
-            }
+            items.toList().forEach { addRow(it, atTop = false) }
+            refreshCount()
         }
 
         dialog.show()
-        val isPortrait = context.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
-        val widthPercent = if (isPortrait) 0.94 else 0.75
-
-        dialog.window?.apply {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setLayout(
-                (displayMetrics.widthPixels * widthPercent).toInt(),
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        }
+        applyWindow(dialog, context, 0.92, 0.65)
     }
 
-    private fun buildRecordingCard(
+    // ─── KARTU REKAMAN ───────────────────────────────────────────────────────
+    // Semua aksi tampil langsung dengan ikon + tulisan (tanpa menu tersembunyi),
+    // supaya mudah dipahami anak-anak. Satu warna aksen; merah hanya untuk Hapus.
+
+    private fun buildRow(
         context: Context,
-        rec: RecordingEntity,
-        dialog: AlertDialog,
+        c: RecordingDialogPalette,
+        original: RecordingEntity,
+        showPromot: Boolean,
+        onRequestExportReward: ((onRewarded: () -> Unit) -> Unit)?,
         onPlay: (RecordingEntity) -> Unit,
-        listLayout: LinearLayout,
-        allRecs: MutableList<RecordingEntity>,
-        showPromot: Boolean = true
+        onDeleted: () -> Unit,
+        onAdded: (RecordingEntity) -> Unit,
+        onOverdub: ((RecordingEntity) -> Unit)?
     ): View {
-        val card = CardView(context).apply {
-            radius = context.sdpF(SdpR.dimen._10sdp)
-            cardElevation = 0f
-            setCardBackgroundColor(Color.parseColor("#$COLOR_WOOD_MED"))
-        }
-
-        // Main layout of the card: Vertical
-        val container = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            val pH = context.sdp(SdpR.dimen._10sdp)
-            val pV = context.sdp(SdpR.dimen._8sdp)
-            setPadding(pH, pV, pH, pV)
-        }
-
+        // Disalin ulang saat diubah nama, agar export/putar memakai nama terbaru
+        var rec = original
         val hasMicAudio = !rec.audioPath.isNullOrEmpty()
-        val sdf         = SimpleDateFormat("dd/MM  HH:mm", Locale.getDefault())
-        val iconType    = if (hasMicAudio) "🎙" else "⏺"
 
-        // ── TOP ROW: Info & Play ─────────────────────────────────
-        val topRow = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
+        val card = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            background = rounded(context, c.surface, SdpR.dimen._10sdp, c.outline)
         }
 
+        // ── Atas: ikon jenis rekaman, nama + info, tombol Mainkan ──
         val nameTv = TextView(context).apply {
-            text = rec.name.uppercase()
-            setTextColor(Color.parseColor("#$COLOR_IVORY"))
-            textSize = 12f
-            typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
+            text = rec.name
+            setTextColor(c.text)
+            textSize = 13f
+            typeface = Typeface.DEFAULT_BOLD
             maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
         }
-
-        topRow.addView(TextView(context).apply {
-            text = iconType
-            textSize = 16f
-            setPadding(0, 0, context.sdp(SdpR.dimen._8sdp), 0)
-        })
-
-        topRow.addView(LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
-            addView(nameTv)
-            addView(TextView(context).apply {
-                text = "${sdf.format(Date(rec.createdAt))} · ${formatDuration(rec.durationMs)}"
-                setTextColor(Color.parseColor("#$COLOR_GOLD_DIM"))
-                textSize = 8f
-            })
-        })
-
-        // ── Tombol PLAY ──
-        topRow.addView(LinearLayout(context).apply {
+        val dateText = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(rec.createdAt))
+        val smallIcon = context.sdp(SdpR.dimen._10sdp)
+        val metaRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            val btnH = context.sdp(SdpR.dimen._30sdp)
-            layoutParams = LinearLayout.LayoutParams(-2, btnH)
-            val pH = context.sdp(SdpR.dimen._12sdp)
-            setPadding(pH, 0, pH, 0)
-            background = RippleDrawable(
-                ColorStateList.valueOf(Color.parseColor("#50FFFFFF")),
-                GradientDrawable(
-                    GradientDrawable.Orientation.LEFT_RIGHT,
-                    intArrayOf(Color.parseColor("#B8720A"), Color.parseColor("#F0B429"))
-                ).apply { cornerRadius = context.sdpF(SdpR.dimen._8sdp) },
-                null
-            )
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, context.sdp(SdpR.dimen._2sdp), 0, 0)
+            addView(icon(context, R.drawable.zaif_rec_ic_timer, c.textSecondary), LinearLayout.LayoutParams(smallIcon, smallIcon))
             addView(TextView(context).apply {
-                text = "▶"
-                textSize = 12f
-                setTextColor(Color.parseColor("#1A0800"))
-                setPadding(0, 0, context.sdp(SdpR.dimen._4sdp), 0)
+                text = "${formatDuration(rec.durationMs)}   $dateText"
+                setTextColor(c.textSecondary)
+                textSize = 10f
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+                setPadding(context.sdp(SdpR.dimen._3sdp), 0, 0, 0)
             })
-            addView(TextView(context).apply {
-                text = context.getString(R.string.play)
-                setTextColor(Color.parseColor("#1A0800"))
-                textSize = 11f
-                typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-            })
-            setOnClickListener { dialog.dismiss(); onPlay(rec) }
-        })
+        }
 
-        container.addView(topRow)
-
-        // ── Divider horizontal tipis ──
-        container.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, 1).also {
-                it.topMargin = context.sdp(SdpR.dimen._6sdp)
-                it.bottomMargin = context.sdp(SdpR.dimen._6sdp)
-            }
-            setBackgroundColor(Color.parseColor("#1AD2B48C"))
-        })
-
-        // ── BOTTOM ROW: Action Buttons ───────────────────────────
-        val bottomRow = LinearLayout(context).apply {
+        val tileSize = context.sdp(SdpR.dimen._30sdp)
+        val tileIcon = context.sdp(SdpR.dimen._16sdp)
+        card.addView(LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            gravity = Gravity.CENTER_VERTICAL
+            val p = context.sdp(SdpR.dimen._8sdp)
+            setPadding(p, p, p, p)
+            addView(FrameLayout(context).apply {
+                background = rounded(context, c.accentSoft, SdpR.dimen._8sdp)
+                addView(
+                    icon(context, if (hasMicAudio) R.drawable.zaif_rec_ic_mic else R.drawable.zaif_rec_ic_music, c.accent),
+                    FrameLayout.LayoutParams(tileIcon, tileIcon, Gravity.CENTER)
+                )
+            }, LinearLayout.LayoutParams(tileSize, tileSize))
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(context.sdp(SdpR.dimen._8sdp), 0, context.sdp(SdpR.dimen._6sdp), 0)
+                addView(nameTv)
+                addView(metaRow)
+                songRow(context, c, rec, smallIcon)?.let { addView(it) }
+            }, LinearLayout.LayoutParams(0, -2, 1f))
+            addView(playButton(context, c) { onPlay(rec) }, LinearLayout.LayoutParams(-2, context.sdp(SdpR.dimen._26sdp)))
+        })
+
+        card.addView(View(context).apply { setBackgroundColor(c.outline) }, LinearLayout.LayoutParams(-1, 1))
+
+        // ── Bawah: tombol aksi berlabel ──
+        val actions = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            val p = context.sdp(SdpR.dimen._3sdp)
+            setPadding(p, p, p, p)
+        }
+        fun addAction(view: View) {
+            actions.addView(view, LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._34sdp), 1f))
         }
 
-        val gap = context.sdp(SdpR.dimen._6sdp)
-
-        fun addAction(icon: String, label: String, colorHex: String, onClick: () -> Unit) {
-            if (bottomRow.childCount > 0) bottomRow.addView(spacer(context, gap))
-            bottomRow.addView(buildCompactBtn(context, icon, label, colorHex, onClick))
+        addAction(actionButton(context, c, R.drawable.zaif_rec_ic_export, context.getString(R.string.export_title), c.accent) {
+            RecordingExportDialog.show(context, rec, onRequestReward = onRequestExportReward)
+        })
+        addAction(actionButton(context, c, R.drawable.zaif_rec_ic_trim, context.getString(R.string.record_trim), c.text) {
+            showTrimDialog(context, c, rec, onAdded)
+        })
+        if (onOverdub != null) {
+            addAction(actionButton(context, c, R.drawable.zaif_rec_ic_layers, context.getString(R.string.record_overdub), c.text) {
+                onOverdub(rec)
+            })
         }
-
-        if (hasMicAudio) addAction("📤", context.getString(R.string.share), COLOR_SHARE) { shareAudioFile(context, rec) }
-
-        val isDebug = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        if (isDebug) addAction("{}", "JSON", COLOR_JSON) { shareJsonFile(context, rec) }
-
-        addAction("✏", context.getString(R.string.edit_note), COLOR_GOLD) { showRenameDialog(context, rec, nameTv) }
-
-        addAction("🗑", context.getString(R.string.delete), COLOR_DANGER) {
-            actionScope.launch {
-                withContext(Dispatchers.IO) {
-                    rec.audioPath?.let { path -> File(path).takeIf { it.exists() }?.delete() }
-                    AppDatabase.getInstance(context).recordingDao().delete(rec)
-                }
-                val idx = listLayout.indexOfChild(card)
-                if (idx != -1) {
-                    listLayout.removeViewAt(idx)
-                    // Hapus juga spacer setelahnya
-                    if (idx < listLayout.childCount) listLayout.removeViewAt(idx)
-                }
-                allRecs.remove(rec)
-                if (allRecs.isEmpty()) listLayout.addView(showEmptyState(context))
+        addAction(actionButton(context, c, R.drawable.zaif_rec_ic_edit, context.getString(R.string.list_rename), c.text) {
+            showRenameDialog(context, c, rec) { newName ->
+                rec = rec.copy(name = newName)
+                nameTv.text = newName
             }
-        }
-
-        // Promosi Container
-        val promoteContainer = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
-
-        fun applyPromoteState(promoted: Boolean) {
-            promoteContainer.removeAllViews()
-            if (promoted) {
-                promoteContainer.addView(buildCompactBtn(context, "✓", context.getString(R.string.active), "777777") {
-                    Toast.makeText(context, context.getString(R.string.success_saved), Toast.LENGTH_SHORT).show()
-                })
-            } else {
-                promoteContainer.addView(buildCompactBtn(context, "🌟", context.getString(R.string.promosikan), COLOR_PROMOTE) {
-                    if (hasPromotedToday(context)) {
-                        Toast.makeText(context, context.getString(R.string.limit_promot), Toast.LENGTH_SHORT).show()
-                    } else {
-                        showPromoteDialog(context, rec) { applyPromoteState(true) }
-                    }
-                })
-            }
-        }
+        })
 
         if (zaifSDKConfig?.isPromotNot == true && showPromot) {
-            if (bottomRow.childCount > 0) bottomRow.addView(spacer(context, gap))
-            bottomRow.addView(promoteContainer)
-            applyPromoteState(isPromoted(context, rec.id))
+            val promoteSlot = FrameLayout(context)
+            fun renderPromote(promoted: Boolean) {
+                promoteSlot.removeAllViews()
+                promoteSlot.addView(
+                    if (promoted) {
+                        actionButton(context, c, R.drawable.zaif_rec_ic_check, context.getString(R.string.active), c.success) {
+                            Toast.makeText(context, context.getString(R.string.success_saved), Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        actionButton(context, c, R.drawable.zaif_rec_ic_star, context.getString(R.string.promosikan), c.text) {
+                            if (hasPromotedToday(context)) {
+                                Toast.makeText(context, context.getString(R.string.limit_promot), Toast.LENGTH_SHORT).show()
+                            } else {
+                                showPromoteDialog(context, c, rec) { renderPromote(true) }
+                            }
+                        }
+                    },
+                    FrameLayout.LayoutParams(-1, -1)
+                )
+            }
+            renderPromote(isPromoted(context, rec.id))
+            addAction(promoteSlot)
         }
 
-        container.addView(bottomRow)
-        card.addView(container)
-        return card
+        val isDebug = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if (isDebug) {
+            addAction(actionButton(context, c, R.drawable.zaif_rec_ic_code, "JSON", c.text) { shareJsonFile(context, rec) })
+        }
+        addAction(actionButton(context, c, R.drawable.zaif_rec_ic_delete, context.getString(R.string.delete), c.error) {
+            showDeleteConfirm(context, c, rec, onDeleted)
+        })
+        card.addView(actions)
+
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(card)
+            addView(vSpace(context, SdpR.dimen._6sdp))
+        }
     }
 
-    private fun buildCompactBtn(
+    /** Baris "🎵 Judul lagu" untuk rekaman yang ikut merekam lagu; null jika tanpa lagu. */
+    private fun songRow(context: Context, c: RecordingDialogPalette, rec: RecordingEntity, iconSize: Int): View? {
+        val titles = RecordedMusicJson.parse(rec.musicJson).mapNotNull { it.title?.takeIf(String::isNotBlank) }.distinct()
+        if (titles.isEmpty()) return null
+        return LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, context.sdp(SdpR.dimen._2sdp), 0, 0)
+            addView(icon(context, R.drawable.zaif_rec_ic_queue_music, c.accent), LinearLayout.LayoutParams(iconSize, iconSize))
+            addView(TextView(context).apply {
+                text = titles.joinToString(" · ")
+                setTextColor(c.accent)
+                textSize = 10f
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+                setPadding(context.sdp(SdpR.dimen._3sdp), 0, 0, 0)
+            })
+        }
+    }
+
+    /** Tombol "▶ Mainkan" berlabel, warna aksen. */
+    private fun playButton(context: Context, c: RecordingDialogPalette, onClick: () -> Unit) = LinearLayout(context).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER
+        setPadding(context.sdp(SdpR.dimen._8sdp), 0, context.sdp(SdpR.dimen._10sdp), 0)
+        background = RippleDrawable(ColorStateList.valueOf(c.ripple), rounded(context, c.accent, SdpR.dimen._14sdp), null)
+        val size = context.sdp(SdpR.dimen._14sdp)
+        addView(icon(context, R.drawable.zaif_rec_ic_play, c.onAccent), LinearLayout.LayoutParams(size, size))
+        addView(TextView(context).apply {
+            text = context.getString(R.string.play)
+            textSize = 11f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(c.onAccent)
+            maxLines = 1
+            setPadding(context.sdp(SdpR.dimen._3sdp), 0, 0, 0)
+        })
+        contentDescription = context.getString(R.string.play)
+        setOnClickListener { onClick() }
+    }
+
+    /** Tombol aksi datar: ikon di atas, tulisan di bawah. */
+    private fun actionButton(
         context: Context,
-        icon: String,
+        c: RecordingDialogPalette,
+        @DrawableRes iconRes: Int,
         label: String,
-        colorHex: String,
+        color: Int,
         onClick: () -> Unit
     ) = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER
-        val size = context.sdp(SdpR.dimen._32sdp)
-        layoutParams = LinearLayout.LayoutParams(size, size)
-        background = RippleDrawable(
-            ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
-            GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#25$colorHex"))
-                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#$colorHex"))
-            },
-            null
-        )
-        addView(TextView(context).apply {
-            text = icon
-            textSize = 11f
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(-2, -2).also { it.gravity = Gravity.CENTER_HORIZONTAL }
-        })
+        background = RippleDrawable(ColorStateList.valueOf(c.ripple), null, rounded(context, Color.WHITE, SdpR.dimen._6sdp))
+        val size = context.sdp(SdpR.dimen._14sdp)
+        addView(icon(context, iconRes, color), LinearLayout.LayoutParams(size, size))
         addView(TextView(context).apply {
             text = label
-            setTextColor(Color.parseColor("#$colorHex"))
-            textSize = 6f
-            typeface = Typeface.DEFAULT_BOLD
+            textSize = 9f
             gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(-2, -2).also { it.gravity = Gravity.CENTER_HORIZONTAL }
+            setTextColor(if (color == c.text) c.textSecondary else color)
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+            setPadding(context.sdp(SdpR.dimen._2sdp), context.sdp(SdpR.dimen._2sdp), context.sdp(SdpR.dimen._2sdp), 0)
         })
+        contentDescription = label
         setOnClickListener { onClick() }
     }
 
-    // ─── PROMOTE ─────────────────────────────────────────────────────────────
+    // ─── HAPUS ───────────────────────────────────────────────────────────────
 
-    private fun showPromoteDialog(context: Context, rec: RecordingEntity, onPromoted: () -> Unit = {}) {
+    private fun showDeleteConfirm(context: Context, c: RecordingDialogPalette, rec: RecordingEntity, onDeleted: () -> Unit) {
         val dialog = AlertDialog.Builder(context).create()
-
-        val padH = context.sdp(SdpR.dimen._16sdp)
-        val padV = context.sdp(SdpR.dimen._12sdp)
-        zaifSDKConfig = ZaifSDKBuilder.load(context)
-
-        val root = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(Color.parseColor("#$COLOR_WOOD_DARK"))
-                cornerRadius = context.sdpF(SdpR.dimen._14sdp)
-                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#22D2B48C"))
+        val root = dialogRoot(context, c)
+        root.addView(title(context, c, context.getString(R.string.list_delete_title)))
+        root.addView(vSpace(context, SdpR.dimen._6sdp))
+        root.addView(body(context, c, context.getString(R.string.list_delete_message, rec.name)))
+        root.addView(footer(
+            context,
+            textButton(context, c, context.getString(R.string.cancel), c.textSecondary).apply {
+                setOnClickListener { dialog.dismiss() }
+            },
+            textButton(context, c, context.getString(R.string.delete), c.error).apply {
+                setOnClickListener {
+                    dialog.dismiss()
+                    actionScope.launch {
+                        withContext(Dispatchers.IO) {
+                            rec.audioPath?.let { path -> File(path).takeIf { it.exists() }?.delete() }
+                            AppDatabase.getInstance(context).recordingDao().delete(rec)
+                        }
+                        onDeleted()
+                    }
+                }
             }
-            setPadding(padH, padV, padH, padV)
-        }
+        ), LinearLayout.LayoutParams(-1, -2))
+        dialog.setView(root)
+        dialog.show()
+        applyWindow(dialog, context, 0.85, 0.45)
+    }
 
-        root.addView(TextView(context).apply {
-            text = context.getString(R.string.promosikan)
-            setTextColor(Color.parseColor("#$COLOR_GOLD"))
-            textSize = 15f
-            typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-        })
+    // ─── UBAH NAMA ───────────────────────────────────────────────────────────
 
-        root.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._8sdp))
-        })
+    /** Pilih bagian rekaman yang disimpan → disimpan sebagai rekaman baru (asli tidak berubah). */
+    private fun showTrimDialog(
+        context: Context,
+        c: RecordingDialogPalette,
+        rec: RecordingEntity,
+        onSaved: (RecordingEntity) -> Unit
+    ) {
+        val taps = RecordingTrim.parseTaps(rec.eventsJson)
+        val music = RecordedMusicJson.parse(rec.musicJson)
+        val duration = maxOf(rec.durationMs, taps.maxOfOrNull { it.timestamp } ?: 0L, music.maxOfOrNull { it.endMs } ?: 0L)
 
-        root.addView(TextView(context).apply {
-            text = context.getString(R.string.promot_info)
-            setTextColor(Color.parseColor("#$COLOR_IVORY"))
-            textSize = 12f
-            setLineSpacing(0f, 1.4f)
-        })
+        val dialog = AlertDialog.Builder(context).create()
+        val root = dialogRoot(context, c)
+        root.addView(title(context, c, context.getString(R.string.record_trim_title)))
+        root.addView(vSpace(context, SdpR.dimen._4sdp))
+        root.addView(body(context, c, context.getString(R.string.record_trim_hint)))
+        root.addView(vSpace(context, SdpR.dimen._12sdp))
 
-        root.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._12sdp))
-        })
-
-        val nameInput = EditText(context).apply {
-            hint = context.getString(R.string.your_name)
-            setHintTextColor(Color.parseColor("#$COLOR_GOLD_DIM"))
-            setTextColor(Color.parseColor("#$COLOR_IVORY"))
+        val rangeTv = TextView(context).apply {
+            setTextColor(c.text)
             textSize = 13f
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#$COLOR_WOOD_MED"))
-                cornerRadius = context.sdpF(SdpR.dimen._8sdp)
-                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#44D2B48C"))
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+        }
+        fun renderRange(start: Long, end: Long) {
+            rangeTv.text = "${formatTrimTime(start)}  –  ${formatTrimTime(end)}   (${formatTrimTime(end - start)})"
+        }
+        val range = TrimRangeView(
+            context, duration,
+            tapTimes = taps.filter { it.metadata != RecordingExporter.OFF_METADATA }.map { it.timestamp },
+            musicRanges = music.map { it.atMs..it.endMs },
+            minLengthMs = RecordingTrim.MIN_LENGTH_MS,
+            accent = c.accent,
+            trackColor = c.surfaceAlt,
+            markerColor = c.textSecondary
+        ).apply { onRangeChanged = { s, e -> renderRange(s, e) } }
+        renderRange(0L, duration)
+        root.addView(rangeTv, LinearLayout.LayoutParams(-1, -2))
+        root.addView(vSpace(context, SdpR.dimen._6sdp))
+        root.addView(range, LinearLayout.LayoutParams(-1, -2))
+
+        val cancelBtn = textButton(context, c, context.getString(R.string.cancel), c.textSecondary)
+        val saveBtn = textButton(context, c, context.getString(R.string.save))
+        cancelBtn.setOnClickListener { dialog.dismiss() }
+        saveBtn.isEnabled = duration > RecordingTrim.MIN_LENGTH_MS
+        saveBtn.setOnClickListener {
+            saveBtn.isEnabled = false
+            cancelBtn.isEnabled = false
+            dialog.setCancelable(false)
+            val app = context.applicationContext
+            actionScope.launch {
+                val saved = RecordingTrim.saveTrimmedCopy(app, rec, range.startMs, range.endMs)
+                Toast.makeText(
+                    app,
+                    app.getString(if (saved != null) R.string.record_trim_saved else R.string.record_trim_failed),
+                    Toast.LENGTH_SHORT
+                ).show()
+                if (dialog.isShowing) dialog.dismiss()
+                saved?.let(onSaved)
             }
-            val ep = context.sdp(SdpR.dimen._10sdp)
-            setPadding(ep, ep, ep, ep)
         }
-        root.addView(nameInput, LinearLayout.LayoutParams(-1, -2))
-
-        root.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._12sdp))
-        })
-
-        val btnRow = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.END
-        }
-
-        btnRow.addView(buildTextButton(context, context.getString(R.string.cancel), COLOR_GOLD_DIM) {
-            dialog.dismiss()
-        })
-
-        btnRow.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1)
-        })
-
-        btnRow.addView(buildTextButton(context, context.getString(R.string.send), COLOR_PROMOTE) {
-            val senderName = nameInput.text.toString().trim()
-            sendNoteToFirestore(context, rec, senderName, onPromoted)
-            dialog.dismiss()
-        })
-
-        root.addView(btnRow)
+        root.addView(footer(context, cancelBtn, saveBtn), LinearLayout.LayoutParams(-1, -2))
 
         dialog.setView(root)
         dialog.show()
-        val dm = context.resources.displayMetrics
-        val isPortrait = context.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
-        val widthPercent = if (isPortrait) 0.90 else 0.60
-        
-        dialog.window?.apply {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setLayout((dm.widthPixels * widthPercent).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
+        applyWindow(dialog, context, 0.92, 0.65)
     }
+
+    /** 0:03.5 */
+    private fun formatTrimTime(ms: Long): String {
+        val totalTenths = ms / 100
+        val m = totalTenths / 600
+        val sec = (totalTenths / 10) % 60
+        return String.format(Locale.US, "%d:%02d.%d", m, sec, totalTenths % 10)
+    }
+
+    private fun showRenameDialog(
+        context: Context,
+        c: RecordingDialogPalette,
+        rec: RecordingEntity,
+        onRenamed: (String) -> Unit
+    ) {
+        val dialog = AlertDialog.Builder(context).create()
+        val root = dialogRoot(context, c)
+        root.addView(title(context, c, context.getString(R.string.list_rename)))
+        root.addView(vSpace(context, SdpR.dimen._12sdp))
+
+        val counterTv = TextView(context).apply {
+            text = "${rec.name.length}/$MAX_NAME_LENGTH"
+            setTextColor(c.textSecondary)
+            textSize = 10f
+            gravity = Gravity.END
+        }
+        val nameInput = inputField(context, c, context.getString(R.string.list_rename)).apply {
+            setText(rec.name)
+            setSelection(text.length)
+            filters = arrayOf<InputFilter>(InputFilter.LengthFilter(MAX_NAME_LENGTH))
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    val len = s?.length ?: 0
+                    counterTv.text = "$len/$MAX_NAME_LENGTH"
+                    counterTv.setTextColor(if (len >= MAX_NAME_LENGTH) c.error else c.textSecondary)
+                }
+            })
+        }
+        root.addView(nameInput, LinearLayout.LayoutParams(-1, -2))
+        root.addView(vSpace(context, SdpR.dimen._4sdp))
+        root.addView(counterTv, LinearLayout.LayoutParams(-1, -2))
+
+        root.addView(footer(
+            context,
+            textButton(context, c, context.getString(R.string.cancel), c.textSecondary).apply {
+                setOnClickListener { dialog.dismiss() }
+            },
+            textButton(context, c, context.getString(R.string.save)).apply {
+                setOnClickListener {
+                    val newName = nameInput.text.toString().trim().ifEmpty { rec.name }
+                    actionScope.launch {
+                        withContext(Dispatchers.IO) {
+                            AppDatabase.getInstance(context).recordingDao().updateName(rec.id, newName)
+                        }
+                        onRenamed(newName)
+                    }
+                    dialog.dismiss()
+                }
+            }
+        ), LinearLayout.LayoutParams(-1, -2))
+
+        dialog.setView(root)
+        dialog.show()
+        applyWindow(dialog, context, 0.88, 0.50)
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+        nameInput.requestFocus()
+    }
+
+    // ─── PROMOSI ─────────────────────────────────────────────────────────────
+
+    private fun showPromoteDialog(context: Context, c: RecordingDialogPalette, rec: RecordingEntity, onPromoted: () -> Unit = {}) {
+        val dialog = AlertDialog.Builder(context).create()
+        zaifSDKConfig = ZaifSDKBuilder.load(context)
+        val root = dialogRoot(context, c)
+        root.addView(title(context, c, context.getString(R.string.promosikan)))
+        root.addView(vSpace(context, SdpR.dimen._6sdp))
+        root.addView(body(context, c, context.getString(R.string.promot_info)))
+        root.addView(vSpace(context, SdpR.dimen._12sdp))
+
+        val nameInput = inputField(context, c, context.getString(R.string.your_name))
+        root.addView(nameInput, LinearLayout.LayoutParams(-1, -2))
+
+        root.addView(footer(
+            context,
+            textButton(context, c, context.getString(R.string.cancel), c.textSecondary).apply {
+                setOnClickListener { dialog.dismiss() }
+            },
+            textButton(context, c, context.getString(R.string.send)).apply {
+                setOnClickListener {
+                    sendNoteToFirestore(context, rec, nameInput.text.toString().trim(), onPromoted)
+                    dialog.dismiss()
+                }
+            }
+        ), LinearLayout.LayoutParams(-1, -2))
+
+        dialog.setView(root)
+        dialog.show()
+        applyWindow(dialog, context, 0.90, 0.60)
+    }
+
+    // ─── FIRESTORE / SHARE / JSON ───────────────────────────────────────────
 
     private fun sendNoteToFirestore(context: Context, rec: RecordingEntity, senderName: String, onSuccess: () -> Unit = {}) {
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
@@ -598,63 +704,7 @@ object RecordingListDialogHelper {
             listOf(code)
         }
     }
-    private fun buildTextButton(
-        context: Context,
-        label: String,
-        colorHex: String,
-        onClick: () -> Unit
-    ) = TextView(context).apply {
-        text = label
-        setTextColor(Color.parseColor("#$colorHex"))
-        textSize = 13f
-        typeface = Typeface.DEFAULT_BOLD
-        val padH = context.sdp(SdpR.dimen._12sdp)
-        val padV = context.sdp(SdpR.dimen._8sdp)
-        setPadding(padH, padV, padH, padV)
-        background = RippleDrawable(
-            ColorStateList.valueOf(Color.parseColor("#20FFFFFF")), null, null
-        )
-        setOnClickListener { onClick() }
-    }
-
     // ─── SHARE ───────────────────────────────────────────────────────────────
-
-    private fun shareAudioFile(context: Context, rec: RecordingEntity) {
-        val path = rec.audioPath ?: return
-        actionScope.launch {
-            try {
-                val uri = withContext(Dispatchers.IO) {
-                    val file = File(path)
-                    if (!file.exists() || !file.isFile) return@withContext null
-
-                    // FileProvider may inspect provider roots and touch the filesystem.
-                    // Keep that work off the main thread, especially on Android 14+.
-                    FileProvider.getUriForFile(
-                        context, "${context.packageName}.provider", file
-                    )
-                }
-
-                if (uri == null) {
-                    Toast.makeText(
-                        context, context.getString(R.string.file_not_found), Toast.LENGTH_SHORT
-                    ).show()
-                    return@launch
-                }
-
-                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "audio/mp4"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    putExtra(Intent.EXTRA_SUBJECT, rec.name)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-                context.startActivity(Intent.createChooser(shareIntent, rec.name))
-            } catch (e: Exception) {
-                Toast.makeText(
-                    context, context.getString(R.string.share_failed), Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
 
     // ─── EXPORT JSON ─────────────────────────────────────────────────────────
 
@@ -699,165 +749,45 @@ object RecordingListDialogHelper {
         }
     }
 
-    private fun spacer(context: Context, width: Int) = View(context).apply {
-        layoutParams = LinearLayout.LayoutParams(width, 1)
+    // ─── VIEW HELPERS ────────────────────────────────────────────────────────
+
+    private fun inputField(context: Context, c: RecordingDialogPalette, hintText: String) = EditText(context).apply {
+        hint = hintText
+        setHintTextColor(c.textSecondary)
+        setTextColor(c.text)
+        textSize = 14f
+        inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+        background = rounded(context, c.surfaceAlt, SdpR.dimen._8sdp, c.outline)
+        val p = context.sdp(SdpR.dimen._10sdp)
+        setPadding(p, p, p, p)
     }
 
-    private fun showEmptyState(context: Context) = LinearLayout(context).apply {
+    private fun emptyState(context: Context, c: RecordingDialogPalette) = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
-        gravity = Gravity.CENTER
-        val pad = context.sdp(SdpR.dimen._32sdp)
-        setPadding(0, pad, 0, pad)
-        addView(TextView(context).apply {
-            text = "∅"
-            setTextColor(Color.parseColor("#$COLOR_WOOD_LIGHT"))
-            textSize = 36f
-        })
+        gravity = Gravity.CENTER_HORIZONTAL
+        val pad = context.sdp(SdpR.dimen._24sdp)
+        setPadding(pad, pad, pad, pad)
+        val size = context.sdp(SdpR.dimen._56sdp)
+        addView(FrameLayout(context).apply {
+            background = circle(c.accentSoft)
+            val iconSize = context.sdp(SdpR.dimen._26sdp)
+            addView(icon(context, R.drawable.zaif_rec_ic_music, c.accent), FrameLayout.LayoutParams(iconSize, iconSize, Gravity.CENTER))
+        }, LinearLayout.LayoutParams(size, size))
+        addView(vSpace(context, SdpR.dimen._12sdp))
         addView(TextView(context).apply {
             text = context.getString(R.string.no_data_record)
-            setTextColor(Color.parseColor("#$COLOR_GOLD_DIM"))
-            textSize = 11f
-            val topPad = context.sdp(SdpR.dimen._8sdp)
-            setPadding(0, topPad, 0, 0)
+            setTextColor(c.text)
+            textSize = 14f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
         })
+        addView(vSpace(context, SdpR.dimen._4sdp))
+        addView(body(context, c, context.getString(R.string.list_empty_hint)).apply { gravity = Gravity.CENTER })
     }
 
+    /** Durasi format m:ss, sama di semua bahasa. */
     private fun formatDuration(ms: Long): String {
         val sec = ms / 1000
-        return if (sec < 60) "${sec}s" else "${sec / 60}m ${sec % 60}s"
-    }
-
-    // ─── RENAME ──────────────────────────────────────────────────────────────
-
-    private fun showRenameDialog(context: Context, rec: RecordingEntity, nameTv: TextView) {
-        val dialog = AlertDialog.Builder(context).create()
-        val padH = context.sdp(SdpR.dimen._16sdp)
-        val padV = context.sdp(SdpR.dimen._12sdp)
-
-        val root = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#$COLOR_WOOD_DARK"))
-                cornerRadius = context.sdpF(SdpR.dimen._14sdp)
-                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#22D2B48C"))
-            }
-            setPadding(padH, padV, padH, padV)
-        }
-
-        root.addView(TextView(context).apply {
-            text = context.getString(R.string.edit_note)
-            setTextColor(Color.parseColor("#$COLOR_GOLD"))
-            textSize = 15f
-            typeface = Typeface.create("sans-serif-black", Typeface.BOLD)
-        })
-
-        root.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._12sdp))
-        })
-
-        val counterTv = TextView(context).apply {
-            text = "${rec.name.length}/15"
-            setTextColor(Color.parseColor("#$COLOR_GOLD_DIM"))
-            textSize = 10f
-            gravity = Gravity.END
-        }
-
-        val nameInput = EditText(context).apply {
-            setText(rec.name)
-            setTextColor(Color.parseColor("#$COLOR_IVORY"))
-            setHintTextColor(Color.parseColor("#$COLOR_GOLD_DIM"))
-            textSize = 13f
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
-            filters = arrayOf<InputFilter>(InputFilter.LengthFilter(MAX_NAME_LENGTH))
-            background = GradientDrawable().apply {
-                setColor(Color.parseColor("#$COLOR_WOOD_MED"))
-                cornerRadius = context.sdpF(SdpR.dimen._8sdp)
-                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#44D2B48C"))
-            }
-            val ep = context.sdp(SdpR.dimen._10sdp)
-            setPadding(ep, ep, ep, ep)
-            addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    val len = s?.length ?: 0
-                    counterTv.text = "$len/$MAX_NAME_LENGTH"
-                    counterTv.setTextColor(Color.parseColor(
-                        if (len >= MAX_NAME_LENGTH) "#$COLOR_DANGER" else "#$COLOR_GOLD_DIM"
-                    ))
-                }
-            })
-        }
-
-        root.addView(nameInput, LinearLayout.LayoutParams(-1, -2))
-
-        root.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._4sdp))
-        })
-        root.addView(counterTv)
-
-        root.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._12sdp))
-        })
-
-        val btnRow = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.END
-        }
-        btnRow.addView(buildTextButton(context, context.getString(R.string.cancel), COLOR_GOLD_DIM) {
-            dialog.dismiss()
-        })
-        btnRow.addView(View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1)
-        })
-        btnRow.addView(buildTextButton(context, context.getString(R.string.save), COLOR_GOLD) {
-            val newName = nameInput.text.toString().trim().ifEmpty { rec.name }
-            actionScope.launch {
-                withContext(Dispatchers.IO) {
-                    AppDatabase.getInstance(context).recordingDao().updateName(rec.id, newName)
-                }
-                nameTv.text = newName.uppercase()
-            }
-            dialog.dismiss()
-        })
-        root.addView(btnRow)
-
-        dialog.setView(root)
-        dialog.show()
-        val dm = context.resources.displayMetrics
-        dialog.window?.apply {
-            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setLayout((dm.widthPixels * 0.88).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
-            setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-        }
-        nameInput.requestFocus()
-    }
-
-    // ─── PILL BUTTON ─────────────────────────────────────────────────────────
-
-    private fun buildTextPillButton(
-        context: Context,
-        label: String,
-        colorHex: String,
-        onClick: () -> Unit
-    ) = TextView(context).apply {
-        text = label
-        setTextColor(Color.parseColor("#$colorHex"))
-        textSize = 9f
-        typeface = Typeface.DEFAULT_BOLD
-        gravity = Gravity.CENTER
-        val padH = context.sdp(SdpR.dimen._8sdp)
-        val padV = context.sdp(SdpR.dimen._4sdp)
-        setPadding(padH, padV, padH, padV)
-        background = RippleDrawable(
-            ColorStateList.valueOf(Color.parseColor("#40FFFFFF")),
-            GradientDrawable().apply {
-                setColor(Color.parseColor("#20$colorHex"))
-                cornerRadius = context.sdpF(SdpR.dimen._12sdp)
-                setStroke(context.sdp(SdpR.dimen._1sdp), Color.parseColor("#$colorHex"))
-            },
-            null
-        )
-        setOnClickListener { onClick() }
+        return String.format(Locale.US, "%d:%02d", sec / 60, sec % 60)
     }
 }

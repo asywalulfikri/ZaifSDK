@@ -29,7 +29,6 @@ open class BaseFragment : BaseFragmentWidget() {
         musicPlayerListener = object : MusicPlayerManager.PlayerListener {
             override fun onPlay(track: MusicPlayerManager.MusicTrack) {
                 Log.d("BaseFragment", "onMusicPlay: track=${track.title}")
-                setToast("wwlwlwlwl")
                 activity?.runOnUiThread { updateStopButton(ivStop, true) }
             }
 
