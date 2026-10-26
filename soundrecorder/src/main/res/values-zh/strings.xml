@@ -520,4 +520,8 @@
     <string name="record_overdub">叠录</string>
     <string name="record_overdub_hint">录音正在播放 — 点击打击垫添加新的一层</string>
     <string name="record_overdub_name">%1$s + 一层</string>
+    <string name="record_failed">录音失败</string>
+    <string name="music_source_asset">内置</string>
+    <string name="music_source_storage">存储</string>
+    <string name="export_first_free">今天可免费导出 1 次，无广告</string>
 </resources>

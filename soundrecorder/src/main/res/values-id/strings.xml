@@ -529,4 +529,8 @@
     <string name="record_overdub">Rekam lapis</string>
     <string name="record_overdub_hint">Rekaman lama diputar — ketuk pad untuk menambah lapisan baru</string>
     <string name="record_overdub_name">%1$s + lapis</string>
+    <string name="record_failed">Rekaman gagal</string>
+    <string name="music_source_asset">BAWAAN</string>
+    <string name="music_source_storage">PENYIMPANAN</string>
+    <string name="export_first_free">1x export gratis hari ini, tanpa iklan</string>
 </resources>

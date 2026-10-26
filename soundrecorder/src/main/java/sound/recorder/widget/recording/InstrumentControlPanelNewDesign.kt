@@ -369,7 +369,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
                 blinkManager.resetRecordBtn()
                 listener?.onMuteControl(false)
                 listener?.onRecordStatusChanged(false)
-                setToast("Recording failed")
+                setToast(context.getString(R.string.record_failed))
             }
         }
         recorderManager.startRecording()
@@ -525,7 +525,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
                         if (!isRecording && overdub === session) {
                             overdub = null
                             musicPlayer.stop()
-                            setToast("Recording failed")
+                            setToast(context.getString(R.string.record_failed))
                         }
                     }) { beginOverdubLayer(session) }
                 } else beginOverdubLayer(session)

@@ -566,4 +566,8 @@
     <string name="record_overdub">تسجيل طبقة</string>
     <string name="record_overdub_hint">يتم تشغيل التسجيل — انقر على الأزرار لإضافة طبقة جديدة</string>
     <string name="record_overdub_name">%1$s + طبقة</string>
+    <string name="record_failed">فشل التسجيل</string>
+    <string name="music_source_asset">مدمجة</string>
+    <string name="music_source_storage">التخزين</string>
+    <string name="export_first_free">تصدير مجاني واحد اليوم، بدون إعلان</string>
 </resources>

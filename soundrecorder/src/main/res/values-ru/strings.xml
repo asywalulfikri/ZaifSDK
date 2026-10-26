@@ -519,4 +519,8 @@
     <string name="record_overdub">Наложение</string>
     <string name="record_overdub_hint">Запись воспроизводится — нажимайте пэды, чтобы добавить новый слой</string>
     <string name="record_overdub_name">%1$s + слой</string>
+    <string name="record_failed">Не удалось записать</string>
+    <string name="music_source_asset">ВСТРОЕННАЯ</string>
+    <string name="music_source_storage">ПАМЯТЬ</string>
+    <string name="export_first_free">1 бесплатный экспорт сегодня, без рекламы</string>
 </resources>

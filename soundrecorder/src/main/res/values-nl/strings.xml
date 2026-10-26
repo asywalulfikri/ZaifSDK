@@ -525,4 +525,8 @@
     <string name="record_overdub">Overdub</string>
     <string name="record_overdub_hint">De opname wordt afgespeeld — tik op de pads om een nieuwe laag toe te voegen</string>
     <string name="record_overdub_name">%1$s + laag</string>
+    <string name="record_failed">Opnemen mislukt</string>
+    <string name="music_source_asset">INGEBOUWD</string>
+    <string name="music_source_storage">OPSLAG</string>
+    <string name="export_first_free">1 gratis export vandaag, zonder advertentie</string>
 </resources>

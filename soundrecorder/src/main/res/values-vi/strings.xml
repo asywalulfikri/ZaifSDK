@@ -521,4 +521,8 @@
     <string name="record_overdub">Thu chồng</string>
     <string name="record_overdub_hint">Bản ghi đang phát — chạm vào pad để thêm lớp mới</string>
     <string name="record_overdub_name">%1$s + lớp</string>
+    <string name="record_failed">Ghi âm thất bại</string>
+    <string name="music_source_asset">CÓ SẴN</string>
+    <string name="music_source_storage">BỘ NHỚ</string>
+    <string name="export_first_free">Hôm nay được xuất miễn phí 1 lần, không quảng cáo</string>
 </resources>

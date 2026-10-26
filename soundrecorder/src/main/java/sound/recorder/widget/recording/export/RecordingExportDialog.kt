@@ -58,7 +58,7 @@ import com.intuit.sdp.R as SdpR
  * Pilih MP3/MIDI → Bagikan / WhatsApp / Simpan. Progress + tombol Batal tampil di dalam dialog.
  *
  * Jika [show] diberi `onRequestReward`, user harus menonton rewarded ad dulu (sekali per dialog dibuka)
- * sebelum Bagikan / WhatsApp / Simpan dijalankan.
+ * sebelum Bagikan / WhatsApp / Simpan dijalankan, kecuali masih ada jatah [RecordingExporter.freeExportsPerDay] hari ini.
  *
  * Warna bisa disesuaikan per aplikasi sekali saja, misal di Application:
  * `RecordingDialogStyle.default = RecordingDialogStyle(accentColor = Color.parseColor("#E53935"))`
@@ -94,8 +94,11 @@ object RecordingExportDialog {
         // File hasil export disimpan selama dialog terbuka agar Bagikan → Simpan tidak render ulang
         val exported = mutableMapOf<RecordingExporter.Format, File>()
         var workJob: Job? = null
+        // Gratis 1x per hari: jatah baru dipakai saat export berhasil dibuat (gagal / batal tetap gratis)
+        val freeExport = onRequestReward != null && RecordingExporter.hasFreeExport(context)
+        var freeConsumed = false
         // Cukup nonton iklan sekali selama dialog terbuka (Bagikan lalu Simpan tidak perlu iklan lagi)
-        var rewardUnlocked = onRequestReward == null
+        var rewardUnlocked = onRequestReward == null || freeExport
 
         val pad = context.sdp(SdpR.dimen._16sdp)
         val root = LinearLayout(context).apply {
@@ -173,6 +176,15 @@ object RecordingExportDialog {
         // ── Tombol aksi ──
         val actionRow = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
         root.addView(actionRow)
+        val freeTv = TextView(context).apply {
+            text = "🎁 " + context.getString(R.string.export_first_free)
+            setTextColor(c.success)
+            textSize = 11f
+            gravity = Gravity.CENTER
+            setPadding(0, context.sdp(SdpR.dimen._6sdp), 0, 0)
+            visibility = if (freeExport) View.VISIBLE else View.GONE
+        }
+        root.addView(freeTv)
 
         // ── Progress ──
         val progressTitle = TextView(context).apply {
@@ -236,6 +248,7 @@ object RecordingExportDialog {
             segment.alpha = if (working) 0.5f else 1f
             segmentViews.values.forEach { it.isClickable = !working }
             actionRow.visibility = if (working) View.GONE else View.VISIBLE
+            if (freeExport) freeTv.visibility = if (working) View.GONE else View.VISIBLE
             progressPanel.visibility = if (working) View.VISIBLE else View.GONE
             footerBtn.text = context.getString(if (working) R.string.cancel else R.string.close)
             footerBtn.setTextColor(if (working) c.error else c.accent)
@@ -270,6 +283,10 @@ object RecordingExportDialog {
                         }.also { exported[format] = it }
                     showPanel.cancel()
                     setWorking(false)
+                    if (freeExport && !freeConsumed) {
+                        freeConsumed = true
+                        RecordingExporter.consumeFreeExport(context)
+                    }
 
                     val title = "${rec.name}.${format.extension}"
                     when (action) {

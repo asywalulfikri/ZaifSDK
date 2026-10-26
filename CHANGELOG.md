@@ -43,8 +43,12 @@
   - dialog simpan yang ditutup lewat Back atau tap di luar, atau keluar dari layar saat merekam, sekarang **disimpan otomatis** dengan nama "Simpan otomatis <tanggal>";
   - tombol **BATAL** tetap membuang rekaman.
 - **Export rekaman ke MP3 dan MIDI**, lalu bisa dibagikan (chooser atau WhatsApp) atau disimpan ke perangkat.
+  - **1x export gratis per hari tanpa iklan**; export berikutnya di hari yang sama meminta rewarded ad. Jatah di-reset setiap ganti tanggal (waktu lokal HP) dan baru terpakai kalau export berhasil (export yang gagal atau dibatalkan tetap gratis). Atur dengan `RecordingExporter.freeExportsPerDay` (default `1`, `0` = selalu pakai iklan).
   - Untuk merender suara pad ke MP3, host memasang `RecordingExporter.resolver` (lihat `RecordingExportResolver`).
   - Set `resolver` ke `null` di `onDestroyView` supaya tidak terjadi leak.
+  - **Tanpa `resolver`, MP3 tidak bisa berisi suara pad.** Rekaman *alat musik saja* hanya bisa diekspor ke MIDI (dibunyikan synth HP, jadi suaranya beda); rekaman *mic + earphone* hanya berisi suara mic.
+  - `ExportSample.rate` (default `1`): untuk host yang menggeser pitch sampel (`rate` di `SoundPool.play()` atau engine native), isi dengan `2^(semitone/12)` dikali pitch global.
+  - Samakan `RecordingExporter.maxPolyphony` dengan batas suara di engine host.
 - **Notifikasi pengingat buka app** tiap 2 hari, pukul 20:30–21:30.
   - Teks ucapan mengikuti bahasa HP (17 bahasa) dan jam.
   - Tidak muncul di jam tenang (22:00–08:00).
@@ -62,6 +66,7 @@
 - **Dialog daftar rekaman** dan **bottom sheet catatan** mendapat tampilan baru.
 
 ### 🐛 Perbaikan
+- **Terjemahan:** toast "Recording failed" dan label sumber lagu (ASSET / STORAGE) di daftar musik kini mengikuti bahasa HP (19 folder bahasa).
 - **Notifikasi koin:**
   - tidak lagi gagal saat dijadwalkan tanpa data input;
   - hanya muncul kalau bonus harian memang bisa diklaim dan notifikasi diizinkan;
