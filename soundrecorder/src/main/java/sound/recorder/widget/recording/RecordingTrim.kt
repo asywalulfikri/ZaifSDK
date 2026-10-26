@@ -30,10 +30,22 @@ internal object RecordingTrim {
     private val gson = Gson()
     private val tapsType = object : TypeToken<List<RecordedTap>>() {}.type
 
-    /** Ketukan di dalam [startMs, endMs], digeser sehingga [shiftMs] menjadi 0. */
-    fun trimTaps(taps: List<RecordedTap>, startMs: Long, endMs: Long, shiftMs: Long): List<RecordedTap> =
-        taps.filter { it.timestamp in startMs..endMs }
-            .map { it.copy(timestamp = (it.timestamp - shiftMs).coerceAtLeast(0L)) }
+    /**
+     * Ketukan di dalam [startMs, endMs], digeser sehingga [shiftMs] menjadi 0.
+     * Instrumen bernada panjang (punya OFF): nada yang ditahan melewati titik awal dibunyikan ulang di awal,
+     * dan nada yang masih ditahan di titik akhir diberi OFF — agar tidak ada nada hilang / menggantung.
+     */
+    fun trimTaps(taps: List<RecordedTap>, startMs: Long, endMs: Long, shiftMs: Long): List<RecordedTap> {
+        fun shifted(ms: Long) = (ms - shiftMs).coerceAtLeast(0L)
+        val sorted = taps.sortedBy { it.timestamp }
+        val inRange = sorted.filter { it.timestamp in startMs..endMs }.map { it.copy(timestamp = shifted(it.timestamp)) }
+        if (!SustainNotes.usesOff(sorted)) return inRange
+
+        val reStart = SustainNotes.heldBefore(sorted, startMs).map { it.copy(timestamp = shifted(startMs)) }
+        val release = SustainNotes.heldPadsAt(sorted, endMs).map { SustainNotes.offFor(it, shifted(endMs)) }
+        // sortedBy stabil: ON ulang tetap sebelum OFF di waktu yang sama
+        return (reStart + inRange + release).sortedBy { it.timestamp }
+    }
 
     /** Potongan lagu dipangkas ke [startMs, endMs]; posisi lagu ikut maju untuk bagian yang terpotong di awal. */
     fun trimMusic(music: List<RecordedMusicSegment>, startMs: Long, endMs: Long, shiftMs: Long): List<RecordedMusicSegment> =

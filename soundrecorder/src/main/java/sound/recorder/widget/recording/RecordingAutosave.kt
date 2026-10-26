@@ -173,7 +173,8 @@ internal object RecordingAutosave {
                     return@withLock false
                 }
                 if (draft.pid == Process.myPid()) return@withLock false
-                val events = draft.events.orEmpty()
+                // Draft ditulis di tengah rekaman → nada panjang yang masih ditahan diberi OFF
+                val events = draft.events.orEmpty().let { SustainNotes.closeHeld(it, it.maxOfOrNull { t -> t.timestamp } ?: 0L) }
                 if (events.isEmpty()) {
                     file.delete()
                     return@withLock false

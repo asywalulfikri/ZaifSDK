@@ -309,7 +309,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
         }
 
         btnStop.setOnClickListener {
-            recorderManager.stopPlayback()
+            recorderManager.stopPlayback(releaseHeld = true)
             audioEngine.stopPlayingAudio()
             musicPlayer.stop()
             blinkManager.stopStopBlink()
@@ -565,7 +565,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
     }
 
     private fun stopOverdubPlayback() {
-        recorderManager.stopPlayback()
+        recorderManager.stopPlayback(releaseHeld = true)
         audioEngine.stopPlayingAudio()
         musicPlayer.stop()
     }
@@ -699,7 +699,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
 
     // ─── STOP PLAYBACK ONLY (dipanggil saat tutorial/learn mulai) ───
     fun stopPlayback() {
-        recorderManager.stopPlayback()
+        recorderManager.stopPlayback(releaseHeld = true)
         audioEngine.stopPlayingAudio()
         musicPlayer.stop()
         blinkManager.stopStopBlink()

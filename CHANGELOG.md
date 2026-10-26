@@ -32,6 +32,11 @@
   - **Rekaman dasar lewat speaker:** suara pad sudah ada di audio mic, jadi hanya ketukan baru yang disimpan dan pad tidak di-mute.
   - Versi ini baru mendukung lapisan berupa ketukan alat musik; rekam lapis dengan mic belum didukung.
   - `RecordingListDialogHelper.show()` mendapat parameter opsional `onOverdub`. Kalau `null`, tombolnya disembunyikan. Overload lama tetap ada.
+- **Nada panjang (pianika, suling, dan instrumen lain yang memakai `OFF`)** tidak lagi hilang atau menggantung:
+  - **potong:** nada yang ditahan melewati titik awal dibunyikan ulang di awal potongan, dan nada yang masih ditahan di titik akhir diberi `OFF`;
+  - **stop rekam saat nada masih ditahan:** diberi `OFF` otomatis (termasuk rekaman yang dipulihkan dari draft);
+  - **Stop saat putar ulang / akhir rekam lapis / akhir pemutaran rekaman lama:** host dikirimi `OFF` untuk nada yang masih berbunyi. Saat layar ditutup tidak ada callback ke host;
+  - **perkusi (tanpa `OFF`) tidak berubah sama sekali.**
 - **Ikon lagu di daftar rekaman:** rekaman yang berisi lagu menampilkan "🎵 judul lagu".
 - **Autosave rekaman:**
   - draft ditulis tiap 5 detik selama merekam; kalau app mati mendadak, rekaman dipulihkan saat layar instrumen dibuka lagi (dengan toast);
@@ -66,7 +71,7 @@
 - **Catatan lokal:** `DatabaseHelper` kini singleton (`getInstance`), memperbaiki error "attempt to re-open an already-closed object". Konstruktor lama tetap ada, tapi deprecated.
 
 ### 🧪 Pengujian
-- **Unit test:** 17 test lolos (`MidiFileWriterTest`, `StreamResamplerTest`, `MusicRecordTrackerTest`, `RecordingTrimTest`).
+- **Unit test:** 24 test lolos (`MidiFileWriterTest`, `StreamResamplerTest`, `MusicRecordTrackerTest`, `RecordingTrimTest`, `SustainNotesTest`).
 - **Diuji di device (Android 16):**
   - migration database;
   - autosave dan pemulihan setelah app dimatikan (force-stop);
@@ -75,7 +80,13 @@
   - mic HQ, termasuk fallback ke rekaman lama;
   - potong rekaman (ketukan + lagu, m4a, 3GP) dan pemutaran hasilnya;
   - rekam lapis di atas rekaman ketukan + lagu, mic + earphone, dan mic lewat speaker; BATAL; pemulihan setelah app mati di tengah rekam lapis.
-- **Belum diuji:**
+- **Diuji di HP low-end Realme C21Y (2,8 GB, Android 11):**
+  - update dari build lama (DB v5 → v6);
   - lagu dari penyimpanan HP (content URI);
-  - device Android lama;
+  - mic HQ, potong, rekam lapis;
+  - frame tersendat < 0,6%, p99 ≤ 13 ms;
+  - memori stabil.
+- **Belum diuji:**
+  - nada panjang di app pianika/suling sungguhan;
+  - device Android 5–8;
   - update dari versi Play Store pada app host.
