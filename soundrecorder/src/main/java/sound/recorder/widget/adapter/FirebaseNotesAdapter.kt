@@ -11,6 +11,7 @@ import sound.recorder.widget.notes.Note
 class FirebaseNotesAdapter(
     private var notesList: List<Note>,
     private val isDebug: Boolean = false,
+    private val onViewClick: (Note) -> Unit = {},
     private val onStatusToggleClick: (Note) -> Unit = {},
     private val onDeleteClick: (Note) -> Unit = {},
     private val onItemClick: (Note) -> Unit
@@ -25,6 +26,7 @@ class FirebaseNotesAdapter(
         val tvStatus: TextView = view.findViewById(R.id.tvStatus)
         val tvTimestamp: TextView = view.findViewById(R.id.timestamp)
         val layoutAdmin: View = view.findViewById(R.id.layoutAdminActions)
+        val btnView: TextView = view.findViewById(R.id.btnViewOnline)
         val btnStatus: TextView = view.findViewById(R.id.btnApprove)
         val btnDelete: TextView = view.findViewById(R.id.btnDeleteOnline)
     }
@@ -49,9 +51,14 @@ class FirebaseNotesAdapter(
             holder.tvStatus.text = note.status ?: "UNKNOWN"
             holder.layoutAdmin.visibility = View.VISIBLE
             
+            holder.btnView.visibility = View.VISIBLE
+            holder.btnView.setOnClickListener { onViewClick(note) }
+
+            holder.btnDelete.visibility = View.VISIBLE
             holder.btnDelete.setOnClickListener { onDeleteClick(note) }
 
             val isPublished = note.status == "published"
+            holder.btnStatus.visibility = View.VISIBLE
             holder.btnStatus.text = if (isPublished) "DRAFT" else "APPROVE"
             holder.btnStatus.setTextColor(if (isPublished) android.graphics.Color.parseColor("#FFB347") else android.graphics.Color.parseColor("#4CAF50"))
             holder.btnStatus.setOnClickListener { onStatusToggleClick(note) }

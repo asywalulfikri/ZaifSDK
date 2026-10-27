@@ -64,11 +64,26 @@
                 android:layout_width="wrap_content"
                 android:minWidth="@dimen/_55sdp"
                 android:layout_height="@dimen/_28sdp"
+                android:layout_marginEnd="@dimen/_4sdp"
                 android:paddingStart="@dimen/_4sdp"
                 android:paddingEnd="@dimen/_4sdp"
                 android:background="@drawable/bg_btn_tutorial_learn"
                 android:gravity="center"
                 android:text="@string/learn"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/_8ssp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnExport"
+                android:layout_width="wrap_content"
+                android:minWidth="@dimen/_50sdp"
+                android:layout_height="@dimen/_28sdp"
+                android:paddingStart="@dimen/_4sdp"
+                android:paddingEnd="@dimen/_4sdp"
+                android:background="@drawable/bg_btn_tutorial_play"
+                android:gravity="center"
+                android:text="@string/export_title"
                 android:textColor="#FFFFFF"
                 android:textSize="@dimen/_8ssp"
                 android:textStyle="bold" />

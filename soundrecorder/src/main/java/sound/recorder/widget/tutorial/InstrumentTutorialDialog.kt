@@ -64,6 +64,10 @@ import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
 import sound.recorder.widget.databinding.DialogTutorialSongListBinding
 import sound.recorder.widget.recording.database.RecordedTap
+import sound.recorder.widget.recording.database.RecordingEntity
+import sound.recorder.widget.recording.export.RecordingExportDialog
+import sound.recorder.widget.recording.export.RecordingExporter
+import com.google.gson.Gson
 import sound.recorder.widget.util.CoinManager
 import java.io.File
 import java.text.SimpleDateFormat
@@ -93,7 +97,7 @@ class InstrumentTutorialDialog(
     private var mContext: Context? = null
     private var instrumentType: String = ""
     private var instrumentPrefix: String = ""
-    private var isSustained: Boolean = true
+    private var isSustained: Boolean = false
 
     var zaifSDKConfig: ZaifSDKConfig? = null
 
@@ -295,9 +299,11 @@ class InstrumentTutorialDialog(
         context: Context,
         instrumentType: String,
         instrumentPrefix: String = "",
-        isSustained: Boolean = true,
+        /** true untuk instrumen yang nadanya ditahan (pianika, suling): export memberi OFF sesuai durasi not. */
+        isSustained: Boolean = false,
         isPremium: Boolean = false,
         showLearn: Boolean = true,
+        showExport: Boolean = true,
         playRemoteAsSong: Boolean = false,
         freeSongKeys: Set<String> = setOf("local_DORAEMON INTRO", "local_HAPPY BIRTHDAY","Gundul Gundul Pacul",""),
         localSongsProvider: (Context) -> List<InstrumentSong>,
@@ -333,6 +339,7 @@ class InstrumentTutorialDialog(
         val adapter = SongListAdapter(
             context = context,
             showLearn = showLearn,
+            showExport = showExport,
             isUnlocked = { item ->
                 when (item) {
                     is SongItem.Local -> isPremium || keyForLocal(item.song) in freeSongKeys || isUnlockedByKey(context, keyForLocal(item.song))
@@ -384,6 +391,31 @@ class InstrumentTutorialDialog(
                         val doLearn = { dismissShouldStop = false; dialog.dismiss(); startLearnMode(note.jsonNote) }
                         if (note.isFree || isPremium || isUnlockedByKey(context, key)) doLearn()
                         else showUnlockDialog(context, key, onCoinUnlock = { doLearn() }) { onRequestAd { markUnlocked(context, key); doLearn() } }
+                    }
+                }
+            },
+            onExport = { item ->
+                // Premium tanpa iklan. Lagu yang baru dibuka (iklan / koin) tidak diminta iklan lagi saat export.
+                fun openExport(rec: RecordingEntity?, skipAd: Boolean) {
+                    if (rec == null) { onToast(context.getString(R.string.export_failed)); return }
+                    RecordingExportDialog.show(
+                        context, rec,
+                        onRequestReward = if (isPremium || skipAd) null else { onRewarded -> onRequestAd { onRewarded() } }
+                    )
+                }
+                when (item) {
+                    is SongItem.Local -> {
+                        val key = keyForLocal(item.song)
+                        val doExport = { skipAd: Boolean -> openExport(songToRecordingEntity(item.song), skipAd) }
+                        if (isPremium || key in freeSongKeys || isUnlockedByKey(context, key)) doExport(false)
+                        else showUnlockDialog(context, key, onCoinUnlock = { doExport(true) }) { onRequestAd { markUnlocked(context, key); doExport(true) } }
+                    }
+                    is SongItem.Remote -> {
+                        val note = item.note
+                        val key = keyForRemote(note)
+                        val doExport = { skipAd: Boolean -> openExport(remoteNoteToRecordingEntity(note), skipAd) }
+                        if (note.isFree || isPremium || isUnlockedByKey(context, key)) doExport(false)
+                        else showUnlockDialog(context, key, onCoinUnlock = { doExport(true) }) { onRequestAd { markUnlocked(context, key); doExport(true) } }
                     }
                 }
             }
@@ -1404,12 +1436,49 @@ class InstrumentTutorialDialog(
         return Pair(dialog, binding)
     }
 
+    /**
+     * Lagu lokal → rekaman sementara untuk export (tidak disimpan ke database).
+     * Metadata kosong = sama dengan saat lagu dimainkan, jadi resolver host memakai set suara default.
+     * OFF di akhir not hanya untuk instrumen yang nadanya ditahan ([isSustained]); bilah/perkusi dibiarkan berdengung.
+     */
+    private fun songToRecordingEntity(song: InstrumentSong): RecordingEntity? {
+        if (song.notes.isEmpty()) return null
+        val taps = mutableListOf<RecordedTap>()
+        for (note in song.notes) {
+            taps.add(RecordedTap(padIndex = note.padIndex, timestamp = note.timeMs, metadata = ""))
+            if (isSustained && note.durationMs > 0) {
+                taps.add(RecordedTap(padIndex = note.padIndex, timestamp = note.timeMs + note.durationMs, metadata = RecordingExporter.OFF_METADATA))
+            }
+        }
+        return RecordingEntity(
+            name = song.name,
+            setName = instrumentType,
+            eventsJson = Gson().toJson(taps.sortedBy { it.timestamp }),
+            durationMs = song.notes.maxOf { it.timeMs + it.durationMs }
+        )
+    }
+
+    /** Catatan online → rekaman sementara untuk export. Null jika isi catatan tidak bisa dibaca. */
+    private fun remoteNoteToRecordingEntity(note: NoteItem): RecordingEntity? {
+        val (events, category) = parseEvents(note.jsonNote)
+        if (events.isEmpty()) return null
+        val sorted = events.sortedBy { it.timestamp }
+        return RecordingEntity(
+            name = note.recordName,
+            setName = category.ifEmpty { instrumentType },
+            eventsJson = Gson().toJson(sorted),
+            durationMs = sorted.last().timestamp
+        )
+    }
+
     private inner class SongListAdapter(
         private val context: Context,
         private val showLearn: Boolean = true,
+        private val showExport: Boolean = true,
         private val isUnlocked: (SongItem) -> Boolean,
         private val onPlay: (SongItem) -> Unit,
-        private val onLearn: (SongItem) -> Unit
+        private val onLearn: (SongItem) -> Unit,
+        private val onExport: (SongItem) -> Unit
     ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         private val items = mutableListOf<SongItem>()
@@ -1424,6 +1493,7 @@ class InstrumentTutorialDialog(
             val tvInfo: TextView = view.findViewById(R.id.tvSongInfo)
             val btnPlay: TextView = view.findViewById(R.id.btnPlay)
             val btnLearn: TextView = view.findViewById(R.id.btnLearn)
+            val btnExport: TextView = view.findViewById(R.id.btnExport)
             val layoutAdmin: LinearLayout = view.findViewById(R.id.layoutAdmin)
             val btnPublish: TextView = view.findViewById(R.id.btnPublish)
             val btnEdit: TextView = view.findViewById(R.id.btnEdit)
@@ -1483,6 +1553,7 @@ class InstrumentTutorialDialog(
                     }
                     vh.btnPlay.text = "${context.getString(R.string.play).uppercase()}$lockSuffix"
                     vh.btnLearn.text = "${context.getString(R.string.learn).uppercase()}$lockSuffix"
+                    vh.btnExport.text = "${context.getString(R.string.export_title).uppercase()}$lockSuffix"
                     vh.layoutAdmin.visibility = View.GONE
                 }
                 is SongItem.Remote -> {
@@ -1496,6 +1567,7 @@ class InstrumentTutorialDialog(
                     vh.tvInfo.text = "👤 ${item.note.senderName}  ·  🕐 ${sdf.format(Date(item.note.submittedAt))}"
                     vh.btnPlay.text = "${context.getString(R.string.play).uppercase()}$lockSuffix"
                     vh.btnLearn.text = "${context.getString(R.string.learn).uppercase()}$lockSuffix"
+                    vh.btnExport.text = "${context.getString(R.string.export_title).uppercase()}$lockSuffix"
 
                     if (isDebug) {
                         vh.layoutAdmin.visibility = View.VISIBLE
@@ -1525,8 +1597,10 @@ class InstrumentTutorialDialog(
             }
             vh.btnPlay.visibility = View.VISIBLE
             vh.btnLearn.visibility = if (showLearn) View.VISIBLE else View.GONE
+            vh.btnExport.visibility = if (showExport) View.VISIBLE else View.GONE
             vh.btnPlay.setOnClickListener { onPlay(item) }
             vh.btnLearn.setOnClickListener { onLearn(item) }
+            vh.btnExport.setOnClickListener { onExport(item) }
         }
 
         override fun getItemCount() = if (isOffline) items.size + 1 else items.size
