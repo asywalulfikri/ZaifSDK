@@ -1294,8 +1294,17 @@ open class BaseActivityWidget : AppCompatActivity() {
                         if (activity == null || activity.isDestroyed || activity.isFinishing) return
 
                         activity.rewardedAd = null
-                        // User sedang menunggu iklan → gagal dimuat, reward tetap diberikan
-                        activity.finishRewardWait(grantReward = true)
+                        // User sedang menunggu iklan:
+                        // - error jaringan (internet mati / pemblokir iklan) → tanpa reward
+                        // - AdMob gagal (tidak ada iklan, error server) → reward tetap diberikan
+                        if (adError.code == AdRequest.ERROR_CODE_NETWORK_ERROR) {
+                            if (activity.pendingRewardAction != null) {
+                                activity.finishRewardWait(grantReward = false)
+                                activity.setToast(activity.getString(R.string.no_internet_connection))
+                            }
+                        } else {
+                            activity.finishRewardWait(grantReward = true)
+                        }
 
                         if (activity.retryCountReward < 3) {
                             activity.retryCountReward++
@@ -1388,7 +1397,8 @@ open class BaseActivityWidget : AppCompatActivity() {
     /**
      * Tampilkan "iklan sedang disiapkan" sambil memuat iklan:
      * - iklan siap dalam [REWARD_WAIT_MS] → langsung tampil
-     * - gagal dimuat / terlalu lama → reward tetap diberikan agar user tidak terjebak
+     * - AdMob gagal dimuat / terlalu lama padahal internet ada → reward tetap diberikan agar user tidak terjebak
+     * - internet mati / error jaringan (termasuk pemblokir iklan) → tanpa reward, fitur tidak bisa dipakai
      * - Batal / app ditinggalkan → tidak terjadi apa-apa
      */
     private fun waitForRewardedAd(isPremium: Boolean, onComplete: () -> Unit) {
@@ -1422,10 +1432,14 @@ open class BaseActivityWidget : AppCompatActivity() {
     private fun finishRewardWait(grantReward: Boolean) {
         val action = pendingRewardAction ?: return
         clearRewardWait()
-        if (grantReward && !isFinishing && !isDestroyed) {
-            setToast(getString(R.string.reward_get))
-            action()
+        if (!grantReward || isFinishing || isDestroyed) return
+        // Internet dimatikan saat menunggu → bukan kesalahan AdMob, reward tidak diberikan
+        if (!isInternetTrulyAvailable(this)) {
+            setToast(getString(R.string.no_internet_connection))
+            return
         }
+        setToast(getString(R.string.reward_get))
+        action()
     }
 
     private fun clearRewardWait() {

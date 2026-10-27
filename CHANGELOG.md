@@ -66,7 +66,7 @@
 - **Dialog daftar rekaman** dan **bottom sheet catatan** mendapat tampilan baru.
 
 ### 🐛 Perbaikan
-- **Iklan reward tidak perlu ditekan ulang.** Kalau iklan belum siap, muncul dialog "Iklan sedang disiapkan…" (dengan tombol Batal), lalu iklan tampil otomatis begitu selesai dimuat. Kalau gagal dimuat atau lebih dari 8 detik, reward tetap diberikan. Batal, Back, atau meninggalkan app membatalkan tanpa reward. Berlaku untuk semua pemakai `showRewardedAd` (export, buka lagu, dan lain-lain); API tidak berubah.
+- **Iklan reward tidak perlu ditekan ulang.** Kalau iklan belum siap, muncul dialog "Iklan sedang disiapkan…" (dengan tombol Batal), lalu iklan tampil otomatis begitu selesai dimuat. Kalau AdMob gagal dimuat atau lebih dari 8 detik padahal internet hidup, reward tetap diberikan. Kalau internet mati atau terjadi error jaringan (termasuk karena pemblokir iklan), **tidak ada reward** dan muncul pesan "tidak ada koneksi internet". Batal, Back, atau meninggalkan app membatalkan tanpa reward. Berlaku untuk semua pemakai `showRewardedAd` (export, buka lagu, dan lain-lain); API tidak berubah.
 - **Export di daftar tutorial** (lagu lokal dan online), memakai dialog export yang sama:
   - premium tanpa iklan;
   - lagu yang baru dibuka dengan iklan atau koin tidak diminta iklan lagi;
