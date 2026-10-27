@@ -76,6 +76,10 @@ import sound.recorder.widget.ads.AdConfigProvider
 import sound.recorder.widget.builder.AdmobSDKBuilder
 import sound.recorder.widget.listener.MyAdsListener
 import sound.recorder.widget.notes.Note
+import sound.recorder.widget.recording.RecordingDialogPalette
+import sound.recorder.widget.recording.RecordingDialogStyle
+import sound.recorder.widget.recording.RecordingDialogViews
+import sound.recorder.widget.recording.RecordingDialogViews.sdp
 import sound.recorder.widget.util.DataSession
 import sound.recorder.widget.util.Toastic
 import java.lang.ref.WeakReference
@@ -141,6 +145,8 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var retryCount = 0
 
     private val MAX_RETRY = 2
+    /** Lama maksimal menunggu rewarded ad dimuat sebelum reward diberikan tanpa iklan. */
+    private val REWARD_WAIT_MS = 8_000L
     private val RETRY_DELAY = 60_000L     // 60 detik
     private val NEXT_LOAD_DELAY = 90_000L // 90 detik
 
@@ -1217,6 +1223,14 @@ open class BaseActivityWidget : AppCompatActivity() {
 
 
     private var retryCountReward = 0
+
+    // ─── Menunggu rewarded ad (user sudah menekan tombol, iklan belum siap) ───
+    /** Aksi reward yang menunggu iklan selesai dimuat. Null = tidak ada yang menunggu. */
+    private var pendingRewardAction: (() -> Unit)? = null
+    private var pendingRewardPremium = false
+    private var rewardWaitDialog: Dialog? = null
+    private var rewardWaitTimeout: Runnable? = null
+    private val rewardWaitHandler = Handler(Looper.getMainLooper())
     private var failedShowAttemptCount = 0
 
     /*fun loadRewardedAd(isPremium: Boolean) {
@@ -1280,6 +1294,8 @@ open class BaseActivityWidget : AppCompatActivity() {
                         if (activity == null || activity.isDestroyed || activity.isFinishing) return
 
                         activity.rewardedAd = null
+                        // User sedang menunggu iklan → gagal dimuat, reward tetap diberikan
+                        activity.finishRewardWait(grantReward = true)
 
                         if (activity.retryCountReward < 3) {
                             activity.retryCountReward++
@@ -1310,6 +1326,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         activity.rewardedAd = ad
                         activity.retryCountReward = 0
                         Log.d("ADS", "Rewarded ad loaded")
+                        activity.onRewardedAdReady()
                     }
                 }
             )
@@ -1334,51 +1351,131 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
 
         val ad = rewardedAd
-        if (ad != null) {
-            ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+        if (ad != null) presentRewardedAd(ad, isPremium, onComplete)
+        // Iklan belum siap → tunggu sebentar lalu tampilkan otomatis, user tidak perlu menekan ulang
+        else waitForRewardedAd(isPremium, onComplete)
+    }
 
-                override fun onAdDismissedFullScreenContent() {
-                    // Null-kan callback agar tidak menahan referensi
-                    ad.fullScreenContentCallback = null
-                    rewardedAd = null
-                    failedShowAttemptCount = 0 // Reset counter sukses show
-                    // Jalankan aksi unlock setelah iklan ditutup
-                    onComplete()
-                    // Load ulang untuk penayangan berikutnya
-                    loadRewardedAd(isPremium)
-                }
+    private fun presentRewardedAd(ad: RewardedAd, isPremium: Boolean, onComplete: () -> Unit) {
+        ad.fullScreenContentCallback = object : FullScreenContentCallback() {
 
-                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                    ad.fullScreenContentCallback = null
-                    rewardedAd = null
-                    failedShowAttemptCount = 0 // Reset counter karena kita anggap gagal show sudah dihandle
-                    // Tetap jalankan aksi agar user tidak stuck
-                    onComplete()
-                    loadRewardedAd(isPremium)
-                }
-            }
-
-            ad.show(this) { rewardItem ->
-                Log.d("ADS", "User earned reward: ${rewardItem.amount}")
-            }
-
-        } else {
-            // Iklan belum siap
-            failedShowAttemptCount++
-
-            if (failedShowAttemptCount >= 2 && isInternetTrulyAvailable(this)) {
-                failedShowAttemptCount = 0
-                setToast(getString(R.string.reward_get))
+            override fun onAdDismissedFullScreenContent() {
+                // Null-kan callback agar tidak menahan referensi
+                ad.fullScreenContentCallback = null
+                rewardedAd = null
+                failedShowAttemptCount = 0 // Reset counter sukses show
+                // Jalankan aksi unlock setelah iklan ditutup
                 onComplete()
-            } else {
-                setToast(getString(R.string.ads_prepared_please_wait))
-                retryCountReward = 0
+                // Load ulang untuk penayangan berikutnya
                 loadRewardedAd(isPremium)
             }
+
+            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                ad.fullScreenContentCallback = null
+                rewardedAd = null
+                failedShowAttemptCount = 0 // Reset counter karena kita anggap gagal show sudah dihandle
+                // Tetap jalankan aksi agar user tidak stuck
+                onComplete()
+                loadRewardedAd(isPremium)
+            }
+        }
+
+        ad.show(this) { rewardItem ->
+            Log.d("ADS", "User earned reward: ${rewardItem.amount}")
+        }
+    }
+
+    /**
+     * Tampilkan "iklan sedang disiapkan" sambil memuat iklan:
+     * - iklan siap dalam [REWARD_WAIT_MS] → langsung tampil
+     * - gagal dimuat / terlalu lama → reward tetap diberikan agar user tidak terjebak
+     * - Batal / app ditinggalkan → tidak terjadi apa-apa
+     */
+    private fun waitForRewardedAd(isPremium: Boolean, onComplete: () -> Unit) {
+        if (pendingRewardAction != null) return // sudah menunggu (tombol ditekan berulang)
+        pendingRewardAction = onComplete
+        pendingRewardPremium = isPremium
+        showRewardWaitDialog()
+        rewardWaitTimeout = Runnable { finishRewardWait(grantReward = true) }.also {
+            rewardWaitHandler.postDelayed(it, REWARD_WAIT_MS)
+        }
+
+        // User sedang menunggu: lewati jeda retry 5 detik dan muat sekarang
+        retryRewardRunnable?.let { retryHandler.removeCallbacks(it) }
+        retryRewardRunnable = null
+        retryCountReward = 0
+        loadRewardedAd(isPremium)
+        // Pemuatan tidak bisa dimulai (ID iklan kosong / consent) → jangan biarkan user menunggu
+        if (!isRewardedLoading && rewardedAd == null) finishRewardWait(grantReward = true)
+    }
+
+    /** Dipanggil saat iklan selesai dimuat: tampilkan untuk aksi yang sedang menunggu. */
+    private fun onRewardedAdReady() {
+        if (pendingRewardAction == null) return
+        val ad = rewardedAd ?: return
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return // sisanya ditangani timeout
+        val action = pendingRewardAction ?: return
+        clearRewardWait()
+        presentRewardedAd(ad, pendingRewardPremium, action)
+    }
+
+    private fun finishRewardWait(grantReward: Boolean) {
+        val action = pendingRewardAction ?: return
+        clearRewardWait()
+        if (grantReward && !isFinishing && !isDestroyed) {
+            setToast(getString(R.string.reward_get))
+            action()
+        }
+    }
+
+    private fun clearRewardWait() {
+        pendingRewardAction = null
+        rewardWaitTimeout?.let { rewardWaitHandler.removeCallbacks(it) }
+        rewardWaitTimeout = null
+        try { rewardWaitDialog?.dismiss() } catch (_: Exception) { }
+        rewardWaitDialog = null
+    }
+
+    private fun showRewardWaitDialog() {
+        if (isFinishing || isDestroyed) return
+        val c = RecordingDialogPalette(this, RecordingDialogStyle.default)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).create()
+        val root = RecordingDialogViews.dialogRoot(this, c)
+        root.addView(android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            addView(android.widget.ProgressBar(this@BaseActivityWidget).apply {
+                isIndeterminate = true
+                indeterminateTintList = android.content.res.ColorStateList.valueOf(c.accent)
+            }, android.widget.LinearLayout.LayoutParams(
+                sdp(com.intuit.sdp.R.dimen._28sdp),
+                sdp(com.intuit.sdp.R.dimen._28sdp)
+            ))
+            addView(RecordingDialogViews.body(this@BaseActivityWidget, c, getString(R.string.ads_prepared_please_wait)).apply {
+                setPadding(sdp(com.intuit.sdp.R.dimen._12sdp), 0, 0, 0)
+            }, android.widget.LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        })
+        root.addView(RecordingDialogViews.footer(this,
+            RecordingDialogViews.textButton(this, c, getString(R.string.cancel), c.textSecondary).apply {
+                setOnClickListener { finishRewardWait(grantReward = false) }
+            }
+        ), android.widget.LinearLayout.LayoutParams(-1, -2))
+        dialog.setView(root)
+        dialog.setCanceledOnTouchOutside(false)
+        // Back = batal menunggu
+        dialog.setOnCancelListener { finishRewardWait(grantReward = false) }
+        try {
+            dialog.show()
+            RecordingDialogViews.applyWindow(dialog, this, 0.85, 0.45)
+            rewardWaitDialog = dialog
+        } catch (e: Exception) {
+            Log.e("ADS", "Gagal menampilkan dialog tunggu iklan: ${e.message}")
         }
     }
 
     private fun releaseRewardedAd() {
+        // App ditinggalkan saat menunggu iklan → batalkan tanpa reward
+        finishRewardWait(grantReward = false)
         // Cancel pending retry agar Runnable tidak jalan setelah Activity mati
         retryRewardRunnable?.let { retryHandler.removeCallbacks(it) }
         retryRewardRunnable = null

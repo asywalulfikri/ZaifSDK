@@ -66,6 +66,12 @@
 - **Dialog daftar rekaman** dan **bottom sheet catatan** mendapat tampilan baru.
 
 ### 🐛 Perbaikan
+- **Iklan reward tidak perlu ditekan ulang.** Kalau iklan belum siap, muncul dialog "Iklan sedang disiapkan…" (dengan tombol Batal), lalu iklan tampil otomatis begitu selesai dimuat. Kalau gagal dimuat atau lebih dari 8 detik, reward tetap diberikan. Batal, Back, atau meninggalkan app membatalkan tanpa reward. Berlaku untuk semua pemakai `showRewardedAd` (export, buka lagu, dan lain-lain); API tidak berubah.
+- **Export di daftar tutorial** (lagu lokal dan online), memakai dialog export yang sama:
+  - premium tanpa iklan;
+  - lagu yang baru dibuka dengan iklan atau koin tidak diminta iklan lagi;
+  - metadata lagu lokal kosong, sama seperti saat lagu dimainkan;
+  - `OFF` di akhir not hanya untuk `isSustained = true`. Default `showLocal(isSustained)` kini `false`; sebelumnya parameter ini tidak dipakai.
 - **Terjemahan:** toast "Recording failed" dan label sumber lagu (ASSET / STORAGE) di daftar musik kini mengikuti bahasa HP (19 folder bahasa).
 - **Notifikasi koin:**
   - tidak lagi gagal saat dijadwalkan tanpa data input;
