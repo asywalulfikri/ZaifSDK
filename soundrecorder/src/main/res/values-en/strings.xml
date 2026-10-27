@@ -510,6 +510,7 @@
     <string name="record_autosave_name">Auto-saved %1$s</string>
     <string name="record_recovered">Your last unfinished recording was saved automatically</string>
     <string name="record_trim">Trim</string>
+    <string name="record_trim_preview">Play selection</string>
     <string name="record_trim_title">Trim Recording</string>
     <string name="record_trim_hint">Drag both ends to choose the part to keep. The original recording stays unchanged.</string>
     <string name="record_trim_copy_name">%1$s (trimmed)</string>

@@ -558,6 +558,7 @@
     <string name="record_autosave_name">حفظ تلقائي %1$s</string>
     <string name="record_recovered">تم حفظ آخر تسجيل لم يكتمل تلقائيًا</string>
     <string name="record_trim">قص</string>
+    <string name="record_trim_preview">تشغيل الجزء المحدد</string>
     <string name="record_trim_title">قص التسجيل</string>
     <string name="record_trim_hint">اسحب الطرفين لاختيار الجزء الذي تريد الاحتفاظ به. يبقى التسجيل الأصلي كما هو.</string>
     <string name="record_trim_copy_name">%1$s (مقصوص)</string>

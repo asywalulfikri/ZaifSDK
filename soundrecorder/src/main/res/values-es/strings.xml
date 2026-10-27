@@ -514,6 +514,7 @@
     <string name="record_autosave_name">Guardado automático %1$s</string>
     <string name="record_recovered">Tu última grabación sin terminar se guardó automáticamente</string>
     <string name="record_trim">Recortar</string>
+    <string name="record_trim_preview">Reproducir selección</string>
     <string name="record_trim_title">Recortar grabación</string>
     <string name="record_trim_hint">Arrastra ambos extremos para elegir la parte que quieres conservar. La grabación original no cambia.</string>
     <string name="record_trim_copy_name">%1$s (recortada)</string>

@@ -512,6 +512,7 @@
     <string name="record_autosave_name">自动保存 %1$s</string>
     <string name="record_recovered">上次未完成的录音已自动保存</string>
     <string name="record_trim">裁剪</string>
+    <string name="record_trim_preview">播放所选部分</string>
     <string name="record_trim_title">裁剪录音</string>
     <string name="record_trim_hint">拖动两端选择要保留的部分。原始录音不会改变。</string>
     <string name="record_trim_copy_name">%1$s（已裁剪）</string>

@@ -180,7 +180,11 @@ class AudioEngine(private val context: Context) {
      * @param onStarted dipanggil (main thread) tepat setelah audio mulai diputar — mulai putar ketukan di sini
      * supaya tidak mendahului audio selama prepareAsync().
      */
-    fun startPlayingAudioSync(path: String, onComplete: (() -> Unit)?, onStarted: (() -> Unit)?) {
+    fun startPlayingAudioSync(path: String, onComplete: (() -> Unit)?, onStarted: (() -> Unit)?) =
+        startPlayingAudioSync(path, 0, onComplete, onStarted)
+
+    /** @param startMs mulai dari posisi ini (pratinjau potongan); audio di-seek dulu sebelum diputar. */
+    fun startPlayingAudioSync(path: String, startMs: Int, onComplete: (() -> Unit)?, onStarted: (() -> Unit)?) {
         stopPlayingAudio()
         val prepareStartTime = System.currentTimeMillis()
         syncHandler.post {
@@ -192,8 +196,18 @@ class AudioEngine(private val context: Context) {
                         Log.d("AudioEngine", "prepareElapsed=${prepareElapsed}ms")
                         // Sudah di-stop selama prepare → jangan mulai audio / ketukan
                         if (audioPlayer !== mp) return@setOnPreparedListener
-                        mp.start()
-                        onStarted?.invoke()
+                        if (startMs > 0) {
+                            mp.setOnSeekCompleteListener { p ->
+                                p.setOnSeekCompleteListener(null)
+                                if (audioPlayer !== p) return@setOnSeekCompleteListener
+                                p.start()
+                                onStarted?.invoke()
+                            }
+                            mp.seekTo(startMs)
+                        } else {
+                            mp.start()
+                            onStarted?.invoke()
+                        }
                     }
                     setOnCompletionListener { stopPlayingAudio(); onComplete?.invoke() }
                     setOnErrorListener { _, what, extra ->

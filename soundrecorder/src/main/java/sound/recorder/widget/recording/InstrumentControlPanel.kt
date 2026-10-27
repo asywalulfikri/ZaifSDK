@@ -630,64 +630,84 @@ class InstrumentControlPanel @JvmOverloads constructor(
             }
         RecordingListDialogHelper.show(
             context, instrumentType, showPromotButton, exportReward,
-            onOverdub = { base -> startOverdub(base) }
-        ) { entity ->
-            if (entity.eventsJson.isNotEmpty()) {
-                btnStop.visibility = VISIBLE
-                blinkManager.startStopBlink()
+            onOverdub = { base -> startOverdub(base) },
+            // Pratinjau di dialog Potong: putar bagian yang dipilih tanpa menutup dialog
+            onPreview = { preview, audioStartMs, onStarted, onDone -> playRecording(preview, audioStartMs, onStarted, onDone) },
+            onStopPreview = { stopPlayback() }
+        ) { entity -> playRecording(entity) }
+    }
 
-                panelScope.launch {
-                    val events = recorderManager.parseJson(entity.eventsJson)
-                    val music = withContext(Dispatchers.Default) { RecordedMusicJson.parse(entity.musicJson) }
-                    val hasAudio = !entity.audioPath.isNullOrEmpty()
+    /**
+     * Putar rekaman: ketukan + audio mic + lagu, sinkron.
+     * @param audioStartMs audio mic mulai dari posisi ini (pratinjau potongan; ketukan & lagu sudah digeser)
+     * @param onStarted dipanggil saat ketukan benar-benar mulai
+     * @param onDone dipanggil setelah semuanya selesai
+     */
+    private fun playRecording(
+        entity: RecordingEntity,
+        audioStartMs: Long = 0L,
+        onStarted: (() -> Unit)? = null,
+        onDone: (() -> Unit)? = null
+    ) {
+        if (entity.eventsJson.isEmpty()) return
+        btnStop.visibility = VISIBLE
+        blinkManager.startStopBlink()
 
-                    // Selesai setelah ketukan/audio DAN lagu (jika ada) selesai
-                    var remaining = if (music.isEmpty()) 1 else 2
-                    var musicStarted = false
-                    val onFinish: () -> Unit = {
-                        if (--remaining == 0) {
-                            post { blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate() }
-                        }
-                    }
-                    val startMusic = {
-                        if (music.isNotEmpty()) {
-                            musicStarted = true
-                            musicPlayer.start(onFinish)
-                        }
-                    }
+        panelScope.launch {
+            val events = recorderManager.parseJson(entity.eventsJson)
+            val music = withContext(Dispatchers.Default) { RecordedMusicJson.parse(entity.musicJson) }
+            val hasAudio = !entity.audioPath.isNullOrEmpty()
 
-                    val startPlayback = {
-                        if (hasAudio) {
-                            listener?.onMuteControl(!entity.isEarphoneRecording)
-                            val onAudioFinish: () -> Unit = {
-                                // Audio gagal diputar sebelum mulai → lagu tidak pernah jalan, jangan tunggu
-                                if (music.isNotEmpty() && !musicStarted) {
-                                    musicPlayer.stop()
-                                    remaining = 1
-                                }
-                                onFinish()
-                            }
-                            // Ketukan (dan lagu) dimulai saat audio benar-benar mulai, bukan sebelum prepareAsync selesai
-                            audioEngine.startPlayingAudioSync(entity.audioPath!!, onAudioFinish) {
-                                startMusic()
-                                recorderManager.play(events) { post { invalidate() } }
-                            }
-                        } else {
-                            listener?.onMuteControl(false)
-                            startMusic()
-                            recorderManager.play(events) { onFinish() }
-                        }
-                    }
-
-                    if (music.isEmpty()) {
-                        startPlayback()
-                    } else {
-                        // Lagu di daftar musik dijeda agar tidak bertabrakan dengan lagu rekaman
-                        if (MusicPlayerManager.isPlaying) MusicPlayerManager.pause()
-                        // Lagu disiapkan & di-seek dulu, baru semua dimulai bersamaan → sinkron
-                        musicPlayer.prepare(music) { startPlayback() }
+            // Selesai setelah ketukan/audio DAN lagu (jika ada) selesai
+            var remaining = if (music.isEmpty()) 1 else 2
+            var musicStarted = false
+            val onFinish: () -> Unit = {
+                if (--remaining == 0) {
+                    post {
+                        blinkManager.stopStopBlink(); btnStop.visibility = GONE; listener?.onMuteControl(false); invalidate()
+                        onDone?.invoke()
                     }
                 }
+            }
+            val startMusic = {
+                if (music.isNotEmpty()) {
+                    musicStarted = true
+                    musicPlayer.start(onFinish)
+                }
+            }
+
+            val startPlayback = {
+                if (hasAudio) {
+                    listener?.onMuteControl(!entity.isEarphoneRecording)
+                    val onAudioFinish: () -> Unit = {
+                        // Audio gagal diputar sebelum mulai → lagu tidak pernah jalan, jangan tunggu
+                        if (music.isNotEmpty() && !musicStarted) {
+                            musicPlayer.stop()
+                            remaining = 1
+                        }
+                        onFinish()
+                    }
+                    // Ketukan (dan lagu) dimulai saat audio benar-benar mulai, bukan sebelum prepareAsync selesai
+                    audioEngine.startPlayingAudioSync(entity.audioPath!!, audioStartMs.toInt(), onAudioFinish) {
+                        startMusic()
+                        recorderManager.play(events) { post { invalidate() } }
+                        onStarted?.invoke()
+                    }
+                } else {
+                    listener?.onMuteControl(false)
+                    startMusic()
+                    recorderManager.play(events) { onFinish() }
+                    onStarted?.invoke()
+                }
+            }
+
+            if (music.isEmpty()) {
+                startPlayback()
+            } else {
+                // Lagu di daftar musik dijeda agar tidak bertabrakan dengan lagu rekaman
+                if (MusicPlayerManager.isPlaying) MusicPlayerManager.pause()
+                // Lagu disiapkan & di-seek dulu, baru semua dimulai bersamaan → sinkron
+                musicPlayer.prepare(music) { startPlayback() }
             }
         }
     }

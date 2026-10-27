@@ -515,6 +515,7 @@
     <string name="record_autosave_name">Enregistrement auto %1$s</string>
     <string name="record_recovered">Ton dernier enregistrement inachevé a été sauvegardé automatiquement</string>
     <string name="record_trim">Couper</string>
+    <string name="record_trim_preview">Écouter la sélection</string>
     <string name="record_trim_title">Couper l’enregistrement</string>
     <string name="record_trim_hint">Fais glisser les deux extrémités pour choisir la partie à garder. L’enregistrement original ne change pas.</string>
     <string name="record_trim_copy_name">%1$s (coupé)</string>

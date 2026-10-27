@@ -521,6 +521,7 @@
     <string name="record_autosave_name">Simpan otomatis %1$s</string>
     <string name="record_recovered">Rekaman terakhir yang belum tersimpan sudah disimpan otomatis</string>
     <string name="record_trim">Potong</string>
+    <string name="record_trim_preview">Putar bagian ini</string>
     <string name="record_trim_title">Potong Rekaman</string>
     <string name="record_trim_hint">Geser kedua ujung untuk memilih bagian yang disimpan. Rekaman asli tidak berubah.</string>
     <string name="record_trim_copy_name">%1$s (potongan)</string>

@@ -517,6 +517,7 @@
     <string name="record_autosave_name">Automatisch opgeslagen %1$s</string>
     <string name="record_recovered">Je laatste onvoltooide opname is automatisch opgeslagen</string>
     <string name="record_trim">Inkorten</string>
+    <string name="record_trim_preview">Selectie afspelen</string>
     <string name="record_trim_title">Opname inkorten</string>
     <string name="record_trim_hint">Sleep beide uiteinden om het deel te kiezen dat je wilt houden. De originele opname blijft ongewijzigd.</string>
     <string name="record_trim_copy_name">%1$s (ingekort)</string>

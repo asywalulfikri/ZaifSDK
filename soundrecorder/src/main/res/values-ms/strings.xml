@@ -515,6 +515,7 @@
     <string name="record_autosave_name">Simpan automatik %1$s</string>
     <string name="record_recovered">Rakaman terakhir yang belum disimpan telah disimpan secara automatik</string>
     <string name="record_trim">Potong</string>
+    <string name="record_trim_preview">Main bahagian ini</string>
     <string name="record_trim_title">Potong Rakaman</string>
     <string name="record_trim_hint">Seret kedua-dua hujung untuk memilih bahagian yang disimpan. Rakaman asal tidak berubah.</string>
     <string name="record_trim_copy_name">%1$s (dipotong)</string>

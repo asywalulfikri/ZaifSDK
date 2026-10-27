@@ -511,6 +511,7 @@
     <string name="record_autosave_name">स्वतः सहेजा गया %1$s</string>
     <string name="record_recovered">आपकी पिछली अधूरी रिकॉर्डिंग अपने आप सहेज ली गई</string>
     <string name="record_trim">काटें</string>
+    <string name="record_trim_preview">चयनित भाग चलाएँ</string>
     <string name="record_trim_title">रिकॉर्डिंग काटें</string>
     <string name="record_trim_hint">रखने वाला हिस्सा चुनने के लिए दोनों सिरों को खींचें। मूल रिकॉर्डिंग नहीं बदलेगी।</string>
     <string name="record_trim_copy_name">%1$s (कटी हुई)</string>

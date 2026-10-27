@@ -1,5 +1,9 @@
 package sound.recorder.widget.recording
 
+import com.google.gson.Gson
+import android.os.SystemClock
+import android.os.Looper
+import android.os.Handler
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -122,8 +126,17 @@ object RecordingListDialogHelper {
         style: RecordingDialogStyle = RecordingDialogStyle.default,
         /** Rekam lapis (overdub) di atas rekaman ini. null = tombol tidak ditampilkan. */
         onOverdub: ((RecordingEntity) -> Unit)? = null,
+        /**
+         * Pratinjau di dialog Potong: putar `preview` (ketukan & lagu sudah dipotong dan digeser),
+         * audio mic mulai dari `audioStartMs`. Panggil `onStarted` saat mulai, `onDone` saat selesai.
+         * null = tombol putar di dialog Potong tidak ditampilkan.
+         */
+        onPreview: ((preview: RecordingEntity, audioStartMs: Long, onStarted: () -> Unit, onDone: () -> Unit) -> Unit)? = null,
+        /** Hentikan pratinjau (dipanggil saat Stop, geser pegangan, simpan, atau dialog ditutup). */
+        onStopPreview: (() -> Unit)? = null,
         onPlay: (RecordingEntity) -> Unit
     ) {
+        val trimPreview = if (onPreview != null) TrimPreview(onPreview, onStopPreview ?: {}) else null
         zaifSDKConfig = ZaifSDKBuilder.load(context)
         val c = RecordingDialogPalette(context, style)
         val dialog = AlertDialog.Builder(context).create()
@@ -184,6 +197,7 @@ object RecordingListDialogHelper {
                 row = buildRow(
                     context, c, rec, showPromot, onRequestExportReward,
                     onPlay = { current -> dialog.dismiss(); onPlay(current) },
+                    trimPreview = trimPreview,
                     onDeleted = {
                         listLayout.removeView(row)
                         items.remove(rec)
@@ -221,7 +235,8 @@ object RecordingListDialogHelper {
         onPlay: (RecordingEntity) -> Unit,
         onDeleted: () -> Unit,
         onAdded: (RecordingEntity) -> Unit,
-        onOverdub: ((RecordingEntity) -> Unit)?
+        onOverdub: ((RecordingEntity) -> Unit)?,
+        trimPreview: TrimPreview? = null
     ): View {
         // Disalin ulang saat diubah nama, agar export/putar memakai nama terbaru
         var rec = original
@@ -298,7 +313,7 @@ object RecordingListDialogHelper {
             RecordingExportDialog.show(context, rec, onRequestReward = onRequestExportReward)
         })
         addAction(actionButton(context, c, R.drawable.zaif_rec_ic_trim, context.getString(R.string.record_trim), c.text) {
-            showTrimDialog(context, c, rec, onAdded)
+            showTrimDialog(context, c, rec, trimPreview, onAdded)
         })
         if (onOverdub != null) {
             addAction(actionButton(context, c, R.drawable.zaif_rec_ic_layers, context.getString(R.string.record_overdub), c.text) {
@@ -454,10 +469,17 @@ object RecordingListDialogHelper {
     // ─── UBAH NAMA ───────────────────────────────────────────────────────────
 
     /** Pilih bagian rekaman yang disimpan → disimpan sebagai rekaman baru (asli tidak berubah). */
+    /** Callback pratinjau potongan dari panel (lihat parameter `onPreview` di [show]). */
+    private class TrimPreview(
+        val play: (preview: RecordingEntity, audioStartMs: Long, onStarted: () -> Unit, onDone: () -> Unit) -> Unit,
+        val stop: () -> Unit
+    )
+
     private fun showTrimDialog(
         context: Context,
         c: RecordingDialogPalette,
         rec: RecordingEntity,
+        trimPreview: TrimPreview?,
         onSaved: (RecordingEntity) -> Unit
     ) {
         val taps = RecordingTrim.parseTaps(rec.eventsJson)
@@ -488,17 +510,91 @@ object RecordingListDialogHelper {
             accent = c.accent,
             trackColor = c.surfaceAlt,
             markerColor = c.textSecondary
-        ).apply { onRangeChanged = { s, e -> renderRange(s, e) } }
+        )
         renderRange(0L, duration)
         root.addView(rangeTv, LinearLayout.LayoutParams(-1, -2))
         root.addView(vSpace(context, SdpR.dimen._6sdp))
         root.addView(range, LinearLayout.LayoutParams(-1, -2))
+
+        // ── Pratinjau: putar hanya bagian yang dipilih, garis posisi bergerak di penggeser ──
+        val previewBtn = trimPreview?.let { textButton(context, c, "▶ " + context.getString(R.string.record_trim_preview)) }
+        val ticker = Handler(Looper.getMainLooper())
+        var previewing = false
+        var previewToken = 0
+        var previewFrom = 0L
+        var previewTo = 0L
+        var startedAt = 0L
+
+        fun setPreviewUi(playing: Boolean) {
+            previewBtn?.text = if (playing) "■ " + context.getString(R.string.stop)
+            else "▶ " + context.getString(R.string.record_trim_preview)
+            if (!playing) range.playheadMs = -1L
+        }
+        fun stopPreview() {
+            if (!previewing) return
+            previewing = false
+            previewToken++
+            ticker.removeCallbacksAndMessages(null)
+            trimPreview?.stop?.invoke()
+            setPreviewUi(false)
+        }
+        val tick = object : Runnable {
+            override fun run() {
+                if (!previewing || startedAt == 0L) return
+                val pos = previewFrom + (SystemClock.elapsedRealtime() - startedAt)
+                // Sampai titik akhir potongan → berhenti (audio mic tidak berhenti sendiri)
+                if (pos >= previewTo) { stopPreview(); return }
+                range.playheadMs = pos
+                ticker.postDelayed(this, 40L)
+            }
+        }
+        fun startPreview() {
+            val tp = trimPreview ?: return
+            previewFrom = range.startMs
+            previewTo = range.endMs
+            val token = ++previewToken
+            val preview = rec.copy(
+                eventsJson = Gson().toJson(RecordingTrim.trimTaps(taps, previewFrom, previewTo, previewFrom)),
+                musicJson = RecordingTrim.trimMusic(music, previewFrom, previewTo, previewFrom)
+                    .takeIf { it.isNotEmpty() }?.let { Gson().toJson(it) },
+                durationMs = previewTo - previewFrom
+            )
+            previewing = true
+            startedAt = 0L
+            range.playheadMs = previewFrom
+            setPreviewUi(true)
+            tp.play(preview, previewFrom, {
+                ticker.post {
+                    if (token != previewToken) return@post
+                    startedAt = SystemClock.elapsedRealtime()
+                    ticker.post(tick)
+                }
+            }, {
+                // Ketukan & lagu selesai sebelum titik akhir (tanpa audio mic) → kembalikan tombol
+                ticker.post { if (token == previewToken) { previewing = false; ticker.removeCallbacksAndMessages(null); setPreviewUi(false) } }
+            })
+        }
+        previewBtn?.setOnClickListener { if (previewing) stopPreview() else startPreview() }
+        range.onRangeChanged = { s, e ->
+            renderRange(s, e)
+            stopPreview() // pilihan berubah → pratinjau lama tidak berlaku
+        }
+        if (previewBtn != null) {
+            root.addView(vSpace(context, SdpR.dimen._4sdp))
+            root.addView(LinearLayout(context).apply {
+                gravity = Gravity.CENTER
+                addView(previewBtn)
+            }, LinearLayout.LayoutParams(-1, -2))
+        }
+        dialog.setOnDismissListener { stopPreview() }
 
         val cancelBtn = textButton(context, c, context.getString(R.string.cancel), c.textSecondary)
         val saveBtn = textButton(context, c, context.getString(R.string.save))
         cancelBtn.setOnClickListener { dialog.dismiss() }
         saveBtn.isEnabled = duration > RecordingTrim.MIN_LENGTH_MS
         saveBtn.setOnClickListener {
+            stopPreview()
+            previewBtn?.isEnabled = false
             saveBtn.isEnabled = false
             cancelBtn.isEnabled = false
             dialog.setCancelable(false)

@@ -517,6 +517,7 @@
     <string name="record_autosave_name">Automatisch gespeichert %1$s</string>
     <string name="record_recovered">Deine letzte unvollständige Aufnahme wurde automatisch gespeichert</string>
     <string name="record_trim">Kürzen</string>
+    <string name="record_trim_preview">Auswahl abspielen</string>
     <string name="record_trim_title">Aufnahme kürzen</string>
     <string name="record_trim_hint">Ziehe beide Enden, um den Teil zu wählen, der bleiben soll. Die Originalaufnahme bleibt unverändert.</string>
     <string name="record_trim_copy_name">%1$s (gekürzt)</string>
