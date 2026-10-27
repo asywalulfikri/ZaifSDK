@@ -50,6 +50,7 @@ import sound.recorder.widget.recording.RecordingDialogPalette
 import sound.recorder.widget.recording.RecordingDialogStyle
 import sound.recorder.widget.recording.RecordingDialogViews
 import sound.recorder.widget.recording.RecordingDialogViews.SheetItem
+import sound.recorder.widget.recording.RecordingDialogViews.sdp
 import sound.recorder.widget.tutorial.InstrumentTutorialDialog
 import sound.recorder.widget.util.Toastic
 import java.text.SimpleDateFormat
@@ -284,11 +285,10 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         onlineAdapter = FirebaseNotesAdapter(
             notesList = onlineFullList,
             isDebug = isAppDebuggable(requireContext()),
+            onViewClick = { note -> showViewNoteDialog(note) },
             onStatusToggleClick = { note -> toggleOnlineNoteStatus(note) },
             onDeleteClick = { note -> deleteOnlineNote(note) },
-            onItemClick = { note ->
-                showOnlineActionsDialog(note)
-            }
+            onItemClick = { note -> showViewNoteDialog(note) }
         )
 
         localAdapter?.palette = palette
@@ -610,37 +610,106 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
 
     // ─── Online Notes Logic ───────────────────────────────────────────────────
 
-    private fun showOnlineActionsDialog(note: Note) {
+    private fun showViewNoteDialog(note: Note) {
         val activity = activity ?: return
-        
-        // Pre-fetch strings
-        val strUseNote = getString(R.string.use_note)
-        val strCopyNote = getString(R.string.copy_note)
-        val strChoose = getString(R.string.choose)
-        
-        // Opsi ke-3 lama ("Batal", tidak melakukan apa-apa) kini jadi tombol Tutup di bawah dialog
+        val context = context ?: return
+        if (_binding == null || !isAdded) return
 
-        fun onOptionSelected(which: Int) {
-                if (!isAdded) return
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(context).create()
+        val c = palette
 
-                when (which) {
-                    0 -> {
-                        MyNoteListener.postNote(note.note)
-                        dismissAllowingStateLoss()
-                    }
-                    1 -> {
-                        val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val clip = ClipData.newPlainText("Catatan", note.note)
-                        clipboard.setPrimaryClip(clip)
-                        Toastic.toastic(activity, "Berhasil disalin ke clipboard", Toastic.LENGTH_SHORT, Toastic.SUCCESS, null, true).show()
-                    }
-                }
+        val root = RecordingDialogViews.dialogRoot(context, c)
+
+        // Title
+        root.addView(RecordingDialogViews.title(context, c, "👁️ Preview Catatan"))
+        root.addView(RecordingDialogViews.vSpace(context, com.intuit.sdp.R.dimen._6sdp))
+
+        // Note Info (Title & Status)
+        val tvTitle = TextView(context).apply {
+            text = "Judul: ${note.title ?: "-"}"
+            setTextColor(c.text)
+            textSize = 13f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+        }
+        root.addView(tvTitle)
+
+        val isPublished = note.status == "published"
+        val tvStatus = TextView(context).apply {
+            text = "Status: ${note.status ?: "UNKNOWN"}"
+            setTextColor(if (isPublished) android.graphics.Color.parseColor("#4CAF50") else android.graphics.Color.parseColor("#FFB347"))
+            textSize = 11f
+            typeface = android.graphics.Typeface.DEFAULT_BOLD
+            setPadding(0, context.sdp(com.intuit.sdp.R.dimen._2sdp), 0, context.sdp(com.intuit.sdp.R.dimen._6sdp))
+        }
+        root.addView(tvStatus)
+
+        // Scrollable Note Content
+        val scrollView = android.widget.ScrollView(context).apply {
+            layoutParams = LinearLayout.LayoutParams(-1, context.sdp(com.intuit.sdp.R.dimen._120sdp))
+            background = RecordingDialogViews.rounded(context, c.surfaceAlt, com.intuit.sdp.R.dimen._8sdp, c.outline)
+            val p = context.sdp(com.intuit.sdp.R.dimen._8sdp)
+            setPadding(p, p, p, p)
         }
 
-        RecordingDialogViews.actionSheet(activity, palette, strChoose, listOf(
-            SheetItem(R.drawable.zaif_rec_ic_play, strUseNote) { onOptionSelected(0) },
-            SheetItem(R.drawable.zaif_rec_ic_copy, strCopyNote) { onOptionSelected(1) }
-        ))
+        val tvContent = TextView(context).apply {
+            text = note.note ?: ""
+            setTextColor(c.text)
+            textSize = 12f
+            setLineSpacing(0f, 1.2f)
+        }
+        scrollView.addView(tvContent)
+        root.addView(scrollView)
+        root.addView(RecordingDialogViews.vSpace(context, com.intuit.sdp.R.dimen._8sdp))
+
+        // Action Buttons
+        val btnUse = RecordingDialogViews.textButton(context, c, "Gunakan", c.accent).apply {
+            setOnClickListener {
+                dialog.dismiss()
+                MyNoteListener.postNote(note.note)
+                dismissAllowingStateLoss()
+            }
+        }
+
+        val btnCopy = RecordingDialogViews.textButton(context, c, "Salin", c.textSecondary).apply {
+            setOnClickListener {
+                dialog.dismiss()
+                val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("Catatan", note.note)
+                clipboard.setPrimaryClip(clip)
+                Toastic.toastic(activity, "Berhasil disalin!", Toastic.LENGTH_SHORT, Toastic.SUCCESS, null, true).show()
+            }
+        }
+
+        val isDebug = isAppDebuggable(context)
+        val btnStatus = if (isDebug) {
+            RecordingDialogViews.textButton(
+                context, c,
+                if (isPublished) "Set DRAFT" else "Set APPROVE",
+                if (isPublished) android.graphics.Color.parseColor("#FFB347") else android.graphics.Color.parseColor("#4CAF50")
+            ).apply {
+                setOnClickListener {
+                    dialog.dismiss()
+                    toggleOnlineNoteStatus(note)
+                }
+            }
+        } else null
+
+        val btnClose = RecordingDialogViews.textButton(context, c, "Tutup", c.textSecondary).apply {
+            setOnClickListener { dialog.dismiss() }
+        }
+
+        val footerButtons = mutableListOf<View>()
+        btnStatus?.let { footerButtons.add(it) }
+        footerButtons.add(btnCopy)
+        footerButtons.add(btnUse)
+        footerButtons.add(btnClose)
+
+        val footer = RecordingDialogViews.footer(context, *footerButtons.toTypedArray())
+        root.addView(footer, LinearLayout.LayoutParams(-1, -2))
+
+        dialog.setView(root)
+        dialog.show()
+        RecordingDialogViews.applyWindow(dialog, context, 0.90, 0.60)
     }
 
     private fun loadOnlineNotes() {
