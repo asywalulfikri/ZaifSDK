@@ -33,6 +33,14 @@ internal class TrimRangeView(
         private set
     var onRangeChanged: ((startMs: Long, endMs: Long) -> Unit)? = null
 
+    /** Posisi pratinjau yang sedang diputar (garis putih). -1 = tidak ditampilkan. */
+    var playheadMs = -1L
+        set(value) {
+            if (field == value) return
+            field = value
+            invalidate()
+        }
+
     private val density = resources.displayMetrics.density
     private val thumbRadius = 11f * density
     private val trackHeight = 28f * density
@@ -92,6 +100,14 @@ internal class TrimRangeView(
         paint.strokeWidth = 2f * density
         canvas.drawLine(sx, top, ex, top, paint)
         canvas.drawLine(sx, bottom, ex, bottom, paint)
+
+        // Posisi pratinjau
+        if (playheadMs in 0..durationMs) {
+            val px = xOf(playheadMs)
+            paint.color = 0xFFFFFFFF.toInt()
+            paint.strokeWidth = 2.5f * density
+            canvas.drawLine(px, top - 4 * density, px, bottom + 4 * density, paint)
+        }
 
         // Pegangan
         listOf(sx, ex).forEach { x ->

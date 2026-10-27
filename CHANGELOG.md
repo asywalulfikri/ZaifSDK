@@ -25,6 +25,7 @@
   - Hasilnya disimpan sebagai **rekaman baru** "<nama> (potongan)". Rekaman asli tidak berubah.
   - Audio mic dipotong dengan remux (tanpa encode ulang): cepat, kualitas tetap, dan file 3GP lama ikut menjadi `.m4a`.
   - Ketukan dan lagu ikut dipangkas serta digeser.
+  - **Tombol "▶ Putar bagian ini"** di dialog Potong: hanya bagian yang dipilih yang diputar (ketukan, audio mic, dan lagu), dengan garis posisi yang bergerak di penggeser. Pratinjau berhenti sendiri di titik akhir, dan juga berhenti saat pegangan digeser, Simpan ditekan, atau dialog ditutup. Panel memasangnya lewat parameter opsional baru `onPreview` / `onStopPreview` di `RecordingListDialogHelper.show()`. Kalau `null`, tombol tidak ditampilkan, jadi pemanggil lama tidak berubah.
 - **Rekam lapis (overdub):** di daftar rekaman ada tombol *Rekam lapis*. Rekaman dasar diputar (ketukan, audio mic, dan lagu), lalu ketukan baru direkam di atasnya.
   - Hasilnya disimpan sebagai **rekaman baru** "<nama> + lapis". Rekaman dasar tidak berubah.
   - Audio mic rekaman dasar **disalin** ke file sendiri, sehingga menghapus salah satu rekaman tidak merusak yang lain. BATAL tidak pernah menghapus audio rekaman dasar.

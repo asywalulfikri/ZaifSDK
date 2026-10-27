@@ -515,6 +515,7 @@
     <string name="record_autosave_name">Awtomatikong na-save %1$s</string>
     <string name="record_recovered">Awtomatikong na-save ang huli mong recording na hindi natapos</string>
     <string name="record_trim">I-trim</string>
+    <string name="record_trim_preview">I-play ang napili</string>
     <string name="record_trim_title">I-trim ang Recording</string>
     <string name="record_trim_hint">I-drag ang magkabilang dulo para piliin ang bahaging itatago. Hindi magbabago ang orihinal na recording.</string>
     <string name="record_trim_copy_name">%1$s (na-trim)</string>

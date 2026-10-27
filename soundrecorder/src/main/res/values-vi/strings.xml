@@ -513,6 +513,7 @@
     <string name="record_autosave_name">Tự động lưu %1$s</string>
     <string name="record_recovered">Bản ghi chưa hoàn tất gần nhất đã được tự động lưu</string>
     <string name="record_trim">Cắt</string>
+    <string name="record_trim_preview">Phát đoạn đã chọn</string>
     <string name="record_trim_title">Cắt bản ghi</string>
     <string name="record_trim_hint">Kéo hai đầu để chọn phần muốn giữ. Bản ghi gốc không thay đổi.</string>
     <string name="record_trim_copy_name">%1$s (đã cắt)</string>

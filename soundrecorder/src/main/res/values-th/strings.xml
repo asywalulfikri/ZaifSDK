@@ -513,6 +513,7 @@
     <string name="record_autosave_name">บันทึกอัตโนมัติ %1$s</string>
     <string name="record_recovered">บันทึกเสียงล่าสุดที่ยังไม่ได้บันทึกถูกบันทึกอัตโนมัติแล้ว</string>
     <string name="record_trim">ตัด</string>
+    <string name="record_trim_preview">เล่นส่วนที่เลือก</string>
     <string name="record_trim_title">ตัดเสียงบันทึก</string>
     <string name="record_trim_hint">ลากปลายทั้งสองด้านเพื่อเลือกส่วนที่ต้องการเก็บ เสียงบันทึกต้นฉบับจะไม่เปลี่ยนแปลง</string>
     <string name="record_trim_copy_name">%1$s (ตัดแล้ว)</string>

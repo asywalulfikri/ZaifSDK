@@ -511,6 +511,7 @@
     <string name="record_autosave_name">Автосохранение %1$s</string>
     <string name="record_recovered">Последняя незавершённая запись сохранена автоматически</string>
     <string name="record_trim">Обрезать</string>
+    <string name="record_trim_preview">Воспроизвести фрагмент</string>
     <string name="record_trim_title">Обрезать запись</string>
     <string name="record_trim_hint">Перетащите оба края, чтобы выбрать часть, которую нужно оставить. Исходная запись не изменится.</string>
     <string name="record_trim_copy_name">%1$s (обрезано)</string>

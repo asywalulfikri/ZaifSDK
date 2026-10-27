@@ -508,6 +508,7 @@
     <string name="record_autosave_name">自動保存 %1$s</string>
     <string name="record_recovered">前回の未保存の録音を自動的に保存しました</string>
     <string name="record_trim">トリム</string>
+    <string name="record_trim_preview">選択範囲を再生</string>
     <string name="record_trim_title">録音をトリム</string>
     <string name="record_trim_hint">両端をドラッグして残す部分を選びます。元の録音はそのまま残ります。</string>
     <string name="record_trim_copy_name">%1$s（トリム）</string>
