@@ -35,6 +35,7 @@ public class MusicAnimationView extends View {
     private enum FallNotesState {START, PAUSE, RUNNING, STOP}
 
     private FallNotesState mFallNotesState;
+    private boolean mPausedByWindow;
 
 
     public MusicAnimationView(Context context) {
@@ -90,6 +91,21 @@ public class MusicAnimationView extends View {
     protected void onDetachedFromWindow() {
         stopNotesFall();
         super.onDetachedFromWindow();
+    }
+
+    // Jangan postInvalidate saat window tidak terlihat (app di background) — beban RenderThread
+    @Override
+    protected void onWindowVisibilityChanged(int visibility) {
+        super.onWindowVisibilityChanged(visibility);
+        if (visibility != VISIBLE) {
+            if (mFallNotesState == FallNotesState.RUNNING) {
+                mFallNotesState = FallNotesState.PAUSE;
+                mPausedByWindow = true;
+            }
+        } else if (mPausedByWindow) {
+            mPausedByWindow = false;
+            resumeNotesFall();
+        }
     }
     private void initAttrs(Context context, AttributeSet attrs, int defStyleAttr) {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.VusikAttr);
