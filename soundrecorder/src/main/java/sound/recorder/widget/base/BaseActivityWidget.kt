@@ -761,7 +761,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         // ✅ Lazy init AdView
         if (adView2 == null) {
             try {
-                adView2 = AdView(applicationContext).apply {
+                adView2 = AdView(this).apply {
                     adUnitId = admobSDKBuilder?.bannerId.orEmpty()
                     descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
                     setAdSize(getAdSize2())
@@ -788,7 +788,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         // ✅ Lazy init AdView
         if (adView2 == null) {
             try {
-                adView2 = AdView(applicationContext).apply {
+                adView2 = AdView(this).apply {
                     adUnitId = admobSDKBuilder?.bannerId.orEmpty()
                     descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
                     setAdSize(getAdSize2())
