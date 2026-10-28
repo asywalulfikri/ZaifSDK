@@ -176,12 +176,15 @@ class BillingManager(
 
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
 
+                // Lewat handlePurchase supaya pembelian yang belum di-acknowledge
+                // (mis. pembayaran pending yang selesai saat app tertutup) ikut di-acknowledge.
+                // Tanpa acknowledge, Google me-refund otomatis setelah 3 hari.
                 purchases.forEach {
                     if (it.products.contains(PRODUCT_ID) &&
                         it.purchaseState == Purchase.PurchaseState.PURCHASED
                     ) {
                         Log.d(TAG, "Purchase history found")
-                        onPurchaseSuccess?.invoke() // 🔥 FIX: safe call
+                        handlePurchase(it)
                     }
                 }
             }
