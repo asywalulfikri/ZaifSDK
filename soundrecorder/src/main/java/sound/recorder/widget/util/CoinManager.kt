@@ -30,6 +30,16 @@ object CoinManager {
         return true
     }
 
+    /** Kurangi saldo sebanyak [amount]; false bila koin tidak cukup. */
+    @Synchronized
+    fun spendCoins(context: Context, amount: Int): Boolean {
+        if (amount <= 0) return false
+        val current = getBalance(context)
+        if (current < amount) return false
+        prefs(context).edit().putInt(KEY_BALANCE, current - amount).apply()
+        return true
+    }
+
     fun canClaimDaily(context: Context): Boolean {
         val last = prefs(context).getLong(KEY_LAST_DAILY, 0L)
         return System.currentTimeMillis() - last >= DAILY_INTERVAL_MS

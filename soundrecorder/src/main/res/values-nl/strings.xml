@@ -530,4 +530,5 @@
     <string name="music_source_asset">INGEBOUWD</string>
     <string name="music_source_storage">OPSLAG</string>
     <string name="export_first_free">1 gratis export vandaag, zonder advertentie</string>
+    <string name="export_pay_coins">%1$d munten gebruiken</string>
 </resources>

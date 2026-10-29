@@ -19,6 +19,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.Keep
 import androidx.appcompat.app.AlertDialog
@@ -39,6 +40,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import sound.recorder.widget.R
+import sound.recorder.widget.builder.ZaifSDKBuilder
+import sound.recorder.widget.util.CoinManager
 import sound.recorder.widget.recording.RecordingDialogPalette
 import sound.recorder.widget.recording.RecordingDialogStyle
 import sound.recorder.widget.recording.RecordingDialogViews.applyWindow
@@ -336,14 +339,22 @@ object RecordingExportDialog {
                         perform(action)
                         return@boxButton
                     }
-                    showRewardConfirm(context, c) {
-                        onRequestReward?.invoke {
-                            // Dipanggil setelah iklan selesai ditonton
-                            if (!dialog.isShowing) return@invoke
+                    showRewardConfirm(
+                        context, c,
+                        onWatch = {
+                            onRequestReward?.invoke {
+                                // Dipanggil setelah iklan selesai ditonton
+                                if (!dialog.isShowing) return@invoke
+                                rewardUnlocked = true
+                                perform(action)
+                            }
+                        },
+                        onPaidWithCoins = {
+                            // Koin sudah dipotong: buka kunci seperti setelah nonton iklan
                             rewardUnlocked = true
                             perform(action)
                         }
-                    }
+                    )
                 },
                 LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._36sdp), 1f)
             )
@@ -363,7 +374,12 @@ object RecordingExportDialog {
     }
 
     /** Konfirmasi sebelum menonton rewarded ad, dengan gaya yang sama seperti dialog export. */
-    private fun showRewardConfirm(context: Context, c: RecordingDialogPalette, onWatch: () -> Unit) {
+    private fun showRewardConfirm(
+        context: Context,
+        c: RecordingDialogPalette,
+        onWatch: () -> Unit,
+        onPaidWithCoins: () -> Unit
+    ) {
         val dialog = AlertDialog.Builder(context).create()
         val pad = context.sdp(SdpR.dimen._16sdp)
         val root = LinearLayout(context).apply {
@@ -397,6 +413,32 @@ object RecordingExportDialog {
             setLineSpacing(0f, 1.2f)
         })
         root.addView(vSpace(context, SdpR.dimen._8sdp))
+
+        // Bayar dengan koin sebagai ganti iklan (hanya bila host mengaktifkan fitur koin)
+        if (ZaifSDKBuilder.load(context)?.isCoin == true) {
+            val cost = RecordingExporter.exportCoinCost
+            val balance = CoinManager.getBalance(context)
+            val enough = balance >= cost
+            root.addView(LinearLayout(context).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                addView(TextView(context).apply {
+                    text = "🪙 " + context.getString(R.string.your_coin) + ": $balance"
+                    setTextColor(c.textSecondary)
+                    textSize = 12f
+                }, LinearLayout.LayoutParams(0, -2, 1f))
+                addView(textButton(context, c, context.getString(R.string.export_pay_coins, cost)).apply {
+                    alpha = if (enough) 1f else 0.4f
+                    setOnClickListener {
+                        if (CoinManager.spendCoins(context, cost)) {
+                            dialog.dismiss()
+                            onPaidWithCoins()
+                        } else {
+                            Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                })
+            }, LinearLayout.LayoutParams(-1, -2))
+        }
 
         val cancelBtn = textButton(context, c, context.getString(R.string.cancel)).apply {
             setTextColor(c.textSecondary)

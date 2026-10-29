@@ -521,4 +521,5 @@
     <string name="music_source_asset">内蔵</string>
     <string name="music_source_storage">ストレージ</string>
     <string name="export_first_free">今日は1回無料でエクスポート（広告なし）</string>
+    <string name="export_pay_coins">%1$dコインを使う</string>
 </resources>

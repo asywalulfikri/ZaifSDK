@@ -571,4 +571,5 @@
     <string name="music_source_asset">مدمجة</string>
     <string name="music_source_storage">التخزين</string>
     <string name="export_first_free">تصدير مجاني واحد اليوم، بدون إعلان</string>
+    <string name="export_pay_coins">استخدم %1$d عملة</string>
 </resources>

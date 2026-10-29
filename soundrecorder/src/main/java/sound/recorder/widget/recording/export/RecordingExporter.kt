@@ -64,6 +64,13 @@ object RecordingExporter {
     @JvmStatic
     var freeExportsPerDay = 1
 
+    /**
+     * Harga satu export dalam koin ([sound.recorder.widget.util.CoinManager]) sebagai ganti rewarded ad.
+     * Pilihan bayar koin hanya tampil jika `ZaifSDKBuilder.isCoin(true)`.
+     */
+    @JvmStatic
+    var exportCoinCost = 10
+
     private const val PREFS_EXPORT = "zaif_recording_export"
     private const val KEY_FREE_DAY = "free_export_day"
     private const val KEY_FREE_USED = "free_exports_used"
