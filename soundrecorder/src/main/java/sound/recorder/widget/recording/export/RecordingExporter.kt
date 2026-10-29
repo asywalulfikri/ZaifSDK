@@ -83,11 +83,16 @@ object RecordingExporter {
         return if (prefs.getInt(KEY_FREE_DAY, 0) == today()) prefs.getInt(KEY_FREE_USED, 0) else 0
     }
 
-    /** true jika hari ini masih ada jatah export gratis. */
-    internal fun hasFreeExport(context: Context): Boolean = usedToday(context) < freeExportsPerDay
+    /**
+     * true jika hari ini masih ada jatah export gratis.
+     * Bisa dipakai host app untuk fitur export sendiri (jatahnya sama dengan export rekaman SDK).
+     */
+    @JvmStatic
+    fun hasFreeExport(context: Context): Boolean = usedToday(context) < freeExportsPerDay
 
     /** Pakai satu jatah export gratis hari ini (dipanggil setelah export berhasil dibuat). */
-    internal fun consumeFreeExport(context: Context) {
+    @JvmStatic
+    fun consumeFreeExport(context: Context) {
         val used = usedToday(context) + 1
         exportPrefs(context).edit().putInt(KEY_FREE_DAY, today()).putInt(KEY_FREE_USED, used).apply()
     }
