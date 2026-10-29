@@ -531,4 +531,32 @@
     <string name="music_source_storage">OPSLAG</string>
     <string name="export_first_free">1 gratis export vandaag, zonder advertentie</string>
     <string name="export_pay_coins">%1$d munten gebruiken</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">Dagelijkse beloningen</string>
+    <string name="daily_rewards_button">Missies</string>
+    <string name="daily_rewards_streak">Inchecktreeks</string>
+    <string name="daily_rewards_day">Dag %1$d</string>
+    <string name="daily_rewards_check_in">Inchecken +%1$d</string>
+    <string name="daily_rewards_checked_in">Ingecheckt. Kom morgen terug!</string>
+    <string name="daily_rewards_missions">Missies van vandaag</string>
+    <string name="daily_rewards_claim">Ophalen +%1$d</string>
+    <string name="daily_rewards_done">Klaar</string>
+    <string name="daily_rewards_watch_ad">Video kijken +%1$d munten (%2$d over)</string>
+    <string name="daily_rewards_coins_earned">+%1$d munten 🪙</string>
+    <string name="daily_rewards_premium_title">Premium Pass</string>
+    <string name="daily_rewards_premium_desc">%1$d dagen zonder advertenties</string>
+    <string name="daily_rewards_premium_intro">Introductieprijs!</string>
+    <string name="daily_rewards_premium_active">Actief · nog %1$s</string>
+    <string name="daily_rewards_premium_redeem">Inwisselen · %1$d munten</string>
+    <string name="daily_rewards_premium_extend">+%1$d dagen · %2$d munten</string>
+    <string name="daily_rewards_premium_need">Nog %1$d munten nodig</string>
+    <string name="daily_rewards_premium_confirm">%1$d munten gebruiken?</string>
+    <string name="daily_rewards_yes">Ja</string>
+    <string name="daily_rewards_premium_redeemed">%1$d dagen zonder advertenties! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dd %2$du</string>
+    <string name="daily_rewards_left_hm">%1$du %2$dm</string>
+    <string name="daily_rewards_premium_badge">PREMIUM · nog %1$s</string>
+    <string name="daily_rewards_export_title">Exporteren met munten</string>
+    <string name="daily_rewards_export_desc">Exporteer zonder advertenties voor %1$d munten</string>
 </resources>

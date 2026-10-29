@@ -526,4 +526,32 @@
     <string name="music_source_storage">存储</string>
     <string name="export_first_free">今天可免费导出 1 次，无广告</string>
     <string name="export_pay_coins">使用 %1$d 金币</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">每日奖励</string>
+    <string name="daily_rewards_button">任务</string>
+    <string name="daily_rewards_streak">连续签到</string>
+    <string name="daily_rewards_day">第%1$d天</string>
+    <string name="daily_rewards_check_in">签到 +%1$d</string>
+    <string name="daily_rewards_checked_in">已签到，明天再来！</string>
+    <string name="daily_rewards_missions">今日任务</string>
+    <string name="daily_rewards_claim">领取 +%1$d</string>
+    <string name="daily_rewards_done">已完成</string>
+    <string name="daily_rewards_watch_ad">看视频 +%1$d 金币（剩余 %2$d 次）</string>
+    <string name="daily_rewards_coins_earned">+%1$d 金币 🪙</string>
+    <string name="daily_rewards_premium_title">高级通行证</string>
+    <string name="daily_rewards_premium_desc">%1$d 天无广告</string>
+    <string name="daily_rewards_premium_intro">首次特价！</string>
+    <string name="daily_rewards_premium_active">生效中 · 剩余 %1$s</string>
+    <string name="daily_rewards_premium_redeem">兑换 · %1$d 金币</string>
+    <string name="daily_rewards_premium_extend">+%1$d 天 · %2$d 金币</string>
+    <string name="daily_rewards_premium_need">还需 %1$d 金币</string>
+    <string name="daily_rewards_premium_confirm">使用 %1$d 金币？</string>
+    <string name="daily_rewards_yes">是</string>
+    <string name="daily_rewards_premium_redeemed">%1$d 天无广告！🎉</string>
+    <string name="daily_rewards_left_dh">%1$d天%2$d小时</string>
+    <string name="daily_rewards_left_hm">%1$d小时%2$d分</string>
+    <string name="daily_rewards_premium_badge">高级 · 剩余 %1$s</string>
+    <string name="daily_rewards_export_title">用金币导出</string>
+    <string name="daily_rewards_export_desc">用 %1$d 金币无广告导出</string>
 </resources>

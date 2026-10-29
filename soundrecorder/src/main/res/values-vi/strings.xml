@@ -527,4 +527,32 @@
     <string name="music_source_storage">BỘ NHỚ</string>
     <string name="export_first_free">Hôm nay được xuất miễn phí 1 lần, không quảng cáo</string>
     <string name="export_pay_coins">Dùng %1$d xu</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">Phần thưởng hằng ngày</string>
+    <string name="daily_rewards_button">Nhiệm vụ</string>
+    <string name="daily_rewards_streak">Điểm danh liên tiếp</string>
+    <string name="daily_rewards_day">Ngày %1$d</string>
+    <string name="daily_rewards_check_in">Điểm danh +%1$d</string>
+    <string name="daily_rewards_checked_in">Đã điểm danh. Hẹn gặp lại ngày mai!</string>
+    <string name="daily_rewards_missions">Nhiệm vụ hôm nay</string>
+    <string name="daily_rewards_claim">Nhận +%1$d</string>
+    <string name="daily_rewards_done">Xong</string>
+    <string name="daily_rewards_watch_ad">Xem video +%1$d xu (còn %2$d lượt)</string>
+    <string name="daily_rewards_coins_earned">+%1$d xu 🪙</string>
+    <string name="daily_rewards_premium_title">Thẻ Premium</string>
+    <string name="daily_rewards_premium_desc">Không quảng cáo trong %1$d ngày</string>
+    <string name="daily_rewards_premium_intro">Giá ưu đãi lần đầu!</string>
+    <string name="daily_rewards_premium_active">Đang bật · còn %1$s</string>
+    <string name="daily_rewards_premium_redeem">Đổi · %1$d xu</string>
+    <string name="daily_rewards_premium_extend">+%1$d ngày · %2$d xu</string>
+    <string name="daily_rewards_premium_need">Cần thêm %1$d xu</string>
+    <string name="daily_rewards_premium_confirm">Dùng %1$d xu?</string>
+    <string name="daily_rewards_yes">Có</string>
+    <string name="daily_rewards_premium_redeemed">Không quảng cáo trong %1$d ngày! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dng %2$dg</string>
+    <string name="daily_rewards_left_hm">%1$dg %2$dph</string>
+    <string name="daily_rewards_premium_badge">PREMIUM · còn %1$s</string>
+    <string name="daily_rewards_export_title">Xuất bằng xu</string>
+    <string name="daily_rewards_export_desc">Xuất không quảng cáo với %1$d xu</string>
 </resources>

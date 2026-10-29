@@ -522,4 +522,32 @@
     <string name="music_source_storage">ストレージ</string>
     <string name="export_first_free">今日は1回無料でエクスポート（広告なし）</string>
     <string name="export_pay_coins">%1$dコインを使う</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">デイリー報酬</string>
+    <string name="daily_rewards_button">ミッション</string>
+    <string name="daily_rewards_streak">連続チェックイン</string>
+    <string name="daily_rewards_day">%1$d日目</string>
+    <string name="daily_rewards_check_in">チェックイン +%1$d</string>
+    <string name="daily_rewards_checked_in">チェックイン済み。また明日！</string>
+    <string name="daily_rewards_missions">今日のミッション</string>
+    <string name="daily_rewards_claim">受け取る +%1$d</string>
+    <string name="daily_rewards_done">完了</string>
+    <string name="daily_rewards_watch_ad">動画を見る +%1$dコイン (残り%2$d回)</string>
+    <string name="daily_rewards_coins_earned">+%1$dコイン 🪙</string>
+    <string name="daily_rewards_premium_title">プレミアムパス</string>
+    <string name="daily_rewards_premium_desc">%1$d日間広告なし</string>
+    <string name="daily_rewards_premium_intro">初回特価！</string>
+    <string name="daily_rewards_premium_active">有効 · 残り%1$s</string>
+    <string name="daily_rewards_premium_redeem">交換 · %1$dコイン</string>
+    <string name="daily_rewards_premium_extend">+%1$d日 · %2$dコイン</string>
+    <string name="daily_rewards_premium_need">あと%1$dコイン必要</string>
+    <string name="daily_rewards_premium_confirm">%1$dコインを使いますか？</string>
+    <string name="daily_rewards_yes">はい</string>
+    <string name="daily_rewards_premium_redeemed">%1$d日間広告なし！🎉</string>
+    <string name="daily_rewards_left_dh">%1$d日%2$d時間</string>
+    <string name="daily_rewards_left_hm">%1$d時間%2$d分</string>
+    <string name="daily_rewards_premium_badge">プレミアム · 残り%1$s</string>
+    <string name="daily_rewards_export_title">コインでエクスポート</string>
+    <string name="daily_rewards_export_desc">%1$dコインで広告なしエクスポート</string>
 </resources>

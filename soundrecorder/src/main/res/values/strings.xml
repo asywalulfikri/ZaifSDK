@@ -531,4 +531,32 @@
     <string name="music_source_storage">STORAGE</string>
     <string name="export_first_free">1 free export today, no ad</string>
     <string name="export_pay_coins">Use %1$d coins</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">Daily Rewards</string>
+    <string name="daily_rewards_button">Missions</string>
+    <string name="daily_rewards_streak">Check-in streak</string>
+    <string name="daily_rewards_day">Day %1$d</string>
+    <string name="daily_rewards_check_in">Check in +%1$d</string>
+    <string name="daily_rewards_checked_in">Checked in. Come back tomorrow!</string>
+    <string name="daily_rewards_missions">Today\'s missions</string>
+    <string name="daily_rewards_claim">Claim +%1$d</string>
+    <string name="daily_rewards_done">Done</string>
+    <string name="daily_rewards_watch_ad">Watch video +%1$d coins (%2$d left)</string>
+    <string name="daily_rewards_coins_earned">+%1$d coins 🪙</string>
+    <string name="daily_rewards_premium_title">Premium Pass</string>
+    <string name="daily_rewards_premium_desc">No ads for %1$d days</string>
+    <string name="daily_rewards_premium_intro">Intro price!</string>
+    <string name="daily_rewards_premium_active">Active · %1$s left</string>
+    <string name="daily_rewards_premium_redeem">Redeem · %1$d coins</string>
+    <string name="daily_rewards_premium_extend">+%1$d days · %2$d coins</string>
+    <string name="daily_rewards_premium_need">%1$d more coins needed</string>
+    <string name="daily_rewards_premium_confirm">Use %1$d coins?</string>
+    <string name="daily_rewards_yes">Yes</string>
+    <string name="daily_rewards_premium_redeemed">No ads for %1$d days! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dd %2$dh</string>
+    <string name="daily_rewards_left_hm">%1$dh %2$dm</string>
+    <string name="daily_rewards_premium_badge">PREMIUM · %1$s left</string>
+    <string name="daily_rewards_export_title">Export with coins</string>
+    <string name="daily_rewards_export_desc">Export without ads for %1$d coins</string>
 </resources>

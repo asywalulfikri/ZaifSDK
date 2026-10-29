@@ -525,4 +525,32 @@
     <string name="music_source_storage">PENYIMPANAN</string>
     <string name="export_first_free">1x export gratis hari ini, tanpa iklan</string>
     <string name="export_pay_coins">Pakai %1$d koin</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">Hadiah Harian</string>
+    <string name="daily_rewards_button">Misi</string>
+    <string name="daily_rewards_streak">Absen beruntun</string>
+    <string name="daily_rewards_day">Hari %1$d</string>
+    <string name="daily_rewards_check_in">Absen +%1$d</string>
+    <string name="daily_rewards_checked_in">Sudah absen. Kembali besok!</string>
+    <string name="daily_rewards_missions">Misi hari ini</string>
+    <string name="daily_rewards_claim">Ambil +%1$d</string>
+    <string name="daily_rewards_done">Selesai</string>
+    <string name="daily_rewards_watch_ad">Tonton video +%1$d koin (sisa %2$d)</string>
+    <string name="daily_rewards_coins_earned">+%1$d koin 🪙</string>
+    <string name="daily_rewards_premium_title">Premium Pass</string>
+    <string name="daily_rewards_premium_desc">Tanpa iklan selama %1$d hari</string>
+    <string name="daily_rewards_premium_intro">Harga perdana!</string>
+    <string name="daily_rewards_premium_active">Aktif · sisa %1$s</string>
+    <string name="daily_rewards_premium_redeem">Tukar · %1$d koin</string>
+    <string name="daily_rewards_premium_extend">+%1$d hari · %2$d koin</string>
+    <string name="daily_rewards_premium_need">Butuh %1$d koin lagi</string>
+    <string name="daily_rewards_premium_confirm">Pakai %1$d koin?</string>
+    <string name="daily_rewards_yes">Ya</string>
+    <string name="daily_rewards_premium_redeemed">Tanpa iklan selama %1$d hari! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dh %2$dj</string>
+    <string name="daily_rewards_left_hm">%1$dj %2$dm</string>
+    <string name="daily_rewards_premium_badge">PREMIUM · sisa %1$s</string>
+    <string name="daily_rewards_export_title">Export pakai koin</string>
+    <string name="daily_rewards_export_desc">Export tanpa iklan seharga %1$d koin</string>
 </resources>

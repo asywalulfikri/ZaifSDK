@@ -529,4 +529,32 @@
     <string name="music_source_storage">STOCKAGE</string>
     <string name="export_first_free">1 exportation gratuite aujourd\'hui, sans pub</string>
     <string name="export_pay_coins">Utiliser %1$d pièces</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">Récompenses quotidiennes</string>
+    <string name="daily_rewards_button">Missions</string>
+    <string name="daily_rewards_streak">Série de connexions</string>
+    <string name="daily_rewards_day">Jour %1$d</string>
+    <string name="daily_rewards_check_in">Se connecter +%1$d</string>
+    <string name="daily_rewards_checked_in">Connecté. Reviens demain !</string>
+    <string name="daily_rewards_missions">Missions du jour</string>
+    <string name="daily_rewards_claim">Récupérer +%1$d</string>
+    <string name="daily_rewards_done">Terminé</string>
+    <string name="daily_rewards_watch_ad">Regarder une vidéo +%1$d pièces (%2$d restantes)</string>
+    <string name="daily_rewards_coins_earned">+%1$d pièces 🪙</string>
+    <string name="daily_rewards_premium_title">Pass Premium</string>
+    <string name="daily_rewards_premium_desc">Sans pub pendant %1$d jours</string>
+    <string name="daily_rewards_premium_intro">Prix de lancement !</string>
+    <string name="daily_rewards_premium_active">Actif · encore %1$s</string>
+    <string name="daily_rewards_premium_redeem">Échanger · %1$d pièces</string>
+    <string name="daily_rewards_premium_extend">+%1$d jours · %2$d pièces</string>
+    <string name="daily_rewards_premium_need">Encore %1$d pièces nécessaires</string>
+    <string name="daily_rewards_premium_confirm">Utiliser %1$d pièces ?</string>
+    <string name="daily_rewards_yes">Oui</string>
+    <string name="daily_rewards_premium_redeemed">Sans pub pendant %1$d jours ! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dj %2$dh</string>
+    <string name="daily_rewards_left_hm">%1$dh %2$dmin</string>
+    <string name="daily_rewards_premium_badge">PREMIUM · encore %1$s</string>
+    <string name="daily_rewards_export_title">Exporter avec des pièces</string>
+    <string name="daily_rewards_export_desc">Exporter sans pub pour %1$d pièces</string>
 </resources>

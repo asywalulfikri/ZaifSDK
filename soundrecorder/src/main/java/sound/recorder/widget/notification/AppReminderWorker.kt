@@ -129,6 +129,8 @@ class AppReminderWorker(
     private fun showNotification(hour: Int) {
         // Izin notifikasi belum diberi / dimatikan user → diam saja, jadwal tetap jalan
         if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return
+        // Jangan terlalu sering: batas bersama dengan notifikasi koin, dan lewati bila app baru dibuka
+        if (!NotificationThrottle.canShow(context)) return
 
         val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
             ?.apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED) }
@@ -152,6 +154,7 @@ class AppReminderWorker(
             .build()
 
         NotificationManagerCompat.from(context).notify(NOTIF_ID, notification)
+        NotificationThrottle.markShown(context)
     }
 
     /** Nama dari ZaifSDKConfig (diset host app), fallback ke label aplikasi. */

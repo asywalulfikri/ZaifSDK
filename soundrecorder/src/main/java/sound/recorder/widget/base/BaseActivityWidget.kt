@@ -1,5 +1,6 @@
 package sound.recorder.widget.base
 
+import sound.recorder.widget.notification.NotificationThrottle
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -471,6 +472,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        NotificationThrottle.markAppOpened(this)
         if (enableInAppUpdate()) {
             updateHelper.onResume()
         }
