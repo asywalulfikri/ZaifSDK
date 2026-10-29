@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+build/
+.cxx/
+local.properties
+
+# Android Studio (keep shared code style)
+.idea/*
+!.idea/codeStyles/
+*.iml
+
+# Release outputs
+*.apk
+*.aab
+app/release/
