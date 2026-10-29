@@ -524,4 +524,5 @@
     <string name="music_source_asset">BAWAAN</string>
     <string name="music_source_storage">PENYIMPANAN</string>
     <string name="export_first_free">1x export gratis hari ini, tanpa iklan</string>
+    <string name="export_pay_coins">Pakai %1$d koin</string>
 </resources>

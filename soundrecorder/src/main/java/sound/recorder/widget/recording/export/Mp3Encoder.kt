@@ -25,7 +25,7 @@ import java.io.OutputStream
  * Tidak memakai `LameEncoder` bawaan jump3r karena bergantung pada javax.sound (tidak ada di Android),
  * jadi modul-modul LAME dirangkai manual di sini.
  */
-internal class Mp3Encoder(
+class Mp3Encoder(
     private val sampleRate: Int,
     private val channels: Int,
     bitrateKbps: Int,

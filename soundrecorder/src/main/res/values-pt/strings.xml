@@ -527,4 +527,5 @@
     <string name="music_source_asset">INTEGRADA</string>
     <string name="music_source_storage">ARMAZENAMENTO</string>
     <string name="export_first_free">1 exportação grátis hoje, sem anúncios</string>
+    <string name="export_pay_coins">Usar %1$d moedas</string>
 </resources>

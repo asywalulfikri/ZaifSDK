@@ -524,4 +524,5 @@
     <string name="music_source_asset">इन-बिल्ट</string>
     <string name="music_source_storage">स्टोरेज</string>
     <string name="export_first_free">आज 1 एक्सपोर्ट मुफ़्त, बिना विज्ञापन</string>
+    <string name="export_pay_coins">%1$d सिक्के इस्तेमाल करें</string>
 </resources>

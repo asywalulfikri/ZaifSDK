@@ -530,4 +530,5 @@
     <string name="music_source_asset">INTEGRIERT</string>
     <string name="music_source_storage">SPEICHER</string>
     <string name="export_first_free">1 kostenloser Export heute, ohne Werbung</string>
+    <string name="export_pay_coins">%1$d Münzen nutzen</string>
 </resources>

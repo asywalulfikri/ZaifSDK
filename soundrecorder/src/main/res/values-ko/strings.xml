@@ -528,4 +528,5 @@
     <string name="music_source_asset">내장</string>
     <string name="music_source_storage">저장소</string>
     <string name="export_first_free">오늘 1회 무료 내보내기, 광고 없음</string>
+    <string name="export_pay_coins">코인 %1$d개 사용</string>
 </resources>
