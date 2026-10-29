@@ -528,4 +528,32 @@
     <string name="music_source_storage">ARMAZENAMENTO</string>
     <string name="export_first_free">1 exportação grátis hoje, sem anúncios</string>
     <string name="export_pay_coins">Usar %1$d moedas</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">Recompensas diárias</string>
+    <string name="daily_rewards_button">Missões</string>
+    <string name="daily_rewards_streak">Sequência de check-in</string>
+    <string name="daily_rewards_day">Dia %1$d</string>
+    <string name="daily_rewards_check_in">Fazer check-in +%1$d</string>
+    <string name="daily_rewards_checked_in">Check-in feito. Volte amanhã!</string>
+    <string name="daily_rewards_missions">Missões de hoje</string>
+    <string name="daily_rewards_claim">Resgatar +%1$d</string>
+    <string name="daily_rewards_done">Concluído</string>
+    <string name="daily_rewards_watch_ad">Assistir vídeo +%1$d moedas (restam %2$d)</string>
+    <string name="daily_rewards_coins_earned">+%1$d moedas 🪙</string>
+    <string name="daily_rewards_premium_title">Passe Premium</string>
+    <string name="daily_rewards_premium_desc">Sem anúncios por %1$d dias</string>
+    <string name="daily_rewards_premium_intro">Preço de lançamento!</string>
+    <string name="daily_rewards_premium_active">Ativo · restam %1$s</string>
+    <string name="daily_rewards_premium_redeem">Trocar · %1$d moedas</string>
+    <string name="daily_rewards_premium_extend">+%1$d dias · %2$d moedas</string>
+    <string name="daily_rewards_premium_need">Faltam %1$d moedas</string>
+    <string name="daily_rewards_premium_confirm">Usar %1$d moedas?</string>
+    <string name="daily_rewards_yes">Sim</string>
+    <string name="daily_rewards_premium_redeemed">Sem anúncios por %1$d dias! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dd %2$dh</string>
+    <string name="daily_rewards_left_hm">%1$dh %2$dmin</string>
+    <string name="daily_rewards_premium_badge">PREMIUM · restam %1$s</string>
+    <string name="daily_rewards_export_title">Exportar com moedas</string>
+    <string name="daily_rewards_export_desc">Exporte sem anúncios por %1$d moedas</string>
 </resources>

@@ -531,4 +531,32 @@
     <string name="music_source_storage">SPEICHER</string>
     <string name="export_first_free">1 kostenloser Export heute, ohne Werbung</string>
     <string name="export_pay_coins">%1$d Münzen nutzen</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">Tägliche Belohnungen</string>
+    <string name="daily_rewards_button">Missionen</string>
+    <string name="daily_rewards_streak">Check-in-Serie</string>
+    <string name="daily_rewards_day">Tag %1$d</string>
+    <string name="daily_rewards_check_in">Einchecken +%1$d</string>
+    <string name="daily_rewards_checked_in">Eingecheckt. Komm morgen wieder!</string>
+    <string name="daily_rewards_missions">Heutige Missionen</string>
+    <string name="daily_rewards_claim">Abholen +%1$d</string>
+    <string name="daily_rewards_done">Fertig</string>
+    <string name="daily_rewards_watch_ad">Video ansehen +%1$d Münzen (%2$d übrig)</string>
+    <string name="daily_rewards_coins_earned">+%1$d Münzen 🪙</string>
+    <string name="daily_rewards_premium_title">Premium-Pass</string>
+    <string name="daily_rewards_premium_desc">%1$d Tage ohne Werbung</string>
+    <string name="daily_rewards_premium_intro">Einführungspreis!</string>
+    <string name="daily_rewards_premium_active">Aktiv · noch %1$s</string>
+    <string name="daily_rewards_premium_redeem">Einlösen · %1$d Münzen</string>
+    <string name="daily_rewards_premium_extend">+%1$d Tage · %2$d Münzen</string>
+    <string name="daily_rewards_premium_need">Noch %1$d Münzen nötig</string>
+    <string name="daily_rewards_premium_confirm">%1$d Münzen verwenden?</string>
+    <string name="daily_rewards_yes">Ja</string>
+    <string name="daily_rewards_premium_redeemed">%1$d Tage ohne Werbung! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dT %2$dStd</string>
+    <string name="daily_rewards_left_hm">%1$dStd %2$dMin</string>
+    <string name="daily_rewards_premium_badge">PREMIUM · noch %1$s</string>
+    <string name="daily_rewards_export_title">Mit Münzen exportieren</string>
+    <string name="daily_rewards_export_desc">Ohne Werbung exportieren für %1$d Münzen</string>
 </resources>

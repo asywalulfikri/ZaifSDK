@@ -525,4 +525,32 @@
     <string name="music_source_storage">ПАМЯТЬ</string>
     <string name="export_first_free">1 бесплатный экспорт сегодня, без рекламы</string>
     <string name="export_pay_coins">Потратить %1$d монет</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">Ежедневные награды</string>
+    <string name="daily_rewards_button">Задания</string>
+    <string name="daily_rewards_streak">Серия отметок</string>
+    <string name="daily_rewards_day">День %1$d</string>
+    <string name="daily_rewards_check_in">Отметиться +%1$d</string>
+    <string name="daily_rewards_checked_in">Вы отметились. Возвращайтесь завтра!</string>
+    <string name="daily_rewards_missions">Задания на сегодня</string>
+    <string name="daily_rewards_claim">Забрать +%1$d</string>
+    <string name="daily_rewards_done">Готово</string>
+    <string name="daily_rewards_watch_ad">Смотреть видео +%1$d монет (осталось %2$d)</string>
+    <string name="daily_rewards_coins_earned">+%1$d монет 🪙</string>
+    <string name="daily_rewards_premium_title">Премиум-пропуск</string>
+    <string name="daily_rewards_premium_desc">Без рекламы %1$d дн.</string>
+    <string name="daily_rewards_premium_intro">Стартовая цена!</string>
+    <string name="daily_rewards_premium_active">Активен · осталось %1$s</string>
+    <string name="daily_rewards_premium_redeem">Обменять · %1$d монет</string>
+    <string name="daily_rewards_premium_extend">+%1$d дн. · %2$d монет</string>
+    <string name="daily_rewards_premium_need">Нужно ещё %1$d монет</string>
+    <string name="daily_rewards_premium_confirm">Потратить %1$d монет?</string>
+    <string name="daily_rewards_yes">Да</string>
+    <string name="daily_rewards_premium_redeemed">Без рекламы %1$d дн.! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dд %2$dч</string>
+    <string name="daily_rewards_left_hm">%1$dч %2$dм</string>
+    <string name="daily_rewards_premium_badge">ПРЕМИУМ · осталось %1$s</string>
+    <string name="daily_rewards_export_title">Экспорт за монеты</string>
+    <string name="daily_rewards_export_desc">Экспорт без рекламы за %1$d монет</string>
 </resources>

@@ -572,4 +572,32 @@
     <string name="music_source_storage">التخزين</string>
     <string name="export_first_free">تصدير مجاني واحد اليوم، بدون إعلان</string>
     <string name="export_pay_coins">استخدم %1$d عملة</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">المكافآت اليومية</string>
+    <string name="daily_rewards_button">المهام</string>
+    <string name="daily_rewards_streak">تسجيل الحضور المتتالي</string>
+    <string name="daily_rewards_day">يوم %1$d</string>
+    <string name="daily_rewards_check_in">سجّل الحضور +%1$d</string>
+    <string name="daily_rewards_checked_in">تم تسجيل الحضور. عد غدًا!</string>
+    <string name="daily_rewards_missions">مهام اليوم</string>
+    <string name="daily_rewards_claim">استلم +%1$d</string>
+    <string name="daily_rewards_done">تم</string>
+    <string name="daily_rewards_watch_ad">شاهد فيديو +%1$d عملات (متبقٍ %2$d)</string>
+    <string name="daily_rewards_coins_earned">+%1$d عملات 🪙</string>
+    <string name="daily_rewards_premium_title">بطاقة بريميوم</string>
+    <string name="daily_rewards_premium_desc">بدون إعلانات لمدة %1$d أيام</string>
+    <string name="daily_rewards_premium_intro">سعر تمهيدي!</string>
+    <string name="daily_rewards_premium_active">نشط · متبقٍ %1$s</string>
+    <string name="daily_rewards_premium_redeem">استبدل · %1$d عملة</string>
+    <string name="daily_rewards_premium_extend">+%1$d أيام · %2$d عملة</string>
+    <string name="daily_rewards_premium_need">تحتاج %1$d عملة إضافية</string>
+    <string name="daily_rewards_premium_confirm">استخدام %1$d عملة؟</string>
+    <string name="daily_rewards_yes">نعم</string>
+    <string name="daily_rewards_premium_redeemed">بدون إعلانات لمدة %1$d أيام! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$d ي %2$d س</string>
+    <string name="daily_rewards_left_hm">%1$d س %2$d د</string>
+    <string name="daily_rewards_premium_badge">بريميوم · متبقٍ %1$s</string>
+    <string name="daily_rewards_export_title">التصدير بالعملات</string>
+    <string name="daily_rewards_export_desc">صدّر بدون إعلانات مقابل %1$d عملة</string>
 </resources>

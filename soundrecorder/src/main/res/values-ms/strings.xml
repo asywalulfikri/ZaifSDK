@@ -529,4 +529,32 @@
     <string name="music_source_storage">STORAN</string>
     <string name="export_first_free">1 eksport percuma hari ini, tanpa iklan</string>
     <string name="export_pay_coins">Guna %1$d syiling</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">Ganjaran Harian</string>
+    <string name="daily_rewards_button">Misi</string>
+    <string name="daily_rewards_streak">Daftar masuk berturut</string>
+    <string name="daily_rewards_day">Hari %1$d</string>
+    <string name="daily_rewards_check_in">Daftar masuk +%1$d</string>
+    <string name="daily_rewards_checked_in">Sudah daftar masuk. Kembali esok!</string>
+    <string name="daily_rewards_missions">Misi hari ini</string>
+    <string name="daily_rewards_claim">Tuntut +%1$d</string>
+    <string name="daily_rewards_done">Selesai</string>
+    <string name="daily_rewards_watch_ad">Tonton video +%1$d syiling (baki %2$d)</string>
+    <string name="daily_rewards_coins_earned">+%1$d syiling 🪙</string>
+    <string name="daily_rewards_premium_title">Pas Premium</string>
+    <string name="daily_rewards_premium_desc">Tanpa iklan selama %1$d hari</string>
+    <string name="daily_rewards_premium_intro">Harga pengenalan!</string>
+    <string name="daily_rewards_premium_active">Aktif · baki %1$s</string>
+    <string name="daily_rewards_premium_redeem">Tebus · %1$d syiling</string>
+    <string name="daily_rewards_premium_extend">+%1$d hari · %2$d syiling</string>
+    <string name="daily_rewards_premium_need">Perlu %1$d syiling lagi</string>
+    <string name="daily_rewards_premium_confirm">Guna %1$d syiling?</string>
+    <string name="daily_rewards_yes">Ya</string>
+    <string name="daily_rewards_premium_redeemed">Tanpa iklan selama %1$d hari! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dh %2$dj</string>
+    <string name="daily_rewards_left_hm">%1$dj %2$dm</string>
+    <string name="daily_rewards_premium_badge">PREMIUM · baki %1$s</string>
+    <string name="daily_rewards_export_title">Eksport dengan syiling</string>
+    <string name="daily_rewards_export_desc">Eksport tanpa iklan dengan %1$d syiling</string>
 </resources>

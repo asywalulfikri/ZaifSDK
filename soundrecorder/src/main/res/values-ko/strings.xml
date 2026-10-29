@@ -529,4 +529,32 @@
     <string name="music_source_storage">저장소</string>
     <string name="export_first_free">오늘 1회 무료 내보내기, 광고 없음</string>
     <string name="export_pay_coins">코인 %1$d개 사용</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">일일 보상</string>
+    <string name="daily_rewards_button">미션</string>
+    <string name="daily_rewards_streak">연속 출석</string>
+    <string name="daily_rewards_day">%1$d일차</string>
+    <string name="daily_rewards_check_in">출석 +%1$d</string>
+    <string name="daily_rewards_checked_in">출석 완료. 내일 또 오세요!</string>
+    <string name="daily_rewards_missions">오늘의 미션</string>
+    <string name="daily_rewards_claim">받기 +%1$d</string>
+    <string name="daily_rewards_done">완료</string>
+    <string name="daily_rewards_watch_ad">동영상 보기 +%1$d 코인 (%2$d회 남음)</string>
+    <string name="daily_rewards_coins_earned">+%1$d 코인 🪙</string>
+    <string name="daily_rewards_premium_title">프리미엄 패스</string>
+    <string name="daily_rewards_premium_desc">%1$d일 동안 광고 없음</string>
+    <string name="daily_rewards_premium_intro">첫 구매 특가!</string>
+    <string name="daily_rewards_premium_active">활성 · %1$s 남음</string>
+    <string name="daily_rewards_premium_redeem">교환 · %1$d 코인</string>
+    <string name="daily_rewards_premium_extend">+%1$d일 · %2$d 코인</string>
+    <string name="daily_rewards_premium_need">코인 %1$d개 더 필요</string>
+    <string name="daily_rewards_premium_confirm">코인 %1$d개를 사용할까요?</string>
+    <string name="daily_rewards_yes">예</string>
+    <string name="daily_rewards_premium_redeemed">%1$d일 동안 광고 없음! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$d일 %2$d시간</string>
+    <string name="daily_rewards_left_hm">%1$d시간 %2$d분</string>
+    <string name="daily_rewards_premium_badge">프리미엄 · %1$s 남음</string>
+    <string name="daily_rewards_export_title">코인으로 내보내기</string>
+    <string name="daily_rewards_export_desc">코인 %1$d개로 광고 없이 내보내기</string>
 </resources>

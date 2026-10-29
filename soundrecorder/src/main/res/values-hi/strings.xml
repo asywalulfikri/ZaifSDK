@@ -525,4 +525,32 @@
     <string name="music_source_storage">स्टोरेज</string>
     <string name="export_first_free">आज 1 एक्सपोर्ट मुफ़्त, बिना विज्ञापन</string>
     <string name="export_pay_coins">%1$d सिक्के इस्तेमाल करें</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">दैनिक इनाम</string>
+    <string name="daily_rewards_button">मिशन</string>
+    <string name="daily_rewards_streak">लगातार चेक-इन</string>
+    <string name="daily_rewards_day">दिन %1$d</string>
+    <string name="daily_rewards_check_in">चेक-इन +%1$d</string>
+    <string name="daily_rewards_checked_in">चेक-इन हो गया। कल फिर आएँ!</string>
+    <string name="daily_rewards_missions">आज के मिशन</string>
+    <string name="daily_rewards_claim">लें +%1$d</string>
+    <string name="daily_rewards_done">पूरा</string>
+    <string name="daily_rewards_watch_ad">वीडियो देखें +%1$d सिक्के (%2$d बाकी)</string>
+    <string name="daily_rewards_coins_earned">+%1$d सिक्के 🪙</string>
+    <string name="daily_rewards_premium_title">प्रीमियम पास</string>
+    <string name="daily_rewards_premium_desc">%1$d दिन बिना विज्ञापन</string>
+    <string name="daily_rewards_premium_intro">शुरुआती कीमत!</string>
+    <string name="daily_rewards_premium_active">सक्रिय · %1$s बाकी</string>
+    <string name="daily_rewards_premium_redeem">बदलें · %1$d सिक्के</string>
+    <string name="daily_rewards_premium_extend">+%1$d दिन · %2$d सिक्के</string>
+    <string name="daily_rewards_premium_need">%1$d और सिक्के चाहिए</string>
+    <string name="daily_rewards_premium_confirm">%1$d सिक्के इस्तेमाल करें?</string>
+    <string name="daily_rewards_yes">हाँ</string>
+    <string name="daily_rewards_premium_redeemed">%1$d दिन बिना विज्ञापन! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dदि %2$dघं</string>
+    <string name="daily_rewards_left_hm">%1$dघं %2$dमि</string>
+    <string name="daily_rewards_premium_badge">प्रीमियम · %1$s बाकी</string>
+    <string name="daily_rewards_export_title">सिक्कों से एक्सपोर्ट</string>
+    <string name="daily_rewards_export_desc">%1$d सिक्कों में बिना विज्ञापन एक्सपोर्ट करें</string>
 </resources>

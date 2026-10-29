@@ -529,4 +529,32 @@
     <string name="music_source_storage">STORAGE</string>
     <string name="export_first_free">1 libreng export ngayong araw, walang ad</string>
     <string name="export_pay_coins">Gamitin ang %1$d coins</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">Pang-araw-araw na Gantimpala</string>
+    <string name="daily_rewards_button">Mga Misyon</string>
+    <string name="daily_rewards_streak">Sunod-sunod na check-in</string>
+    <string name="daily_rewards_day">Araw %1$d</string>
+    <string name="daily_rewards_check_in">Mag-check in +%1$d</string>
+    <string name="daily_rewards_checked_in">Naka-check in na. Bumalik bukas!</string>
+    <string name="daily_rewards_missions">Mga misyon ngayon</string>
+    <string name="daily_rewards_claim">Kunin +%1$d</string>
+    <string name="daily_rewards_done">Tapos</string>
+    <string name="daily_rewards_watch_ad">Manood ng video +%1$d coins (%2$d na lang)</string>
+    <string name="daily_rewards_coins_earned">+%1$d coins 🪙</string>
+    <string name="daily_rewards_premium_title">Premium Pass</string>
+    <string name="daily_rewards_premium_desc">Walang ads sa loob ng %1$d araw</string>
+    <string name="daily_rewards_premium_intro">Panimulang presyo!</string>
+    <string name="daily_rewards_premium_active">Aktibo · %1$s pa</string>
+    <string name="daily_rewards_premium_redeem">I-redeem · %1$d coins</string>
+    <string name="daily_rewards_premium_extend">+%1$d araw · %2$d coins</string>
+    <string name="daily_rewards_premium_need">Kailangan pa ng %1$d coins</string>
+    <string name="daily_rewards_premium_confirm">Gamitin ang %1$d coins?</string>
+    <string name="daily_rewards_yes">Oo</string>
+    <string name="daily_rewards_premium_redeemed">Walang ads sa loob ng %1$d araw! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$da %2$dh</string>
+    <string name="daily_rewards_left_hm">%1$dh %2$dm</string>
+    <string name="daily_rewards_premium_badge">PREMIUM · %1$s pa</string>
+    <string name="daily_rewards_export_title">Mag-export gamit ang coins</string>
+    <string name="daily_rewards_export_desc">Mag-export nang walang ads sa %1$d coins</string>
 </resources>

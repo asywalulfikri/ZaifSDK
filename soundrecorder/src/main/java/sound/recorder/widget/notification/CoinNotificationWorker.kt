@@ -15,6 +15,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
+import sound.recorder.widget.rewards.DailyRewards
 import sound.recorder.widget.util.CoinManager
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -92,8 +93,12 @@ class CoinNotificationWorker(
     @SuppressLint("MissingPermission") // dicek lewat areNotificationsEnabled()
     override fun doWork(): Result {
         // Sudah di-claim sejak dijadwalkan → tidak perlu diingatkan
-        if (!CoinManager.canClaimDaily(context)) return Result.success()
+        // App dengan misi harian SDK: ingatkan check-in; selain itu bonus koin harian lama
+        val claimable = if (DailyRewards.isEnabled) DailyRewards.canCheckIn(context) else CoinManager.canClaimDaily(context)
+        if (!claimable) return Result.success()
         if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return Result.success()
+        // Jangan terlalu sering: batas bersama dengan pengingat buka app, dan lewati bila app baru dibuka
+        if (!NotificationThrottle.canShow(context)) return Result.success()
         createChannel()
 
         // Dulu wajib inputData target_class/notif_title yang tidak pernah diisi oleh schedule()
@@ -123,6 +128,7 @@ class CoinNotificationWorker(
             .build()
 
         NotificationManagerCompat.from(context).notify(NOTIF_ID, notification)
+        NotificationThrottle.markShown(context)
 
         return Result.success()
     }

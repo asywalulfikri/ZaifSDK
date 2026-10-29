@@ -527,4 +527,32 @@
     <string name="music_source_storage">ที่เก็บข้อมูล</string>
     <string name="export_first_free">วันนี้ส่งออกฟรี 1 ครั้ง ไม่มีโฆษณา</string>
     <string name="export_pay_coins">ใช้ %1$d เหรียญ</string>
+
+    <!-- Daily rewards / missions -->
+    <string name="daily_rewards_title">รางวัลประจำวัน</string>
+    <string name="daily_rewards_button">ภารกิจ</string>
+    <string name="daily_rewards_streak">เช็คอินต่อเนื่อง</string>
+    <string name="daily_rewards_day">วันที่ %1$d</string>
+    <string name="daily_rewards_check_in">เช็คอิน +%1$d</string>
+    <string name="daily_rewards_checked_in">เช็คอินแล้ว กลับมาใหม่พรุ่งนี้!</string>
+    <string name="daily_rewards_missions">ภารกิจวันนี้</string>
+    <string name="daily_rewards_claim">รับ +%1$d</string>
+    <string name="daily_rewards_done">เสร็จแล้ว</string>
+    <string name="daily_rewards_watch_ad">ดูวิดีโอ +%1$d เหรียญ (เหลือ %2$d)</string>
+    <string name="daily_rewards_coins_earned">+%1$d เหรียญ 🪙</string>
+    <string name="daily_rewards_premium_title">พรีเมียมพาส</string>
+    <string name="daily_rewards_premium_desc">ไม่มีโฆษณา %1$d วัน</string>
+    <string name="daily_rewards_premium_intro">ราคาพิเศษครั้งแรก!</string>
+    <string name="daily_rewards_premium_active">ใช้งานอยู่ · เหลือ %1$s</string>
+    <string name="daily_rewards_premium_redeem">แลก · %1$d เหรียญ</string>
+    <string name="daily_rewards_premium_extend">+%1$d วัน · %2$d เหรียญ</string>
+    <string name="daily_rewards_premium_need">ต้องการอีก %1$d เหรียญ</string>
+    <string name="daily_rewards_premium_confirm">ใช้ %1$d เหรียญ?</string>
+    <string name="daily_rewards_yes">ใช่</string>
+    <string name="daily_rewards_premium_redeemed">ไม่มีโฆษณา %1$d วัน! 🎉</string>
+    <string name="daily_rewards_left_dh">%1$dวัน %2$dชม.</string>
+    <string name="daily_rewards_left_hm">%1$dชม. %2$dนาที</string>
+    <string name="daily_rewards_premium_badge">พรีเมียม · เหลือ %1$s</string>
+    <string name="daily_rewards_export_title">ส่งออกด้วยเหรียญ</string>
+    <string name="daily_rewards_export_desc">ส่งออกแบบไม่มีโฆษณาด้วย %1$d เหรียญ</string>
 </resources>
