@@ -198,6 +198,12 @@ internal class PcmStream private constructor(
         fun open(context: Context, sample: ExportSample, isCancelled: () -> Boolean = { false }): PcmStream? {
             val extractor = MediaExtractor()
             try {
+                if (sample.resId == 0 && sample.assetPath == null) {
+                    val uri = sample.uri ?: throw IOException("ExportSample kosong")
+                    if (uri.startsWith("/")) extractor.setDataSource(uri)
+                    else extractor.setDataSource(context, android.net.Uri.parse(uri), null)
+                    return PcmStream(extractor, isCancelled)
+                }
                 val afd = if (sample.resId != 0) {
                     try { context.resources.openRawResourceFd(sample.resId) } catch (e: Resources.NotFoundException) { null }
                 } else {

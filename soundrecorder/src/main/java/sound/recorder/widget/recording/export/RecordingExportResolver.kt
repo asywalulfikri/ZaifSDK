@@ -35,7 +35,8 @@ interface RecordingExportResolver {
 }
 
 /**
- * Sumber suara satu ketukan. Isi salah satu: [resId] (res/raw) atau [assetPath] (assets/).
+ * Sumber suara satu ketukan. Isi salah satu: [resId] (res/raw), [assetPath] (assets/),
+ * atau [uri] (suara custom pilihan user: content:// atau path file absolut).
  * @param loop true untuk instrumen tiup/sustain: sampel diulang sampai event "OFF".
  * @param gain volume relatif 0..1.
  * @param rate kecepatan putar sampel, sama dengan `rate` di `SoundPool.play()` / engine host
@@ -47,9 +48,14 @@ data class ExportSample(
     val assetPath: String? = null,
     val loop: Boolean = false,
     val gain: Float = 1f,
-    val rate: Float = 1f
+    val rate: Float = 1f,
+    val uri: String? = null
 ) {
     /** Rate yang aman dipakai (batas sama dengan SoundPool: 0.5–2, diperlebar untuk engine host lain). */
     internal val safeRate: Float get() = if (rate.isFinite() && rate > 0f) rate.coerceIn(0.25f, 4f) else 1f
-    internal val cacheKey: String get() = (if (resId != 0) "res:$resId" else "asset:$assetPath") + "@$safeRate"
+    internal val cacheKey: String get() = when {
+        resId != 0 -> "res:$resId"
+        assetPath != null -> "asset:$assetPath"
+        else -> "uri:$uri"
+    } + "@$safeRate"
 }
