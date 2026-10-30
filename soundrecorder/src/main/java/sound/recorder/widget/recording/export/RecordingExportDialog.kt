@@ -422,7 +422,7 @@ object RecordingExportDialog {
             root.addView(LinearLayout(context).apply {
                 gravity = Gravity.CENTER_VERTICAL
                 addView(TextView(context).apply {
-                    text = "🪙 " + context.getString(R.string.your_coin) + ": $balance"
+                    text = "${CoinManager.icon} " + context.getString(R.string.your_coin) + ": $balance"
                     setTextColor(c.textSecondary)
                     textSize = 12f
                 }, LinearLayout.LayoutParams(0, -2, 1f))

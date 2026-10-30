@@ -331,7 +331,7 @@ class InstrumentTutorialDialog(
 
         if (zaifSDKConfig?.isCoin == true) {
             binding.tvSubtitle.visibility = View.VISIBLE
-            binding.tvSubtitle.text = "🪙 ${CoinManager.getBalance(context)} " + context.getString(R.string.coin)
+            binding.tvSubtitle.text = "${CoinManager.icon} ${CoinManager.getBalance(context)} " + context.getString(R.string.coin)
         } else {
             binding.tvSubtitle.visibility = View.GONE
         }
@@ -2292,7 +2292,7 @@ class InstrumentTutorialDialog(
                     layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, activity.sdp(SdpR.dimen._8sdp))
                 })
                 root.addView(TextView(activity).apply {
-                    text = "🪙 " + activity.getString(R.string.your_coin) + ": $balance"
+                    text = "${CoinManager.icon} " + activity.getString(R.string.your_coin) + ": $balance"
                     setTextColor(Color.parseColor("#D2B48C"))
                     textSize = 11f
                     setLineSpacing(0f, 1.4f)
@@ -2318,7 +2318,7 @@ class InstrumentTutorialDialog(
                 btnRow.addView(View(activity).apply {
                     layoutParams = LinearLayout.LayoutParams(activity.sdp(SdpR.dimen._8sdp), 1)
                 })
-                btnRow.addView(buildDialogBtn(activity, "🪙 ${CoinManager.UNLOCK_COST} " + activity.getString(R.string.coin), "4CAF50") {
+                btnRow.addView(buildDialogBtn(activity, "${CoinManager.icon} ${CoinManager.UNLOCK_COST} " + activity.getString(R.string.coin), "4CAF50") {
                     d.dismiss()
                     if (CoinManager.spendCoin(activity)) {
                         markUnlocked(activity, key)

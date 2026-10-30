@@ -121,8 +121,8 @@ class CoinNotificationWorker(
             CHANNEL_ID
         )
             .setSmallIcon(R.drawable.ic_baseline_notifications_active_24)
-            .setContentTitle("🪙 $notifTitle")
-            .setContentText(context.getString(R.string.claim_daily_reward))
+            .setContentTitle("${CoinManager.icon} $notifTitle")
+            .setContentText(CoinManager.withIcon(context.getString(R.string.claim_daily_reward)))
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build()

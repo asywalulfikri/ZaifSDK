@@ -1,9 +1,31 @@
 package sound.recorder.widget.util
 
 import android.content.Context
+import android.graphics.Paint
+import android.os.Build
 import sound.recorder.widget.notification.CoinNotificationWorker
 
 object CoinManager {
+
+    private const val COIN_EMOJI = "🪙"
+    private const val COIN_EMOJI_FALLBACK = "💰"
+
+    /**
+     * Emoji koin yang aman ditampilkan di HP ini. 🪙 baru ada di font Android 11+; di HP lama
+     * tampil sebagai kotak, jadi diganti 💰 (ada sejak Android 4.4). Dicek sekali lalu disimpan.
+     */
+    @JvmStatic
+    val icon: String by lazy {
+        val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ||
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && runCatching { Paint().hasGlyph(COIN_EMOJI) }.getOrDefault(false))
+        if (supported) COIN_EMOJI else COIN_EMOJI_FALLBACK
+    }
+
+    /** Ganti 🪙 di teks (mis. dari strings.xml) dengan [icon]. */
+    @JvmStatic
+    fun withIcon(text: String): String =
+        if (icon == COIN_EMOJI) text else text.replace(COIN_EMOJI, icon)
+
     private const val PREFS_NAME        = "zaif_coins"
     private const val KEY_BALANCE       = "balance"
     private const val KEY_LAST_DAILY    = "last_daily"
