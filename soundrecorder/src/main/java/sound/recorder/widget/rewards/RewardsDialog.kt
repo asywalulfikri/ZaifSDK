@@ -58,7 +58,7 @@ object RewardsDialog {
 
         lateinit var render: () -> Unit
         fun changed(earned: Int = 0) {
-            if (earned > 0) Toast.makeText(activity, activity.getString(R.string.daily_rewards_coins_earned, earned), Toast.LENGTH_SHORT).show()
+            if (earned > 0) Toast.makeText(activity, CoinManager.withIcon(activity.getString(R.string.daily_rewards_coins_earned, earned)), Toast.LENGTH_SHORT).show()
             render()
             onChanged?.invoke()
         }
@@ -133,7 +133,7 @@ object RewardsDialog {
 
         // Saldo koin
         left.addView(TextView(activity).apply {
-            text = "🪙 " + activity.getString(R.string.your_coin) + ": " + CoinManager.getBalance(activity)
+            text = "${CoinManager.icon} " + activity.getString(R.string.your_coin) + ": " + CoinManager.getBalance(activity)
             setTextColor(c.text)
             textSize = 14f
             typeface = Typeface.DEFAULT_BOLD
@@ -411,7 +411,7 @@ object RewardsDialog {
         setPadding(pad, pad, pad, pad)
         background = rounded(activity, Color.TRANSPARENT, SdpR.dimen._8sdp, c.outline)
         addView(TextView(activity).apply {
-            text = "🪙 " + activity.getString(R.string.daily_rewards_export_title)
+            text = "${CoinManager.icon} " + activity.getString(R.string.daily_rewards_export_title)
             setTextColor(c.text)
             textSize = 12f
             typeface = Typeface.DEFAULT_BOLD
