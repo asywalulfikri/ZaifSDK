@@ -556,4 +556,8 @@
     <string name="daily_rewards_export_title">Xuất bằng xu</string>
     <string name="daily_rewards_export_desc">Xuất không quảng cáo với %1$d xu</string>
     <string name="reward_not_earned">Xem video đến hết để nhận phần thưởng.</string>
+    <string name="tutorial_video_button">VIDEO</string>
+    <string name="tutorial_video_recording">Đang quay video… hãy ở lại màn hình này</string>
+    <string name="tutorial_video_saved">Đã lưu video: %1$s</string>
+    <string name="tutorial_video_failed">Không thể tạo video</string>
 </resources>

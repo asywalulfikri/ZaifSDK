@@ -554,4 +554,8 @@
     <string name="daily_rewards_export_title">Экспорт за монеты</string>
     <string name="daily_rewards_export_desc">Экспорт без рекламы за %1$d монет</string>
     <string name="reward_not_earned">Досмотрите видео до конца, чтобы получить награду.</string>
+    <string name="tutorial_video_button">ВИДЕО</string>
+    <string name="tutorial_video_recording">Запись видео… не уходите с этого экрана</string>
+    <string name="tutorial_video_saved">Видео сохранено: %1$s</string>
+    <string name="tutorial_video_failed">Не удалось создать видео</string>
 </resources>

@@ -560,4 +560,8 @@
     <string name="daily_rewards_export_title">Export with coins</string>
     <string name="daily_rewards_export_desc">Export without ads for %1$d coins</string>
     <string name="reward_not_earned">Watch the video until the end to get the reward.</string>
+    <string name="tutorial_video_button">VIDEO</string>
+    <string name="tutorial_video_recording">Recording video… stay on this screen</string>
+    <string name="tutorial_video_saved">Video saved: %1$s</string>
+    <string name="tutorial_video_failed">Failed to create video</string>
 </resources>

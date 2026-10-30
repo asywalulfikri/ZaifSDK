@@ -558,4 +558,8 @@
     <string name="daily_rewards_export_title">Eksport dengan syiling</string>
     <string name="daily_rewards_export_desc">Eksport tanpa iklan dengan %1$d syiling</string>
     <string name="reward_not_earned">Tonton video sehingga habis untuk mendapatkan ganjaran.</string>
+    <string name="tutorial_video_button">VIDEO</string>
+    <string name="tutorial_video_recording">Merakam video… jangan tinggalkan skrin ini</string>
+    <string name="tutorial_video_saved">Video disimpan: %1$s</string>
+    <string name="tutorial_video_failed">Gagal membuat video</string>
 </resources>

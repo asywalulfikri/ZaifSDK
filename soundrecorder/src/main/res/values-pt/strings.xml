@@ -557,4 +557,8 @@
     <string name="daily_rewards_export_title">Exportar com moedas</string>
     <string name="daily_rewards_export_desc">Exporte sem anúncios por %1$d moedas</string>
     <string name="reward_not_earned">Assista ao vídeo até o final para receber a recompensa.</string>
+    <string name="tutorial_video_button">VÍDEO</string>
+    <string name="tutorial_video_recording">Gravando vídeo… fique nesta tela</string>
+    <string name="tutorial_video_saved">Vídeo salvo: %1$s</string>
+    <string name="tutorial_video_failed">Não foi possível criar o vídeo</string>
 </resources>

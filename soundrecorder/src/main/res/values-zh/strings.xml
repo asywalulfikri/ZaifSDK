@@ -555,4 +555,8 @@
     <string name="daily_rewards_export_title">用金币导出</string>
     <string name="daily_rewards_export_desc">用 %1$d 金币无广告导出</string>
     <string name="reward_not_earned">观看视频至结束即可获得奖励。</string>
+    <string name="tutorial_video_button">视频</string>
+    <string name="tutorial_video_recording">正在录制视频… 请停留在此页面</string>
+    <string name="tutorial_video_saved">视频已保存：%1$s</string>
+    <string name="tutorial_video_failed">无法创建视频</string>
 </resources>

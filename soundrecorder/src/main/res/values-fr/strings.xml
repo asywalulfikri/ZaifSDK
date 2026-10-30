@@ -558,4 +558,8 @@
     <string name="daily_rewards_export_title">Exporter avec des pièces</string>
     <string name="daily_rewards_export_desc">Exporter sans pub pour %1$d pièces</string>
     <string name="reward_not_earned">Regarde la vidéo jusqu\'à la fin pour obtenir la récompense.</string>
+    <string name="tutorial_video_button">VIDÉO</string>
+    <string name="tutorial_video_recording">Enregistrement vidéo… reste sur cet écran</string>
+    <string name="tutorial_video_saved">Vidéo enregistrée : %1$s</string>
+    <string name="tutorial_video_failed">Impossible de créer la vidéo</string>
 </resources>

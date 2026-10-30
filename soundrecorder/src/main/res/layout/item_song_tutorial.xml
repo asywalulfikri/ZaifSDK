@@ -87,6 +87,23 @@
                 android:textColor="#FFFFFF"
                 android:textSize="@dimen/_8ssp"
                 android:textStyle="bold" />
+
+            <!-- Admin (build debug): export video tutorial -->
+            <TextView
+                android:id="@+id/btnVideo"
+                android:layout_width="wrap_content"
+                android:minWidth="@dimen/_50sdp"
+                android:layout_height="@dimen/_28sdp"
+                android:layout_marginStart="@dimen/_4sdp"
+                android:paddingStart="@dimen/_4sdp"
+                android:paddingEnd="@dimen/_4sdp"
+                android:background="@drawable/bg_btn_tutorial_play"
+                android:gravity="center"
+                android:text="@string/tutorial_video_button"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/_8ssp"
+                android:textStyle="bold"
+                android:visibility="gone" />
         </LinearLayout>
 
         <!-- Nama + info (Middle - Flexible) -->

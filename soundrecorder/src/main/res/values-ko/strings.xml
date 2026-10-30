@@ -558,4 +558,8 @@
     <string name="daily_rewards_export_title">코인으로 내보내기</string>
     <string name="daily_rewards_export_desc">코인 %1$d개로 광고 없이 내보내기</string>
     <string name="reward_not_earned">보상을 받으려면 동영상을 끝까지 시청하세요.</string>
+    <string name="tutorial_video_button">동영상</string>
+    <string name="tutorial_video_recording">동영상 녹화 중… 이 화면에 머물러 주세요</string>
+    <string name="tutorial_video_saved">동영상 저장됨: %1$s</string>
+    <string name="tutorial_video_failed">동영상을 만들 수 없습니다</string>
 </resources>

@@ -558,4 +558,8 @@
     <string name="daily_rewards_export_title">Mag-export gamit ang coins</string>
     <string name="daily_rewards_export_desc">Mag-export nang walang ads sa %1$d coins</string>
     <string name="reward_not_earned">Panoorin ang video hanggang dulo para makuha ang gantimpala.</string>
+    <string name="tutorial_video_button">VIDEO</string>
+    <string name="tutorial_video_recording">Nagre-record ng video… manatili sa screen na ito</string>
+    <string name="tutorial_video_saved">Na-save ang video: %1$s</string>
+    <string name="tutorial_video_failed">Hindi nagawa ang video</string>
 </resources>

@@ -551,4 +551,8 @@
     <string name="daily_rewards_export_title">コインでエクスポート</string>
     <string name="daily_rewards_export_desc">%1$dコインで広告なしエクスポート</string>
     <string name="reward_not_earned">報酬を受け取るには動画を最後まで見てください。</string>
+    <string name="tutorial_video_button">動画</string>
+    <string name="tutorial_video_recording">動画を録画中… この画面のままにしてください</string>
+    <string name="tutorial_video_saved">動画を保存しました: %1$s</string>
+    <string name="tutorial_video_failed">動画を作成できませんでした</string>
 </resources>

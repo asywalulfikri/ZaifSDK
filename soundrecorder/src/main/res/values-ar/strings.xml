@@ -601,4 +601,8 @@
     <string name="daily_rewards_export_title">التصدير بالعملات</string>
     <string name="daily_rewards_export_desc">صدّر بدون إعلانات مقابل %1$d عملة</string>
     <string name="reward_not_earned">شاهد الفيديو حتى النهاية للحصول على المكافأة.</string>
+    <string name="tutorial_video_button">فيديو</string>
+    <string name="tutorial_video_recording">جارٍ تسجيل الفيديو… ابقَ في هذه الشاشة</string>
+    <string name="tutorial_video_saved">تم حفظ الفيديو: %1$s</string>
+    <string name="tutorial_video_failed">تعذّر إنشاء الفيديو</string>
 </resources>

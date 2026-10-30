@@ -68,6 +68,9 @@ import sound.recorder.widget.recording.database.RecordingEntity
 import sound.recorder.widget.recording.export.RecordingExportDialog
 import sound.recorder.widget.recording.export.RecordingExporter
 import com.google.gson.Gson
+import androidx.annotation.RequiresApi
+import com.google.gson.reflect.TypeToken
+import android.util.Log
 import sound.recorder.widget.util.CoinManager
 import java.io.File
 import java.text.SimpleDateFormat
@@ -118,6 +121,8 @@ class InstrumentTutorialDialog(
     }
 
     companion object {
+        /** Rekaman video diteruskan sebentar setelah not terakhir agar dengung bel ikut terekam. */
+        private const val VIDEO_TAIL_MS = 1_500L
         private const val CACHE_TTL_MS = 24 * 60 * 60 * 1000L // 1 hari
         private const val UNLOCK_TTL_MS = 24 * 60 * 60 * 1000L   // 1 hari
         private const val PREFS_UNLOCKED = "zaif_note_unlocks"
@@ -233,6 +238,11 @@ class InstrumentTutorialDialog(
     private var playJob: Job? = null
     private val activeNotes = java.util.concurrent.ConcurrentHashMap<Int, String>()
     private val playHandler = Handler(Looper.getMainLooper())
+
+    /** Admin: export video per lagu. Tombol VIDEO hanya tampil di build debug (Android 6+) bila diisi host. */
+    var videoExport: TutorialVideoExport? = null
+    private val videoHandler = Handler(Looper.getMainLooper())
+    private var activeVideoRecorder: TutorialVideoRecorder? = null
     private var currentDialog: BottomSheetDialog? = null
     private var currentAdapter: SongListAdapter? = null
     private var mBinding: DialogTutorialSongListBinding? = null
@@ -336,10 +346,40 @@ class InstrumentTutorialDialog(
             binding.tvSubtitle.visibility = View.GONE
         }
 
+        // Memutar lagu tanpa cek kunci (dipanggil setelah lolos unlock, atau oleh export video admin).
+        fun playItem(item: SongItem) {
+            when (item) {
+                is SongItem.Local -> onPlay(item.song)
+                is SongItem.Remote -> {
+                    val note = item.note
+                    if (playRemoteAsSong) {
+                        val song = remoteNoteToSong(note)
+                        if (song != null) {
+                            val endMs = song.notes.maxOfOrNull { it.timeMs + it.durationMs } ?: 0L
+                            onPlaybackStatusChanged(true)
+                            onPlay(song)
+                            playHandler.postDelayed({ onPlaybackStatusChanged(false) }, endMs + 300L)
+                        }
+                    } else {
+                        playUserNote(note.jsonNote)
+                    }
+                }
+            }
+        }
+
+        val videoConfig = videoExport
+        val canExportVideo = videoConfig != null && isAppDebuggable(context) &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+
         val adapter = SongListAdapter(
             context = context,
             showLearn = showLearn,
             showExport = showExport,
+            onVideo = if (canExportVideo) { item ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    startVideoExport(context, item, videoConfig!!, dialog) { playItem(it) }
+                }
+            } else null,
             isUnlocked = { item ->
                 when (item) {
                     is SongItem.Local -> isPremium || keyForLocal(item.song) in freeSongKeys || isUnlockedByKey(context, keyForLocal(item.song))
@@ -350,7 +390,7 @@ class InstrumentTutorialDialog(
                 when (item) {
                     is SongItem.Local -> {
                         val key = keyForLocal(item.song)
-                        val doPlay = { dismissShouldStop = false; dialog.dismiss(); onPlay(item.song) }
+                        val doPlay = { dismissShouldStop = false; dialog.dismiss(); playItem(item) }
                         if (isPremium || key in freeSongKeys || isUnlockedByKey(context, key)) doPlay()
                         else showUnlockDialog(context, key, onCoinUnlock = { doPlay() }) { onRequestAd { markUnlocked(context, key); doPlay() } }
                     }
@@ -360,17 +400,7 @@ class InstrumentTutorialDialog(
                         val doPlay = {
                             dismissShouldStop = false
                             dialog.dismiss()
-                            if (playRemoteAsSong) {
-                                val song = remoteNoteToSong(note)
-                                if (song != null) {
-                                    val endMs = song.notes.maxOfOrNull { it.timeMs + it.durationMs } ?: 0L
-                                    onPlaybackStatusChanged(true)
-                                    onPlay(song)
-                                    playHandler.postDelayed({ onPlaybackStatusChanged(false) }, endMs + 300L)
-                                }
-                            } else {
-                                playUserNote(note.jsonNote)
-                            }
+                            playItem(item)
                         }
                         if (note.isFree || isPremium || isUnlockedByKey(context, key)) doPlay()
                         else showUnlockDialog(context, key, onCoinUnlock = { doPlay() }) { onRequestAd { markUnlocked(context, key); doPlay() } }
@@ -1475,6 +1505,8 @@ class InstrumentTutorialDialog(
         private val context: Context,
         private val showLearn: Boolean = true,
         private val showExport: Boolean = true,
+        /** Null = tombol VIDEO disembunyikan (bukan build debug / host tidak memasang videoExport). */
+        private val onVideo: ((SongItem) -> Unit)? = null,
         private val isUnlocked: (SongItem) -> Boolean,
         private val onPlay: (SongItem) -> Unit,
         private val onLearn: (SongItem) -> Unit,
@@ -1494,6 +1526,7 @@ class InstrumentTutorialDialog(
             val btnPlay: TextView = view.findViewById(R.id.btnPlay)
             val btnLearn: TextView = view.findViewById(R.id.btnLearn)
             val btnExport: TextView = view.findViewById(R.id.btnExport)
+            val btnVideo: TextView = view.findViewById(R.id.btnVideo)
             val layoutAdmin: LinearLayout = view.findViewById(R.id.layoutAdmin)
             val btnPublish: TextView = view.findViewById(R.id.btnPublish)
             val btnEdit: TextView = view.findViewById(R.id.btnEdit)
@@ -1601,6 +1634,9 @@ class InstrumentTutorialDialog(
             vh.btnPlay.setOnClickListener { onPlay(item) }
             vh.btnLearn.setOnClickListener { onLearn(item) }
             vh.btnExport.setOnClickListener { onExport(item) }
+            val video = onVideo
+            vh.btnVideo.visibility = if (video != null) View.VISIBLE else View.GONE
+            vh.btnVideo.setOnClickListener { video?.invoke(item) }
         }
 
         override fun getItemCount() = if (isOffline) items.size + 1 else items.size
@@ -1823,6 +1859,7 @@ class InstrumentTutorialDialog(
     }
 
     fun stopAll() {
+        cancelVideoExport()
         playHandler.removeCallbacksAndMessages(null)
         playJob?.cancel()
         playJob = null
@@ -1834,6 +1871,79 @@ class InstrumentTutorialDialog(
         onLearnVisible(false)
         onPlaybackStatusChanged(false)
         onStopAllNotes()
+    }
+
+    // ─── Export video (admin, debug) ───────────────────────────────────────────
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun startVideoExport(
+        context: Context,
+        item: SongItem,
+        config: TutorialVideoExport,
+        dialog: BottomSheetDialog,
+        play: (SongItem) -> Unit
+    ) {
+        val scope = lifecycleScope ?: return
+        val rec = when (item) {
+            is SongItem.Local -> songToRecordingEntity(item.song)
+            is SongItem.Remote -> remoteNoteToRecordingEntity(item.note)
+        }
+        val taps = rec?.let {
+            runCatching {
+                Gson().fromJson<List<RecordedTap>>(it.eventsJson, object : TypeToken<List<RecordedTap>>() {}.type)
+            }.getOrNull()
+        }
+        if (rec == null || taps.isNullOrEmpty()) {
+            onToast(context.getString(R.string.tutorial_video_failed))
+            return
+        }
+        dismissShouldStop = false
+        dialog.dismiss()
+        cancelVideoExport()
+
+        // Tunggu bottom sheet tertutup agar tidak ikut terekam.
+        videoHandler.postDelayed({
+            val view = config.captureView()
+            if (view == null || view.width == 0 || view.height == 0 || !view.isAttachedToWindow) {
+                onToast(context.getString(R.string.tutorial_video_failed))
+                return@postDelayed
+            }
+            val recorder = try {
+                TutorialVideoRecorder(context, view, rec.name, taps, rec.setName, config.noteLabel, config.watermark)
+                    .also { it.start() }
+            } catch (t: Throwable) {
+                Log.e("TutorialVideo", "start failed", t)
+                onToast(context.getString(R.string.tutorial_video_failed))
+                return@postDelayed
+            }
+            onToast(context.getString(R.string.tutorial_video_recording))
+            recorder.markPlaybackStart()
+            play(item)
+            // Diset setelah play: playUserNote memanggil stopAll() yang membatalkan rekaman aktif.
+            activeVideoRecorder = recorder
+
+            videoHandler.postDelayed({
+                activeVideoRecorder = null
+                recorder.stop()
+                scope.launch {
+                    try {
+                        val path = recorder.finish()
+                        onToast(context.getString(R.string.tutorial_video_saved, path))
+                    } catch (t: Throwable) {
+                        Log.e("TutorialVideo", "finish failed", t)
+                        onToast(context.getString(R.string.tutorial_video_failed))
+                    }
+                }
+            }, rec.durationMs + VIDEO_TAIL_MS)
+        }, 400L)
+    }
+
+    private fun cancelVideoExport() {
+        videoHandler.removeCallbacksAndMessages(null)
+        activeVideoRecorder?.let {
+            activeVideoRecorder = null
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) it.cancel()
+        }
     }
 
     private fun publishNote(ctx: Context, note: NoteItem) {

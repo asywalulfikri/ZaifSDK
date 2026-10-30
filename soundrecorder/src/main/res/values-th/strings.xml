@@ -556,4 +556,8 @@
     <string name="daily_rewards_export_title">ส่งออกด้วยเหรียญ</string>
     <string name="daily_rewards_export_desc">ส่งออกแบบไม่มีโฆษณาด้วย %1$d เหรียญ</string>
     <string name="reward_not_earned">ดูวิดีโอจนจบเพื่อรับรางวัล</string>
+    <string name="tutorial_video_button">วิดีโอ</string>
+    <string name="tutorial_video_recording">กำลังบันทึกวิดีโอ… อยู่ที่หน้าจอนี้</string>
+    <string name="tutorial_video_saved">บันทึกวิดีโอแล้ว: %1$s</string>
+    <string name="tutorial_video_failed">สร้างวิดีโอไม่สำเร็จ</string>
 </resources>

@@ -86,6 +86,37 @@ internal class Mp3Renderer(private val context: Context) {
         onProgress: (Int) -> Unit,
         music: List<RecordedMusicSegment> = emptyList()
     ) {
+        outFile.outputStream().buffered().use { out ->
+            val encoder = Mp3Encoder(OUT_RATE, OUT_CHANNELS, bitrateKbps, out)
+            var finished = false
+            try {
+                renderPcm(setName, taps, micPath, renderTaps, resolver, durationMs, maxPolyphony, onProgress, music) { pcm, frames ->
+                    encoder.encode(pcm, frames)
+                }
+                encoder.finish()
+                finished = true
+            } finally {
+                if (!finished) encoder.close()
+            }
+        }
+    }
+
+    /**
+     * Merender audio ke PCM 16-bit stereo 44.1 kHz (interleaved), dikirim per blok ke [sink].
+     * Dipakai export MP3 dan export video tutorial.
+     */
+    suspend fun renderPcm(
+        setName: String,
+        taps: List<RecordedTap>,
+        micPath: String?,
+        renderTaps: Boolean,
+        resolver: RecordingExportResolver?,
+        durationMs: Long,
+        maxPolyphony: Int,
+        onProgress: (Int) -> Unit,
+        music: List<RecordedMusicSegment> = emptyList(),
+        sink: (pcm: ShortArray, frames: Int) -> Unit
+    ) {
         val ctx = coroutineContext
         val isCancelled = { !ctx.isActive }
         val voices = if (renderTaps && resolver != null) {
@@ -112,47 +143,37 @@ internal class Mp3Renderer(private val context: Context) {
             var nextVoice = 0
             var lastProgress = -1
 
-            outFile.outputStream().buffered().use { out ->
-                val encoder = Mp3Encoder(OUT_RATE, OUT_CHANNELS, bitrateKbps, out)
-                var finished = false
-                try {
-                    var blockStart = 0L
-                    while (blockStart < voicesEnd || blockStart < musicEnd || micResampler?.isFinished == false) {
-                        ctx.ensureActive()
-                        val frames = BLOCK_FRAMES
-                        val blockEnd = blockStart + frames
-                        mix.fill(0f)
+            var blockStart = 0L
+            while (blockStart < voicesEnd || blockStart < musicEnd || micResampler?.isFinished == false) {
+                ctx.ensureActive()
+                val frames = BLOCK_FRAMES
+                val blockEnd = blockStart + frames
+                mix.fill(0f)
 
-                        micResampler?.mixInto(mix, frames)
-                        mixMusic(musicVoices, blockStart, frames, mix, isCancelled)
+                micResampler?.mixInto(mix, frames)
+                mixMusic(musicVoices, blockStart, frames, mix, isCancelled)
 
-                        while (nextVoice < voices.size && voices[nextVoice].startFrame < blockEnd) {
-                            active.add(voices[nextVoice++])
-                        }
-                        val it = active.iterator()
-                        while (it.hasNext()) {
-                            val v = it.next()
-                            mixVoice(v, blockStart, frames, mix)
-                            if (v.endFrame <= blockEnd) it.remove()
-                        }
+                while (nextVoice < voices.size && voices[nextVoice].startFrame < blockEnd) {
+                    active.add(voices[nextVoice++])
+                }
+                val it = active.iterator()
+                while (it.hasNext()) {
+                    val v = it.next()
+                    mixVoice(v, blockStart, frames, mix)
+                    if (v.endFrame <= blockEnd) it.remove()
+                }
 
-                        for (i in 0 until frames * OUT_CHANNELS) {
-                            pcm[i] = (softLimit(mix[i]) * Short.MAX_VALUE).toInt().toShort()
-                        }
-                        encoder.encode(pcm, frames)
+                for (i in 0 until frames * OUT_CHANNELS) {
+                    pcm[i] = (softLimit(mix[i]) * Short.MAX_VALUE).toInt().toShort()
+                }
+                sink(pcm, frames)
 
-                        blockStart = blockEnd
-                        // Maksimal 99 sampai selesai, karena total hanya estimasi
-                        val progress = (blockStart * 100 / estimatedFrames).toInt().coerceAtMost(99)
-                        if (progress != lastProgress) {
-                            lastProgress = progress
-                            onProgress(progress)
-                        }
-                    }
-                    encoder.finish()
-                    finished = true
-                } finally {
-                    if (!finished) encoder.close()
+                blockStart = blockEnd
+                // Maksimal 99 sampai selesai, karena total hanya estimasi
+                val progress = (blockStart * 100 / estimatedFrames).toInt().coerceAtMost(99)
+                if (progress != lastProgress) {
+                    lastProgress = progress
+                    onProgress(progress)
                 }
             }
             onProgress(100)
