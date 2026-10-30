@@ -19,6 +19,7 @@ import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
 import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -31,6 +32,11 @@ class InAppUpdateHelper(
 
     private val appUpdateManager: AppUpdateManager by lazy {
         AppUpdateManagerFactory.create(activity)
+    }
+
+    private companion object {
+        /** Jeda cek update setelah app dibuka, agar tidak bersaing dengan startup. */
+        const val INITIAL_CHECK_DELAY_MS = 8_000L
     }
 
     private val updateLock = Any()
@@ -83,6 +89,14 @@ class InAppUpdateHelper(
 
         updateJob = activity.lifecycleScope.launch {
             try {
+                // Jangan cek saat app baru dibuka: hasil bind service Play (onServiceConnected)
+                // selalu dikirim ke main thread dan menumpuk dengan inisialisasi awal di HP
+                // lambat → ANR "Input dispatching timed out" (Oppo A18, Android 15).
+                delay(INITIAL_CHECK_DELAY_MS)
+                if (!activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                    resetUpdateFlag()
+                    return@launch
+                }
                 // Gunakan IO dan Timeout panjang untuk initial check
                 val info = withTimeoutOrNull(15_000L) {
                     withContext(Dispatchers.IO) {
@@ -156,6 +170,12 @@ class InAppUpdateHelper(
         val now = System.currentTimeMillis()
         
         synchronized(updateLock) {
+            // onResume pertama sesi ini: cek awal sudah dijadwalkan checkUpdate (tertunda),
+            // jangan bind service Play kedua kalinya saat app baru dibuka.
+            if (lastResumeCheckTime == 0L) {
+                lastResumeCheckTime = now
+                return
+            }
             // Throttling: Jangan cek di onResume jika baru saja dicek (30 detik)
             if (isUpdateFlowRunning || (now - lastResumeCheckTime < 30_000L)) return
             lastResumeCheckTime = now
