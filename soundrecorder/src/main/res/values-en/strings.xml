@@ -552,4 +552,5 @@
     <string name="daily_rewards_premium_badge">PREMIUM · %1$s left</string>
     <string name="daily_rewards_export_title">Export with coins</string>
     <string name="daily_rewards_export_desc">Export without ads for %1$d coins</string>
+    <string name="reward_not_earned">Watch the video until the end to get the reward.</string>
 </resources>

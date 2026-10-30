@@ -600,4 +600,5 @@
     <string name="daily_rewards_premium_badge">بريميوم · متبقٍ %1$s</string>
     <string name="daily_rewards_export_title">التصدير بالعملات</string>
     <string name="daily_rewards_export_desc">صدّر بدون إعلانات مقابل %1$d عملة</string>
+    <string name="reward_not_earned">شاهد الفيديو حتى النهاية للحصول على المكافأة.</string>
 </resources>

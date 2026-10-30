@@ -553,4 +553,5 @@
     <string name="daily_rewards_premium_badge">PREMIUM · sisa %1$s</string>
     <string name="daily_rewards_export_title">Export pakai koin</string>
     <string name="daily_rewards_export_desc">Export tanpa iklan seharga %1$d koin</string>
+    <string name="reward_not_earned">Tonton video sampai selesai untuk mendapatkan hadiah.</string>
 </resources>

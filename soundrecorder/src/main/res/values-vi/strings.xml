@@ -555,4 +555,5 @@
     <string name="daily_rewards_premium_badge">PREMIUM · còn %1$s</string>
     <string name="daily_rewards_export_title">Xuất bằng xu</string>
     <string name="daily_rewards_export_desc">Xuất không quảng cáo với %1$d xu</string>
+    <string name="reward_not_earned">Xem video đến hết để nhận phần thưởng.</string>
 </resources>

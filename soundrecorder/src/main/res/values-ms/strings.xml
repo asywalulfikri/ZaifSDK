@@ -557,4 +557,5 @@
     <string name="daily_rewards_premium_badge">PREMIUM · baki %1$s</string>
     <string name="daily_rewards_export_title">Eksport dengan syiling</string>
     <string name="daily_rewards_export_desc">Eksport tanpa iklan dengan %1$d syiling</string>
+    <string name="reward_not_earned">Tonton video sehingga habis untuk mendapatkan ganjaran.</string>
 </resources>

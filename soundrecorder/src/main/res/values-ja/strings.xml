@@ -550,4 +550,5 @@
     <string name="daily_rewards_premium_badge">プレミアム · 残り%1$s</string>
     <string name="daily_rewards_export_title">コインでエクスポート</string>
     <string name="daily_rewards_export_desc">%1$dコインで広告なしエクスポート</string>
+    <string name="reward_not_earned">報酬を受け取るには動画を最後まで見てください。</string>
 </resources>

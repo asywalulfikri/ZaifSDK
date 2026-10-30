@@ -555,4 +555,5 @@
     <string name="daily_rewards_premium_badge">พรีเมียม · เหลือ %1$s</string>
     <string name="daily_rewards_export_title">ส่งออกด้วยเหรียญ</string>
     <string name="daily_rewards_export_desc">ส่งออกแบบไม่มีโฆษณาด้วย %1$d เหรียญ</string>
+    <string name="reward_not_earned">ดูวิดีโอจนจบเพื่อรับรางวัล</string>
 </resources>

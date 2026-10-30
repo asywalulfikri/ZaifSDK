@@ -557,4 +557,5 @@
     <string name="daily_rewards_premium_badge">PREMIUM · %1$s pa</string>
     <string name="daily_rewards_export_title">Mag-export gamit ang coins</string>
     <string name="daily_rewards_export_desc">Mag-export nang walang ads sa %1$d coins</string>
+    <string name="reward_not_earned">Panoorin ang video hanggang dulo para makuha ang gantimpala.</string>
 </resources>

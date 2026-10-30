@@ -559,4 +559,5 @@
     <string name="daily_rewards_premium_badge">PREMIUM · noch %1$s</string>
     <string name="daily_rewards_export_title">Mit Münzen exportieren</string>
     <string name="daily_rewards_export_desc">Ohne Werbung exportieren für %1$d Münzen</string>
+    <string name="reward_not_earned">Sieh dir das Video bis zum Ende an, um die Belohnung zu erhalten.</string>
 </resources>

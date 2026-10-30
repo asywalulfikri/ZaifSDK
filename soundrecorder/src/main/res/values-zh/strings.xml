@@ -554,4 +554,5 @@
     <string name="daily_rewards_premium_badge">高级 · 剩余 %1$s</string>
     <string name="daily_rewards_export_title">用金币导出</string>
     <string name="daily_rewards_export_desc">用 %1$d 金币无广告导出</string>
+    <string name="reward_not_earned">观看视频至结束即可获得奖励。</string>
 </resources>

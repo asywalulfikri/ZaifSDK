@@ -24,6 +24,7 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
@@ -96,6 +97,11 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private var mInterstitialAd: InterstitialAd? = null
     private var isInterstitialLoading = false
+    /** Waktu iklan interstitial/rewarded selesai dimuat; iklan AdMob kedaluwarsa setelah 1 jam. */
+    private var interstitialLoadedAt = 0L
+    private var rewardedLoadedAt = 0L
+    /** Waktu terakhir interstitial gagal dimuat; muat ulang saat dibutuhkan diberi jeda. */
+    private var lastInterstitialFailAt = 0L
     private var isLoad = false
     private var isLoadInterstitialReward = false
     private var rewardedInterstitialAd: RewardedInterstitialAd? = null
@@ -154,6 +160,12 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var lastShowTime = 0L
 
     private val SHOW_INTERVAL = 90_000L
+    /** Iklan AdMob kedaluwarsa 1 jam setelah dimuat; buang sedikit lebih awal. */
+    private val AD_EXPIRY_MS = 55 * 60_000L
+    /** Jeda minimal sebelum interstitial dimuat ulang saat dibutuhkan setelah gagal. */
+    private val INTERSTITIAL_ON_DEMAND_GAP_MS = 30_000L
+    /** Setelah retry cepat habis, banner dicoba lagi pelan-pelan selama Activity hidup. */
+    private val BANNER_SLOW_RETRY_MS = 60_000L
     private val LOAD_INTERVAL = 90_000L
 
 
@@ -178,6 +190,18 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var bannerHandler: Handler? = null
     private var bannerRetryRunnable: Runnable? = null
     private var bannerTimeoutRunnable: Runnable? = null
+    /** Container banner game terakhir, untuk mencoba lagi setelah gagal berulang. */
+    private var gameBannerContainerRef: WeakReference<FrameLayout>? = null
+    private var isGameBannerLoaded = false
+    /** Retry lambat jatuh tempo saat Activity di background; dijalankan saat onResume. */
+    private var bannerRetryPendingResume = false
+    /**
+     * Banner game sedang di-pause karena container-nya tersembunyi (mis. GONE di Home).
+     * AdView yang tersembunyi tetap bisa refresh dan meminta iklan yang tidak pernah
+     * terlihat; itu menurunkan show rate. Dipantau otomatis lewat global layout.
+     */
+    private var isGameBannerPaused = false
+    private var gameBannerLayoutListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -352,11 +376,11 @@ open class BaseActivityWidget : AppCompatActivity() {
         val density = resources.displayMetrics.density
         val adWidthDp = (widthPixels / density).toInt()
 
-        // 3. Gunakan Inline Adaptive Banner (LEBIH BAGUS dari standar)
-        // Kita batasi tinggi maksimal 60dp agar tidak menutupi tombol gendang
-        val maxHeightDp = 60
-
-        return AdSize.getInlineAdaptiveBannerAdSize(adWidthDp, maxHeightDp)
+        // 3. Anchored adaptive: ukuran yang disarankan Google untuk banner yang menempel
+        // di atas/bawah layar. Inline adaptive selebar layar landscape (700–900dp) dengan
+        // tinggi maks 60dp membuat banyak permintaan tidak terisi (match rate ~53%).
+        // Tinggi anchored dipilih AdMob per orientasi (landscape HP umumnya ~50dp).
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidthDp)
     }
 
     @SuppressLint("WrongConstant")
@@ -464,6 +488,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         try {
             adView?.pause()
             adView2?.pause()
+            if (adView2 != null) isGameBannerPaused = true
         } catch (e: Exception) {
             Log.e(TAG, "Error pausing adView: ${e.message}")
         }
@@ -478,9 +503,14 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
         try {
             adView?.resume()
-            adView2?.resume()
         } catch (e: Exception) {
             Log.e(TAG, "Error resuming adView: ${e.message}")
+        }
+        // Banner game hanya dilanjutkan bila container-nya memang terlihat.
+        syncGameBannerVisibility()
+        if (bannerRetryPendingResume) {
+            bannerRetryPendingResume = false
+            retryGameBannerNow()
         }
     }
     
@@ -709,6 +739,8 @@ open class BaseActivityWidget : AppCompatActivity() {
         modePortrait: Boolean = false
     ) {
         if (frameLayout == null || !canRequestAdsSafely()) return
+        gameBannerContainerRef = WeakReference(frameLayout)
+        watchGameBannerVisibility(frameLayout)
 
         lifecycleScope.launch {
             try {
@@ -724,6 +756,11 @@ open class BaseActivityWidget : AppCompatActivity() {
                 if (isFinishing || isDestroyed || !isActive) return@launch
                 if (!frameLayout.isAttachedToWindow) return@launch // ⭐ Tambahan
                 if (!isAdMobAvailable()) return@launch
+                // Container tersembunyi (mis. di Home): tunda permintaan sampai tampil.
+                if (!frameLayout.isShown) {
+                    bannerRetryPendingResume = true
+                    return@launch
+                }
 
                 if (modePortrait) {
                     executeBannerPortrait(frameLayout)
@@ -833,6 +870,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
                 isBannerLoading = false
                 bannerRetryCount = 0
+                isGameBannerLoaded = true
 
                 if (isFinishing || isDestroyed) {
                     cleanupBannerAd()
@@ -866,9 +904,10 @@ open class BaseActivityWidget : AppCompatActivity() {
                 Log.e("BannerAd", "Failed: ${error.message}, retry: $bannerRetryCount/$maxBannerRetry")
                 setDebugToast("Banner gagal [${error.code}]: ${error.message} (retry $bannerRetryCount/$maxBannerRetry)")
 
-                // ✅ Check retry limit
+                // Retry cepat habis → jangan menyerah selama sesi; coba lagi pelan-pelan.
                 if (bannerRetryCount >= maxBannerRetry) {
-                    Log.e("BannerAd", "Max retry reached, giving up")
+                    Log.e("BannerAd", "Max quick retry reached, slow retry in ${BANNER_SLOW_RETRY_MS}ms")
+                    scheduleSlowBannerRetry()
                     return
                 }
 
@@ -904,7 +943,8 @@ open class BaseActivityWidget : AppCompatActivity() {
         bannerRetryCount++
 
         if (bannerRetryCount >= maxBannerRetry) {
-            Log.e("BannerAd", "Max retry reached after timeout")
+            Log.e("BannerAd", "Max quick retry reached after timeout, slow retry")
+            scheduleSlowBannerRetry()
             return
         }
 
@@ -921,9 +961,87 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
+    /**
+     * Banner game gagal berulang (sinyal lemah, no-fill): coba lagi tiap
+     * [BANNER_SLOW_RETRY_MS] selama Activity hidup, bukan berhenti sampai app ditutup.
+     * Tidak meminta iklan saat app di background; retry ditunda ke onResume.
+     */
+    private fun scheduleSlowBannerRetry() {
+        if (isFinishing || isDestroyed) return
+        val handler = bannerHandler ?: return
+        bannerRetryRunnable?.let { handler.removeCallbacks(it) }
+        bannerRetryRunnable = Runnable {
+            bannerRetryRunnable = null
+            if (isFinishing || isDestroyed) return@Runnable
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                retryGameBannerNow()
+            } else {
+                bannerRetryPendingResume = true
+            }
+        }.also { handler.postDelayed(it, BANNER_SLOW_RETRY_MS) }
+    }
+
+    private fun retryGameBannerNow() {
+        if (isGameBannerLoaded || isBannerLoading || isFinishing || isDestroyed) return
+        if (!canRequestAdsSafely()) return
+        val container = gameBannerContainerRef?.get() ?: return
+        if (!container.isAttachedToWindow) return
+        // Container tersembunyi: jangan minta iklan yang tidak akan terlihat.
+        // Dicoba lagi oleh syncGameBannerVisibility saat container tampil.
+        if (!container.isShown) {
+            bannerRetryPendingResume = true
+            return
+        }
+        bannerRetryCount = 0
+        executeBanner(container)
+    }
+
+    /** Pantau tampil/sembunyinya container banner game (sekali per container). */
+    private fun watchGameBannerVisibility(container: FrameLayout) {
+        if (gameBannerLayoutListener != null) return
+        val listener = ViewTreeObserver.OnGlobalLayoutListener { syncGameBannerVisibility() }
+        container.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        gameBannerLayoutListener = listener
+    }
+
+    /**
+     * Pause banner game saat container tersembunyi, resume saat tampil lagi dan Activity
+     * aktif. Murah: hanya cek flag + isShown, dipanggil saat layout berubah dan onResume.
+     */
+    private fun syncGameBannerVisibility() {
+        if (isFinishing || isDestroyed) return
+        val container = gameBannerContainerRef?.get() ?: return
+        val visible = container.isShown && lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        try {
+            val ad = adView2
+            if (ad != null) {
+                if (!visible && !isGameBannerPaused) {
+                    ad.pause()
+                    isGameBannerPaused = true
+                } else if (visible && isGameBannerPaused) {
+                    ad.resume()
+                    isGameBannerPaused = false
+                }
+            }
+            if (visible && bannerRetryPendingResume) {
+                bannerRetryPendingResume = false
+                retryGameBannerNow()
+            }
+        } catch (e: Exception) {
+            Log.e("BannerAd", "Pause/resume banner error: ${e.message}")
+        }
+    }
+
     // ✅ Cleanup helper
     private fun cleanupBannerAd() {
         try {
+            gameBannerLayoutListener?.let { l ->
+                gameBannerContainerRef?.get()?.viewTreeObserver?.let { vto ->
+                    if (vto.isAlive) vto.removeOnGlobalLayoutListener(l)
+                }
+            }
+            gameBannerLayoutListener = null
+            isGameBannerPaused = false
             bannerRetryRunnable?.let { bannerHandler?.removeCallbacks(it) }
             bannerTimeoutRunnable?.let { bannerHandler?.removeCallbacks(it) }
             adView2?.animate()?.cancel()
@@ -934,6 +1052,9 @@ open class BaseActivityWidget : AppCompatActivity() {
             bannerTimeoutRunnable = null
 
             isBannerLoading = false
+            isGameBannerLoaded = false
+            bannerRetryPendingResume = false
+            gameBannerContainerRef = null
         } catch (e: Exception) {
             Log.e("BannerAd", "Cleanup error: ${e.message}")
         }
@@ -1133,7 +1254,8 @@ open class BaseActivityWidget : AppCompatActivity() {
         if (isFinishing || isDestroyed) return
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return
 
-        val adId = admobSDKBuilder?.interstitialId ?: return
+        val adId = admobSDKBuilder?.interstitialId.orEmpty()
+        if (adId.isEmpty()) return
         isInterstitialLoading = true
 
         try {
@@ -1159,6 +1281,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         activity.retryJob?.cancel()
                         activity.retryCount = 0
                         activity.mInterstitialAd = ad
+                        activity.interstitialLoadedAt = System.currentTimeMillis()
                         Log.d("ADS", "Interstitial loaded")
                     }
 
@@ -1167,6 +1290,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                         activity?.isInterstitialLoading = false
                         if (activity == null || activity.isDestroyed || activity.isFinishing) return
                         activity.mInterstitialAd = null
+                        activity.lastInterstitialFailAt = System.currentTimeMillis()
                         activity.scheduleRetry(isPremium)
                     }
                 }
@@ -1182,10 +1306,27 @@ open class BaseActivityWidget : AppCompatActivity() {
             return
         }
 
-        val ad = mInterstitialAd
         val now = System.currentTimeMillis()
 
-        if (ad == null || now - lastShowTime < SHOW_INTERVAL || lifecycle.currentState != Lifecycle.State.RESUMED) {
+        // Iklan lama (> 55 menit) sudah kedaluwarsa di AdMob: buang dan muat yang baru.
+        if (mInterstitialAd != null && now - interstitialLoadedAt > AD_EXPIRY_MS) {
+            mInterstitialAd?.fullScreenContentCallback = null
+            mInterstitialAd = null
+        }
+        val ad = mInterstitialAd
+
+        if (ad == null) {
+            // Retry otomatis bisa sudah habis (sinyal lemah di awal sesi). Muat lagi saat
+            // dibutuhkan agar interstitial tidak mati sampai app ditutup; diberi jeda
+            // supaya tidak membanjiri AdMob saat no-fill.
+            if (now - lastInterstitialFailAt >= INTERSTITIAL_ON_DEMAND_GAP_MS) {
+                loadInterstitialIfNeeded(isPremium)
+            }
+            onFinished()
+            return
+        }
+
+        if (now - lastShowTime < SHOW_INTERVAL || lifecycle.currentState != Lifecycle.State.RESUMED) {
             onFinished()
             return
         }
@@ -1267,6 +1408,13 @@ open class BaseActivityWidget : AppCompatActivity() {
     private val retryHandler = Handler(Looper.getMainLooper())
     private var retryRewardRunnable: Runnable? = null
 
+    /**
+     * Muat rewarded ad. Panggil saat user membuka layar yang punya tombol iklan
+     * (panel Misi, daftar lagu terkunci, dialog export), JANGAN saat app dibuka:
+     * kebanyakan user tidak pernah menonton, jadi iklan yang dimuat terbuang
+     * (Belira: 24 tayangan dari ~3.890 iklan termuat per hari). Bila belum siap saat
+     * tombol ditekan, [showRewardedAd] memuat sendiri sambil menampilkan dialog tunggu.
+     */
     fun loadRewardedAd(isPremium: Boolean) {
         if (isPremium || !canRequestAdsSafely()) return
         if (rewardedAd != null || isRewardedLoading) return
@@ -1335,6 +1483,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                             return
                         }
                         activity.rewardedAd = ad
+                        activity.rewardedLoadedAt = System.currentTimeMillis()
                         activity.retryCountReward = 0
                         Log.d("ADS", "Rewarded ad loaded")
                         activity.onRewardedAdReady()
@@ -1361,6 +1510,11 @@ open class BaseActivityWidget : AppCompatActivity() {
             return
         }
 
+        // Iklan lama (> 55 menit) sudah kedaluwarsa di AdMob: buang, lalu tunggu yang baru.
+        if (rewardedAd != null && System.currentTimeMillis() - rewardedLoadedAt > AD_EXPIRY_MS) {
+            rewardedAd?.fullScreenContentCallback = null
+            rewardedAd = null
+        }
         val ad = rewardedAd
         if (ad != null) presentRewardedAd(ad, isPremium, onComplete)
         // Iklan belum siap → tunggu sebentar lalu tampilkan otomatis, user tidak perlu menekan ulang
@@ -1368,6 +1522,10 @@ open class BaseActivityWidget : AppCompatActivity() {
     }
 
     private fun presentRewardedAd(ad: RewardedAd, isPremium: Boolean, onComplete: () -> Unit) {
+        if (isFinishing || isDestroyed) return
+        // Hadiah hanya bila AdMob menyatakan user berhak (onUserEarnedReward), bukan
+        // sekadar iklan ditutup; user yang menutup video lebih awal tidak dapat hadiah.
+        var earned = false
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
 
             override fun onAdDismissedFullScreenContent() {
@@ -1375,8 +1533,9 @@ open class BaseActivityWidget : AppCompatActivity() {
                 ad.fullScreenContentCallback = null
                 rewardedAd = null
                 failedShowAttemptCount = 0 // Reset counter sukses show
-                // Jalankan aksi unlock setelah iklan ditutup
-                onComplete()
+                if (!isFinishing && !isDestroyed) {
+                    if (earned) onComplete() else setToast(getString(R.string.reward_not_earned))
+                }
                 // Load ulang untuk penayangan berikutnya
                 loadRewardedAd(isPremium)
             }
@@ -1392,6 +1551,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
 
         ad.show(this) { rewardItem ->
+            earned = true
             Log.d("ADS", "User earned reward: ${rewardItem.amount}")
         }
     }
