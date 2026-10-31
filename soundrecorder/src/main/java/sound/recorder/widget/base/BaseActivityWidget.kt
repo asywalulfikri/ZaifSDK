@@ -50,7 +50,6 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
@@ -160,6 +159,8 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var lastShowTime = 0L
 
     private val SHOW_INTERVAL = 90_000L
+    /** Jeda inisialisasi AdMob saat consent lama masih berlaku. */
+    private val ADMOB_STARTUP_DELAY_MS = 1_500L
     /** Iklan AdMob kedaluwarsa 1 jam setelah dimuat; buang sedikit lebih awal. */
     private val AD_EXPIRY_MS = 55 * 60_000L
     /** Jeda minimal sebelum interstitial dimuat ulang saat dibutuhkan setelah gagal. */
@@ -535,6 +536,12 @@ open class BaseActivityWidget : AppCompatActivity() {
 
                 consentInformation = UserMessagingPlatform.getConsentInformation(this@BaseActivityWidget)
 
+                // Consent sesi sebelumnya masih berlaku: AdMob tidak perlu menunggu update
+                // status dari jaringan. Dijeda agar Activity pertama sempat tampil.
+                if (canRequestAdsSafely()) {
+                    sound.recorder.widget.MyApp.initializeAdMob(this@BaseActivityWidget, ADMOB_STARTUP_DELAY_MS)
+                }
+
                 // 1. Request update status consent
                 val consentUpdateSuccess = withTimeoutOrNull(10_000L) {
                     suspendCancellableCoroutine { cont ->
@@ -554,12 +561,12 @@ open class BaseActivityWidget : AppCompatActivity() {
 
                 // 2. Tampilkan form jika diperlukan (Pertama kali atau jika expired)
                 if (consentUpdateSuccess == true) {
-                    withTimeoutOrNull(10_000L) {
-                        suspendCancellableCoroutine { cont ->
-                            UserMessagingPlatform.loadAndShowConsentFormIfRequired(this@BaseActivityWidget) { error ->
-                                error?.let { Log.w(TAG, "Form show error: ${it.message}") }
-                                if (cont.isActive) cont.resume(Unit) { }
-                            }
+                    // Tanpa timeout: callback baru jalan saat form ditutup. User boleh membaca
+                    // form lebih lama; kalau ditimeout, hasil consent-nya tidak terbaca.
+                    suspendCancellableCoroutine { cont ->
+                        UserMessagingPlatform.loadAndShowConsentFormIfRequired(this@BaseActivityWidget) { error ->
+                            error?.let { Log.w(TAG, "Form show error: ${it.message}") }
+                            if (cont.isActive) cont.resume(Unit) { }
                         }
                     }
                 }
@@ -574,19 +581,9 @@ open class BaseActivityWidget : AppCompatActivity() {
                 Log.e(TAG, "setupGDPR error: ${e.message}")
             } finally {
                 canRequest = canRequestAdsSafely()
-                // 4. Inisialisasi MobileAds hanya jika belum diinisialisasi oleh MyApp
+                // 4. Inisialisasi AdMob hanya setelah consent mengizinkan iklan
                 if (canRequest) {
-                    if (!sound.recorder.widget.MyApp.areEssentialsInitialized) {
-                        // Jalankan di Background untuk menghindari blokir Main Thread
-                        val context = this@BaseActivityWidget.applicationContext
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            try {
-                                MobileAds.initialize(context) { }
-                            } catch (e: Exception) {
-                                Log.e(TAG, "MobileAds initialize error: ${e.message}")
-                            }
-                        }
-                    }
+                    sound.recorder.widget.MyApp.initializeAdMob(this@BaseActivityWidget)
                 }
                 onComplete(canRequest)
             }
@@ -1544,7 +1541,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 ad.fullScreenContentCallback = null
                 rewardedAd = null
                 failedShowAttemptCount = 0 // Reset counter karena kita anggap gagal show sudah dihandle
-                // Tetap jalankan aksi agar user tidak stuck
+                // Keputusan produk: iklan gagal tayang bukan kesalahan user, reward tetap diberikan.
                 onComplete()
                 loadRewardedAd(isPremium)
             }
@@ -1600,6 +1597,8 @@ open class BaseActivityWidget : AppCompatActivity() {
             setToast(getString(R.string.no_internet_connection))
             return
         }
+        // Keputusan produk, bukan bug: internet ada tapi iklan gagal/terlalu lama dimuat berarti
+        // masalahnya di AdMob, bukan kesalahan user, jadi reward tetap diberikan.
         setToast(getString(R.string.reward_get))
         action()
     }
@@ -1649,13 +1648,17 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
 
-    private fun releaseRewardedAd() {
+    private fun cancelPendingRewardedLoad() {
         // App ditinggalkan saat menunggu iklan → batalkan tanpa reward
         finishRewardWait(grantReward = false)
         // Cancel pending retry agar Runnable tidak jalan setelah Activity mati
         retryRewardRunnable?.let { retryHandler.removeCallbacks(it) }
         retryRewardRunnable = null
         retryCountReward = 0
+    }
+
+    private fun releaseRewardedAd() {
+        cancelPendingRewardedLoad()
 
         // Null-kan callback dan iklan
         rewardedAd?.fullScreenContentCallback = null
@@ -1729,10 +1732,10 @@ open class BaseActivityWidget : AppCompatActivity() {
         reloadJob?.cancel()
         retryHandler.removeCallbacksAndMessages(null)
 
-        // Layar mati / app background → BUANG INTERSTITIAL
-        mInterstitialAd?.fullScreenContentCallback = null
-        mInterstitialAd = null
-        releaseRewardedAd()
+        // Iklan yang sudah dimuat disimpan: tetap valid sampai AD_EXPIRY_MS dan dicek saat
+        // tayang. Membuangnya tiap app ke background menurunkan show rate. Callback rewarded
+        // juga harus tetap ada, karena Activity bisa berhenti saat iklan sedang tayang.
+        cancelPendingRewardedLoad()
     }
 
 

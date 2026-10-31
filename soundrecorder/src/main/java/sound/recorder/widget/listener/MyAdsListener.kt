@@ -7,6 +7,12 @@ object MyAdsListener {
     fun setMyListener(listener: AdsListener?=null) {
         myListener = listener
     }
+
+    /** Lepas listener hanya bila masih milik pemanggil, agar Activity baru tidak ikut terhapus. */
+    fun clearMyListener(listener: AdsListener) {
+        if (myListener === listener) myListener = null
+    }
+
     fun setBanner(show : Boolean) {
         myListener?.onViewBanner(show)
     }
