@@ -14,6 +14,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import sound.recorder.widget.MyApp
+import sound.recorder.widget.R
 import sound.recorder.widget.listener.AdsListener
 import sound.recorder.widget.listener.MyAdsListener
 import java.util.concurrent.atomic.AtomicBoolean
@@ -75,7 +76,7 @@ abstract class BaseGameActivity : BaseActivityWidget(),
             if (validated && waitingForInternet.compareAndSet(true, false)) {
                 runOnUiThread {
                     if (!isFinishing && !isDestroyed) {
-                        setToastADS("Internet restored, loading ads…")
+                        setToastADS(getString(R.string.internet_restored_loading_ads))
                         setupAdsIfReady()
                     }
                 }

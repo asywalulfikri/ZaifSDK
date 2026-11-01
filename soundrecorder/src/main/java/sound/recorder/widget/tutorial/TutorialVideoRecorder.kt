@@ -1,6 +1,5 @@
 package sound.recorder.widget.tutorial
 
-import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -14,8 +13,6 @@ import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import android.view.Choreographer
 import android.view.Surface
@@ -23,6 +20,7 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import sound.recorder.widget.recording.database.RecordedMusicSegment
 import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.recording.export.Mp3Renderer
 import sound.recorder.widget.recording.export.RecordingExporter
@@ -32,16 +30,22 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Pengaturan export video tutorial (khusus admin, hanya tampil di build debug).
+ * Pengaturan export video untuk export tutorial dan export rekaman.
  *
  * @param captureView tampilan alat musik yang direkam (tanpa tombol/iklan). Null → export dibatalkan.
  * @param noteLabel label not untuk padIndex (mis. "5" atau "Sol"), ditampilkan di pojok video.
- * @param watermark teks watermark di pojok kanan bawah, mis. "@BANGPIKY". Null = tanpa watermark.
+ * @param watermark nama yang tampil di watermark versi gratis. Null = memakai nama app.
+ * @param onPremiumPurchased host menyimpan status premium dan mematikan iklan.
+ *        Null = tombol beli tidak tampil di dialog premium.
+ * @param hasPurchased true bila user membeli premium. Premium Pass tidak dihitung, karena video
+ *        tanpa batas hanya untuk pembeli. Null = pembeli dianggap premium tanpa Premium Pass aktif.
  */
 class TutorialVideoExport(
     val captureView: () -> View?,
     val noteLabel: (padIndex: Int) -> String = { (it + 1).toString() },
-    val watermark: String? = null
+    val watermark: String? = null,
+    val onPremiumPurchased: (() -> Unit)? = null,
+    val hasPurchased: (() -> Boolean)? = null
 )
 
 /**
@@ -49,7 +53,7 @@ class TutorialVideoExport(
  * dirender offline dari not yang sama (bersih, tanpa mic).
  *
  * Alur: [start] → (host memutar lagu, [markPlaybackStart] tepat sebelum not pertama dijadwalkan)
- * → [stop] → [finish] di background menghasilkan file MP4 di galeri.
+ * → [stop] → [finish] di background menghasilkan file MP4 di cache export.
  */
 @RequiresApi(Build.VERSION_CODES.M)
 internal class TutorialVideoRecorder(
@@ -59,7 +63,12 @@ internal class TutorialVideoRecorder(
     private val taps: List<RecordedTap>,
     private val setName: String,
     private val noteLabel: (Int) -> String,
-    private val watermark: String?
+    private val style: TutorialVideoStyle,
+    private val micPath: String? = null,
+    private val renderTaps: Boolean = true,
+    private val music: List<RecordedMusicSegment> = emptyList(),
+    /** Rekaman user memakai durasi aslinya; null = dihitung dari ketukan terakhir. */
+    private val audioDurationMs: Long? = null
 ) {
     private companion object {
         const val TAG = "TutorialVideo"
@@ -117,8 +126,9 @@ internal class TutorialVideoRecorder(
         textAlign = Paint.Align.RIGHT
         setShadowLayer(height * 0.006f, 0f, height * 0.003f, Color.argb(160, 0, 0, 0))
     }
+    private val centerWatermarkPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val pillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.argb(150, 0, 0, 0) }
-    private val noteBoxPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#FFC83D") }
+    private val noteBoxPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = this@TutorialVideoRecorder.style.noteColor }
     private val rect = RectF()
 
     init {
@@ -175,16 +185,23 @@ internal class TutorialVideoRecorder(
         try { encoder.signalEndOfInputStream() } catch (t: Throwable) { failure = failure ?: t }
     }
 
-    /** Menyelesaikan video + suara dan menyimpan ke galeri. Mengembalikan lokasi file yang tersimpan. */
-    suspend fun finish(): String = withContext(Dispatchers.IO) {
+    /** Menyelesaikan video + suara. Mengembalikan file di cache export, siap disimpan atau dibagikan. */
+    suspend fun finish(): File = withContext(Dispatchers.IO) {
         try {
             drainThread?.join()
             failure?.let { throw it }
             check(firstVideoPtsUs >= 0) { "no video frames" }
             val audio = encodeAudio()
-            val out = File(context.cacheDir, "tutorial_video_${System.currentTimeMillis()}.mp4")
-            muxFinal(audio, out)
-            try { saveToGallery(out) } finally { out.delete() }
+            val dir = File(context.cacheDir, "exports").apply { mkdirs() }
+            val name = title.replace(Regex("[^A-Za-z0-9 _-]"), "").trim().ifEmpty { "video" }
+            val out = File(dir, "${name}_${System.currentTimeMillis()}.mp4")
+            try {
+                muxFinal(audio, out)
+            } catch (t: Throwable) {
+                out.delete()
+                throw t
+            }
+            out
         } finally {
             release()
         }
@@ -221,14 +238,16 @@ internal class TutorialVideoRecorder(
         val pad = height * 0.03f
 
         // Judul lagu: pil gelap di kiri atas.
-        val tw = titlePaint.measureText(title)
-        val th = titlePaint.textSize
-        rect.set(pad, pad, pad + tw + th * 1.2f, pad + th * 1.7f)
-        c.drawRoundRect(rect, rect.height() / 2, rect.height() / 2, pillPaint)
-        c.drawText(title, rect.left + th * 0.6f, rect.centerY() + th * 0.35f, titlePaint)
+        if (style.showTitle) {
+            val tw = titlePaint.measureText(title)
+            val th = titlePaint.textSize
+            rect.set(pad, pad, pad + tw + th * 1.2f, pad + th * 1.7f)
+            c.drawRoundRect(rect, rect.height() / 2, rect.height() / 2, pillPaint)
+            c.drawText(title, rect.left + th * 0.6f, rect.centerY() + th * 0.35f, titlePaint)
+        }
 
         // Not yang sedang dimainkan: kotak kuning di kanan atas.
-        currentNote()?.let { label ->
+        if (style.showNote) currentNote()?.let { label ->
             val nh = notePaint.textSize
             val boxW = max(nh * 1.8f, notePaint.measureText(label) + nh)
             rect.set(width - pad - boxW, pad, width - pad, pad + nh * 1.5f)
@@ -236,7 +255,12 @@ internal class TutorialVideoRecorder(
             c.drawText(label, rect.centerX(), rect.centerY() + nh * 0.35f, notePaint)
         }
 
-        watermark?.let { c.drawText(it, width - pad, height - pad, watermarkPaint) }
+        if (style.showWatermark) {
+            style.watermark?.takeIf { it.isNotBlank() }?.let {
+                c.drawText(it, width - pad, height - pad, watermarkPaint)
+            }
+        }
+        style.forcedWatermark?.let { drawCenterWatermark(c, it, width, height, centerWatermarkPaint) }
     }
 
     private fun currentNote(): String? {
@@ -337,15 +361,16 @@ internal class TutorialVideoRecorder(
         try {
             val chunkFrames = 1024
             val byteBuf = ByteBuffer.allocate(chunkFrames * AUDIO_CHANNELS * 2).order(java.nio.ByteOrder.LITTLE_ENDIAN)
-            val durationMs = (taps.maxOfOrNull { it.timestamp } ?: 0L) + 1_500L
+            val durationMs = audioDurationMs ?: ((taps.maxOfOrNull { it.timestamp } ?: 0L) + 1_500L)
             Mp3Renderer(context.applicationContext).renderPcm(
                 setName = setName,
                 taps = taps,
-                micPath = null,
-                renderTaps = true,
+                micPath = micPath,
+                renderTaps = renderTaps,
                 resolver = RecordingExporter.resolver,
                 durationMs = durationMs,
                 maxPolyphony = RecordingExporter.maxPolyphony,
+                music = music,
                 onProgress = {}
             ) { pcm, frames ->
                 var offset = 0
@@ -400,35 +425,6 @@ internal class TutorialVideoRecorder(
             extractor.release()
             mux.release()
         }
-    }
-
-    private fun saveToGallery(file: File): String {
-        val name = "${title.replace(Regex("[^A-Za-z0-9 _-]"), "").trim().ifEmpty { "tutorial" }}_${System.currentTimeMillis()}.mp4"
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val values = ContentValues().apply {
-                put(MediaStore.Video.Media.DISPLAY_NAME, name)
-                put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
-                put(MediaStore.Video.Media.RELATIVE_PATH, "${Environment.DIRECTORY_MOVIES}/Tutorial")
-                put(MediaStore.Video.Media.IS_PENDING, 1)
-            }
-            val resolver = context.contentResolver
-            val uri = checkNotNull(resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values))
-            try {
-                resolver.openOutputStream(uri)!!.use { out -> file.inputStream().use { it.copyTo(out) } }
-                values.clear()
-                values.put(MediaStore.Video.Media.IS_PENDING, 0)
-                resolver.update(uri, values, null, null)
-            } catch (t: Throwable) {
-                resolver.delete(uri, null, null)
-                throw t
-            }
-            return "${Environment.DIRECTORY_MOVIES}/Tutorial/$name"
-        }
-        // Android 9 ke bawah: folder Movies milik app (tanpa izin penyimpanan).
-        val dir = checkNotNull(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES))
-        val dest = File(dir, name)
-        file.copyTo(dest, overwrite = true)
-        return dest.absolutePath
     }
 
     private fun release() {

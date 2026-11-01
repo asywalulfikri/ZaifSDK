@@ -22,6 +22,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import sound.recorder.widget.recording.ControlConfig
 import sound.recorder.widget.tutorial.InstrumentTutorialDialog
+import sound.recorder.widget.tutorial.TutorialVideoExport
 import recording.host.cons.SongRepository
 import recording.host.databinding.FragmentDemungBinding
 import sound.recorder.widget.R
@@ -173,6 +174,7 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
                 tutorialDialog.stopAll()
             }
             binding?.btnTutorial?.setOnClickListener {
+                tutorialDialog.videoExport = createVideoExport()
                 tutorialDialog.showLocal(
                     context = requireContext(),
                     instrumentType = instrumentType,
@@ -258,6 +260,8 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
 
         b.controlPanel.setup(instrumentType, LinearLayout.HORIZONTAL, style, this)
         b.controlPanel.setVolumeButtonVisible(true)
+        // isVideo(true) di GameApp baru berlaku bila host memasang view yang direkam.
+        b.controlPanel.videoExport = createVideoExport()
 
         rewardedAdListener = object : InstrumentControlPanel.AdRequestListener {
             override fun onShowRewardedAd(type: String, onComplete: () -> Unit) {
@@ -505,4 +509,15 @@ class DemungFragment : BaseFragment(), SharedPreferences.OnSharedPreferenceChang
         MyCompleteMarqueeListener.setMyListener(null)
         super.onDestroy()
     }
+
+    private fun createVideoExport() = TutorialVideoExport(
+        captureView = { binding?.instrumentView },
+        watermark = getString(recording.host.R.string.app_name),
+        hasPurchased = { soundViewModel.isPremium },
+        onPremiumPurchased = {
+            requireContext().getSharedPreferences("billing_prefs", 0)
+                .edit().putBoolean("REMOVE_ADS_KEY", true).apply()
+            soundViewModel.isPremium = true
+        }
+    )
 }

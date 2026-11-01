@@ -72,6 +72,7 @@ object RecordingExporter {
     var exportCoinCost = 10
 
     private const val PREFS_EXPORT = "zaif_recording_export"
+    private const val MIME_VIDEO = "video/mp4"
     private const val KEY_FREE_DAY = "free_export_day"
     private const val KEY_FREE_USED = "free_exports_used"
 
@@ -120,6 +121,9 @@ object RecordingExporter {
     /** Cek cepat tanpa akses disk (aman di main thread). Keberadaan file mic dicek ulang saat ekspor. */
     fun canExportMp3(rec: RecordingEntity): Boolean =
         !rec.audioPath.isNullOrEmpty() || resolver != null || !rec.musicJson.isNullOrEmpty()
+
+    /** File mic rekaman yang masih bisa dipakai; null bila tidak ada. */
+    internal fun micPathOf(rec: RecordingEntity): String? = rec.audioPath?.takeIf { hasMicAudio(rec) }
 
     /**
      * Membuat file export di cache (siap di-share / disimpan). Jalankan dari coroutine.
@@ -174,9 +178,15 @@ object RecordingExporter {
     // ─── SHARE ───────────────────────────────────────────────────────────────
 
     /** Share lewat chooser Android (WhatsApp, Telegram, Instagram, Drive, dll). */
-    suspend fun share(context: Context, file: File, format: Format, title: String) {
+    suspend fun share(context: Context, file: File, format: Format, title: String) =
+        shareFile(context, file, format.mimeType, title)
+
+    internal suspend fun shareVideo(context: Context, file: File, title: String) =
+        shareFile(context, file, MIME_VIDEO, title)
+
+    private suspend fun shareFile(context: Context, file: File, mime: String, title: String) {
         val uri = contentUri(context, file)
-        val intent = buildSendIntent(uri, format.mimeType, title)
+        val intent = buildSendIntent(uri, mime, title)
         val chooser = Intent.createChooser(intent, title)
         if (context !is Activity) chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(chooser)
@@ -184,9 +194,16 @@ object RecordingExporter {
 
     /** Share langsung ke WhatsApp / WhatsApp Business. @return false jika tidak terpasang. */
     suspend fun shareToWhatsApp(context: Context, file: File, format: Format, title: String): Boolean {
-        val uri = contentUri(context, file)
         // MIDI tidak selalu cocok dengan filter audio WhatsApp → coba juga sebagai dokumen
         val mimeTypes = if (format == Format.MIDI) listOf(format.mimeType, "*/*") else listOf(format.mimeType)
+        return sendToWhatsApp(context, file, mimeTypes, title)
+    }
+
+    internal suspend fun shareVideoToWhatsApp(context: Context, file: File, title: String): Boolean =
+        sendToWhatsApp(context, file, listOf(MIME_VIDEO), title)
+
+    private suspend fun sendToWhatsApp(context: Context, file: File, mimeTypes: List<String>, title: String): Boolean {
+        val uri = contentUri(context, file)
         for (pkg in listOf(WHATSAPP, WHATSAPP_BUSINESS)) {
             for (mime in mimeTypes) {
                 val intent = buildSendIntent(uri, mime, title).setPackage(pkg)
@@ -229,22 +246,35 @@ object RecordingExporter {
      * Menyalin file export ke folder publik: MP3 → Music/<NamaApp>, MIDI → Download/<NamaApp>.
      * @return lokasi yang bisa ditampilkan ke user, contoh "Music/Gamelan/Lagu_3.mp3".
      */
-    suspend fun saveToDevice(context: Context, file: File, format: Format): String = withContext(Dispatchers.IO) {
+    suspend fun saveToDevice(context: Context, file: File, format: Format): String {
+        val baseDir = if (format == Format.MP3) Environment.DIRECTORY_MUSIC else Environment.DIRECTORY_DOWNLOADS
+        return saveFile(context, file, format.mimeType, baseDir)
+    }
+
+    /** Video masuk Movies/<NamaApp> supaya tampil di galeri. */
+    internal suspend fun saveVideoToDevice(context: Context, file: File): String =
+        saveFile(context, file, MIME_VIDEO, Environment.DIRECTORY_MOVIES)
+
+    private suspend fun saveFile(
+        context: Context,
+        file: File,
+        mime: String,
+        baseDir: String
+    ): String = withContext(Dispatchers.IO) {
         val appContext = context.applicationContext
         val folder = safeFileName(appContext.applicationInfo.loadLabel(appContext.packageManager).toString())
-        val baseDir = if (format == Format.MP3) Environment.DIRECTORY_MUSIC else Environment.DIRECTORY_DOWNLOADS
         val relativePath = "$baseDir/$folder"
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val resolver = appContext.contentResolver
-            val collection: Uri = if (format == Format.MP3) {
-                MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-            } else {
-                MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            val collection: Uri = when (baseDir) {
+                Environment.DIRECTORY_MUSIC -> MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                Environment.DIRECTORY_MOVIES -> MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                else -> MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
             }
             val values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
-                put(MediaStore.MediaColumns.MIME_TYPE, format.mimeType)
+                put(MediaStore.MediaColumns.MIME_TYPE, mime)
                 put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
                 put(MediaStore.MediaColumns.IS_PENDING, 1)
             }
@@ -265,7 +295,7 @@ object RecordingExporter {
             val dir = File(Environment.getExternalStoragePublicDirectory(baseDir), folder).apply { mkdirs() }
             val target = uniqueFile(dir, file.name)
             file.copyTo(target, overwrite = false)
-            MediaScannerConnection.scanFile(appContext, arrayOf(target.absolutePath), arrayOf(format.mimeType), null)
+            MediaScannerConnection.scanFile(appContext, arrayOf(target.absolutePath), arrayOf(mime), null)
             "$relativePath/${target.name}"
         }
     }

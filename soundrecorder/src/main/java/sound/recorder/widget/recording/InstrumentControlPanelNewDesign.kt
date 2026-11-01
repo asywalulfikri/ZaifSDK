@@ -27,6 +27,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sound.recorder.widget.R
+import sound.recorder.widget.tutorial.RecordingVideoExport
+import sound.recorder.widget.tutorial.RecordingVideoRun
+import sound.recorder.widget.tutorial.TutorialVideoExport
+import sound.recorder.widget.tutorial.TutorialVideoStyle
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
 import sound.recorder.widget.music.InstrumentDialogHelper
@@ -45,6 +49,10 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
+    private companion object VideoTiming {
+        const val VIDEO_START_DELAY_MS = 400L
+    }
+
 
     // ─── KONTRAK ───
     interface InstrumentControlListener {
@@ -70,6 +78,10 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
     private var activeDialog: android.app.Dialog? = null
 
     var adRequestListener: AdRequestListener? = null
+    /** Host memasang ini agar pilihan VIDEO muncul di export rekaman (bersama isVideo). */
+    var videoExport: TutorialVideoExport? = null
+    private var activeVideoRun: RecordingVideoRun? = null
+
     var onRequestAudioPermissionMic: (() -> Unit)? = null
     var onRequestAudioPermissionAudio: (() -> Unit)? = null
     var isMusicUnlocked = false
@@ -309,6 +321,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
         }
 
         btnStop.setOnClickListener {
+            cancelRecordingVideo()
             recorderManager.stopPlayback(releaseHeld = true)
             audioEngine.stopPlayingAudio()
             musicPlayer.stop()
@@ -638,8 +651,45 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
             onOverdub = { base -> startOverdub(base) },
             // Pratinjau di dialog Potong: putar bagian yang dipilih tanpa menutup dialog
             onPreview = { preview, audioStartMs, onStarted, onDone -> playRecording(preview, audioStartMs, onStarted, onDone) },
-            onStopPreview = { stopPlayback() }
+            onStopPreview = { stopPlayback() },
+            video = { rec, closeList ->
+                RecordingVideoExport.option(context, videoExport, isPremium, rec.name, onPurchased = { isPremium = true }) { style ->
+                    closeList()
+                    // Tunggu daftar tertutup agar user melihat instrumen sejak awal video.
+                    postDelayed({ startRecordingVideo(rec, style) }, VIDEO_START_DELAY_MS)
+                }
+            }
         ) { entity -> playRecording(entity) }
+    }
+
+    private fun startRecordingVideo(rec: RecordingEntity, style: TutorialVideoStyle) {
+        val config = videoExport
+        if (config == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+        val run = RecordingVideoRun.start(context, config, rec, style) {
+            setToast(context.getString(R.string.export_cancelled))
+            stopPlayback()
+        }
+        if (run == null) {
+            setToast(context.getString(R.string.tutorial_video_failed))
+            return
+        }
+        activeVideoRun = run
+        setToast(context.getString(R.string.tutorial_video_recording))
+        playRecording(
+            rec,
+            onStarted = { run.markStarted() },
+            onDone = {
+                if (activeVideoRun === run) {
+                    activeVideoRun = null
+                    run.complete(panelScope) { message -> setToast(message) }
+                }
+            }
+        )
+    }
+
+    private fun cancelRecordingVideo() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) activeVideoRun?.cancel()
+        activeVideoRun = null
     }
 
     /**
@@ -719,6 +769,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
 
     // ─── STOP PLAYBACK ONLY (dipanggil saat tutorial/learn mulai) ───
     fun stopPlayback() {
+        cancelRecordingVideo()
         recorderManager.stopPlayback(releaseHeld = true)
         audioEngine.stopPlayingAudio()
         musicPlayer.stop()
@@ -729,6 +780,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
 
     // ─── LIFECYCLE ───
     fun releaseAndStop() {
+        cancelRecordingVideo()
         if (isRecording) autosaveActiveRecording()
         // Dialog simpan masih terbuka → simpan otomatis sekarang (OnDismissListener jalan asinkron,
         // jadi jangan diandalkan saat panel dilepas). Callback host tidak dipanggil: view host sedang dihancurkan.

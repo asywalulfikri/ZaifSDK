@@ -20,4 +20,5 @@ data class ZaifSDKConfig(
     val isLockMusic: Boolean = false,
     val isCoin: Boolean = false,
     val isFilterTutorial : Boolean = false,
+    val isVideo : Boolean = false,
 )

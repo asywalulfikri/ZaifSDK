@@ -57,6 +57,14 @@ import kotlin.coroutines.resume
 import com.intuit.sdp.R as SdpR
 
 /**
+ * Pilihan VIDEO di dialog export. Null = tidak tampil.
+ *
+ * @param canUse false bila jatah gratis hari ini habis dan user bukan premium (tampil gembok).
+ * @param onClick `closeExport` menutup dialog export saat alur video benar-benar berlanjut.
+ */
+class RecordingVideoOption(val canUse: Boolean, val onClick: (closeExport: () -> Unit) -> Unit)
+
+/**
  * Dialog export rekaman yang netral, bisa dipakai di semua aplikasi alat musik.
  * Pilih MP3/MIDI → Bagikan / WhatsApp / Simpan. Progress + tombol Batal tampil di dalam dialog.
  *
@@ -84,7 +92,8 @@ object RecordingExportDialog {
         context: Context,
         rec: RecordingEntity,
         style: RecordingDialogStyle = RecordingDialogStyle.default,
-        onRequestReward: ((onRewarded: () -> Unit) -> Unit)? = null
+        onRequestReward: ((onRewarded: () -> Unit) -> Unit)? = null,
+        video: RecordingVideoOption? = null
     ) {
         val c = RecordingDialogPalette(context, style)
 
@@ -134,6 +143,7 @@ object RecordingExportDialog {
             setPadding(p, p, p, p)
         }
         val segmentViews = mutableMapOf<RecordingExporter.Format, TextView>()
+        var videoSegment: TextView? = null
         val hintTv = TextView(context).apply {
             setTextColor(c.textSecondary)
             textSize = 11f
@@ -168,6 +178,19 @@ object RecordingExportDialog {
                 }
             }
             segmentViews[format] = tv
+            segment.addView(tv, LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._32sdp), 1f))
+        }
+        video?.let { option ->
+            val tv = TextView(context).apply {
+                val label = context.getString(R.string.tutorial_video_button)
+                text = if (option.canUse) label else "🔒 $label"
+                textSize = 13f
+                typeface = Typeface.DEFAULT_BOLD
+                gravity = Gravity.CENTER
+                setTextColor(c.text)
+                setOnClickListener { option.onClick { dialog.dismiss() } }
+            }
+            videoSegment = tv
             segment.addView(tv, LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._32sdp), 1f))
         }
         root.addView(segment)
@@ -250,6 +273,7 @@ object RecordingExportDialog {
             dialog.setCanceledOnTouchOutside(!working)
             segment.alpha = if (working) 0.5f else 1f
             segmentViews.values.forEach { it.isClickable = !working }
+            videoSegment?.isClickable = !working
             actionRow.visibility = if (working) View.GONE else View.VISIBLE
             if (freeExport) freeTv.visibility = if (working) View.GONE else View.VISIBLE
             progressPanel.visibility = if (working) View.VISIBLE else View.GONE
@@ -462,7 +486,7 @@ object RecordingExportDialog {
     }
 
     /** Android 9 ke bawah: minta izin penyimpanan. @return true jika boleh menyimpan. */
-    private suspend fun ensureStoragePermission(context: Context): Boolean {
+    internal suspend fun ensureStoragePermission(context: Context): Boolean {
         if (!RecordingExporter.needsStoragePermission(context)) return true
         return suspendCancellableCoroutine { cont ->
             Dexter.withContext(context)

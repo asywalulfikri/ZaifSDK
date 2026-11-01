@@ -67,6 +67,7 @@ import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.recording.database.RecordingEntity
 import sound.recorder.widget.recording.export.RecordingExportDialog
 import sound.recorder.widget.recording.export.RecordingExporter
+import sound.recorder.widget.recording.export.RecordingVideoOption
 import com.google.gson.Gson
 import androidx.annotation.RequiresApi
 import com.google.gson.reflect.TypeToken
@@ -243,6 +244,7 @@ class InstrumentTutorialDialog(
     var videoExport: TutorialVideoExport? = null
     private val videoHandler = Handler(Looper.getMainLooper())
     private var activeVideoRecorder: TutorialVideoRecorder? = null
+    private var activeVideoIndicator: VideoRecordingIndicator? = null
     private var currentDialog: BottomSheetDialog? = null
     private var currentAdapter: SongListAdapter? = null
     private var mBinding: DialogTutorialSongListBinding? = null
@@ -377,7 +379,7 @@ class InstrumentTutorialDialog(
             showExport = showExport,
             onVideo = if (canExportVideo) { item ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    startVideoExport(context, item, videoConfig!!, dialog) { playItem(it) }
+                    startVideoExport(context, item, videoConfig!!, dialog, TutorialVideoStyle(watermark = videoConfig.watermark)) { playItem(it) }
                 }
             } else null,
             isUnlocked = { item ->
@@ -428,9 +430,16 @@ class InstrumentTutorialDialog(
                 // Premium tanpa iklan. Lagu yang baru dibuka (iklan / koin) tidak diminta iklan lagi saat export.
                 fun openExport(rec: RecordingEntity?, skipAd: Boolean) {
                     if (rec == null) { onToast(context.getString(R.string.export_failed)); return }
+                    val video = RecordingVideoExport.option(context, videoExport, isPremium, rec.name) { style ->
+                        val config = videoExport
+                        if (config != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            startVideoExport(context, item, config, dialog, style) { playItem(it) }
+                        }
+                    }
                     RecordingExportDialog.show(
                         context, rec,
-                        onRequestReward = if (isPremium || skipAd) null else { onRewarded -> onRequestAd { onRewarded() } }
+                        onRequestReward = if (isPremium || skipAd) null else { onRewarded -> onRequestAd { onRewarded() } },
+                        video = video
                     )
                 }
                 when (item) {
@@ -1881,6 +1890,7 @@ class InstrumentTutorialDialog(
         item: SongItem,
         config: TutorialVideoExport,
         dialog: BottomSheetDialog,
+        style: TutorialVideoStyle,
         play: (SongItem) -> Unit
     ) {
         val scope = lifecycleScope ?: return
@@ -1909,7 +1919,7 @@ class InstrumentTutorialDialog(
                 return@postDelayed
             }
             val recorder = try {
-                TutorialVideoRecorder(context, view, rec.name, taps, rec.setName, config.noteLabel, config.watermark)
+                TutorialVideoRecorder(context, view, rec.name, taps, rec.setName, config.noteLabel, style)
                     .also { it.start() }
             } catch (t: Throwable) {
                 Log.e("TutorialVideo", "start failed", t)
@@ -1917,21 +1927,32 @@ class InstrumentTutorialDialog(
                 return@postDelayed
             }
             onToast(context.getString(R.string.tutorial_video_recording))
+            val indicator = VideoRecordingIndicator(view, rec.durationMs + VIDEO_TAIL_MS) {
+                onToast(context.getString(R.string.export_cancelled))
+                stopAll()
+            }.also { it.show() }
             recorder.markPlaybackStart()
             play(item)
             // Diset setelah play: playUserNote memanggil stopAll() yang membatalkan rekaman aktif.
             activeVideoRecorder = recorder
+            activeVideoIndicator = indicator
 
             videoHandler.postDelayed({
                 activeVideoRecorder = null
+                activeVideoIndicator = null
                 recorder.stop()
+                indicator.showSaving()
                 scope.launch {
                     try {
-                        val path = recorder.finish()
-                        onToast(context.getString(R.string.tutorial_video_saved, path))
+                        val file = recorder.finish()
+                        if (style.forcedWatermark != null) TutorialVideoQuota.consume(context)
+                        indicator.dismiss()
+                        RecordingVideoResultDialog.show(context, file, rec.name)
                     } catch (t: Throwable) {
                         Log.e("TutorialVideo", "finish failed", t)
                         onToast(context.getString(R.string.tutorial_video_failed))
+                    } finally {
+                        indicator.dismiss()
                     }
                 }
             }, rec.durationMs + VIDEO_TAIL_MS)
@@ -1940,6 +1961,8 @@ class InstrumentTutorialDialog(
 
     private fun cancelVideoExport() {
         videoHandler.removeCallbacksAndMessages(null)
+        activeVideoIndicator?.dismiss()
+        activeVideoIndicator = null
         activeVideoRecorder?.let {
             activeVideoRecorder = null
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) it.cancel()

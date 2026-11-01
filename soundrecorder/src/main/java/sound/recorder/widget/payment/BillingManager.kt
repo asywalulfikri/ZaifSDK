@@ -76,7 +76,9 @@ class BillingManager(
 
     private var isProcessing = false
 
-    fun makePurchase() {
+    /** @param onError dipanggil bila halaman pembelian gagal dibuka (bukan saat user membatalkan). */
+    @JvmOverloads
+    fun makePurchase(onError: (() -> Unit)? = null) {
         if (isProcessing) return
         isProcessing = true
 
@@ -84,12 +86,14 @@ class BillingManager(
         if (activity == null) {
             Log.e(TAG, "Activity is null, cannot launch billing flow")
             isProcessing = false
+            onError?.invoke()
             return
         }
 
         if (!billingClient.isReady) {
             Log.e(TAG, "BillingClient not ready")
             isProcessing = false
+            onError?.invoke()
             return
         }
 
@@ -127,15 +131,18 @@ class BillingManager(
                             if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
                                 Log.e(TAG, "Billing flow error: ${billingResult.debugMessage}")
                                 isProcessing = false
+                                onError?.invoke()
                             }
                         }
                     } else {
                         isProcessing = false
+                        onError?.invoke()
                     }
                 }
             } else {
                 Log.e(TAG, "Product not found: ${result.debugMessage}")
                 isProcessing = false
+                onError?.invoke()
             }
         }
     }
