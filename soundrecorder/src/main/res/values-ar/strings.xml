@@ -605,6 +605,9 @@
     <string name="tutorial_video_recording">جارٍ تسجيل الفيديو… ابقَ في هذه الشاشة</string>
     <string name="tutorial_video_done_title">الفيديو جاهز</string>
     <string name="tutorial_video_failed">تعذّر إنشاء الفيديو</string>
+    <string name="admin_copy">نسخ</string>
+    <string name="admin_copied">تم النسخ</string>
+    <string name="admin_device_info">معلومات الجهاز</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">عاد الاتصال بالإنترنت، جارٍ تحميل الإعلانات…</string>

@@ -560,6 +560,9 @@
     <string name="tutorial_video_recording">Đang quay video… hãy ở lại màn hình này</string>
     <string name="tutorial_video_done_title">Video của bạn đã sẵn sàng</string>
     <string name="tutorial_video_failed">Không thể tạo video</string>
+    <string name="admin_copy">Sao chép</string>
+    <string name="admin_copied">Đã sao chép</string>
+    <string name="admin_device_info">Thông tin thiết bị</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">Đã có Internet, đang tải quảng cáo…</string>

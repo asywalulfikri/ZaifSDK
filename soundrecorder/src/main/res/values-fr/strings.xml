@@ -562,6 +562,9 @@
     <string name="tutorial_video_recording">Enregistrement vidéo… reste sur cet écran</string>
     <string name="tutorial_video_done_title">Votre vidéo est prête</string>
     <string name="tutorial_video_failed">Impossible de créer la vidéo</string>
+    <string name="admin_copy">Copier</string>
+    <string name="admin_copied">Copié</string>
+    <string name="admin_device_info">Infos appareil</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">Internet rétabli, chargement des annonces…</string>

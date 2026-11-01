@@ -90,7 +90,6 @@ internal object TutorialVideoQuota {
 /** Watermark versi gratis di tengah gambar; dipakai sama oleh preview dan rekaman. */
 internal fun drawCenterWatermark(canvas: Canvas, text: String, width: Int, height: Int, paint: Paint) {
     paint.clearShadowLayer()
-    paint.color = Color.argb(120, 255, 255, 255)
     paint.typeface = Typeface.DEFAULT_BOLD
     paint.textAlign = Paint.Align.CENTER
     paint.textSize = height * 0.12f
@@ -98,6 +97,14 @@ internal fun drawCenterWatermark(canvas: Canvas, text: String, width: Int, heigh
     val maxWidth = width * 0.8f
     if (textWidth > maxWidth) paint.textSize *= maxWidth / textWidth
     val y = height / 2f - (paint.descent() + paint.ascent()) / 2f
+    // Garis gelap + isi terang supaya terbaca di tuts putih maupun tuts hitam.
+    paint.style = Paint.Style.STROKE
+    paint.strokeWidth = paint.textSize * 0.1f
+    paint.strokeJoin = Paint.Join.ROUND
+    paint.color = Color.argb(170, 0, 0, 0)
+    canvas.drawText(text, width / 2f, y, paint)
+    paint.style = Paint.Style.FILL
+    paint.color = Color.argb(215, 255, 255, 255)
     canvas.drawText(text, width / 2f, y, paint)
 }
 

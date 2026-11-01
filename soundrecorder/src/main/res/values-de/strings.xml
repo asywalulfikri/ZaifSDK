@@ -564,6 +564,9 @@
     <string name="tutorial_video_recording">Video wird aufgenommen… bleib auf diesem Bildschirm</string>
     <string name="tutorial_video_done_title">Dein Video ist fertig</string>
     <string name="tutorial_video_failed">Video konnte nicht erstellt werden</string>
+    <string name="admin_copy">Kopieren</string>
+    <string name="admin_copied">Kopiert</string>
+    <string name="admin_device_info">Geräteinfo</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">Internet wieder da, Werbung wird geladen…</string>

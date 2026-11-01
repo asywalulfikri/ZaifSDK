@@ -558,6 +558,9 @@
     <string name="tutorial_video_recording">वीडियो रिकॉर्ड हो रहा है… इसी स्क्रीन पर रहें</string>
     <string name="tutorial_video_done_title">आपका वीडियो तैयार है</string>
     <string name="tutorial_video_failed">वीडियो नहीं बन सका</string>
+    <string name="admin_copy">कॉपी करें</string>
+    <string name="admin_copied">कॉपी हो गया</string>
+    <string name="admin_device_info">डिवाइस जानकारी</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">इंटरनेट वापस आया, विज्ञापन लोड हो रहे हैं…</string>

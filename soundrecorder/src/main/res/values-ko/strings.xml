@@ -562,6 +562,9 @@
     <string name="tutorial_video_recording">동영상 녹화 중… 이 화면에 머물러 주세요</string>
     <string name="tutorial_video_done_title">동영상이 준비되었습니다</string>
     <string name="tutorial_video_failed">동영상을 만들 수 없습니다</string>
+    <string name="admin_copy">복사</string>
+    <string name="admin_copied">복사됨</string>
+    <string name="admin_device_info">기기 정보</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">인터넷이 복구되어 광고를 불러오는 중…</string>

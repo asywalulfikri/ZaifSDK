@@ -564,6 +564,9 @@
     <string name="tutorial_video_recording">Video wordt opgenomen… blijf op dit scherm</string>
     <string name="tutorial_video_done_title">Je video is klaar</string>
     <string name="tutorial_video_failed">Video maken mislukt</string>
+    <string name="admin_copy">Kopiëren</string>
+    <string name="admin_copied">Gekopieerd</string>
+    <string name="admin_device_info">Apparaatinfo</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">Internet hersteld, advertenties laden…</string>

@@ -555,6 +555,9 @@
     <string name="tutorial_video_recording">動画を録画中… この画面のままにしてください</string>
     <string name="tutorial_video_done_title">動画ができました</string>
     <string name="tutorial_video_failed">動画を作成できませんでした</string>
+    <string name="admin_copy">コピー</string>
+    <string name="admin_copied">コピーしました</string>
+    <string name="admin_device_info">端末情報</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">インターネットが復旧しました。広告を読み込み中…</string>

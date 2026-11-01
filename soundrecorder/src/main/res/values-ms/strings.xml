@@ -562,6 +562,9 @@
     <string name="tutorial_video_recording">Merakam video… jangan tinggalkan skrin ini</string>
     <string name="tutorial_video_done_title">Video anda sudah siap</string>
     <string name="tutorial_video_failed">Gagal membuat video</string>
+    <string name="admin_copy">Salin</string>
+    <string name="admin_copied">Disalin</string>
+    <string name="admin_device_info">Info Peranti</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">Internet disambung semula, memuatkan iklan…</string>

@@ -558,6 +558,9 @@
     <string name="tutorial_video_recording">Запись видео… не уходите с этого экрана</string>
     <string name="tutorial_video_done_title">Ваше видео готово</string>
     <string name="tutorial_video_failed">Не удалось создать видео</string>
+    <string name="admin_copy">Копировать</string>
+    <string name="admin_copied">Скопировано</string>
+    <string name="admin_device_info">Об устройстве</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">Интернет восстановлен, загрузка рекламы…</string>

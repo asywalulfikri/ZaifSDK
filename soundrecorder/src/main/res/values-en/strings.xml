@@ -557,6 +557,9 @@
     <string name="tutorial_video_recording">Recording video… stay on this screen</string>
     <string name="tutorial_video_done_title">Your video is ready</string>
     <string name="tutorial_video_failed">Failed to create video</string>
+    <string name="admin_copy">Copy</string>
+    <string name="admin_copied">Copied</string>
+    <string name="admin_device_info">Device Info</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">Internet restored, loading ads…</string>

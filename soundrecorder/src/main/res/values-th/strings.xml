@@ -560,6 +560,9 @@
     <string name="tutorial_video_recording">กำลังบันทึกวิดีโอ… อยู่ที่หน้าจอนี้</string>
     <string name="tutorial_video_done_title">วิดีโอของคุณพร้อมแล้ว</string>
     <string name="tutorial_video_failed">สร้างวิดีโอไม่สำเร็จ</string>
+    <string name="admin_copy">คัดลอก</string>
+    <string name="admin_copied">คัดลอกแล้ว</string>
+    <string name="admin_device_info">ข้อมูลอุปกรณ์</string>
     <string name="tutorial_video_free_watermark">%1$s • Free Export Video</string>
     <string name="tutorial_video_rec_timer">REC %1$s / %2$s</string>
     <string name="internet_restored_loading_ads">อินเทอร์เน็ตกลับมาแล้ว กำลังโหลดโฆษณา…</string>
