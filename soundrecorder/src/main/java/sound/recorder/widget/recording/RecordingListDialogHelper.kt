@@ -509,7 +509,7 @@ object RecordingListDialogHelper {
         }
         val range = TrimRangeView(
             context, duration,
-            tapTimes = taps.filter { it.metadata != RecordingExporter.OFF_METADATA }.map { it.timestamp },
+            tapTimes = taps.filterNot { RecordingExporter.isOffMetadata(it.metadata) }.map { it.timestamp },
             musicRanges = music.map { it.atMs..it.endMs },
             minLengthMs = RecordingTrim.MIN_LENGTH_MS,
             accent = c.accent,

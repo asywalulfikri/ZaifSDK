@@ -131,7 +131,7 @@ internal class TutorialVideoRecorder(
     private var playStartNs = 0L
 
     // Not yang sedang tampil: tap terakhir yang sudah lewat (dicari maju, tap sudah urut).
-    private val sortedTaps = taps.filter { it.metadata != RecordingExporter.OFF_METADATA }.sortedBy { it.timestamp }
+    private val sortedTaps = taps.filterNot { RecordingExporter.isOffMetadata(it.metadata) }.sortedBy { it.timestamp }
     private var tapCursor = 0
 
     private val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {

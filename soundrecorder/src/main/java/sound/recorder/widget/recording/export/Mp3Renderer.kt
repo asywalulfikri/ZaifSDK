@@ -232,7 +232,7 @@ internal class Mp3Renderer(private val context: Context) {
         val sounding = ArrayDeque<Voice>()
         for (tap in taps.sortedBy { it.timestamp }) {
             val frame = msToFrame(tap.timestamp)
-            if (tap.metadata == RecordingExporter.OFF_METADATA) {
+            if (RecordingExporter.isOffMetadata(tap.metadata)) {
                 // Lepas not terakhir pada pad yang sama
                 voices.lastOrNull {
                     it.padIndex == tap.padIndex && it.releaseFrame == Long.MAX_VALUE && it.startFrame <= frame

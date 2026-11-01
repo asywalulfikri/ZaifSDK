@@ -1668,7 +1668,7 @@ class InstrumentTutorialDialog(
             // Dynamic sustain detection: check if any event has "OFF" metadata
             val hasSustain = allEvents.any {
                 val meta = if (it.has("metadata")) it.optString("metadata", "") else it.optString("c", "")
-                meta == "OFF"
+                RecordingExporter.isOffMetadata(meta)
             }
 
             if (hasSustain) {
@@ -1678,7 +1678,7 @@ class InstrumentTutorialDialog(
                     val timestamp = if (o.has("timestamp")) o.getLong("timestamp") else o.optLong("b", 0L)
                     val metadata = if (o.has("metadata")) o.optString("metadata", "") else o.optString("c", "")
 
-                    if (metadata == "OFF") {
+                    if (RecordingExporter.isOffMetadata(metadata)) {
                         val startTime = activeNotes.remove(padIndex)
                         if (startTime != null) {
                             notes.add(InstrumentNote(padIndex, startTime, timestamp - startTime))
@@ -1777,7 +1777,7 @@ class InstrumentTutorialDialog(
                     lastTimestamp = event.timestamp
 
                     val metadata = event.metadata.orEmpty()
-                    val isOff = metadata == "OFF"
+                    val isOff = RecordingExporter.isOffMetadata(metadata)
 
                     // Filter by prefix if provided
                     val isCurrentInstrument = instrumentPrefix.isEmpty() || metadata.isEmpty() || metadata.startsWith(instrumentPrefix) || !metadata.contains("_")
@@ -1818,7 +1818,7 @@ class InstrumentTutorialDialog(
                 onToast(mContext?.getString(R.string.invalid_note_format) ?: "Invalid format")
                 return@launch
             }
-            val events = allEvents.filter { it.metadata != "OFF" }
+            val events = allEvents.filterNot { RecordingExporter.isOffMetadata(it.metadata) }
             if (events.isEmpty()) {
                 onToast(mContext?.getString(R.string.invalid_note_format) ?: "Invalid format")
                 return@launch

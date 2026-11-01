@@ -31,7 +31,7 @@ internal object MidiFileWriter {
         val notes = mutableListOf<Note>()
         val open = mutableMapOf<Int, Note>()
         for (tap in sorted) {
-            if (tap.metadata == RecordingExporter.OFF_METADATA) {
+            if (RecordingExporter.isOffMetadata(tap.metadata)) {
                 open.remove(tap.padIndex)?.let { it.endMs = tap.timestamp }
                 continue
             }

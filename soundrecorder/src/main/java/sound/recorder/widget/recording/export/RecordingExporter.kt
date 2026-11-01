@@ -38,6 +38,10 @@ object RecordingExporter {
 
     const val OFF_METADATA = "OFF"
 
+    /** Lepas nada: "OFF" polos, atau "OFF|alat|suara" dari host yang menyimpan detail suaranya. */
+    fun isOffMetadata(metadata: String?): Boolean =
+        metadata == OFF_METADATA || metadata?.startsWith("$OFF_METADATA|") == true
+
     private const val WHATSAPP = "com.whatsapp"
     private const val WHATSAPP_BUSINESS = "com.whatsapp.w4b"
 
