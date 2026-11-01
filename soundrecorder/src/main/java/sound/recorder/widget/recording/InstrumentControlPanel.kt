@@ -316,6 +316,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
         }
 
         btnStop.setOnClickListener {
+            playToken++
             cancelRecordingVideo()
             recorderManager.stopPlayback(releaseHeld = true)
             audioEngine.stopPlayingAudio()
@@ -693,6 +694,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
      * @param onStarted dipanggil saat ketukan benar-benar mulai
      * @param onDone dipanggil setelah semuanya selesai
      */
+    private var playToken = 0
+
     private fun playRecording(
         entity: RecordingEntity,
         audioStartMs: Long = 0L,
@@ -700,12 +703,15 @@ class InstrumentControlPanel @JvmOverloads constructor(
         onDone: (() -> Unit)? = null
     ) {
         if (entity.eventsJson.isEmpty()) return
+        val token = ++playToken
         btnStop.visibility = VISIBLE
         blinkManager.startStopBlink()
 
         panelScope.launch {
             val events = recorderManager.parseJson(entity.eventsJson)
             val music = withContext(Dispatchers.Default) { RecordedMusicJson.parse(entity.musicJson) }
+            // Sudah di-stop atau diganti selama data disiapkan → jangan mulai bunyi yang tidak bisa dihentikan
+            if (token != playToken) return@launch
             val hasAudio = !entity.audioPath.isNullOrEmpty()
 
             // Selesai setelah ketukan/audio DAN lagu (jika ada) selesai
@@ -726,7 +732,8 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 }
             }
 
-            val startPlayback = {
+            val startPlayback = startPlayback@{
+                if (token != playToken) return@startPlayback
                 if (hasAudio) {
                     listener?.onMuteControl(!entity.isEarphoneRecording)
                     val onAudioFinish: () -> Unit = {
@@ -764,6 +771,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
 
     // ─── STOP PLAYBACK ONLY (dipanggil saat tutorial/learn mulai) ───
     fun stopPlayback() {
+        playToken++
         cancelRecordingVideo()
         recorderManager.stopPlayback(releaseHeld = true)
         audioEngine.stopPlayingAudio()

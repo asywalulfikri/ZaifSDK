@@ -487,6 +487,8 @@ object RecordingListDialogHelper {
         trimPreview: TrimPreview?,
         onSaved: (RecordingEntity) -> Unit
     ) {
+        // Putaran yang masih jalan tidak bisa dihentikan dari dialog ini dan akan menimpa pratinjau.
+        trimPreview?.stop?.invoke()
         val taps = RecordingTrim.parseTaps(rec.eventsJson)
         val music = RecordedMusicJson.parse(rec.musicJson)
         val duration = maxOf(rec.durationMs, taps.maxOfOrNull { it.timestamp } ?: 0L, music.maxOfOrNull { it.endMs } ?: 0L)
