@@ -562,6 +562,10 @@
     <string name="tutorial_video_recording">Enregistrement vidéo… reste sur cet écran</string>
     <string name="tutorial_video_done_title">Votre vidéo est prête</string>
     <string name="tutorial_video_failed">Impossible de créer la vidéo</string>
+    <string name="update_ready_title">Mise à jour prête</string>
+    <string name="update_ready_message">La mise à jour a été téléchargée. L\'application va redémarrer pour l\'installer.</string>
+    <string name="update_install">Installer</string>
+    <string name="update_later">Plus tard</string>
     <string name="admin_copy">Copier</string>
     <string name="admin_copied">Copié</string>
     <string name="admin_device_info">Infos appareil</string>

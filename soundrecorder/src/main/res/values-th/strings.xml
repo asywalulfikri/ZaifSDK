@@ -560,6 +560,10 @@
     <string name="tutorial_video_recording">กำลังบันทึกวิดีโอ… อยู่ที่หน้าจอนี้</string>
     <string name="tutorial_video_done_title">วิดีโอของคุณพร้อมแล้ว</string>
     <string name="tutorial_video_failed">สร้างวิดีโอไม่สำเร็จ</string>
+    <string name="update_ready_title">อัปเดตพร้อมแล้ว</string>
+    <string name="update_ready_message">ดาวน์โหลดอัปเดตแล้ว แอปจะเริ่มใหม่เพื่อติดตั้ง</string>
+    <string name="update_install">ติดตั้ง</string>
+    <string name="update_later">ภายหลัง</string>
     <string name="admin_copy">คัดลอก</string>
     <string name="admin_copied">คัดลอกแล้ว</string>
     <string name="admin_device_info">ข้อมูลอุปกรณ์</string>

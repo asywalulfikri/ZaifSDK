@@ -605,6 +605,10 @@
     <string name="tutorial_video_recording">جارٍ تسجيل الفيديو… ابقَ في هذه الشاشة</string>
     <string name="tutorial_video_done_title">الفيديو جاهز</string>
     <string name="tutorial_video_failed">تعذّر إنشاء الفيديو</string>
+    <string name="update_ready_title">التحديث جاهز</string>
+    <string name="update_ready_message">تم تنزيل التحديث. سيُعاد تشغيل التطبيق لتثبيته.</string>
+    <string name="update_install">تثبيت</string>
+    <string name="update_later">لاحقًا</string>
     <string name="admin_copy">نسخ</string>
     <string name="admin_copied">تم النسخ</string>
     <string name="admin_device_info">معلومات الجهاز</string>

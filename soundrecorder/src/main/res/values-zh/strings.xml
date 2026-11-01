@@ -559,6 +559,10 @@
     <string name="tutorial_video_recording">正在录制视频… 请停留在此页面</string>
     <string name="tutorial_video_done_title">你的视频已完成</string>
     <string name="tutorial_video_failed">无法创建视频</string>
+    <string name="update_ready_title">更新已就绪</string>
+    <string name="update_ready_message">更新已下载。应用将重新启动以完成安装。</string>
+    <string name="update_install">安装</string>
+    <string name="update_later">稍后</string>
     <string name="admin_copy">复制</string>
     <string name="admin_copied">已复制</string>
     <string name="admin_device_info">设备信息</string>

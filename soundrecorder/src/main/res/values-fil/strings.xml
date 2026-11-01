@@ -562,6 +562,10 @@
     <string name="tutorial_video_recording">Nagre-record ng video… manatili sa screen na ito</string>
     <string name="tutorial_video_done_title">Handa na ang video mo</string>
     <string name="tutorial_video_failed">Hindi nagawa ang video</string>
+    <string name="update_ready_title">Handa na ang update</string>
+    <string name="update_ready_message">Na-download na ang update. Magre-restart ang app para i-install ito.</string>
+    <string name="update_install">I-install</string>
+    <string name="update_later">Mamaya</string>
     <string name="admin_copy">Kopyahin</string>
     <string name="admin_copied">Nakopya</string>
     <string name="admin_device_info">Info ng Device</string>

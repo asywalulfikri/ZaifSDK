@@ -558,6 +558,10 @@
     <string name="tutorial_video_recording">वीडियो रिकॉर्ड हो रहा है… इसी स्क्रीन पर रहें</string>
     <string name="tutorial_video_done_title">आपका वीडियो तैयार है</string>
     <string name="tutorial_video_failed">वीडियो नहीं बन सका</string>
+    <string name="update_ready_title">अपडेट तैयार है</string>
+    <string name="update_ready_message">अपडेट डाउनलोड हो गया है। इसे इंस्टॉल करने के लिए ऐप फिर से शुरू होगा।</string>
+    <string name="update_install">इंस्टॉल करें</string>
+    <string name="update_later">बाद में</string>
     <string name="admin_copy">कॉपी करें</string>
     <string name="admin_copied">कॉपी हो गया</string>
     <string name="admin_device_info">डिवाइस जानकारी</string>

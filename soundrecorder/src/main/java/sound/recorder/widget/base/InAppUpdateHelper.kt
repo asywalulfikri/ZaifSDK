@@ -2,9 +2,9 @@ package sound.recorder.widget.base
 
 import android.app.Activity
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import sound.recorder.widget.R
 
 class InAppUpdateHelper(
     private val activity: ComponentActivity,
@@ -45,6 +46,12 @@ class InAppUpdateHelper(
     private var lastResumeCheckTime = 0L
     private var updateJob: Job? = null
 
+    private var installDialog: AlertDialog? = null
+    /** Unduhan selesai saat app di background: dialog ditampilkan saat app kembali. */
+    private var installPromptPending = false
+    /** User memilih Nanti: tidak ditanya lagi sampai app dibuka ulang. */
+    private var installPostponed = false
+
     private val updateLauncher =
         activity.registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
@@ -61,12 +68,12 @@ class InAppUpdateHelper(
             InstallStatus.DOWNLOADED -> {
                 activity.lifecycleScope.launch {
                     try {
-                        Toast.makeText(activity, "Update downloaded", Toast.LENGTH_SHORT).show()
-                        completeFlexibleUpdate()
+                        requestInstall()
                     } catch (e: Exception) {
                         Log.e("Update", "Listener error", e)
                     } finally {
                         unregisterListenerIfNeeded()
+                        resetUpdateFlag()
                     }
                 }
             }
@@ -103,6 +110,15 @@ class InAppUpdateHelper(
                         appUpdateManager.appUpdateInfo.await()
                     }
                 } ?: run {
+                    resetUpdateFlag()
+                    return@launch
+                }
+
+                // Sudah diunduh tapi belum dipasang (user memilih Nanti di sesi sebelumnya)
+                if (updateType == AppUpdateType.FLEXIBLE &&
+                    info.installStatus() == InstallStatus.DOWNLOADED
+                ) {
+                    requestInstall()
                     resetUpdateFlag()
                     return@launch
                 }
@@ -156,6 +172,27 @@ class InAppUpdateHelper(
         }
     }
 
+    /**
+     * Memasang update me-restart app, jadi user yang menentukan waktunya:
+     * bisa saja dia sedang bermain, merekam, atau export.
+     */
+    private fun requestInstall() {
+        if (installPostponed || installDialog?.isShowing == true) return
+        if (activity.isFinishing || activity.isDestroyed) return
+        if (!activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            installPromptPending = true
+            return
+        }
+        installPromptPending = false
+        installDialog = AlertDialog.Builder(activity)
+            .setTitle(R.string.update_ready_title)
+            .setMessage(R.string.update_ready_message)
+            .setPositiveButton(R.string.update_install) { _, _ -> completeFlexibleUpdate() }
+            .setNegativeButton(R.string.update_later) { _, _ -> installPostponed = true }
+            .setOnCancelListener { installPostponed = true }
+            .show()
+    }
+
     private fun completeFlexibleUpdate() {
         try {
             appUpdateManager.completeUpdate()
@@ -167,6 +204,7 @@ class InAppUpdateHelper(
     }
 
     fun onResume() {
+        if (installPromptPending) requestInstall()
         val now = System.currentTimeMillis()
         
         synchronized(updateLock) {
@@ -196,7 +234,7 @@ class InAppUpdateHelper(
                 } else if (updateType == AppUpdateType.FLEXIBLE &&
                     info.installStatus() == InstallStatus.DOWNLOADED
                 ) {
-                    completeFlexibleUpdate()
+                    requestInstall()
                 }
             } catch (e: Exception) {
                 Log.e("Update", "Resume check failed", e)
@@ -207,6 +245,8 @@ class InAppUpdateHelper(
     fun onDestroy() {
         try {
             updateJob?.cancel()
+            installDialog?.dismiss()
+            installDialog = null
             unregisterListenerIfNeeded()
             resetUpdateFlag()
         } catch (e: Exception) {

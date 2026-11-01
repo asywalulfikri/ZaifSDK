@@ -560,6 +560,10 @@
     <string name="tutorial_video_recording">Đang quay video… hãy ở lại màn hình này</string>
     <string name="tutorial_video_done_title">Video của bạn đã sẵn sàng</string>
     <string name="tutorial_video_failed">Không thể tạo video</string>
+    <string name="update_ready_title">Bản cập nhật đã sẵn sàng</string>
+    <string name="update_ready_message">Đã tải xong bản cập nhật. Ứng dụng sẽ khởi động lại để cài đặt.</string>
+    <string name="update_install">Cài đặt</string>
+    <string name="update_later">Để sau</string>
     <string name="admin_copy">Sao chép</string>
     <string name="admin_copied">Đã sao chép</string>
     <string name="admin_device_info">Thông tin thiết bị</string>

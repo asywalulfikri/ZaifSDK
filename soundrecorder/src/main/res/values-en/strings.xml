@@ -557,6 +557,10 @@
     <string name="tutorial_video_recording">Recording video… stay on this screen</string>
     <string name="tutorial_video_done_title">Your video is ready</string>
     <string name="tutorial_video_failed">Failed to create video</string>
+    <string name="update_ready_title">Update ready</string>
+    <string name="update_ready_message">The update has been downloaded. The app will restart to install it.</string>
+    <string name="update_install">Install</string>
+    <string name="update_later">Later</string>
     <string name="admin_copy">Copy</string>
     <string name="admin_copied">Copied</string>
     <string name="admin_device_info">Device Info</string>

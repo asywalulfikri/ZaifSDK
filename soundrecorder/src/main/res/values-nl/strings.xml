@@ -564,6 +564,10 @@
     <string name="tutorial_video_recording">Video wordt opgenomen… blijf op dit scherm</string>
     <string name="tutorial_video_done_title">Je video is klaar</string>
     <string name="tutorial_video_failed">Video maken mislukt</string>
+    <string name="update_ready_title">Update klaar</string>
+    <string name="update_ready_message">De update is gedownload. De app wordt opnieuw gestart om deze te installeren.</string>
+    <string name="update_install">Installeren</string>
+    <string name="update_later">Later</string>
     <string name="admin_copy">Kopiëren</string>
     <string name="admin_copied">Gekopieerd</string>
     <string name="admin_device_info">Apparaatinfo</string>

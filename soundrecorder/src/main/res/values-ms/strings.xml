@@ -562,6 +562,10 @@
     <string name="tutorial_video_recording">Merakam video… jangan tinggalkan skrin ini</string>
     <string name="tutorial_video_done_title">Video anda sudah siap</string>
     <string name="tutorial_video_failed">Gagal membuat video</string>
+    <string name="update_ready_title">Kemas kini sedia</string>
+    <string name="update_ready_message">Kemas kini telah dimuat turun. Aplikasi akan dimulakan semula untuk memasangnya.</string>
+    <string name="update_install">Pasang</string>
+    <string name="update_later">Nanti</string>
     <string name="admin_copy">Salin</string>
     <string name="admin_copied">Disalin</string>
     <string name="admin_device_info">Info Peranti</string>

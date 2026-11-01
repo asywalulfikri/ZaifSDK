@@ -561,6 +561,10 @@
     <string name="tutorial_video_recording">Grabando vídeo… no salgas de esta pantalla</string>
     <string name="tutorial_video_done_title">Tu video está listo</string>
     <string name="tutorial_video_failed">No se pudo crear el vídeo</string>
+    <string name="update_ready_title">Actualización lista</string>
+    <string name="update_ready_message">La actualización se ha descargado. La app se reiniciará para instalarla.</string>
+    <string name="update_install">Instalar</string>
+    <string name="update_later">Más tarde</string>
     <string name="admin_copy">Copiar</string>
     <string name="admin_copied">Copiado</string>
     <string name="admin_device_info">Info del dispositivo</string>

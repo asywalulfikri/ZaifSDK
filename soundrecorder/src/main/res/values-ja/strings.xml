@@ -555,6 +555,10 @@
     <string name="tutorial_video_recording">動画を録画中… この画面のままにしてください</string>
     <string name="tutorial_video_done_title">動画ができました</string>
     <string name="tutorial_video_failed">動画を作成できませんでした</string>
+    <string name="update_ready_title">アップデートの準備完了</string>
+    <string name="update_ready_message">アップデートをダウンロードしました。インストールするためアプリを再起動します。</string>
+    <string name="update_install">インストール</string>
+    <string name="update_later">後で</string>
     <string name="admin_copy">コピー</string>
     <string name="admin_copied">コピーしました</string>
     <string name="admin_device_info">端末情報</string>

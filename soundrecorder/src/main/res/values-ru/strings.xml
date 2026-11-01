@@ -558,6 +558,10 @@
     <string name="tutorial_video_recording">Запись видео… не уходите с этого экрана</string>
     <string name="tutorial_video_done_title">Ваше видео готово</string>
     <string name="tutorial_video_failed">Не удалось создать видео</string>
+    <string name="update_ready_title">Обновление готово</string>
+    <string name="update_ready_message">Обновление загружено. Приложение перезапустится для установки.</string>
+    <string name="update_install">Установить</string>
+    <string name="update_later">Позже</string>
     <string name="admin_copy">Копировать</string>
     <string name="admin_copied">Скопировано</string>
     <string name="admin_device_info">Об устройстве</string>

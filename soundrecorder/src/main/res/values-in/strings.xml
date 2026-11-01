@@ -558,6 +558,10 @@
     <string name="tutorial_video_recording">Merekam video… jangan tinggalkan layar ini</string>
     <string name="tutorial_video_done_title">Video kamu sudah jadi</string>
     <string name="tutorial_video_failed">Gagal membuat video</string>
+    <string name="update_ready_title">Update siap dipasang</string>
+    <string name="update_ready_message">Update sudah diunduh. App akan dimulai ulang untuk memasangnya.</string>
+    <string name="update_install">Pasang</string>
+    <string name="update_later">Nanti</string>
     <string name="admin_copy">Salin</string>
     <string name="admin_copied">Tersalin</string>
     <string name="admin_device_info">Info Perangkat</string>
