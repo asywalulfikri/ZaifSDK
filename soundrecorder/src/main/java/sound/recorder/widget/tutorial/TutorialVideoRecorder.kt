@@ -13,6 +13,8 @@ import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
 import android.util.Log
 import android.view.Choreographer
 import android.view.Surface
@@ -26,6 +28,7 @@ import sound.recorder.widget.recording.export.Mp3Renderer
 import sound.recorder.widget.recording.export.RecordingExporter
 import java.io.File
 import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 import kotlin.math.min
 
@@ -54,6 +57,10 @@ class TutorialVideoExport(
  *
  * Alur: [start] → (host memutar lagu, [markPlaybackStart] tepat sebelum not pertama dijadwalkan)
  * → [stop] → [finish] di background menghasilkan file MP4 di cache export.
+ *
+ * Main thread tidak boleh menunggu encoder: encoder yang lambat atau macet akan menahan
+ * sentuhan user sampai ANR. view.draw tetap di main thread, sedangkan pengiriman frame,
+ * akhir stream, dan pelepasan encoder berjalan di background. Frame dilewati bila encoder sibuk.
  */
 @RequiresApi(Build.VERSION_CODES.M)
 internal class TutorialVideoRecorder(
@@ -80,6 +87,12 @@ internal class TutorialVideoRecorder(
         const val AUDIO_CHANNELS = 2
         const val AUDIO_BITRATE = 128_000
         const val TIMEOUT_US = 10_000L
+        const val TEMP_PREFIX = "tutorial_video_tmp"
+        const val TEMP_MAX_AGE_MS = 60 * 60 * 1_000L
+        /** Lebih lama dari ini setelah akhir stream berarti encoder macet. */
+        const val FINISH_WAIT_MS = 10_000L
+        const val CANCEL_WAIT_MS = 2_000L
+        const val THREAD_EXIT_WAIT_MS = 1_000L
     }
 
     private val width: Int
@@ -95,7 +108,8 @@ internal class TutorialVideoRecorder(
         height = max(16, (vh * scale).toInt() / 16 * 16)
     }
 
-    private val tempVideo = File(context.cacheDir, "tutorial_video_tmp.mp4")
+    // Nama unik: pembersihan batal berjalan di background dan tidak boleh mengenai rekaman baru.
+    private val tempVideo = File(context.cacheDir, "${TEMP_PREFIX}_${System.nanoTime()}.mp4")
     private val encoder: MediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
     private val inputSurface: Surface
     private val muxer: MediaMuxer
@@ -103,9 +117,15 @@ internal class TutorialVideoRecorder(
     private val frameCanvas = Canvas(frame)
 
     @Volatile private var running = false
-    private var released = false
+    private val released = AtomicBoolean(false)
     @Volatile private var failure: Throwable? = null
+    @Volatile private var abortDrain = false
     private var drainThread: Thread? = null
+    private var frameThread: HandlerThread? = null
+    private var frameHandler: Handler? = null
+    /** True selama [frame] menunggu dikirim ke encoder; main thread tidak boleh menimpanya. */
+    private val frameBusy = AtomicBoolean(false)
+    private val inputEnded = AtomicBoolean(false)
     private var lastFrameNs = 0L
     private var firstVideoPtsUs = -1L
     private var playStartNs = 0L
@@ -140,8 +160,24 @@ internal class TutorialVideoRecorder(
         }
         encoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
         inputSurface = encoder.createInputSurface()
-        tempVideo.delete()
         muxer = MediaMuxer(tempVideo.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+    }
+
+    private val submitFrame = Runnable {
+        try {
+            val c = inputSurface.lockHardwareCanvas()
+            try {
+                c.drawBitmap(frame, 0f, 0f, null)
+            } finally {
+                inputSurface.unlockCanvasAndPost(c)
+            }
+        } catch (t: Throwable) {
+            Log.e(TAG, "submit frame failed", t)
+            failure = failure ?: t
+            running = false
+        } finally {
+            frameBusy.set(false)
+        }
     }
 
     private val frameCallback = object : Choreographer.FrameCallback {
@@ -165,11 +201,19 @@ internal class TutorialVideoRecorder(
 
     /** Mulai merekam. Dipanggil di main thread. */
     fun start() {
-        encoder.start()
-        running = true
-        drainThread = Thread({ drainVideo() }, "TutorialVideoDrain").apply { start() }
-        drawFrame()
-        Choreographer.getInstance().postFrameCallback(frameCallback)
+        try {
+            val thread = HandlerThread("TutorialVideoFrames").apply { start() }
+            frameThread = thread
+            frameHandler = Handler(thread.looper).apply { post { deleteOldTempVideos() } }
+            encoder.start()
+            running = true
+            drainThread = Thread({ drainVideo() }, "TutorialVideoDrain").apply { start() }
+            drawFrame()
+            Choreographer.getInstance().postFrameCallback(frameCallback)
+        } catch (t: Throwable) {
+            cancel()
+            throw t
+        }
     }
 
     /** Dipanggil tepat sebelum host menjadwalkan not pertama: titik nol suara. */
@@ -182,13 +226,14 @@ internal class TutorialVideoRecorder(
         if (!running && drainThread == null) return
         running = false
         Choreographer.getInstance().removeFrameCallback(frameCallback)
-        try { encoder.signalEndOfInputStream() } catch (t: Throwable) { failure = failure ?: t }
+        endInput()
     }
 
     /** Menyelesaikan video + suara. Mengembalikan file di cache export, siap disimpan atau dibagikan. */
     suspend fun finish(): File = withContext(Dispatchers.IO) {
         try {
-            drainThread?.join()
+            drainThread?.join(FINISH_WAIT_MS)
+            check(drainThread?.isAlive != true) { "video encoder stalled" }
             failure?.let { throw it }
             check(firstVideoPtsUs >= 0) { "no video frames" }
             val audio = encodeAudio()
@@ -207,31 +252,52 @@ internal class TutorialVideoRecorder(
         }
     }
 
-    /** Membatalkan tanpa menyimpan. */
+    /** Membatalkan tanpa menyimpan. Pembersihan berjalan di background. */
     fun cancel() {
         running = false
         Choreographer.getInstance().removeFrameCallback(frameCallback)
-        try { encoder.signalEndOfInputStream() } catch (_: Throwable) { }
-        drainThread?.join(2_000)
-        release()
+        endInput()
+        Thread({
+            drainThread?.join(CANCEL_WAIT_MS)
+            release()
+        }, "TutorialVideoCancel").start()
+    }
+
+    /** Lewat thread frame, supaya akhir stream tiba setelah frame terakhir. */
+    private fun endInput() {
+        if (!inputEnded.compareAndSet(false, true)) return
+        frameHandler?.post {
+            try { encoder.signalEndOfInputStream() } catch (t: Throwable) { failure = failure ?: t }
+        }
+    }
+
+    /** Sisa file dari proses yang mati di tengah rekaman. */
+    private fun deleteOldTempVideos() {
+        val oldest = System.currentTimeMillis() - TEMP_MAX_AGE_MS
+        context.cacheDir.listFiles { file -> file.name.startsWith(TEMP_PREFIX) && file.lastModified() < oldest }
+            ?.forEach { it.delete() }
     }
 
     // ─── Gambar ──────────────────────────────────────────────────────────────
 
     private fun drawFrame() {
+        if (!frameBusy.compareAndSet(false, true)) return
+        try {
+            renderFrame()
+        } catch (t: Throwable) {
+            frameBusy.set(false)
+            throw t
+        }
+        frameHandler?.post(submitFrame) ?: frameBusy.set(false)
+    }
+
+    private fun renderFrame() {
         frameCanvas.drawColor(Color.BLACK)
         frameCanvas.save()
         frameCanvas.scale(width / view.width.toFloat(), height / view.height.toFloat())
         view.draw(frameCanvas)
         frameCanvas.restore()
         drawOverlay(frameCanvas)
-
-        val c = inputSurface.lockHardwareCanvas()
-        try {
-            c.drawBitmap(frame, 0f, 0f, null)
-        } finally {
-            inputSurface.unlockCanvasAndPost(c)
-        }
     }
 
     private fun drawOverlay(c: Canvas) {
@@ -277,7 +343,7 @@ internal class TutorialVideoRecorder(
         val info = MediaCodec.BufferInfo()
         var track = -1
         try {
-            while (true) {
+            while (!abortDrain) {
                 val index = encoder.dequeueOutputBuffer(info, TIMEOUT_US)
                 when {
                     index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
@@ -299,7 +365,7 @@ internal class TutorialVideoRecorder(
                     }
                 }
             }
-            if (track >= 0) muxer.stop()
+            if (track >= 0 && !abortDrain) muxer.stop()
         } catch (t: Throwable) {
             Log.e(TAG, "video drain failed", t)
             failure = failure ?: t
@@ -428,13 +494,21 @@ internal class TutorialVideoRecorder(
     }
 
     private fun release() {
-        if (released) return
-        released = true
+        if (!released.compareAndSet(false, true)) return
+        abortDrain = true
+        drainThread?.join(THREAD_EXIT_WAIT_MS)
+        frameThread?.quitSafely()
         try { encoder.stop() } catch (_: Throwable) { }
         try { encoder.release() } catch (_: Throwable) { }
-        try { inputSurface.release() } catch (_: Throwable) { }
-        try { muxer.release() } catch (_: Throwable) { }
+        // Thread frame bisa masih menunggu encoder; melepas encoder di atas yang membebaskannya.
+        frameThread?.join(THREAD_EXIT_WAIT_MS)
+        if (frameThread?.isAlive != true) {
+            try { inputSurface.release() } catch (_: Throwable) { }
+            frame.recycle()
+        }
+        if (drainThread?.isAlive != true) {
+            try { muxer.release() } catch (_: Throwable) { }
+        }
         tempVideo.delete()
-        frame.recycle()
     }
 }
