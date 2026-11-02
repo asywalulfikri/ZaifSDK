@@ -1,10 +1,13 @@
 package sound.recorder.widget.tutorial
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.media.MediaCodec
@@ -17,8 +20,10 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
 import android.view.Choreographer
+import android.view.PixelCopy
 import android.view.Surface
 import android.view.View
+import android.view.Window
 import androidx.annotation.RequiresApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -95,6 +100,8 @@ internal class TutorialVideoRecorder(
         const val FINISH_WAIT_MS = 10_000L
         const val CANCEL_WAIT_MS = 2_000L
         const val THREAD_EXIT_WAIT_MS = 1_000L
+        /** Audio yang melewati akhir gambar dipudarkan, supaya tidak terpotong tiba-tiba. */
+        const val AUDIO_FADE_MS = 150L
     }
 
     private val width: Int
@@ -130,7 +137,19 @@ internal class TutorialVideoRecorder(
     private val inputEnded = AtomicBoolean(false)
     private var lastFrameNs = 0L
     private var firstVideoPtsUs = -1L
-    private var playStartNs = 0L
+    private var lastVideoPtsUs = 0L
+    @Volatile private var playStartNs = 0L
+
+    /**
+     * Rekaman seluruh layar disalin langsung dari layar lewat GPU, di luar main thread.
+     * Null = digambar lewat canvas software (Android 7 ke bawah, atau PixelCopy gagal).
+     */
+    @Volatile private var copyWindow: Window? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            findActivity(context)?.window?.takeIf { it.decorView === view }
+        } else null
+    private val copySource = Rect()
+    private val viewLocation = IntArray(2)
 
     // Not yang sedang tampil: tap terakhir yang sudah lewat (dicari maju, tap sudah urut).
     private val sortedTaps = taps.filterNot { RecordingExporter.isOffMetadata(it.metadata) }.sortedBy { it.timestamp }
@@ -284,6 +303,7 @@ internal class TutorialVideoRecorder(
 
     private fun drawFrame() {
         if (!frameBusy.compareAndSet(false, true)) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && requestCopy()) return
         try {
             renderFrame()
         } catch (t: Throwable) {
@@ -291,6 +311,46 @@ internal class TutorialVideoRecorder(
             throw t
         }
         frameHandler?.post(submitFrame) ?: frameBusy.set(false)
+    }
+
+    /** True bila salinan sudah diminta; frame dikirim dari callback di thread frame. */
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun requestCopy(): Boolean {
+        val window = copyWindow ?: return false
+        val handler = frameHandler ?: return false
+        return try {
+            view.getLocationInWindow(viewLocation)
+            copySource.set(
+                viewLocation[0], viewLocation[1],
+                viewLocation[0] + view.width, viewLocation[1] + view.height
+            )
+            PixelCopy.request(window, copySource, frame, ::onFrameCopied, handler)
+            true
+        } catch (e: IllegalArgumentException) {
+            Log.w(TAG, "pixel copy unavailable", e)
+            copyWindow = null
+            false
+        }
+    }
+
+    private fun onFrameCopied(result: Int) {
+        if (inputEnded.get()) {
+            frameBusy.set(false)
+            return
+        }
+        if (result != PixelCopy.SUCCESS) {
+            Log.w(TAG, "pixel copy failed: $result")
+            copyWindow = null
+            frameBusy.set(false)
+            return
+        }
+        try {
+            drawOverlay(frameCanvas)
+        } catch (t: Throwable) {
+            frameBusy.set(false)
+            throw t
+        }
+        submitFrame.run()
     }
 
     private fun renderFrame() {
@@ -358,6 +418,7 @@ internal class TutorialVideoRecorder(
                         if (buf != null && info.size > 0 && !isConfig && track >= 0) {
                             if (firstVideoPtsUs < 0) firstVideoPtsUs = info.presentationTimeUs
                             info.presentationTimeUs -= firstVideoPtsUs
+                            lastVideoPtsUs = info.presentationTimeUs
                             buf.position(info.offset)
                             buf.limit(info.offset + info.size)
                             muxer.writeSampleData(track, buf, info)
@@ -430,6 +491,10 @@ internal class TutorialVideoRecorder(
             val chunkFrames = 1024
             val byteBuf = ByteBuffer.allocate(chunkFrames * AUDIO_CHANNELS * 2).order(java.nio.ByteOrder.LITTLE_ENDIAN)
             val durationMs = audioDurationMs ?: ((taps.maxOfOrNull { it.timestamp } ?: 0L) + 1_500L)
+            // Gaung suara bisa melewati akhir gambar; video berakhir bersama gambarnya.
+            val maxFrames = (lastVideoPtsUs - audioOffsetUs()) * AUDIO_RATE / 1_000_000L
+            val fadeFrames = AUDIO_FADE_MS * AUDIO_RATE / 1_000L
+            var framesRendered = 0L
             Mp3Renderer(context.applicationContext).renderPcm(
                 setName = setName,
                 taps = taps,
@@ -440,7 +505,10 @@ internal class TutorialVideoRecorder(
                 maxPolyphony = RecordingExporter.maxPolyphony,
                 music = music,
                 onProgress = {}
-            ) { pcm, frames ->
+            ) { pcm, rendered ->
+                val frames = if (maxFrames > 0) min(rendered.toLong(), max(0L, maxFrames - framesRendered)).toInt() else rendered
+                if (maxFrames > 0) fadeOut(pcm, frames, framesRendered, maxFrames, fadeFrames)
+                framesRendered += frames
                 var offset = 0
                 while (offset < frames) {
                     val n = min(chunkFrames, frames - offset)
@@ -458,6 +526,22 @@ internal class TutorialVideoRecorder(
             aac.release()
         }
         return EncodedAudio(checkNotNull(outFormat) { "no audio format" }, samples)
+    }
+
+    /** Suara mulai saat not pertama dijadwalkan, relatif terhadap frame video pertama. */
+    private fun audioOffsetUs(): Long = max(0L, playStartNs / 1_000 - firstVideoPtsUs)
+
+    private fun fadeOut(pcm: ShortArray, frames: Int, startFrame: Long, endFrame: Long, fadeFrames: Long) {
+        val fadeStart = endFrame - fadeFrames
+        for (i in 0 until frames) {
+            val position = startFrame + i
+            if (position < fadeStart) continue
+            val gain = (endFrame - position).toFloat() / fadeFrames
+            for (channel in 0 until AUDIO_CHANNELS) {
+                val sample = i * AUDIO_CHANNELS + channel
+                pcm[sample] = (pcm[sample] * gain).toInt().toShort()
+            }
+        }
     }
 
     // ─── Gabung video + suara ────────────────────────────────────────────────
@@ -482,8 +566,7 @@ internal class TutorialVideoRecorder(
                 extractor.advance()
             }
 
-            // Suara mulai saat not pertama dijadwalkan, relatif terhadap frame video pertama.
-            val offsetUs = max(0L, playStartNs / 1_000 - firstVideoPtsUs)
+            val offsetUs = audioOffsetUs()
             for ((bytes, sampleInfo) in audio.samples) {
                 info.set(0, bytes.size, sampleInfo.presentationTimeUs + offsetUs, sampleInfo.flags)
                 mux.writeSampleData(audioTrack, ByteBuffer.wrap(bytes), info)
@@ -506,11 +589,18 @@ internal class TutorialVideoRecorder(
         frameThread?.join(THREAD_EXIT_WAIT_MS)
         if (frameThread?.isAlive != true) {
             try { inputSurface.release() } catch (_: Throwable) { }
-            frame.recycle()
+            // Salinan yang masih berjalan tetap menulis ke bitmap ini.
+            if (!frameBusy.get()) frame.recycle()
         }
         if (drainThread?.isAlive != true) {
             try { muxer.release() } catch (_: Throwable) { }
         }
         tempVideo.delete()
+    }
+
+    private tailrec fun findActivity(context: Context?): Activity? = when (context) {
+        is Activity -> context
+        is ContextWrapper -> findActivity(context.baseContext)
+        else -> null
     }
 }
