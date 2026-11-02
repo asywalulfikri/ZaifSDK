@@ -49,12 +49,12 @@ internal object RecordingVideoExport {
         return RecordingVideoOption(canUse) { closeExport ->
             if (canUse) {
                 closeExport()
-                TutorialVideoOptionsDialog.show(context, title, if (unlimited) null else freeWatermark, start)
+                TutorialVideoOptionsDialog.show(context, title, if (unlimited) null else freeWatermark, config.captureView(), start)
             } else {
                 TutorialVideoPremiumDialog.show(context, config.onPremiumPurchased) {
                     closeExport()
                     onPurchased()
-                    TutorialVideoOptionsDialog.show(context, title, null, start)
+                    TutorialVideoOptionsDialog.show(context, title, null, config.captureView(), start)
                 }
             }
         }

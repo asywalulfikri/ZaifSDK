@@ -2,12 +2,14 @@ package sound.recorder.widget.tutorial
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.text.InputFilter
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.EditText
@@ -109,16 +111,23 @@ internal fun drawCenterWatermark(canvas: Canvas, text: String, width: Int, heigh
 }
 
 /** Contoh hasil video: posisi dan ukuran sama dengan overlay di [TutorialVideoRecorder]. */
-private class TutorialVideoPreview(context: Context, private val songTitle: String) : View(context) {
+private class TutorialVideoPreview(
+    context: Context,
+    private val songTitle: String,
+    /** Gambar alat musik yang sedang dibuka, supaya preview cocok untuk semua app. */
+    private val snapshot: Bitmap?
+) : View(context) {
     var style = TutorialVideoStyle()
         set(value) { field = value; invalidate() }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val bitmapPaint = Paint(Paint.FILTER_BITMAP_FLAG)
     private val rect = RectF()
 
     override fun onMeasure(widthSpec: Int, heightSpec: Int) {
         val w = MeasureSpec.getSize(widthSpec)
-        setMeasuredDimension(w, w * 9 / 16)
+        val h = snapshot?.let { w * it.height / it.width } ?: (w * 9 / 16)
+        setMeasuredDimension(w, h)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -127,23 +136,9 @@ private class TutorialVideoPreview(context: Context, private val songTitle: Stri
         val pad = h * 0.03f
         paint.style = Paint.Style.FILL
         paint.setShadowLayer(0f, 0f, 0f, 0)
-        canvas.drawColor(Color.parseColor("#1565C0"))
+        canvas.drawColor(Color.parseColor("#1B1B1F"))
 
-        // Tuts contoh.
-        val keys = 12
-        val keyW = w / keys
-        val top = h * 0.32f
-        paint.color = Color.parseColor("#ECEFF7")
-        for (i in 0 until keys) {
-            rect.set(i * keyW + keyW * 0.04f, top, (i + 1) * keyW - keyW * 0.04f, h * 0.95f)
-            canvas.drawRoundRect(rect, keyW * 0.1f, keyW * 0.1f, paint)
-        }
-        paint.color = Color.parseColor("#1B1B1F")
-        for (i in 1 until keys) {
-            if (i % 7 == 3 || i % 7 == 0) continue
-            rect.set(i * keyW - keyW * 0.28f, top, i * keyW + keyW * 0.28f, h * 0.68f)
-            canvas.drawRoundRect(rect, keyW * 0.08f, keyW * 0.08f, paint)
-        }
+        snapshot?.let { canvas.drawBitmap(it, null, RectF(0f, 0f, w, h), bitmapPaint) }
 
         paint.textAlign = Paint.Align.LEFT
         paint.typeface = Typeface.DEFAULT_BOLD
@@ -177,6 +172,28 @@ private class TutorialVideoPreview(context: Context, private val songTitle: Stri
     }
 }
 
+/** Gambar kecil dari view yang akan direkam; cara gambarnya sama dengan frame video. */
+private fun captureSnapshot(view: View?): Bitmap? {
+    if (view == null || view.width <= 0 || view.height <= 0) return null
+    val scale = minOf(1f, PREVIEW_MAX_WIDTH.toFloat() / view.width)
+    return try {
+        val bitmap = Bitmap.createBitmap(
+            (view.width * scale).toInt().coerceAtLeast(1),
+            (view.height * scale).toInt().coerceAtLeast(1),
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        canvas.scale(scale, scale)
+        view.draw(canvas)
+        bitmap
+    } catch (t: Exception) {
+        Log.w("TutorialVideo", "preview snapshot failed", t)
+        null
+    }
+}
+
+private const val PREVIEW_MAX_WIDTH = 640
+
 /** Dialog custom tampilan video sebelum rekaman dimulai. */
 internal object TutorialVideoOptionsDialog {
 
@@ -194,12 +211,13 @@ internal object TutorialVideoOptionsDialog {
         context: Context,
         songTitle: String,
         forcedWatermark: String?,
+        captureView: View?,
         onStart: (TutorialVideoStyle) -> Unit
     ) {
         val c = RecordingDialogPalette(context, RecordingDialogStyle.default)
         var current = TutorialVideoStyle.load(context).copy(forcedWatermark = forcedWatermark)
         val dialog = AlertDialog.Builder(context).create()
-        val preview = TutorialVideoPreview(context, songTitle).apply { style = current }
+        val preview = TutorialVideoPreview(context, songTitle, captureSnapshot(captureView)).apply { style = current }
 
         fun update(change: (TutorialVideoStyle) -> TutorialVideoStyle) {
             current = change(current)
