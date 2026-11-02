@@ -3,22 +3,24 @@ package sound.recorder.widget.ui.dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import sound.recorder.widget.R
+import sound.recorder.widget.recording.RecordingDialogViews
 
 /**
  * Dialog informatif untuk memberitahu user tentang delay audio pada perangkat Bluetooth.
- * Muncul hanya sekali (perpetual dismiss) setelah user klik OK.
+ * "Mengerti": tidak muncul lagi. "Ingatkan lagi nanti": muncul lagi saat halaman dibuka berikutnya.
+ * Panggil [show] dengan context Activity saat halaman alat musik dibuka; dipakai semua app.
  */
 object DelayInfoDialog {
 
     private const val PREF_NAME = "zaif_sdk_prefs"
     private const val KEY_SHOWN = "delay_info_shown"
+    private val ACCENT = Color.parseColor("#FF6B35")
 
     fun show(context: Context) {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -70,48 +72,48 @@ object DelayInfoDialog {
             layoutParams = lp
         })
 
-        // OK Button
-        val btnOk = TextView(context).apply {
-            text = context.getString(R.string.understand)
+        val buttons = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
+
+        // Tidak menyimpan apa pun, jadi dialog muncul lagi saat halaman dibuka berikutnya.
+        buttons.addView(button(context, context.getString(R.string.remind_me_later), primary = false) {
+            dialog.dismiss()
+        }, buttonParams(endMargin = 24))
+
+        buttons.addView(button(context, context.getString(R.string.understand), primary = true) {
+            // Simpan status agar tidak muncul lagi
+            prefs.edit().putBoolean(KEY_SHOWN, true).apply()
+            dialog.dismiss()
+        }, buttonParams(endMargin = 0))
+        root.addView(buttons)
+
+        dialog.setView(root)
+        dialog.setCancelable(false) // User harus memilih salah satu tombol
+
+        try {
+            dialog.show()
+            RecordingDialogViews.applyWindow(dialog, context, 0.85, 0.5)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun button(context: Context, label: String, primary: Boolean, onClick: () -> Unit) =
+        TextView(context).apply {
+            text = label
             setTextColor(Color.WHITE)
             textSize = 14f
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
-            val pH = 64; val pV = 24
-            setPadding(pH, pV, pH, pV)
+            setPadding(24, 24, 24, 24)
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#FF6B35"))
                 cornerRadius = 16f
+                if (primary) setColor(ACCENT) else setStroke(2, ACCENT)
             }
-            setOnClickListener {
-                // Simpan status agar tidak muncul lagi
-                prefs.edit().putBoolean(KEY_SHOWN, true).apply()
-                dialog.dismiss()
-            }
-            val lp = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            lp.gravity = Gravity.CENTER
-            layoutParams = lp
+            setOnClickListener { onClick() }
         }
-        root.addView(btnOk)
 
-        dialog.setView(root)
-        dialog.setCancelable(false) // User harus klik OK
-        
-        try {
-            dialog.show()
-            dialog.window?.apply {
-                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                setLayout(
-                    (context.resources.displayMetrics.widthPixels * 0.85).toInt(),
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    private fun buttonParams(endMargin: Int) = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
+        marginEnd = endMargin
     }
 
     /**

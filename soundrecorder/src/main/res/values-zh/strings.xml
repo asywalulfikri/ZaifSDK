@@ -587,4 +587,5 @@
     <string name="tutorial_video_watermark_hint">你的名字或文字</string>
     <string name="tutorial_video_note_color">音符颜色</string>
     <string name="tutorial_video_start">开始录制</string>
+    <string name="remind_me_later">稍后提醒我</string>
 </resources>

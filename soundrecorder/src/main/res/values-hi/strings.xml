@@ -586,4 +586,5 @@
     <string name="tutorial_video_watermark_hint">आपका नाम या टेक्स्ट</string>
     <string name="tutorial_video_note_color">सुर का रंग</string>
     <string name="tutorial_video_start">रिकॉर्डिंग शुरू करें</string>
+    <string name="remind_me_later">बाद में याद दिलाएँ</string>
 </resources>

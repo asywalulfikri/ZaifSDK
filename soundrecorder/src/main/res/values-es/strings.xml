@@ -589,4 +589,5 @@
     <string name="tutorial_video_watermark_hint">Tu nombre o texto</string>
     <string name="tutorial_video_note_color">Color de la nota</string>
     <string name="tutorial_video_start">Empezar a grabar</string>
+    <string name="remind_me_later">Recordármelo más tarde</string>
 </resources>

@@ -633,4 +633,5 @@
     <string name="tutorial_video_watermark_hint">اسمك أو نصك</string>
     <string name="tutorial_video_note_color">لون النغمة</string>
     <string name="tutorial_video_start">بدء التسجيل</string>
+    <string name="remind_me_later">ذكّرني لاحقًا</string>
 </resources>

@@ -592,4 +592,5 @@
     <string name="tutorial_video_watermark_hint">Je naam of tekst</string>
     <string name="tutorial_video_note_color">Nootkleur</string>
     <string name="tutorial_video_start">Opname starten</string>
+    <string name="remind_me_later">Herinner me later</string>
 </resources>

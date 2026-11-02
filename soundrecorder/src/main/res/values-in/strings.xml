@@ -586,4 +586,5 @@
     <string name="tutorial_video_watermark_hint">Nama atau teks kamu</string>
     <string name="tutorial_video_note_color">Warna not</string>
     <string name="tutorial_video_start">Mulai rekam</string>
+    <string name="remind_me_later">Ingatkan lagi nanti</string>
 </resources>
