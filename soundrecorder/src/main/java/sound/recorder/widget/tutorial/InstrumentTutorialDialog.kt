@@ -1,5 +1,7 @@
 package sound.recorder.widget.tutorial
 
+import sound.recorder.widget.listener.MyAdsListener
+
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -244,6 +246,8 @@ class InstrumentTutorialDialog(
     var videoExport: TutorialVideoExport? = null
     private val videoHandler = Handler(Looper.getMainLooper())
     private var activeVideoRecorder: TutorialVideoRecorder? = null
+    /** View game selama video seluruh layar direkam; banner disembunyikan selama itu. */
+    private var fullScreenVideoView: View? = null
     private var activeVideoIndicator: VideoRecordingIndicator? = null
     private var currentDialog: BottomSheetDialog? = null
     private var currentAdapter: SongListAdapter? = null
@@ -379,7 +383,7 @@ class InstrumentTutorialDialog(
             showExport = showExport,
             onVideo = if (canExportVideo) { item ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    startVideoExport(context, item, videoConfig!!, dialog, TutorialVideoStyle(watermark = videoConfig.watermark)) { playItem(it) }
+                    startVideoExport(context, item, videoConfig!!, dialog, TutorialVideoStyle(watermark = videoConfig.watermark), fullScreen = true) { playItem(it) }
                 }
             } else null,
             isUnlocked = { item ->
@@ -433,7 +437,7 @@ class InstrumentTutorialDialog(
                     val video = RecordingVideoExport.option(context, videoExport, isPremium, rec.name) { style ->
                         val config = videoExport
                         if (config != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            startVideoExport(context, item, config, dialog, style) { playItem(it) }
+                            startVideoExport(context, item, config, dialog, style, fullScreen = config.fullScreen) { playItem(it) }
                         }
                     }
                     RecordingExportDialog.show(
@@ -1891,6 +1895,8 @@ class InstrumentTutorialDialog(
         config: TutorialVideoExport,
         dialog: BottomSheetDialog,
         style: TutorialVideoStyle,
+        /** Seluruh layar, tanpa banner dan tanpa indikator REC. */
+        fullScreen: Boolean = false,
         play: (SongItem) -> Unit
     ) {
         val scope = lifecycleScope ?: return
@@ -1910,19 +1916,22 @@ class InstrumentTutorialDialog(
         dismissShouldStop = false
         dialog.dismiss()
         cancelVideoExport()
+        if (fullScreen) MyAdsListener.setBanner(false)
 
         // Tunggu bottom sheet tertutup agar tidak ikut terekam.
         videoHandler.postDelayed({
             val view = config.captureView()
             if (view == null || view.width == 0 || view.height == 0 || !view.isAttachedToWindow) {
+                if (fullScreen) MyAdsListener.setBanner(true)
                 onToast(context.getString(R.string.tutorial_video_failed))
                 return@postDelayed
             }
             val recorder = try {
-                TutorialVideoRecorder(context, view, rec.name, taps, rec.setName, config.noteLabel, style)
+                TutorialVideoRecorder(context, if (fullScreen) view.rootView else view, rec.name, taps, rec.setName, config.noteLabel, style)
                     .also { it.start() }
             } catch (t: Throwable) {
                 Log.e("TutorialVideo", "start failed", t)
+                if (fullScreen) MyAdsListener.setBanner(true)
                 onToast(context.getString(R.string.tutorial_video_failed))
                 return@postDelayed
             }
@@ -1930,16 +1939,21 @@ class InstrumentTutorialDialog(
             val indicator = VideoRecordingIndicator(view, rec.durationMs + VIDEO_TAIL_MS) {
                 onToast(context.getString(R.string.export_cancelled))
                 stopAll()
-            }.also { it.show() }
+            }.also {
+                it.hiddenWhileRecording = fullScreen
+                it.show()
+            }
             recorder.markPlaybackStart()
             play(item)
             // Diset setelah play: playUserNote memanggil stopAll() yang membatalkan rekaman aktif.
             activeVideoRecorder = recorder
             activeVideoIndicator = indicator
+            fullScreenVideoView = view.takeIf { fullScreen }
 
             videoHandler.postDelayed({
                 activeVideoRecorder = null
                 activeVideoIndicator = null
+                restoreBannerAfterVideo()
                 recorder.stop()
                 indicator.showSaving()
                 scope.launch {
@@ -1959,8 +1973,16 @@ class InstrumentTutorialDialog(
         }, 400L)
     }
 
+    private fun restoreBannerAfterVideo() {
+        val view = fullScreenVideoView ?: return
+        fullScreenVideoView = null
+        // View sudah lepas: user pindah layar, banner mengikuti layar yang baru.
+        if (view.isAttachedToWindow) MyAdsListener.setBanner(true)
+    }
+
     private fun cancelVideoExport() {
         videoHandler.removeCallbacksAndMessages(null)
+        restoreBannerAfterVideo()
         activeVideoIndicator?.dismiss()
         activeVideoIndicator = null
         activeVideoRecorder?.let {

@@ -48,7 +48,9 @@ class TutorialVideoExport(
     val noteLabel: (padIndex: Int) -> String = { (it + 1).toString() },
     val watermark: String? = null,
     val onPremiumPurchased: (() -> Unit)? = null,
-    val hasPurchased: (() -> Boolean)? = null
+    val hasPurchased: (() -> Boolean)? = null,
+    /** True: video pengguna merekam seluruh layar, tanpa banner dan indikator REC. */
+    val fullScreen: Boolean = false
 )
 
 /**

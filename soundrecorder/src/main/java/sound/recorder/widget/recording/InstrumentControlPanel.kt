@@ -651,6 +651,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
             video = { rec, closeList ->
                 RecordingVideoExport.option(context, videoExport, isPremium, rec.name, onPurchased = { isPremium = true }) { style ->
                     closeList()
+                    RecordingVideoRun.prepare(videoExport)
                     // Tunggu daftar tertutup agar user melihat instrumen sejak awal video.
                     postDelayed({ startRecordingVideo(rec, style) }, VIDEO_START_DELAY_MS)
                 }

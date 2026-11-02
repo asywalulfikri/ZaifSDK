@@ -35,6 +35,9 @@ internal class VideoRecordingIndicator(
     private val onInterrupted: () -> Unit
 ) {
 
+    /** Video seluruh layar: indikator tidak boleh ikut terekam. Diisi sebelum [show]. */
+    var hiddenWhileRecording: Boolean = false
+
     private val handler = Handler(Looper.getMainLooper())
     private var pill: LinearLayout? = null
     private var dot: View? = null
@@ -86,6 +89,7 @@ internal class VideoRecordingIndicator(
             }
             elevation = context.resources.getDimension(SdpR.dimen._6sdp)
             isClickable = false
+            if (hiddenWhileRecording) visibility = View.INVISIBLE
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
             val dotSize = context.sdp(SdpR.dimen._8sdp)
             addView(dotView, LinearLayout.LayoutParams(dotSize, dotSize).apply {
@@ -123,6 +127,7 @@ internal class VideoRecordingIndicator(
         handler.removeCallbacks(tick)
         blink?.cancel()
         dot?.visibility = View.GONE
+        pill?.visibility = View.VISIBLE
         label?.text = anchor.context.getString(R.string.tutorial_video_saving)
     }
 

@@ -1,5 +1,8 @@
 package sound.recorder.widget.tutorial
 
+import android.view.View
+import sound.recorder.widget.listener.MyAdsListener
+
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -65,18 +68,27 @@ internal class RecordingVideoRun private constructor(
     private val recorder: TutorialVideoRecorder,
     private val isFree: Boolean,
     private val indicator: VideoRecordingIndicator,
-    private val title: String
+    private val title: String,
+    /** View game saat video seluruh layar; null bila banner tidak disembunyikan. */
+    private val fullScreenView: View? = null
 ) {
+    private fun restoreBanner() {
+        // View sudah lepas: user pindah layar, banner mengikuti layar yang baru.
+        if (fullScreenView?.isAttachedToWindow == true) MyAdsListener.setBanner(true)
+    }
+
     fun markStarted() = recorder.markPlaybackStart()
 
     fun cancel() {
         indicator.dismiss()
         recorder.cancel()
+        restoreBanner()
     }
 
     fun complete(scope: CoroutineScope, onToast: (String) -> Unit) {
         recorder.stop()
         indicator.showSaving()
+        restoreBanner()
         scope.launch {
             try {
                 val file = recorder.finish()
@@ -93,6 +105,15 @@ internal class RecordingVideoRun private constructor(
     }
 
     companion object {
+        /** Panggil sebelum jeda mulai rekam, agar banner sudah hilang di frame pertama. */
+        fun prepare(config: TutorialVideoExport?) {
+            if (config?.fullScreen == true) MyAdsListener.setBanner(false)
+        }
+
+        private fun abort(config: TutorialVideoExport) {
+            if (config.fullScreen) MyAdsListener.setBanner(true)
+        }
+
         fun start(
             context: Context,
             config: TutorialVideoExport,
@@ -101,24 +122,35 @@ internal class RecordingVideoRun private constructor(
             onInterrupted: () -> Unit
         ): RecordingVideoRun? {
             val view = config.captureView()
-            if (view == null || view.width == 0 || view.height == 0 || !view.isAttachedToWindow) return null
+            if (view == null || view.width == 0 || view.height == 0 || !view.isAttachedToWindow) {
+                abort(config)
+                return null
+            }
             return try {
                 val taps = Gson().fromJson<List<RecordedTap>>(
                     rec.eventsJson, object : TypeToken<List<RecordedTap>>() {}.type
                 )
                 val micPath = RecordingExporter.micPathOf(rec)
                 val recorder = TutorialVideoRecorder(
-                    context, view, rec.name, taps, rec.setName, config.noteLabel, style,
+                    context, if (config.fullScreen) view.rootView else view, rec.name, taps, rec.setName,
+                    config.noteLabel, style,
                     micPath = micPath,
                     renderTaps = micPath == null || rec.isEarphoneRecording,
                     music = RecordedMusicJson.parse(rec.musicJson),
                     audioDurationMs = rec.durationMs.takeIf { it > 0 }
                 )
                 recorder.start()
-                val indicator = VideoRecordingIndicator(view, rec.durationMs, onInterrupted).also { it.show() }
-                RecordingVideoRun(context, recorder, style.forcedWatermark != null, indicator, rec.name)
+                val indicator = VideoRecordingIndicator(view, rec.durationMs, onInterrupted).also {
+                    it.hiddenWhileRecording = config.fullScreen
+                    it.show()
+                }
+                RecordingVideoRun(
+                    context, recorder, style.forcedWatermark != null, indicator, rec.name,
+                    fullScreenView = view.takeIf { config.fullScreen }
+                )
             } catch (t: Throwable) {
                 Log.e("TutorialVideo", "start failed", t)
+                abort(config)
                 null
             }
         }
