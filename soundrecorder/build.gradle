@@ -39,6 +39,11 @@ android {
         baseline = file("lint-baseline.xml")
     }
 
+    testOptions {
+        // Unit test JVM: method Android (Log, Build, dll.) mengembalikan nilai default, bukan crash "Stub!".
+        unitTests.returnDefaultValues = true
+    }
+
     buildTypes {
         release {
             minifyEnabled false
