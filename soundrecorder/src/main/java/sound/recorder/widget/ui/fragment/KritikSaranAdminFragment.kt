@@ -1,5 +1,7 @@
 package sound.recorder.widget.ui.fragment
 
+import sound.recorder.widget.util.FirestoreErrorHelper
+
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -150,7 +152,7 @@ class KritikSaranAdminFragment : Fragment() {
             .addOnFailureListener {
                 isLoading = false
                 binding?.progressContainer?.visibility = View.GONE
-                Toast.makeText(requireContext(), "Gagal memuat data: ${it.message}", Toast.LENGTH_SHORT).show()
+                FirestoreErrorHelper.show(context, it)
             }
     }
 

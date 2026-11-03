@@ -1,5 +1,7 @@
 package sound.recorder.widget.ui.fragment
 
+import sound.recorder.widget.util.FirestoreErrorHelper
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -400,7 +402,7 @@ class NotePromotionAdminFragment : Fragment() {
                 if (!isAdded) return@addOnFailureListener
                 progressBar.visibility = View.GONE
                 isLoading = false
-                Toast.makeText(context, "Gagal memuat: ${e.message}", Toast.LENGTH_SHORT).show()
+                FirestoreErrorHelper.show(context, e, "Gagal memuat")
             }
     }
 
