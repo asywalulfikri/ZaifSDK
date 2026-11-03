@@ -590,4 +590,5 @@
     <string name="tutorial_video_note_color">Cor da nota</string>
     <string name="tutorial_video_start">Iniciar gravação</string>
     <string name="remind_me_later">Lembrar mais tarde</string>
+    <string name="reply">Responder</string>
 </resources>

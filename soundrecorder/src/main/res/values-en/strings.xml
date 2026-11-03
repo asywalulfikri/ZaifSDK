@@ -586,4 +586,5 @@
     <string name="tutorial_video_note_color">Note color</string>
     <string name="tutorial_video_start">Start recording</string>
     <string name="remind_me_later">Remind me later</string>
+    <string name="search_note">Search Notes...</string>
 </resources>

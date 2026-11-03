@@ -591,4 +591,5 @@
     <string name="tutorial_video_note_color">Couleur de la note</string>
     <string name="tutorial_video_start">Démarrer l\'enregistrement</string>
     <string name="remind_me_later">Me le rappeler plus tard</string>
+    <string name="reply">Répondre</string>
 </resources>

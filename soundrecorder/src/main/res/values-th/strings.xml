@@ -589,4 +589,5 @@
     <string name="tutorial_video_note_color">สีโน้ต</string>
     <string name="tutorial_video_start">เริ่มบันทึก</string>
     <string name="remind_me_later">เตือนฉันภายหลัง</string>
+    <string name="reply">ตอบกลับ</string>
 </resources>

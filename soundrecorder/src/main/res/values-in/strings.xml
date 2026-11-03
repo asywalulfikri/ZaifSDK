@@ -587,4 +587,6 @@
     <string name="tutorial_video_note_color">Warna not</string>
     <string name="tutorial_video_start">Mulai rekam</string>
     <string name="remind_me_later">Ingatkan lagi nanti</string>
+    <string name="reply">Balas</string>
+    <string name="enable_internet_to_record">Hidupkan internet untuk melakukan rekam layar</string>
 </resources>

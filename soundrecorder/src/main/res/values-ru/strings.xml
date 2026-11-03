@@ -587,4 +587,5 @@
     <string name="tutorial_video_note_color">Цвет ноты</string>
     <string name="tutorial_video_start">Начать запись</string>
     <string name="remind_me_later">Напомнить позже</string>
+    <string name="reply">Ответить</string>
 </resources>

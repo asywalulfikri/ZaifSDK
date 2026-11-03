@@ -584,4 +584,5 @@
     <string name="tutorial_video_note_color">音符の色</string>
     <string name="tutorial_video_start">録画を開始</string>
     <string name="remind_me_later">後で通知する</string>
+    <string name="reply">返信</string>
 </resources>
