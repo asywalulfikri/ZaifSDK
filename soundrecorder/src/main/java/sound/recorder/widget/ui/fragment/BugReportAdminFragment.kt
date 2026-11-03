@@ -371,6 +371,7 @@ class BugReportAdminFragment : Fragment() {
             val btnDelete: TextView?   = view.findViewById(R.id.btnDelete)
             val btnReply: TextView?    = view.findViewById(R.id.btnReply)
             val btnDeviceInfo: TextView? = view.findViewById(R.id.btnDeviceInfo)
+            val btnCopy: TextView?     = view.findViewById(R.id.btnCopy)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -402,6 +403,8 @@ class BugReportAdminFragment : Fragment() {
             holder.btnMarkDone?.setOnClickListener { onMarkDone(item) }
             holder.btnDelete?.setOnClickListener   { onDelete(item) }
             holder.btnDeviceInfo?.setOnClickListener { showDeviceInfoDialog(item) }
+            holder.btnCopy?.visibility = View.VISIBLE
+            holder.btnCopy?.setOnClickListener { it.context.copyAdminText(item.bugDescription) }
 
             if (item.firebaseToken.isNotEmpty()) {
                 holder.btnReply?.visibility = View.VISIBLE

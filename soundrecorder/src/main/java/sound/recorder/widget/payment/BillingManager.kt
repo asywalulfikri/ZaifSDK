@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.android.billingclient.api.*
+import sound.recorder.widget.util.ZaifAnalytics
 import java.lang.ref.WeakReference
 
 class BillingManager(
@@ -17,6 +18,7 @@ class BillingManager(
 
     // 🔥 FIX: pakai WeakReference
     private val activityRef = WeakReference(activity)
+    private val appContext = activity.applicationContext
 
     // 🔥 Handler untuk retry
     private val handler = Handler(Looper.getMainLooper())
@@ -76,7 +78,9 @@ class BillingManager(
 
     private var isProcessing = false
 
-    fun makePurchase() {
+    /** @param onError dipanggil bila halaman pembelian gagal dibuka (bukan saat user membatalkan). */
+    @JvmOverloads
+    fun makePurchase(onError: (() -> Unit)? = null) {
         if (isProcessing) return
         isProcessing = true
 
@@ -84,12 +88,14 @@ class BillingManager(
         if (activity == null) {
             Log.e(TAG, "Activity is null, cannot launch billing flow")
             isProcessing = false
+            onError?.invoke()
             return
         }
 
         if (!billingClient.isReady) {
             Log.e(TAG, "BillingClient not ready")
             isProcessing = false
+            onError?.invoke()
             return
         }
 
@@ -127,15 +133,18 @@ class BillingManager(
                             if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
                                 Log.e(TAG, "Billing flow error: ${billingResult.debugMessage}")
                                 isProcessing = false
+                                onError?.invoke()
                             }
                         }
                     } else {
                         isProcessing = false
+                        onError?.invoke()
                     }
                 }
             } else {
                 Log.e(TAG, "Product not found: ${result.debugMessage}")
                 isProcessing = false
+                onError?.invoke()
             }
         }
     }
@@ -155,6 +164,8 @@ class BillingManager(
                 billingClient.acknowledgePurchase(params) { result ->
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                         Log.d(TAG, "Purchase acknowledged")
+                        // Hanya di sini: pembelian lama yang dipulihkan tidak ikut terhitung.
+                        ZaifAnalytics.removeAdsPurchased(appContext)
                         onPurchaseSuccess?.invoke() // 🔥 FIX: safe call
                     }
                 }

@@ -42,6 +42,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.util.CoinManager
+import sound.recorder.widget.util.ZaifAnalytics
 import sound.recorder.widget.recording.RecordingDialogPalette
 import sound.recorder.widget.recording.RecordingDialogStyle
 import sound.recorder.widget.recording.RecordingDialogViews.applyWindow
@@ -55,6 +56,14 @@ import sound.recorder.widget.recording.database.RecordingEntity
 import java.io.File
 import kotlin.coroutines.resume
 import com.intuit.sdp.R as SdpR
+
+/**
+ * Pilihan VIDEO di dialog export. Null = tidak tampil.
+ *
+ * @param canUse false bila jatah gratis hari ini habis dan user bukan premium (tampil gembok).
+ * @param onClick `closeExport` menutup dialog export saat alur video benar-benar berlanjut.
+ */
+class RecordingVideoOption(val canUse: Boolean, val onClick: (closeExport: () -> Unit) -> Unit)
 
 /**
  * Dialog export rekaman yang netral, bisa dipakai di semua aplikasi alat musik.
@@ -84,7 +93,8 @@ object RecordingExportDialog {
         context: Context,
         rec: RecordingEntity,
         style: RecordingDialogStyle = RecordingDialogStyle.default,
-        onRequestReward: ((onRewarded: () -> Unit) -> Unit)? = null
+        onRequestReward: ((onRewarded: () -> Unit) -> Unit)? = null,
+        video: RecordingVideoOption? = null
     ) {
         val c = RecordingDialogPalette(context, style)
 
@@ -134,6 +144,7 @@ object RecordingExportDialog {
             setPadding(p, p, p, p)
         }
         val segmentViews = mutableMapOf<RecordingExporter.Format, TextView>()
+        var videoSegment: TextView? = null
         val hintTv = TextView(context).apply {
             setTextColor(c.textSecondary)
             textSize = 11f
@@ -168,6 +179,19 @@ object RecordingExportDialog {
                 }
             }
             segmentViews[format] = tv
+            segment.addView(tv, LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._32sdp), 1f))
+        }
+        video?.let { option ->
+            val tv = TextView(context).apply {
+                val label = context.getString(R.string.tutorial_video_button)
+                text = if (option.canUse) label else "🔒 $label"
+                textSize = 13f
+                typeface = Typeface.DEFAULT_BOLD
+                gravity = Gravity.CENTER
+                setTextColor(c.text)
+                setOnClickListener { option.onClick { dialog.dismiss() } }
+            }
+            videoSegment = tv
             segment.addView(tv, LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._32sdp), 1f))
         }
         root.addView(segment)
@@ -250,6 +274,7 @@ object RecordingExportDialog {
             dialog.setCanceledOnTouchOutside(!working)
             segment.alpha = if (working) 0.5f else 1f
             segmentViews.values.forEach { it.isClickable = !working }
+            videoSegment?.isClickable = !working
             actionRow.visibility = if (working) View.GONE else View.VISIBLE
             if (freeExport) freeTv.visibility = if (working) View.GONE else View.VISIBLE
             progressPanel.visibility = if (working) View.VISIBLE else View.GONE
@@ -270,9 +295,13 @@ object RecordingExportDialog {
                     progressInfo.text = ""
                     setWorking(true)
                 }
+                val formatName = format.name.lowercase()
+                // File yang sudah dibuat di dialog ini dipakai ulang: bukan export baru.
+                val cached = exported[format]?.takeIf { it.exists() }
+                if (cached == null) ZaifAnalytics.exportStarted(context, formatName, ZaifAnalytics.SOURCE_RECORDING)
                 try {
                     var renderStart = 0L
-                    val file = exported[format]?.takeIf { it.exists() }
+                    val file = cached
                         ?: RecordingExporter.export(context, rec, format) { p ->
                             scope.launch {
                                 if (renderStart == 0L) {
@@ -284,11 +313,13 @@ object RecordingExportDialog {
                                 progressInfo.text = progressText(context, p, SystemClock.elapsedRealtime() - renderStart)
                             }
                         }.also { exported[format] = it }
+                    if (cached == null) ZaifAnalytics.exportFinished(context, formatName, ZaifAnalytics.SOURCE_RECORDING)
                     showPanel.cancel()
                     setWorking(false)
                     if (freeExport && !freeConsumed) {
                         freeConsumed = true
                         RecordingExporter.consumeFreeExport(context)
+                        ZaifAnalytics.exportUnlock(context, ZaifAnalytics.UNLOCK_FREE)
                     }
 
                     val title = "${rec.name}.${format.extension}"
@@ -309,12 +340,14 @@ object RecordingExportDialog {
                     }
                 } catch (e: CancellationException) {
                     showPanel.cancel()
+                    if (cached == null) ZaifAnalytics.exportFailed(context, formatName, ZaifAnalytics.SOURCE_RECORDING, ZaifAnalytics.REASON_CANCELLED)
                     if (dialog.isShowing) {
                         setWorking(false)
                         showResult(context.getString(R.string.export_cancelled), c.textSecondary)
                     }
                     throw e
                 } catch (e: Mp3SourceUnavailableException) {
+                    ZaifAnalytics.exportFailed(context, formatName, ZaifAnalytics.SOURCE_RECORDING, "mp3_source_unavailable")
                     showPanel.cancel()
                     setWorking(false)
                     showResult(context.getString(R.string.export_mp3_unavailable), c.error)
@@ -322,6 +355,7 @@ object RecordingExportDialog {
                     showPanel.cancel()
                     setWorking(false)
                     Log.e("RecordingExport", "Export failed", e)
+                    ZaifAnalytics.exportFailed(context, formatName, ZaifAnalytics.SOURCE_RECORDING, e.javaClass.simpleName)
                     showResult(context.getString(R.string.export_failed), c.error)
                 }
             }
@@ -345,12 +379,14 @@ object RecordingExportDialog {
                             onRequestReward?.invoke {
                                 // Dipanggil setelah iklan selesai ditonton
                                 if (!dialog.isShowing) return@invoke
+                                ZaifAnalytics.exportUnlock(context, ZaifAnalytics.UNLOCK_AD)
                                 rewardUnlocked = true
                                 perform(action)
                             }
                         },
                         onPaidWithCoins = {
                             // Koin sudah dipotong: buka kunci seperti setelah nonton iklan
+                            ZaifAnalytics.exportUnlock(context, ZaifAnalytics.UNLOCK_COIN)
                             rewardUnlocked = true
                             perform(action)
                         }
@@ -429,7 +465,7 @@ object RecordingExportDialog {
                 addView(textButton(context, c, context.getString(R.string.export_pay_coins, cost)).apply {
                     alpha = if (enough) 1f else 0.4f
                     setOnClickListener {
-                        if (CoinManager.spendCoins(context, cost)) {
+                        if (CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_EXPORT)) {
                             dialog.dismiss()
                             onPaidWithCoins()
                         } else {
@@ -462,7 +498,7 @@ object RecordingExportDialog {
     }
 
     /** Android 9 ke bawah: minta izin penyimpanan. @return true jika boleh menyimpan. */
-    private suspend fun ensureStoragePermission(context: Context): Boolean {
+    internal suspend fun ensureStoragePermission(context: Context): Boolean {
         if (!RecordingExporter.needsStoragePermission(context)) return true
         return suspendCancellableCoroutine { cont ->
             Dexter.withContext(context)

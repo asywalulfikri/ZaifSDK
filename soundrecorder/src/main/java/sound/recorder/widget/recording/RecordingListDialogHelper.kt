@@ -56,6 +56,7 @@ import sound.recorder.widget.recording.RecordingDialogViews.vSpace
 import sound.recorder.widget.recording.database.AppDatabase
 import sound.recorder.widget.recording.database.RecordingEntity
 import sound.recorder.widget.recording.export.RecordingExportDialog
+import sound.recorder.widget.recording.export.RecordingVideoOption
 import sound.recorder.widget.recording.export.RecordingExporter
 import java.io.File
 import java.text.DateFormat
@@ -134,6 +135,8 @@ object RecordingListDialogHelper {
         onPreview: ((preview: RecordingEntity, audioStartMs: Long, onStarted: () -> Unit, onDone: () -> Unit) -> Unit)? = null,
         /** Hentikan pratinjau (dipanggil saat Stop, geser pegangan, simpan, atau dialog ditutup). */
         onStopPreview: (() -> Unit)? = null,
+        /** Pilihan VIDEO per rekaman; `close` menutup daftar sebelum perekaman. null = tidak tampil. */
+        video: ((rec: RecordingEntity, close: () -> Unit) -> RecordingVideoOption?)? = null,
         onPlay: (RecordingEntity) -> Unit
     ) {
         val trimPreview = if (onPreview != null) TrimPreview(onPreview, onStopPreview ?: {}) else null
@@ -210,7 +213,8 @@ object RecordingListDialogHelper {
                         refreshCount()
                         scrollView.smoothScrollTo(0, 0)
                     },
-                    onOverdub = onOverdub?.let { cb -> { current -> dialog.dismiss(); cb(current) } }
+                    onOverdub = onOverdub?.let { cb -> { current -> dialog.dismiss(); cb(current) } },
+                    video = video?.let { cb -> { current -> cb(current) { dialog.dismiss() } } }
                 )
                 if (atTop) listLayout.addView(row, 0) else listLayout.addView(row)
             }
@@ -236,7 +240,8 @@ object RecordingListDialogHelper {
         onDeleted: () -> Unit,
         onAdded: (RecordingEntity) -> Unit,
         onOverdub: ((RecordingEntity) -> Unit)?,
-        trimPreview: TrimPreview? = null
+        trimPreview: TrimPreview? = null,
+        video: ((RecordingEntity) -> RecordingVideoOption?)? = null
     ): View {
         // Disalin ulang saat diubah nama, agar export/putar memakai nama terbaru
         var rec = original
@@ -310,7 +315,7 @@ object RecordingListDialogHelper {
         }
 
         addAction(actionButton(context, c, R.drawable.zaif_rec_ic_export, context.getString(R.string.export_title), c.accent) {
-            RecordingExportDialog.show(context, rec, onRequestReward = onRequestExportReward)
+            RecordingExportDialog.show(context, rec, onRequestReward = onRequestExportReward, video = video?.invoke(rec))
         })
         addAction(actionButton(context, c, R.drawable.zaif_rec_ic_trim, context.getString(R.string.record_trim), c.text) {
             showTrimDialog(context, c, rec, trimPreview, onAdded)
@@ -482,6 +487,8 @@ object RecordingListDialogHelper {
         trimPreview: TrimPreview?,
         onSaved: (RecordingEntity) -> Unit
     ) {
+        // Putaran yang masih jalan tidak bisa dihentikan dari dialog ini dan akan menimpa pratinjau.
+        trimPreview?.stop?.invoke()
         val taps = RecordingTrim.parseTaps(rec.eventsJson)
         val music = RecordedMusicJson.parse(rec.musicJson)
         val duration = maxOf(rec.durationMs, taps.maxOfOrNull { it.timestamp } ?: 0L, music.maxOfOrNull { it.endMs } ?: 0L)
@@ -504,7 +511,7 @@ object RecordingListDialogHelper {
         }
         val range = TrimRangeView(
             context, duration,
-            tapTimes = taps.filter { it.metadata != RecordingExporter.OFF_METADATA }.map { it.timestamp },
+            tapTimes = taps.filterNot { RecordingExporter.isOffMetadata(it.metadata) }.map { it.timestamp },
             musicRanges = music.map { it.atMs..it.endMs },
             minLengthMs = RecordingTrim.MIN_LENGTH_MS,
             accent = c.accent,

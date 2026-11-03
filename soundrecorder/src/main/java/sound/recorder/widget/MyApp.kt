@@ -54,6 +54,7 @@ open class MyApp : Application(), Configuration.Provider {
         private val mainHandler = Handler(Looper.getMainLooper())
 
         private val adMobInitializationStarted = AtomicBoolean(false)
+        private val adMobScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
         fun registerListener(listener: SdkInitializationListener) {
             val initialized = synchronized(listenerLock) {
@@ -72,6 +73,30 @@ open class MyApp : Application(), Configuration.Provider {
         }
 
         fun unregisterListener(listener: SdkInitializationListener) = sdkListeners.remove(listener)
+
+        /**
+         * Inisialisasi AdMob sekali per proses. Panggil hanya bila consent mengizinkan iklan.
+         * Berjalan di IO karena bisa menyentuh Google Play services/WebView dan memblokir
+         * di HP tertentu; kegagalan iklan tidak boleh mengganggu app.
+         *
+         * @param delayMs jeda agar Activity pertama sempat tampil lebih dulu.
+         */
+        fun initializeAdMob(context: Context, delayMs: Long = 0L) {
+            if (!adMobInitializationStarted.compareAndSet(false, true)) return
+
+            val appContext = context.applicationContext
+            adMobScope.launch {
+                delay(delayMs)
+                try {
+                    MobileAds.initialize(appContext) { status ->
+                        Log.d(TAG, "AdMob initialized: $status")
+                        instance?.showDebugToast("AdMob berhasil diinisialisasi")
+                    }
+                } catch (e: Throwable) {
+                    Log.e(TAG, "AdMob init error: ${e.message}", e)
+                }
+            }
+        }
 
         fun clearAllListeners() = sdkListeners.clear()
 
@@ -154,11 +179,8 @@ open class MyApp : Application(), Configuration.Provider {
                 }
             }
 
-            // AdMob must not delay the application's essential startup. Its
-            // initialization may touch Google Play services/WebView and can
-            // block on vendor devices. Ads are loaded later by the Activity
-            // when a valid ad container is available.
-            initializeAdMobInBackground()
+            // AdMob sengaja tidak diinisialisasi di sini: harus setelah consent UMP.
+            // Lihat initializeAdMob, dipanggil dari BaseActivityWidget.setupGDPR.
 
             workManagerJob.join()
         }
@@ -189,25 +211,6 @@ open class MyApp : Application(), Configuration.Provider {
             Log.d(TAG, "Firebase initialized successfully")
         } catch (e: Throwable) {
             Log.e(TAG, "Firebase error: ${e.message}")
-        }
-    }
-
-    private fun initializeAdMobInBackground() {
-        if (!adMobInitializationStarted.compareAndSet(false, true)) return
-
-        applicationScope.launch(Dispatchers.IO) {
-            // Give the first Activity a chance to render before Google Play
-            // services/AdMob performs its one-time initialization.
-            delay(1500)
-            try {
-                MobileAds.initialize(applicationContext) { status ->
-                    Log.d(TAG, "AdMob initialized: $status")
-                    showDebugToast("AdMob berhasil diinisialisasi")
-                }
-            } catch (e: Throwable) {
-                // Advertising must never prevent the host app from starting.
-                Log.e(TAG, "AdMob init error: ${e.message}", e)
-            }
         }
     }
 

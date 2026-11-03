@@ -2,9 +2,9 @@ package sound.recorder.widget.base
 
 import android.app.Activity
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -19,10 +19,12 @@ import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
 import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import sound.recorder.widget.R
 
 class InAppUpdateHelper(
     private val activity: ComponentActivity,
@@ -33,11 +35,22 @@ class InAppUpdateHelper(
         AppUpdateManagerFactory.create(activity)
     }
 
+    private companion object {
+        /** Jeda cek update setelah app dibuka, agar tidak bersaing dengan startup. */
+        const val INITIAL_CHECK_DELAY_MS = 8_000L
+    }
+
     private val updateLock = Any()
     private var isUpdateFlowRunning = false
     private var isListenerRegistered = false
     private var lastResumeCheckTime = 0L
     private var updateJob: Job? = null
+
+    private var installDialog: AlertDialog? = null
+    /** Unduhan selesai saat app di background: dialog ditampilkan saat app kembali. */
+    private var installPromptPending = false
+    /** User memilih Nanti: tidak ditanya lagi sampai app dibuka ulang. */
+    private var installPostponed = false
 
     private val updateLauncher =
         activity.registerForActivityResult(
@@ -55,12 +68,12 @@ class InAppUpdateHelper(
             InstallStatus.DOWNLOADED -> {
                 activity.lifecycleScope.launch {
                     try {
-                        Toast.makeText(activity, "Update downloaded", Toast.LENGTH_SHORT).show()
-                        completeFlexibleUpdate()
+                        requestInstall()
                     } catch (e: Exception) {
                         Log.e("Update", "Listener error", e)
                     } finally {
                         unregisterListenerIfNeeded()
+                        resetUpdateFlag()
                     }
                 }
             }
@@ -83,12 +96,29 @@ class InAppUpdateHelper(
 
         updateJob = activity.lifecycleScope.launch {
             try {
+                // Jangan cek saat app baru dibuka: hasil bind service Play (onServiceConnected)
+                // selalu dikirim ke main thread dan menumpuk dengan inisialisasi awal di HP
+                // lambat → ANR "Input dispatching timed out" (Oppo A18, Android 15).
+                delay(INITIAL_CHECK_DELAY_MS)
+                if (!activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                    resetUpdateFlag()
+                    return@launch
+                }
                 // Gunakan IO dan Timeout panjang untuk initial check
                 val info = withTimeoutOrNull(15_000L) {
                     withContext(Dispatchers.IO) {
                         appUpdateManager.appUpdateInfo.await()
                     }
                 } ?: run {
+                    resetUpdateFlag()
+                    return@launch
+                }
+
+                // Sudah diunduh tapi belum dipasang (user memilih Nanti di sesi sebelumnya)
+                if (updateType == AppUpdateType.FLEXIBLE &&
+                    info.installStatus() == InstallStatus.DOWNLOADED
+                ) {
+                    requestInstall()
                     resetUpdateFlag()
                     return@launch
                 }
@@ -142,6 +172,27 @@ class InAppUpdateHelper(
         }
     }
 
+    /**
+     * Memasang update me-restart app, jadi user yang menentukan waktunya:
+     * bisa saja dia sedang bermain, merekam, atau export.
+     */
+    private fun requestInstall() {
+        if (installPostponed || installDialog?.isShowing == true) return
+        if (activity.isFinishing || activity.isDestroyed) return
+        if (!activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            installPromptPending = true
+            return
+        }
+        installPromptPending = false
+        installDialog = AlertDialog.Builder(activity)
+            .setTitle(R.string.update_ready_title)
+            .setMessage(R.string.update_ready_message)
+            .setPositiveButton(R.string.update_install) { _, _ -> completeFlexibleUpdate() }
+            .setNegativeButton(R.string.update_later) { _, _ -> installPostponed = true }
+            .setOnCancelListener { installPostponed = true }
+            .show()
+    }
+
     private fun completeFlexibleUpdate() {
         try {
             appUpdateManager.completeUpdate()
@@ -153,9 +204,16 @@ class InAppUpdateHelper(
     }
 
     fun onResume() {
+        if (installPromptPending) requestInstall()
         val now = System.currentTimeMillis()
         
         synchronized(updateLock) {
+            // onResume pertama sesi ini: cek awal sudah dijadwalkan checkUpdate (tertunda),
+            // jangan bind service Play kedua kalinya saat app baru dibuka.
+            if (lastResumeCheckTime == 0L) {
+                lastResumeCheckTime = now
+                return
+            }
             // Throttling: Jangan cek di onResume jika baru saja dicek (30 detik)
             if (isUpdateFlowRunning || (now - lastResumeCheckTime < 30_000L)) return
             lastResumeCheckTime = now
@@ -176,7 +234,7 @@ class InAppUpdateHelper(
                 } else if (updateType == AppUpdateType.FLEXIBLE &&
                     info.installStatus() == InstallStatus.DOWNLOADED
                 ) {
-                    completeFlexibleUpdate()
+                    requestInstall()
                 }
             } catch (e: Exception) {
                 Log.e("Update", "Resume check failed", e)
@@ -187,6 +245,8 @@ class InAppUpdateHelper(
     fun onDestroy() {
         try {
             updateJob?.cancel()
+            installDialog?.dismiss()
+            installDialog = null
             unregisterListenerIfNeeded()
             resetUpdateFlag()
         } catch (e: Exception) {

@@ -11,7 +11,7 @@ internal object SustainNotes {
 
     private const val OFF = RecordingExporter.OFF_METADATA
 
-    fun isOff(tap: RecordedTap) = tap.metadata == OFF
+    fun isOff(tap: RecordedTap) = RecordingExporter.isOffMetadata(tap.metadata)
 
     /** Rekaman instrumen sustain = punya minimal satu OFF (sama dengan deteksi di tutorial). */
     fun usesOff(taps: List<RecordedTap>) = taps.any(::isOff)

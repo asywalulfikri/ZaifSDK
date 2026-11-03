@@ -32,7 +32,8 @@ class KritikSaranAdminFragment : Fragment() {
         val docId: String,
         val name: String,
         val description : String,
-        val requestedAt: Long
+        val requestedAt: Long,
+        val deviceInfo: String = "-"
     )
 
     private val allRequests = mutableListOf<KritikSaranRequest>()
@@ -132,6 +133,7 @@ class KritikSaranAdminFragment : Fragment() {
                         name = d["name"] as? String ?: "-",
                         description = d["description"] as? String ?: "",
                         requestedAt = d["requested_at"] as? Long ?: 0L,
+                        deviceInfo = d["deviceInfo"] as? String ?: "-",
                     )
                 }
 
@@ -157,6 +159,14 @@ class KritikSaranAdminFragment : Fragment() {
             .setTitle(req.name)
             .setMessage(req.description)
             .setPositiveButton("Tutup", null)
+            .show()
+    }
+
+    private fun showDeviceInfoDialog(req: KritikSaranRequest) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.admin_device_info)
+            .setMessage(req.deviceInfo)
+            .setPositiveButton(android.R.string.ok, null)
             .show()
     }
 
@@ -202,6 +212,8 @@ class KritikSaranAdminFragment : Fragment() {
             val tvDescription: TextView    = view.findViewById(R.id.tvDescription)
             val tvDate: TextView      = view.findViewById(R.id.tvDate)
             val btnDelete: TextView   = view.findViewById(R.id.btnDelete)
+            val btnCopy: TextView     = view.findViewById(R.id.btnCopy)
+            val btnDeviceInfo: TextView = view.findViewById(R.id.btnDeviceInfo)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
@@ -219,6 +231,8 @@ class KritikSaranAdminFragment : Fragment() {
             holder.tvDescription.text = item.description
             holder.tvDate.text      = sdf.format(Date(item.requestedAt))
             holder.btnDelete.setOnClickListener   { onDelete(item) }
+            holder.btnCopy.setOnClickListener { it.context.copyAdminText(item.description) }
+            holder.btnDeviceInfo.setOnClickListener { showDeviceInfoDialog(item) }
             holder.itemView.setOnClickListener { onClick(item) }
         }
 

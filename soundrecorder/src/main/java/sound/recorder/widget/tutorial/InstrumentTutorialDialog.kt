@@ -1,5 +1,7 @@
 package sound.recorder.widget.tutorial
 
+import sound.recorder.widget.listener.MyAdsListener
+
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -67,8 +69,13 @@ import sound.recorder.widget.recording.database.RecordedTap
 import sound.recorder.widget.recording.database.RecordingEntity
 import sound.recorder.widget.recording.export.RecordingExportDialog
 import sound.recorder.widget.recording.export.RecordingExporter
+import sound.recorder.widget.recording.export.RecordingVideoOption
 import com.google.gson.Gson
+import androidx.annotation.RequiresApi
+import com.google.gson.reflect.TypeToken
+import android.util.Log
 import sound.recorder.widget.util.CoinManager
+import sound.recorder.widget.util.ZaifAnalytics
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -118,6 +125,8 @@ class InstrumentTutorialDialog(
     }
 
     companion object {
+        /** Rekaman video diteruskan sebentar setelah not terakhir agar dengung bel ikut terekam. */
+        private const val VIDEO_TAIL_MS = 1_500L
         private const val CACHE_TTL_MS = 24 * 60 * 60 * 1000L // 1 hari
         private const val UNLOCK_TTL_MS = 24 * 60 * 60 * 1000L   // 1 hari
         private const val PREFS_UNLOCKED = "zaif_note_unlocks"
@@ -233,6 +242,16 @@ class InstrumentTutorialDialog(
     private var playJob: Job? = null
     private val activeNotes = java.util.concurrent.ConcurrentHashMap<Int, String>()
     private val playHandler = Handler(Looper.getMainLooper())
+
+    /** Admin: export video per lagu. Tombol VIDEO hanya tampil di build debug (Android 6+) bila diisi host. */
+    var videoExport: TutorialVideoExport? = null
+    private val videoHandler = Handler(Looper.getMainLooper())
+    private var activeVideoRecorder: TutorialVideoRecorder? = null
+    /** View game selama video seluruh layar direkam; banner disembunyikan selama itu. */
+    private var fullScreenVideoView: View? = null
+    private var activeVideoIndicator: VideoRecordingIndicator? = null
+    /** Untuk analytics saat video dibatalkan; application context agar tidak menahan Activity. */
+    private var activeVideoContext: Context? = null
     private var currentDialog: BottomSheetDialog? = null
     private var currentAdapter: SongListAdapter? = null
     private var mBinding: DialogTutorialSongListBinding? = null
@@ -336,10 +355,40 @@ class InstrumentTutorialDialog(
             binding.tvSubtitle.visibility = View.GONE
         }
 
+        // Memutar lagu tanpa cek kunci (dipanggil setelah lolos unlock, atau oleh export video admin).
+        fun playItem(item: SongItem) {
+            when (item) {
+                is SongItem.Local -> onPlay(item.song)
+                is SongItem.Remote -> {
+                    val note = item.note
+                    if (playRemoteAsSong) {
+                        val song = remoteNoteToSong(note)
+                        if (song != null) {
+                            val endMs = song.notes.maxOfOrNull { it.timeMs + it.durationMs } ?: 0L
+                            onPlaybackStatusChanged(true)
+                            onPlay(song)
+                            playHandler.postDelayed({ onPlaybackStatusChanged(false) }, endMs + 300L)
+                        }
+                    } else {
+                        playUserNote(note.jsonNote)
+                    }
+                }
+            }
+        }
+
+        val videoConfig = videoExport
+        val canExportVideo = videoConfig != null && isAppDebuggable(context) &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+
         val adapter = SongListAdapter(
             context = context,
             showLearn = showLearn,
             showExport = showExport,
+            onVideo = if (canExportVideo) { item ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    startVideoExport(context, item, videoConfig!!, dialog, TutorialVideoStyle(watermark = videoConfig.watermark), fullScreen = true) { playItem(it) }
+                }
+            } else null,
             isUnlocked = { item ->
                 when (item) {
                     is SongItem.Local -> isPremium || keyForLocal(item.song) in freeSongKeys || isUnlockedByKey(context, keyForLocal(item.song))
@@ -350,7 +399,7 @@ class InstrumentTutorialDialog(
                 when (item) {
                     is SongItem.Local -> {
                         val key = keyForLocal(item.song)
-                        val doPlay = { dismissShouldStop = false; dialog.dismiss(); onPlay(item.song) }
+                        val doPlay = { dismissShouldStop = false; dialog.dismiss(); playItem(item) }
                         if (isPremium || key in freeSongKeys || isUnlockedByKey(context, key)) doPlay()
                         else showUnlockDialog(context, key, onCoinUnlock = { doPlay() }) { onRequestAd { markUnlocked(context, key); doPlay() } }
                     }
@@ -360,17 +409,7 @@ class InstrumentTutorialDialog(
                         val doPlay = {
                             dismissShouldStop = false
                             dialog.dismiss()
-                            if (playRemoteAsSong) {
-                                val song = remoteNoteToSong(note)
-                                if (song != null) {
-                                    val endMs = song.notes.maxOfOrNull { it.timeMs + it.durationMs } ?: 0L
-                                    onPlaybackStatusChanged(true)
-                                    onPlay(song)
-                                    playHandler.postDelayed({ onPlaybackStatusChanged(false) }, endMs + 300L)
-                                }
-                            } else {
-                                playUserNote(note.jsonNote)
-                            }
+                            playItem(item)
                         }
                         if (note.isFree || isPremium || isUnlockedByKey(context, key)) doPlay()
                         else showUnlockDialog(context, key, onCoinUnlock = { doPlay() }) { onRequestAd { markUnlocked(context, key); doPlay() } }
@@ -398,9 +437,16 @@ class InstrumentTutorialDialog(
                 // Premium tanpa iklan. Lagu yang baru dibuka (iklan / koin) tidak diminta iklan lagi saat export.
                 fun openExport(rec: RecordingEntity?, skipAd: Boolean) {
                     if (rec == null) { onToast(context.getString(R.string.export_failed)); return }
+                    val video = RecordingVideoExport.option(context, videoExport, isPremium, rec.name) { style ->
+                        val config = videoExport
+                        if (config != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            startVideoExport(context, item, config, dialog, style, fullScreen = config.fullScreen) { playItem(it) }
+                        }
+                    }
                     RecordingExportDialog.show(
                         context, rec,
-                        onRequestReward = if (isPremium || skipAd) null else { onRewarded -> onRequestAd { onRewarded() } }
+                        onRequestReward = if (isPremium || skipAd) null else { onRewarded -> onRequestAd { onRewarded() } },
+                        video = video
                     )
                 }
                 when (item) {
@@ -1475,6 +1521,8 @@ class InstrumentTutorialDialog(
         private val context: Context,
         private val showLearn: Boolean = true,
         private val showExport: Boolean = true,
+        /** Null = tombol VIDEO disembunyikan (bukan build debug / host tidak memasang videoExport). */
+        private val onVideo: ((SongItem) -> Unit)? = null,
         private val isUnlocked: (SongItem) -> Boolean,
         private val onPlay: (SongItem) -> Unit,
         private val onLearn: (SongItem) -> Unit,
@@ -1494,6 +1542,7 @@ class InstrumentTutorialDialog(
             val btnPlay: TextView = view.findViewById(R.id.btnPlay)
             val btnLearn: TextView = view.findViewById(R.id.btnLearn)
             val btnExport: TextView = view.findViewById(R.id.btnExport)
+            val btnVideo: TextView = view.findViewById(R.id.btnVideo)
             val layoutAdmin: LinearLayout = view.findViewById(R.id.layoutAdmin)
             val btnPublish: TextView = view.findViewById(R.id.btnPublish)
             val btnEdit: TextView = view.findViewById(R.id.btnEdit)
@@ -1601,6 +1650,9 @@ class InstrumentTutorialDialog(
             vh.btnPlay.setOnClickListener { onPlay(item) }
             vh.btnLearn.setOnClickListener { onLearn(item) }
             vh.btnExport.setOnClickListener { onExport(item) }
+            val video = onVideo
+            vh.btnVideo.visibility = if (video != null) View.VISIBLE else View.GONE
+            vh.btnVideo.setOnClickListener { video?.invoke(item) }
         }
 
         override fun getItemCount() = if (isOffline) items.size + 1 else items.size
@@ -1623,7 +1675,7 @@ class InstrumentTutorialDialog(
             // Dynamic sustain detection: check if any event has "OFF" metadata
             val hasSustain = allEvents.any {
                 val meta = if (it.has("metadata")) it.optString("metadata", "") else it.optString("c", "")
-                meta == "OFF"
+                RecordingExporter.isOffMetadata(meta)
             }
 
             if (hasSustain) {
@@ -1633,7 +1685,7 @@ class InstrumentTutorialDialog(
                     val timestamp = if (o.has("timestamp")) o.getLong("timestamp") else o.optLong("b", 0L)
                     val metadata = if (o.has("metadata")) o.optString("metadata", "") else o.optString("c", "")
 
-                    if (metadata == "OFF") {
+                    if (RecordingExporter.isOffMetadata(metadata)) {
                         val startTime = activeNotes.remove(padIndex)
                         if (startTime != null) {
                             notes.add(InstrumentNote(padIndex, startTime, timestamp - startTime))
@@ -1732,7 +1784,7 @@ class InstrumentTutorialDialog(
                     lastTimestamp = event.timestamp
 
                     val metadata = event.metadata.orEmpty()
-                    val isOff = metadata == "OFF"
+                    val isOff = RecordingExporter.isOffMetadata(metadata)
 
                     // Filter by prefix if provided
                     val isCurrentInstrument = instrumentPrefix.isEmpty() || metadata.isEmpty() || metadata.startsWith(instrumentPrefix) || !metadata.contains("_")
@@ -1773,7 +1825,7 @@ class InstrumentTutorialDialog(
                 onToast(mContext?.getString(R.string.invalid_note_format) ?: "Invalid format")
                 return@launch
             }
-            val events = allEvents.filter { it.metadata != "OFF" }
+            val events = allEvents.filterNot { RecordingExporter.isOffMetadata(it.metadata) }
             if (events.isEmpty()) {
                 onToast(mContext?.getString(R.string.invalid_note_format) ?: "Invalid format")
                 return@launch
@@ -1823,6 +1875,7 @@ class InstrumentTutorialDialog(
     }
 
     fun stopAll() {
+        cancelVideoExport()
         playHandler.removeCallbacksAndMessages(null)
         playJob?.cancel()
         playJob = null
@@ -1834,6 +1887,121 @@ class InstrumentTutorialDialog(
         onLearnVisible(false)
         onPlaybackStatusChanged(false)
         onStopAllNotes()
+    }
+
+    // ─── Export video (admin, debug) ───────────────────────────────────────────
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun startVideoExport(
+        context: Context,
+        item: SongItem,
+        config: TutorialVideoExport,
+        dialog: BottomSheetDialog,
+        style: TutorialVideoStyle,
+        /** Seluruh layar, tanpa banner dan tanpa indikator REC. */
+        fullScreen: Boolean = false,
+        play: (SongItem) -> Unit
+    ) {
+        val scope = lifecycleScope ?: return
+        val rec = when (item) {
+            is SongItem.Local -> songToRecordingEntity(item.song)
+            is SongItem.Remote -> remoteNoteToRecordingEntity(item.note)
+        }
+        val taps = rec?.let {
+            runCatching {
+                Gson().fromJson<List<RecordedTap>>(it.eventsJson, object : TypeToken<List<RecordedTap>>() {}.type)
+            }.getOrNull()
+        }
+        if (rec == null || taps.isNullOrEmpty()) {
+            onToast(context.getString(R.string.tutorial_video_failed))
+            return
+        }
+        dismissShouldStop = false
+        dialog.dismiss()
+        cancelVideoExport()
+        if (fullScreen) MyAdsListener.setBanner(false)
+
+        // Tunggu bottom sheet tertutup agar tidak ikut terekam.
+        videoHandler.postDelayed({
+            val view = config.captureView()
+            if (view == null || view.width == 0 || view.height == 0 || !view.isAttachedToWindow) {
+                if (fullScreen) MyAdsListener.setBanner(true)
+                onToast(context.getString(R.string.tutorial_video_failed))
+                return@postDelayed
+            }
+            val recorder = try {
+                TutorialVideoRecorder(context, if (fullScreen) view.rootView else view, rec.name, taps, rec.setName, config.noteLabel, style)
+                    .also { it.start() }
+            } catch (t: Throwable) {
+                Log.e("TutorialVideo", "start failed", t)
+                ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, t.javaClass.simpleName)
+                if (fullScreen) MyAdsListener.setBanner(true)
+                onToast(context.getString(R.string.tutorial_video_failed))
+                return@postDelayed
+            }
+            ZaifAnalytics.exportStarted(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL)
+            onToast(context.getString(R.string.tutorial_video_recording))
+            val indicator = VideoRecordingIndicator(view, rec.durationMs + VIDEO_TAIL_MS) {
+                onToast(context.getString(R.string.export_cancelled))
+                stopAll()
+            }.also {
+                it.hiddenWhileRecording = fullScreen
+                it.show()
+            }
+            recorder.markPlaybackStart()
+            play(item)
+            // Diset setelah play: playUserNote memanggil stopAll() yang membatalkan rekaman aktif.
+            activeVideoRecorder = recorder
+            activeVideoIndicator = indicator
+            activeVideoContext = context.applicationContext
+            fullScreenVideoView = view.takeIf { fullScreen }
+
+            videoHandler.postDelayed({
+                activeVideoRecorder = null
+                activeVideoIndicator = null
+                activeVideoContext = null
+                restoreBannerAfterVideo()
+                recorder.stop()
+                indicator.showSaving()
+                scope.launch {
+                    try {
+                        val file = recorder.finish()
+                        ZaifAnalytics.exportFinished(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL)
+                        if (style.forcedWatermark != null) TutorialVideoQuota.consume(context)
+                        indicator.dismiss()
+                        RecordingVideoResultDialog.show(context, file, rec.name)
+                    } catch (t: Throwable) {
+                        Log.e("TutorialVideo", "finish failed", t)
+                        ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, t.javaClass.simpleName)
+                        onToast(context.getString(R.string.tutorial_video_failed))
+                    } finally {
+                        indicator.dismiss()
+                    }
+                }
+            }, rec.durationMs + VIDEO_TAIL_MS)
+        }, 400L)
+    }
+
+    private fun restoreBannerAfterVideo() {
+        val view = fullScreenVideoView ?: return
+        fullScreenVideoView = null
+        // View sudah lepas: user pindah layar, banner mengikuti layar yang baru.
+        if (view.isAttachedToWindow) MyAdsListener.setBanner(true)
+    }
+
+    private fun cancelVideoExport() {
+        videoHandler.removeCallbacksAndMessages(null)
+        restoreBannerAfterVideo()
+        activeVideoIndicator?.dismiss()
+        activeVideoIndicator = null
+        activeVideoRecorder?.let {
+            activeVideoRecorder = null
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) it.cancel()
+            activeVideoContext?.let { ctx ->
+                ZaifAnalytics.exportFailed(ctx, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, ZaifAnalytics.REASON_CANCELLED)
+            }
+        }
+        activeVideoContext = null
     }
 
     private fun publishNote(ctx: Context, note: NoteItem) {

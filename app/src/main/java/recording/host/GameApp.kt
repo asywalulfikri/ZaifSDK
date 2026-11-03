@@ -184,6 +184,7 @@ open class GameApp : MyApp(), AdConfigProvider {
                 .isPromotNote(BuildConfig.isPromotNote)
                 .isLockRec(BuildConfig.isLockRec)
                 .isCoin(false)
+                .isVideo(true)
                 .isFilterTutorial(true)
                 .build()
 

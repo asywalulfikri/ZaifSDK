@@ -64,4 +64,41 @@
             android:background="@drawable/bg_btn_tutorial_play" />
     </RelativeLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_6sdp"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnCopy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/admin_copy"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/_9sdp"
+            android:textStyle="bold"
+            android:paddingStart="@dimen/_8sdp"
+            android:paddingEnd="@dimen/_8sdp"
+            android:paddingTop="@dimen/_4sdp"
+            android:paddingBottom="@dimen/_4sdp"
+            android:background="@drawable/bg_btn_tutorial_learn"
+            android:layout_marginEnd="@dimen/_6sdp"/>
+
+        <TextView
+            android:id="@+id/btnDeviceInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/admin_device_info"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/_9sdp"
+            android:textStyle="bold"
+            android:paddingStart="@dimen/_8sdp"
+            android:paddingEnd="@dimen/_8sdp"
+            android:paddingTop="@dimen/_4sdp"
+            android:paddingBottom="@dimen/_4sdp"
+            android:background="@drawable/bg_btn_tutorial_learn"/>
+    </LinearLayout>
+
 </LinearLayout>

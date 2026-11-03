@@ -30,6 +30,8 @@ class ZaifSDKBuilder private constructor(
 
     var isFilterTutorial = false
 
+    var isVideo = false
+
     fun setAppName(value: String) = apply { appName = value }
     fun setVersionCode(value: Int) = apply { versionCode = value }
     fun setVersionName(value: String) = apply { versionName = value }
@@ -53,6 +55,8 @@ class ZaifSDKBuilder private constructor(
 
     fun isCoin(value: Boolean) = apply { isCoin = value }
 
+    fun isVideo(value: Boolean) = apply { isVideo = value }
+
     fun build(): ZaifSDKConfig {
         val config = ZaifSDKConfig(
             appName = appName,
@@ -73,7 +77,8 @@ class ZaifSDKBuilder private constructor(
             isLockRec = isLockRec,
             isLockMusic = isLockMusic,
             isCoin = isCoin,
-            isFilterTutorial = isFilterTutorial
+            isFilterTutorial = isFilterTutorial,
+            isVideo = isVideo
         )
         instance = config // ✅ langsung simpan di memory
         ZaifSDKStorage.save(context, config)
