@@ -33,8 +33,11 @@ class BillingManager(
                 Log.d(TAG, "OnPurchasesUpdated: ${billingResult.responseCode}")
                 isProcessing = false // 🔥 FIX: Reset flag saat ada update apapun dari Play Store
 
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-                    purchases.forEach { handlePurchase(it) }
+                when (billingResult.responseCode) {
+                    BillingClient.BillingResponseCode.OK -> purchases?.forEach { handlePurchase(it) }
+                    // User sudah pernah membeli (mis. pemulihan saat app dibuka gagal karena offline).
+                    // Play hanya menampilkan "sudah dimiliki"; ambil pembeliannya supaya iklan langsung hilang.
+                    BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> checkHistory()
                 }
             }
             .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
