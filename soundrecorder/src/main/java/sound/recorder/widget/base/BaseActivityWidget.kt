@@ -1,5 +1,6 @@
 package sound.recorder.widget.base
 
+import sound.recorder.widget.util.ZaifAnalytics
 import sound.recorder.widget.notification.NotificationThrottle
 import android.Manifest
 import android.annotation.SuppressLint
@@ -1446,11 +1447,11 @@ open class BaseActivityWidget : AppCompatActivity() {
                         // - AdMob gagal (tidak ada iklan, error server) → reward tetap diberikan
                         if (adError.code == AdRequest.ERROR_CODE_NETWORK_ERROR) {
                             if (activity.pendingRewardAction != null) {
-                                activity.finishRewardWait(grantReward = false)
+                                activity.finishRewardWait(grantReward = false, ZaifAnalytics.AD_NO_INTERNET)
                                 activity.setToast(activity.getString(R.string.no_internet_connection))
                             }
                         } else {
-                            activity.finishRewardWait(grantReward = true)
+                            activity.finishRewardWait(grantReward = true, ZaifAnalytics.AD_LOAD_FAILED_GRANTED)
                         }
 
                         if (activity.retryCountReward < 3) {
@@ -1502,7 +1503,9 @@ open class BaseActivityWidget : AppCompatActivity() {
             return
         }
 
+        if (pendingRewardAction == null) ZaifAnalytics.rewardAdRequested(this)
         if (!isInternetTrulyAvailable(this)) {
+            ZaifAnalytics.rewardAdResult(this, ZaifAnalytics.AD_NO_INTERNET)
             setToast(getString(R.string.no_internet_connection))
             return
         }
@@ -1530,6 +1533,10 @@ open class BaseActivityWidget : AppCompatActivity() {
                 ad.fullScreenContentCallback = null
                 rewardedAd = null
                 failedShowAttemptCount = 0 // Reset counter sukses show
+                ZaifAnalytics.rewardAdResult(
+                    this@BaseActivityWidget,
+                    if (earned) ZaifAnalytics.AD_EARNED else ZaifAnalytics.AD_CLOSED_EARLY
+                )
                 if (!isFinishing && !isDestroyed) {
                     if (earned) onComplete() else setToast(getString(R.string.reward_not_earned))
                 }
@@ -1542,6 +1549,7 @@ open class BaseActivityWidget : AppCompatActivity() {
                 rewardedAd = null
                 failedShowAttemptCount = 0 // Reset counter karena kita anggap gagal show sudah dihandle
                 // Keputusan produk: iklan gagal tayang bukan kesalahan user, reward tetap diberikan.
+                ZaifAnalytics.rewardAdResult(this@BaseActivityWidget, ZaifAnalytics.AD_SHOW_FAILED_GRANTED)
                 onComplete()
                 loadRewardedAd(isPremium)
             }
@@ -1565,7 +1573,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         pendingRewardAction = onComplete
         pendingRewardPremium = isPremium
         showRewardWaitDialog()
-        rewardWaitTimeout = Runnable { finishRewardWait(grantReward = true) }.also {
+        rewardWaitTimeout = Runnable { finishRewardWait(grantReward = true, ZaifAnalytics.AD_TIMEOUT_GRANTED) }.also {
             rewardWaitHandler.postDelayed(it, REWARD_WAIT_MS)
         }
 
@@ -1575,7 +1583,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         retryCountReward = 0
         loadRewardedAd(isPremium)
         // Pemuatan tidak bisa dimulai (ID iklan kosong / consent) → jangan biarkan user menunggu
-        if (!isRewardedLoading && rewardedAd == null) finishRewardWait(grantReward = true)
+        if (!isRewardedLoading && rewardedAd == null) finishRewardWait(grantReward = true, ZaifAnalytics.AD_NOT_STARTED_GRANTED)
     }
 
     /** Dipanggil saat iklan selesai dimuat: tampilkan untuk aksi yang sedang menunggu. */
@@ -1588,17 +1596,23 @@ open class BaseActivityWidget : AppCompatActivity() {
         presentRewardedAd(ad, pendingRewardPremium, action)
     }
 
-    private fun finishRewardWait(grantReward: Boolean) {
+    /** @param result hasil untuk analytics, salah satu `ZaifAnalytics.AD_*`. */
+    private fun finishRewardWait(grantReward: Boolean, result: String) {
         val action = pendingRewardAction ?: return
         clearRewardWait()
-        if (!grantReward || isFinishing || isDestroyed) return
+        if (!grantReward || isFinishing || isDestroyed) {
+            ZaifAnalytics.rewardAdResult(this, if (grantReward) ZaifAnalytics.AD_LEFT_APP else result)
+            return
+        }
         // Internet dimatikan saat menunggu → bukan kesalahan AdMob, reward tidak diberikan
         if (!isInternetTrulyAvailable(this)) {
+            ZaifAnalytics.rewardAdResult(this, ZaifAnalytics.AD_NO_INTERNET)
             setToast(getString(R.string.no_internet_connection))
             return
         }
         // Keputusan produk, bukan bug: internet ada tapi iklan gagal/terlalu lama dimuat berarti
         // masalahnya di AdMob, bukan kesalahan user, jadi reward tetap diberikan.
+        ZaifAnalytics.rewardAdResult(this, result)
         setToast(getString(R.string.reward_get))
         action()
     }
@@ -1632,13 +1646,13 @@ open class BaseActivityWidget : AppCompatActivity() {
         })
         root.addView(RecordingDialogViews.footer(this,
             RecordingDialogViews.textButton(this, c, getString(R.string.cancel), c.textSecondary).apply {
-                setOnClickListener { finishRewardWait(grantReward = false) }
+                setOnClickListener { finishRewardWait(grantReward = false, ZaifAnalytics.AD_CANCELLED) }
             }
         ), android.widget.LinearLayout.LayoutParams(-1, -2))
         dialog.setView(root)
         dialog.setCanceledOnTouchOutside(false)
         // Back = batal menunggu
-        dialog.setOnCancelListener { finishRewardWait(grantReward = false) }
+        dialog.setOnCancelListener { finishRewardWait(grantReward = false, ZaifAnalytics.AD_CANCELLED) }
         try {
             dialog.show()
             RecordingDialogViews.applyWindow(dialog, this, 0.85, 0.45)
@@ -1650,7 +1664,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     private fun cancelPendingRewardedLoad() {
         // App ditinggalkan saat menunggu iklan → batalkan tanpa reward
-        finishRewardWait(grantReward = false)
+        finishRewardWait(grantReward = false, ZaifAnalytics.AD_LEFT_APP)
         // Cancel pending retry agar Runnable tidak jalan setelah Activity mati
         retryRewardRunnable?.let { retryHandler.removeCallbacks(it) }
         retryRewardRunnable = null

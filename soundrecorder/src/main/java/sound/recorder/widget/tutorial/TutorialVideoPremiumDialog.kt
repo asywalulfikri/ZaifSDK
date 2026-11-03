@@ -1,5 +1,6 @@
 package sound.recorder.widget.tutorial
 
+import sound.recorder.widget.util.ZaifAnalytics
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -96,6 +97,7 @@ internal object TutorialVideoPremiumDialog {
             billing?.let { manager ->
                 addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
                 addView(boxButton(context, c, context.getString(R.string.tutorial_video_premium_buy), primary = true) {
+                    ZaifAnalytics.premiumOfferClicked(context, ZaifAnalytics.PLACE_VIDEO)
                     manager.makePurchase {
                         activity?.runOnUiThread {
                             Toast.makeText(context, R.string.tutorial_video_premium_error, Toast.LENGTH_LONG).show()
@@ -109,6 +111,7 @@ internal object TutorialVideoPremiumDialog {
         dialog.setView(root)
         dialog.show()
         applyWindow(dialog, context, 0.88, 0.50)
+        ZaifAnalytics.premiumOfferShown(context, ZaifAnalytics.PLACE_VIDEO)
     }
 
     private tailrec fun findActivity(context: Context?): Activity? = when (context) {

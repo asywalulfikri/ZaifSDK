@@ -19,6 +19,7 @@ import sound.recorder.widget.recording.RecordedMusicJson
 import sound.recorder.widget.recording.export.RecordingExporter
 import sound.recorder.widget.recording.export.RecordingVideoOption
 import sound.recorder.widget.rewards.PremiumPass
+import sound.recorder.widget.util.ZaifAnalytics
 
 /** Aturan pilihan VIDEO di dialog export, dipakai export tutorial dan export rekaman. */
 internal object RecordingVideoExport {
@@ -83,6 +84,7 @@ internal class RecordingVideoRun private constructor(
         indicator.dismiss()
         recorder.cancel()
         restoreBanner()
+        ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_RECORDING, ZaifAnalytics.REASON_CANCELLED)
     }
 
     fun complete(scope: CoroutineScope, onToast: (String) -> Unit) {
@@ -92,11 +94,13 @@ internal class RecordingVideoRun private constructor(
         scope.launch {
             try {
                 val file = recorder.finish()
+                ZaifAnalytics.exportFinished(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_RECORDING)
                 if (isFree) TutorialVideoQuota.consume(context)
                 indicator.dismiss()
                 RecordingVideoResultDialog.show(context, file, title)
             } catch (t: Throwable) {
                 Log.e("TutorialVideo", "finish failed", t)
+                ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_RECORDING, t.javaClass.simpleName)
                 onToast(context.getString(R.string.tutorial_video_failed))
             } finally {
                 indicator.dismiss()
@@ -140,6 +144,7 @@ internal class RecordingVideoRun private constructor(
                     audioDurationMs = rec.durationMs.takeIf { it > 0 }
                 )
                 recorder.start()
+                ZaifAnalytics.exportStarted(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_RECORDING)
                 val indicator = VideoRecordingIndicator(view, rec.durationMs, onInterrupted).also {
                     it.hiddenWhileRecording = config.fullScreen
                     it.show()
@@ -150,6 +155,7 @@ internal class RecordingVideoRun private constructor(
                 )
             } catch (t: Throwable) {
                 Log.e("TutorialVideo", "start failed", t)
+                ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_RECORDING, t.javaClass.simpleName)
                 abort(config)
                 null
             }

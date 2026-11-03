@@ -39,26 +39,35 @@ object CoinManager {
     fun getBalance(context: Context): Int =
         prefs(context).getInt(KEY_BALANCE, 0)
 
-    fun addCoins(context: Context, amount: Int) {
+    /** @param source asal koin untuk analytics, salah satu `ZaifAnalytics.SOURCE_*`. */
+    @JvmOverloads
+    fun addCoins(context: Context, amount: Int, source: String = ZaifAnalytics.SOURCE_OTHER) {
         prefs(context).edit()
             .putInt(KEY_BALANCE, getBalance(context) + amount)
             .apply()
+        ZaifAnalytics.coinEarned(context, source, amount)
     }
 
     fun spendCoin(context: Context): Boolean {
         val current = getBalance(context)
         if (current < UNLOCK_COST) return false
         prefs(context).edit().putInt(KEY_BALANCE, current - UNLOCK_COST).apply()
+        ZaifAnalytics.coinSpent(context, ZaifAnalytics.PURPOSE_NOTE_UNLOCK, UNLOCK_COST)
         return true
     }
 
-    /** Kurangi saldo sebanyak [amount]; false bila koin tidak cukup. */
+    /**
+     * Kurangi saldo sebanyak [amount]; false bila koin tidak cukup.
+     * @param purpose tujuan koin untuk analytics, salah satu `ZaifAnalytics.PURPOSE_*`.
+     */
     @Synchronized
-    fun spendCoins(context: Context, amount: Int): Boolean {
+    @JvmOverloads
+    fun spendCoins(context: Context, amount: Int, purpose: String = ZaifAnalytics.PURPOSE_OTHER): Boolean {
         if (amount <= 0) return false
         val current = getBalance(context)
         if (current < amount) return false
         prefs(context).edit().putInt(KEY_BALANCE, current - amount).apply()
+        ZaifAnalytics.coinSpent(context, purpose, amount)
         return true
     }
 
@@ -75,7 +84,7 @@ object CoinManager {
     fun claimDailyBonus(context: Context): Boolean {
         if (!canClaimDaily(context)) return false
         prefs(context).edit().putLong(KEY_LAST_DAILY, System.currentTimeMillis()).apply()
-        addCoins(context, DAILY_COINS)
+        addCoins(context, DAILY_COINS, ZaifAnalytics.SOURCE_DAILY_BONUS)
         // Jadwalkan pengingat untuk claim berikutnya (siapa pun pemanggil claim-nya)
         CoinNotificationWorker.schedule(context)
         return true

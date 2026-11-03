@@ -75,6 +75,7 @@ import androidx.annotation.RequiresApi
 import com.google.gson.reflect.TypeToken
 import android.util.Log
 import sound.recorder.widget.util.CoinManager
+import sound.recorder.widget.util.ZaifAnalytics
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -249,6 +250,8 @@ class InstrumentTutorialDialog(
     /** View game selama video seluruh layar direkam; banner disembunyikan selama itu. */
     private var fullScreenVideoView: View? = null
     private var activeVideoIndicator: VideoRecordingIndicator? = null
+    /** Untuk analytics saat video dibatalkan; application context agar tidak menahan Activity. */
+    private var activeVideoContext: Context? = null
     private var currentDialog: BottomSheetDialog? = null
     private var currentAdapter: SongListAdapter? = null
     private var mBinding: DialogTutorialSongListBinding? = null
@@ -1931,10 +1934,12 @@ class InstrumentTutorialDialog(
                     .also { it.start() }
             } catch (t: Throwable) {
                 Log.e("TutorialVideo", "start failed", t)
+                ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, t.javaClass.simpleName)
                 if (fullScreen) MyAdsListener.setBanner(true)
                 onToast(context.getString(R.string.tutorial_video_failed))
                 return@postDelayed
             }
+            ZaifAnalytics.exportStarted(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL)
             onToast(context.getString(R.string.tutorial_video_recording))
             val indicator = VideoRecordingIndicator(view, rec.durationMs + VIDEO_TAIL_MS) {
                 onToast(context.getString(R.string.export_cancelled))
@@ -1948,22 +1953,26 @@ class InstrumentTutorialDialog(
             // Diset setelah play: playUserNote memanggil stopAll() yang membatalkan rekaman aktif.
             activeVideoRecorder = recorder
             activeVideoIndicator = indicator
+            activeVideoContext = context.applicationContext
             fullScreenVideoView = view.takeIf { fullScreen }
 
             videoHandler.postDelayed({
                 activeVideoRecorder = null
                 activeVideoIndicator = null
+                activeVideoContext = null
                 restoreBannerAfterVideo()
                 recorder.stop()
                 indicator.showSaving()
                 scope.launch {
                     try {
                         val file = recorder.finish()
+                        ZaifAnalytics.exportFinished(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL)
                         if (style.forcedWatermark != null) TutorialVideoQuota.consume(context)
                         indicator.dismiss()
                         RecordingVideoResultDialog.show(context, file, rec.name)
                     } catch (t: Throwable) {
                         Log.e("TutorialVideo", "finish failed", t)
+                        ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, t.javaClass.simpleName)
                         onToast(context.getString(R.string.tutorial_video_failed))
                     } finally {
                         indicator.dismiss()
@@ -1988,7 +1997,11 @@ class InstrumentTutorialDialog(
         activeVideoRecorder?.let {
             activeVideoRecorder = null
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) it.cancel()
+            activeVideoContext?.let { ctx ->
+                ZaifAnalytics.exportFailed(ctx, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, ZaifAnalytics.REASON_CANCELLED)
+            }
         }
+        activeVideoContext = null
     }
 
     private fun publishNote(ctx: Context, note: NoteItem) {

@@ -42,6 +42,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.util.CoinManager
+import sound.recorder.widget.util.ZaifAnalytics
 import sound.recorder.widget.recording.RecordingDialogPalette
 import sound.recorder.widget.recording.RecordingDialogStyle
 import sound.recorder.widget.recording.RecordingDialogViews.applyWindow
@@ -294,9 +295,13 @@ object RecordingExportDialog {
                     progressInfo.text = ""
                     setWorking(true)
                 }
+                val formatName = format.name.lowercase()
+                // File yang sudah dibuat di dialog ini dipakai ulang: bukan export baru.
+                val cached = exported[format]?.takeIf { it.exists() }
+                if (cached == null) ZaifAnalytics.exportStarted(context, formatName, ZaifAnalytics.SOURCE_RECORDING)
                 try {
                     var renderStart = 0L
-                    val file = exported[format]?.takeIf { it.exists() }
+                    val file = cached
                         ?: RecordingExporter.export(context, rec, format) { p ->
                             scope.launch {
                                 if (renderStart == 0L) {
@@ -308,11 +313,13 @@ object RecordingExportDialog {
                                 progressInfo.text = progressText(context, p, SystemClock.elapsedRealtime() - renderStart)
                             }
                         }.also { exported[format] = it }
+                    if (cached == null) ZaifAnalytics.exportFinished(context, formatName, ZaifAnalytics.SOURCE_RECORDING)
                     showPanel.cancel()
                     setWorking(false)
                     if (freeExport && !freeConsumed) {
                         freeConsumed = true
                         RecordingExporter.consumeFreeExport(context)
+                        ZaifAnalytics.exportUnlock(context, ZaifAnalytics.UNLOCK_FREE)
                     }
 
                     val title = "${rec.name}.${format.extension}"
@@ -333,12 +340,14 @@ object RecordingExportDialog {
                     }
                 } catch (e: CancellationException) {
                     showPanel.cancel()
+                    if (cached == null) ZaifAnalytics.exportFailed(context, formatName, ZaifAnalytics.SOURCE_RECORDING, ZaifAnalytics.REASON_CANCELLED)
                     if (dialog.isShowing) {
                         setWorking(false)
                         showResult(context.getString(R.string.export_cancelled), c.textSecondary)
                     }
                     throw e
                 } catch (e: Mp3SourceUnavailableException) {
+                    ZaifAnalytics.exportFailed(context, formatName, ZaifAnalytics.SOURCE_RECORDING, "mp3_source_unavailable")
                     showPanel.cancel()
                     setWorking(false)
                     showResult(context.getString(R.string.export_mp3_unavailable), c.error)
@@ -346,6 +355,7 @@ object RecordingExportDialog {
                     showPanel.cancel()
                     setWorking(false)
                     Log.e("RecordingExport", "Export failed", e)
+                    ZaifAnalytics.exportFailed(context, formatName, ZaifAnalytics.SOURCE_RECORDING, e.javaClass.simpleName)
                     showResult(context.getString(R.string.export_failed), c.error)
                 }
             }
@@ -369,12 +379,14 @@ object RecordingExportDialog {
                             onRequestReward?.invoke {
                                 // Dipanggil setelah iklan selesai ditonton
                                 if (!dialog.isShowing) return@invoke
+                                ZaifAnalytics.exportUnlock(context, ZaifAnalytics.UNLOCK_AD)
                                 rewardUnlocked = true
                                 perform(action)
                             }
                         },
                         onPaidWithCoins = {
                             // Koin sudah dipotong: buka kunci seperti setelah nonton iklan
+                            ZaifAnalytics.exportUnlock(context, ZaifAnalytics.UNLOCK_COIN)
                             rewardUnlocked = true
                             perform(action)
                         }
@@ -453,7 +465,7 @@ object RecordingExportDialog {
                 addView(textButton(context, c, context.getString(R.string.export_pay_coins, cost)).apply {
                     alpha = if (enough) 1f else 0.4f
                     setOnClickListener {
-                        if (CoinManager.spendCoins(context, cost)) {
+                        if (CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_EXPORT)) {
                             dialog.dismiss()
                             onPaidWithCoins()
                         } else {

@@ -2,6 +2,7 @@ package sound.recorder.widget.rewards
 
 import android.content.Context
 import sound.recorder.widget.util.CoinManager
+import sound.recorder.widget.util.ZaifAnalytics
 
 /**
  * Akses tanpa iklan sementara yang ditukar dengan koin [CoinManager].
@@ -55,7 +56,8 @@ object PremiumPass {
     @JvmStatic
     fun redeem(context: Context): Boolean {
         synchronized(lock) {
-            if (!CoinManager.spendCoins(context, cost(context))) return false
+            val cost = cost(context)
+            if (!CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_PREMIUM_PASS)) return false
             val now = System.currentTimeMillis()
             val base = now + remainingMs(context)
             val p = prefs(context)
@@ -64,6 +66,7 @@ object PremiumPass {
                 .putLong(KEY_EXPIRES_AT, base + durationDays * 24 * 60 * 60 * 1000L)
                 .putInt(KEY_REDEEM_COUNT, p.getInt(KEY_REDEEM_COUNT, 0) + 1)
                 .apply()
+            ZaifAnalytics.premiumPassRedeemed(context, cost)
             return true
         }
     }

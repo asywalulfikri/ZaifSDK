@@ -1,5 +1,6 @@
 package sound.recorder.widget.music
 
+import sound.recorder.widget.util.ZaifAnalytics
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
@@ -70,10 +71,15 @@ object InstrumentDialogHelper {
         btnWatch.text  = context.getString(R.string.buy).uppercase()
         btnCancel.text = context.getString(R.string.cancel).uppercase()
 
-        btnWatch.setOnClickListener  { onAccept(); dialog.dismiss() }
+        btnWatch.setOnClickListener  {
+            ZaifAnalytics.premiumOfferClicked(context, ZaifAnalytics.PLACE_REMOVE_ADS)
+            onAccept()
+            dialog.dismiss()
+        }
         btnCancel.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
+        ZaifAnalytics.premiumOfferShown(context, ZaifAnalytics.PLACE_REMOVE_ADS)
         return dialog
     }
 

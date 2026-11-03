@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import sound.recorder.widget.R
 import sound.recorder.widget.notification.CoinNotificationWorker
 import sound.recorder.widget.util.CoinManager
+import sound.recorder.widget.util.ZaifAnalytics
 import java.util.Calendar
 
 /**
@@ -116,7 +117,7 @@ object DailyRewards {
         synchronized(lock) {
             if (!canClaim(context, mission)) return 0
             prefs(context).edit().putBoolean(claimedKey(mission.key), true).apply()
-            CoinManager.addCoins(context, mission.reward)
+            CoinManager.addCoins(context, mission.reward, ZaifAnalytics.SOURCE_MISSION)
             return mission.reward
         }
     }
@@ -147,7 +148,8 @@ object DailyRewards {
                 .putInt(KEY_ADS_DAY, dayId())
                 .putInt(KEY_ADS_COUNT, watched + 1)
                 .apply()
-            CoinManager.addCoins(context, adReward)
+            CoinManager.addCoins(context, adReward, ZaifAnalytics.SOURCE_AD)
+            ZaifAnalytics.coinAdWatched(context)
             return adReward
         }
     }
@@ -180,7 +182,7 @@ object DailyRewards {
                 .putInt(KEY_LAST_CHECK, dayId())
                 .putInt(KEY_STREAK, day)
                 .apply()
-            CoinManager.addCoins(context, reward)
+            CoinManager.addCoins(context, reward, ZaifAnalytics.SOURCE_CHECK_IN)
             reward
         }
         // Jadwalkan pengingat check-in berikutnya (tetap dibatasi NotificationThrottle)

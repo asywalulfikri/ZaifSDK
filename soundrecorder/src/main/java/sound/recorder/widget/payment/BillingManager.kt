@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.android.billingclient.api.*
+import sound.recorder.widget.util.ZaifAnalytics
 import java.lang.ref.WeakReference
 
 class BillingManager(
@@ -17,6 +18,7 @@ class BillingManager(
 
     // 🔥 FIX: pakai WeakReference
     private val activityRef = WeakReference(activity)
+    private val appContext = activity.applicationContext
 
     // 🔥 Handler untuk retry
     private val handler = Handler(Looper.getMainLooper())
@@ -162,6 +164,8 @@ class BillingManager(
                 billingClient.acknowledgePurchase(params) { result ->
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                         Log.d(TAG, "Purchase acknowledged")
+                        // Hanya di sini: pembelian lama yang dipulihkan tidak ikut terhitung.
+                        ZaifAnalytics.removeAdsPurchased(appContext)
                         onPurchaseSuccess?.invoke() // 🔥 FIX: safe call
                     }
                 }
