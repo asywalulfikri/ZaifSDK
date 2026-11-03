@@ -1,5 +1,7 @@
 package sound.recorder.widget.ui.fragment
 
+import sound.recorder.widget.util.FirestoreErrorHelper
+
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Color
@@ -119,7 +121,7 @@ class BugReportAdminFragment : Fragment() {
             }
             .addOnFailureListener {
                 binding?.progressContainer?.visibility = View.GONE
-                Toast.makeText(requireContext(), "Gagal memuat data: ${it.message}", Toast.LENGTH_SHORT).show()
+                FirestoreErrorHelper.show(context, it)
             }
     }
 
