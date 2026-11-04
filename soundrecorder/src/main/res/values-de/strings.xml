@@ -529,7 +529,8 @@
     <string name="record_failed">Aufnahme fehlgeschlagen</string>
     <string name="music_source_asset">INTEGRIERT</string>
     <string name="music_source_storage">SPEICHER</string>
-    <string name="export_first_free">1 kostenloser Export heute, ohne Werbung</string>
+    <string name="export_first_free">Kostenloser Export heute, ohne Werbung</string>
+    <string name="export_free_left">Kostenlose Exporte heute übrig: %1$d, ohne Werbung</string>
     <string name="export_pay_coins">%1$d Münzen nutzen</string>
 
     <!-- Daily rewards / missions -->
@@ -584,7 +585,7 @@
     <string name="tutorial_video_premium_later">Später</string>
     <string name="tutorial_video_premium_success">Premium ist aktiv. Viel Spaß!</string>
     <string name="tutorial_video_premium_error">Kauf konnte nicht geöffnet werden. Prüfe die Verbindung und versuche es erneut</string>
-    <string name="tutorial_video_free_hint">Einmal täglich gratis mit Wasserzeichen. Premium ohne Wasserzeichen</string>
+    <string name="tutorial_video_free_hint">%1$d× täglich gratis mit Wasserzeichen. Premium ohne Wasserzeichen</string>
     <string name="tutorial_video_options_title">Video anpassen</string>
     <string name="tutorial_video_show_title">Songtitel anzeigen</string>
     <string name="tutorial_video_show_note">Aktuelle Note anzeigen</string>

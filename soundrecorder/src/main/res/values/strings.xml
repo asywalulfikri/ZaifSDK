@@ -529,7 +529,8 @@
     <string name="record_failed">Recording failed</string>
     <string name="music_source_asset">ASSET</string>
     <string name="music_source_storage">STORAGE</string>
-    <string name="export_first_free">1 free export today, no ad</string>
+    <string name="export_first_free">Free export today, no ad</string>
+    <string name="export_free_left">Free exports left today: %1$d, no ad</string>
     <string name="export_pay_coins">Use %1$d coins</string>
 
     <!-- Daily rewards / missions -->
@@ -584,7 +585,7 @@
     <string name="tutorial_video_premium_later">Later</string>
     <string name="tutorial_video_premium_success">Premium is active. Enjoy!</string>
     <string name="tutorial_video_premium_error">Couldn\'t open the purchase. Check your connection and try again</string>
-    <string name="tutorial_video_free_hint">Free once a day, with watermark. Premium has no watermark</string>
+    <string name="tutorial_video_free_hint">Free %1$dx a day, with watermark. Premium has no watermark</string>
     <string name="tutorial_video_options_title">Customize video</string>
     <string name="tutorial_video_show_title">Show song title</string>
     <string name="tutorial_video_show_note">Show current note</string>

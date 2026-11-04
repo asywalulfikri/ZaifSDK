@@ -70,10 +70,17 @@ internal data class TutorialVideoStyle(
     }
 }
 
-/** Jatah video gratis: sekali sehari, dipakai hanya bila video berhasil tersimpan. */
-internal object TutorialVideoQuota {
+/**
+ * Jatah video gratis per hari (reset tiap ganti tanggal), dipakai hanya bila video berhasil tersimpan.
+ * Host app bisa mengubah [freePerDay]; 0 = tanpa jatah gratis.
+ */
+object TutorialVideoQuota {
     private const val PREFS = "tutorial_video_quota"
     private const val KEY_DAY = "free_day"
+    private const val KEY_USED = "free_used"
+
+    @JvmStatic
+    var freePerDay = 2
 
     private fun today(): Int {
         val cal = java.util.Calendar.getInstance()
@@ -81,11 +88,22 @@ internal object TutorialVideoQuota {
             (cal.get(java.util.Calendar.MONTH) + 1) * 100 + cal.get(java.util.Calendar.DAY_OF_MONTH)
     }
 
-    fun hasFree(context: Context): Boolean =
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt(KEY_DAY, 0) != today()
+    private fun usedToday(context: Context): Int {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        if (prefs.getInt(KEY_DAY, 0) != today()) return 0
+        // Versi lama hanya menyimpan tanggal (tanpa hitungan) = sudah dipakai 1x hari ini
+        return prefs.getInt(KEY_USED, 1)
+    }
 
-    fun consume(context: Context) {
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit { putInt(KEY_DAY, today()) }
+    @JvmStatic
+    fun hasFree(context: Context): Boolean = usedToday(context) < freePerDay
+
+    internal fun consume(context: Context) {
+        val used = usedToday(context) + 1
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {
+            putInt(KEY_DAY, today())
+            putInt(KEY_USED, used)
+        }
     }
 }
 
@@ -238,7 +256,7 @@ internal object TutorialVideoOptionsDialog {
         })
         if (forcedWatermark != null) {
             root.addView(TextView(context).apply {
-                text = context.getString(R.string.tutorial_video_free_hint)
+                text = context.getString(R.string.tutorial_video_free_hint, TutorialVideoQuota.freePerDay)
                 setTextColor(c.textSecondary)
                 textSize = 11f
             })

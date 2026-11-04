@@ -525,7 +525,8 @@
     <string name="record_failed">บันทึกเสียงไม่สำเร็จ</string>
     <string name="music_source_asset">ในตัว</string>
     <string name="music_source_storage">ที่เก็บข้อมูล</string>
-    <string name="export_first_free">วันนี้ส่งออกฟรี 1 ครั้ง ไม่มีโฆษณา</string>
+    <string name="export_first_free">วันนี้ส่งออกฟรี ไม่มีโฆษณา</string>
+    <string name="export_free_left">วันนี้เหลือส่งออกฟรี %1$d ครั้ง ไม่มีโฆษณา</string>
     <string name="export_pay_coins">ใช้ %1$d เหรียญ</string>
 
     <!-- Daily rewards / missions -->
@@ -580,7 +581,7 @@
     <string name="tutorial_video_premium_later">ไว้ทีหลัง</string>
     <string name="tutorial_video_premium_success">เปิดใช้ Premium แล้ว</string>
     <string name="tutorial_video_premium_error">เปิดการซื้อไม่ได้ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง</string>
-    <string name="tutorial_video_free_hint">ฟรีวันละครั้ง มีลายน้ำ Premium ไม่มีลายน้ำ</string>
+    <string name="tutorial_video_free_hint">ฟรีวันละ %1$d ครั้ง มีลายน้ำ Premium ไม่มีลายน้ำ</string>
     <string name="tutorial_video_options_title">ปรับแต่งวิดีโอ</string>
     <string name="tutorial_video_show_title">แสดงชื่อเพลง</string>
     <string name="tutorial_video_show_note">แสดงโน้ตปัจจุบัน</string>

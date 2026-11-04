@@ -527,7 +527,8 @@
     <string name="record_failed">Échec de l\'enregistrement</string>
     <string name="music_source_asset">INTÉGRÉE</string>
     <string name="music_source_storage">STOCKAGE</string>
-    <string name="export_first_free">1 exportation gratuite aujourd\'hui, sans pub</string>
+    <string name="export_first_free">Exportation gratuite aujourd\'hui, sans pub</string>
+    <string name="export_free_left">Exportations gratuites restantes aujourd\'hui : %1$d, sans pub</string>
     <string name="export_pay_coins">Utiliser %1$d pièces</string>
 
     <!-- Daily rewards / missions -->
@@ -582,7 +583,7 @@
     <string name="tutorial_video_premium_later">Plus tard</string>
     <string name="tutorial_video_premium_success">Premium est activé. Profitez-en !</string>
     <string name="tutorial_video_premium_error">Impossible d\'ouvrir l\'achat. Vérifiez votre connexion et réessayez</string>
-    <string name="tutorial_video_free_hint">Gratuit une fois par jour, avec filigrane. Premium sans filigrane</string>
+    <string name="tutorial_video_free_hint">Gratuit %1$d fois par jour, avec filigrane. Premium sans filigrane</string>
     <string name="tutorial_video_options_title">Personnaliser la vidéo</string>
     <string name="tutorial_video_show_title">Afficher le titre</string>
     <string name="tutorial_video_show_note">Afficher la note jouée</string>

@@ -525,7 +525,8 @@
     <string name="record_failed">Ghi âm thất bại</string>
     <string name="music_source_asset">CÓ SẴN</string>
     <string name="music_source_storage">BỘ NHỚ</string>
-    <string name="export_first_free">Hôm nay được xuất miễn phí 1 lần, không quảng cáo</string>
+    <string name="export_first_free">Hôm nay được xuất miễn phí, không quảng cáo</string>
+    <string name="export_free_left">Lượt xuất miễn phí còn lại hôm nay: %1$d, không quảng cáo</string>
     <string name="export_pay_coins">Dùng %1$d xu</string>
 
     <!-- Daily rewards / missions -->
@@ -580,7 +581,7 @@
     <string name="tutorial_video_premium_later">Để sau</string>
     <string name="tutorial_video_premium_success">Premium đã kích hoạt. Chúc vui vẻ!</string>
     <string name="tutorial_video_premium_error">Không mở được giao dịch. Kiểm tra kết nối và thử lại</string>
-    <string name="tutorial_video_free_hint">Miễn phí mỗi ngày một lần, có hình mờ. Premium không có hình mờ</string>
+    <string name="tutorial_video_free_hint">Miễn phí %1$d lần mỗi ngày, có hình mờ. Premium không có hình mờ</string>
     <string name="tutorial_video_options_title">Tùy chỉnh video</string>
     <string name="tutorial_video_show_title">Hiện tên bài hát</string>
     <string name="tutorial_video_show_note">Hiện nốt hiện tại</string>

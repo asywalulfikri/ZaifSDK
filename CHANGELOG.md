@@ -15,6 +15,34 @@
 - Dependency baru: `de.sciss:jump3r:1.0.5` (encoder MP3, LGPL).
 - Permission baru: `WRITE_EXTERNAL_STORAGE` dengan `maxSdkVersion=28`, untuk menyimpan hasil export di Android 9 ke bawah.
 
+### 🎁 Jatah export gratis & premium
+- **Export gratis naik dari 1x jadi 2x per hari**, untuk export suara (`RecordingExporter.freeExportsPerDay = 2`)
+  dan video tutorial (`TutorialVideoQuota.freePerDay = 2`, sebelumnya angka 1 ditulis langsung di kode).
+  - **Alasan:** sampai SDK 1.1.136 export suara gratis tanpa batas. Setelah export diberi iklan reward
+    (gratis hanya 1x sehari), pendapatan turun ±20% padahal eCPM dan rate iklan tetap bagus. Artinya
+    jumlah tayangan yang turun, kemungkinan karena user kesal lalu lebih jarang main. Rekaman pertama
+    sering belum bagus, jadi 1x sehari terlalu sedikit. Video tutorial memakai watermark nama app,
+    jadi tiap video yang dibagikan sekaligus jadi promosi gratis.
+  - Naik ke 2 dulu (bukan 3) supaya iklan reward tidak hilang terlalu banyak. Pantau event
+    `reward_ad_result` dan retensi 1–2 minggu sebelum dinaikkan lagi.
+  - Tiap app tetap bisa mengatur sendiri, misalnya `freeExportsPerDay = 1`. 0 = selalu wajib iklan.
+  - Baru: `RecordingExporter.freeExportsLeft(context)` untuk sisa jatah hari ini. Dialog export SDK
+    sekarang menampilkan sisanya.
+  - Jatah video yang sudah dipakai hari ini dengan SDK lama dihitung 1 (data lama tetap terbaca).
+- **Teks:** `export_first_free` kini tanpa angka ("Export gratis hari ini, tanpa iklan") karena dipakai
+  langsung oleh Dholak dan Gendang Elektronik. Teks baru `export_free_left` (dengan angka sisa).
+  `tutorial_video_free_hint` sekarang berisi `%1$d`, jadi panggil dengan angka jatah. Semua di 19 bahasa.
+- **Notif klaim koin tidak muncul lagi untuk pembeli premium (Remove Ads).** Baru: `PremiumPurchase`
+  (`sound.recorder.widget.rewards`).
+  - **Alasan:** pembeli premium tidak memakai misi/koin, jadi notif "klaim koin" hanya mengganggu.
+    Pengingat buka app (`AppReminderWorker`) **tetap muncul** untuk semua user.
+  - **App host wajib memanggil** `PremiumPurchase.setPurchased(context, true)` saat pembelian terbaca
+    (saat app dibuka, di callback `BillingManager`, setelah `checkHistory()`). SDK tidak tahu status beli
+    karena disimpan di prefs milik app. Tanpa panggilan ini perilakunya sama seperti sebelumnya.
+  - Cukup memanggil `CoinNotificationWorker.cancel()` tidak cukup: SDK menjadwalkannya lagi tiap app dibuka.
+  - Premium Pass (tukar koin) tidak dihitung sebagai pembelian.
+- Aturan lengkap (termasuk menyembunyikan tombol Misi untuk pembeli): `docs/MISSIONS_PREMIUM_RULE.md`.
+
 ### ✨ Fitur baru
 - **Lagu (MP3) ikut terekam.** Saat merekam sambil memutar lagu dari daftar musik, yang dicatat adalah lagu, posisi, volume, serta kapan lagu diputar, dijeda, digeser, atau diganti.
   - **Saat rekaman diputar ulang:** lagu berbunyi sinkron dengan ketukan. Lagu di daftar musik dijeda otomatis supaya tidak bertabrakan.

@@ -533,7 +533,8 @@
     <string name="record_failed">Rekaman gagal</string>
     <string name="music_source_asset">BAWAAN</string>
     <string name="music_source_storage">PENYIMPANAN</string>
-    <string name="export_first_free">1x export gratis hari ini, tanpa iklan</string>
+    <string name="export_first_free">Export gratis hari ini, tanpa iklan</string>
+    <string name="export_free_left">Sisa export gratis hari ini: %1$d, tanpa iklan</string>
     <string name="export_pay_coins">Pakai %1$d koin</string>
 
     <!-- Daily rewards / missions -->
@@ -588,7 +589,7 @@
     <string name="tutorial_video_premium_later">Nanti</string>
     <string name="tutorial_video_premium_success">Premium aktif. Selamat menikmati!</string>
     <string name="tutorial_video_premium_error">Pembelian tidak bisa dibuka. Cek koneksi lalu coba lagi</string>
-    <string name="tutorial_video_free_hint">Gratis 1x sehari dengan watermark. Premium tanpa watermark</string>
+    <string name="tutorial_video_free_hint">Gratis %1$dx sehari dengan watermark. Premium tanpa watermark</string>
     <string name="tutorial_video_options_title">Atur tampilan video</string>
     <string name="tutorial_video_show_title">Tampilkan judul lagu</string>
     <string name="tutorial_video_show_note">Tampilkan not</string>
