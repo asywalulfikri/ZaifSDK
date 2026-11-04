@@ -47,6 +47,7 @@ import sound.recorder.widget.recording.RecordingDialogPalette
 import sound.recorder.widget.recording.RecordingDialogStyle
 import sound.recorder.widget.recording.RecordingDialogViews.applyWindow
 import sound.recorder.widget.recording.RecordingDialogViews.boxButton
+import sound.recorder.widget.recording.RecordingDialogViews.coinButton
 import sound.recorder.widget.recording.RecordingDialogViews.icon
 import sound.recorder.widget.recording.RecordingDialogViews.rounded
 import sound.recorder.widget.recording.RecordingDialogViews.sdp
@@ -462,15 +463,12 @@ object RecordingExportDialog {
                     setTextColor(c.textSecondary)
                     textSize = 12f
                 }, LinearLayout.LayoutParams(0, -2, 1f))
-                addView(textButton(context, c, context.getString(R.string.export_pay_coins, cost)).apply {
-                    alpha = if (enough) 1f else 0.4f
-                    setOnClickListener {
-                        if (CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_EXPORT)) {
-                            dialog.dismiss()
-                            onPaidWithCoins()
-                        } else {
-                            Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
-                        }
+                addView(coinButton(context, c, context.getString(R.string.export_pay_coins, cost), enough) {
+                    if (CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_EXPORT)) {
+                        dialog.dismiss()
+                        onPaidWithCoins()
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
                     }
                 })
             }, LinearLayout.LayoutParams(-1, -2))
@@ -480,16 +478,17 @@ object RecordingExportDialog {
             setTextColor(c.textSecondary)
             setOnClickListener { dialog.dismiss() }
         }
-        val watchBtn = textButton(context, c, context.getString(R.string.export_reward_watch)).apply {
-            setOnClickListener {
-                dialog.dismiss()
-                onWatch()
-            }
+        // Tombol utama terisi warna aksen, supaya jelas ini aksi yang disarankan (sama seperti dialog video)
+        val watchBtn = boxButton(context, c, "▶  " + context.getString(R.string.export_reward_watch), primary = true) {
+            dialog.dismiss()
+            onWatch()
         }
+        root.addView(vSpace(context, SdpR.dimen._6sdp))
         root.addView(LinearLayout(context).apply {
-            gravity = Gravity.END
+            gravity = Gravity.END or Gravity.CENTER_VERTICAL
             addView(cancelBtn)
-            addView(watchBtn)
+            addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
+            addView(watchBtn, LinearLayout.LayoutParams(context.sdp(SdpR.dimen._120sdp), context.sdp(SdpR.dimen._34sdp)))
         }, LinearLayout.LayoutParams(-1, -2))
 
         dialog.setView(root)
