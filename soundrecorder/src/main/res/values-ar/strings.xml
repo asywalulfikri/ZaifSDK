@@ -570,7 +570,8 @@
     <string name="record_failed">فشل التسجيل</string>
     <string name="music_source_asset">مدمجة</string>
     <string name="music_source_storage">التخزين</string>
-    <string name="export_first_free">تصدير مجاني واحد اليوم، بدون إعلان</string>
+    <string name="export_first_free">تصدير مجاني اليوم، بدون إعلان</string>
+    <string name="export_free_left">عمليات التصدير المجانية المتبقية اليوم: %1$d، بدون إعلان</string>
     <string name="export_pay_coins">استخدم %1$d عملة</string>
 
     <!-- Daily rewards / missions -->
@@ -625,7 +626,7 @@
     <string name="tutorial_video_premium_later">لاحقًا</string>
     <string name="tutorial_video_premium_success">تم تفعيل Premium. استمتع!</string>
     <string name="tutorial_video_premium_error">تعذر فتح الشراء. تحقق من الاتصال وحاول مرة أخرى</string>
-    <string name="tutorial_video_free_hint">مجاني مرة واحدة يوميًا مع علامة مائية. Premium بلا علامة مائية</string>
+    <string name="tutorial_video_free_hint">مجاني %1$d مرات يوميًا مع علامة مائية. Premium بلا علامة مائية</string>
     <string name="tutorial_video_options_title">تخصيص الفيديو</string>
     <string name="tutorial_video_show_title">إظهار عنوان الأغنية</string>
     <string name="tutorial_video_show_note">إظهار النغمة الحالية</string>

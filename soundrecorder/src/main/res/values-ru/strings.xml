@@ -523,7 +523,8 @@
     <string name="record_failed">Не удалось записать</string>
     <string name="music_source_asset">ВСТРОЕННАЯ</string>
     <string name="music_source_storage">ПАМЯТЬ</string>
-    <string name="export_first_free">1 бесплатный экспорт сегодня, без рекламы</string>
+    <string name="export_first_free">Бесплатный экспорт сегодня, без рекламы</string>
+    <string name="export_free_left">Осталось бесплатных экспортов сегодня: %1$d, без рекламы</string>
     <string name="export_pay_coins">Потратить %1$d монет</string>
 
     <!-- Daily rewards / missions -->
@@ -578,7 +579,7 @@
     <string name="tutorial_video_premium_later">Позже</string>
     <string name="tutorial_video_premium_success">Premium активен. Приятного использования!</string>
     <string name="tutorial_video_premium_error">Не удалось открыть покупку. Проверьте соединение и повторите</string>
-    <string name="tutorial_video_free_hint">Бесплатно раз в день с водяным знаком. Premium без водяного знака</string>
+    <string name="tutorial_video_free_hint">Бесплатно %1$d раза в день с водяным знаком. Premium без водяного знака</string>
     <string name="tutorial_video_options_title">Настроить видео</string>
     <string name="tutorial_video_show_title">Показывать название</string>
     <string name="tutorial_video_show_note">Показывать текущую ноту</string>

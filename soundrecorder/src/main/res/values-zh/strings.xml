@@ -524,7 +524,8 @@
     <string name="record_failed">录音失败</string>
     <string name="music_source_asset">内置</string>
     <string name="music_source_storage">存储</string>
-    <string name="export_first_free">今天可免费导出 1 次，无广告</string>
+    <string name="export_first_free">今天可免费导出，无广告</string>
+    <string name="export_free_left">今天剩余免费导出次数：%1$d，无广告</string>
     <string name="export_pay_coins">使用 %1$d 金币</string>
 
     <!-- Daily rewards / missions -->
@@ -579,7 +580,7 @@
     <string name="tutorial_video_premium_later">以后再说</string>
     <string name="tutorial_video_premium_success">Premium 已启用，尽情享用！</string>
     <string name="tutorial_video_premium_error">无法打开购买页面，请检查网络后重试</string>
-    <string name="tutorial_video_free_hint">每天免费一次，带水印。Premium 无水印</string>
+    <string name="tutorial_video_free_hint">每天免费 %1$d 次，带水印。Premium 无水印</string>
     <string name="tutorial_video_options_title">自定义视频</string>
     <string name="tutorial_video_show_title">显示歌曲名称</string>
     <string name="tutorial_video_show_note">显示当前音符</string>

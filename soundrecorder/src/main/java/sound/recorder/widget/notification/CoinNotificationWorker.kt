@@ -16,6 +16,7 @@ import androidx.work.WorkerParameters
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.rewards.DailyRewards
+import sound.recorder.widget.rewards.PremiumPurchase
 import sound.recorder.widget.util.CoinManager
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -38,6 +39,11 @@ class CoinNotificationWorker(
          */
         fun schedule(context: Context) {
             try {
+                // Pembeli premium tidak perlu diingatkan klaim koin (pengingat buka app tetap jalan)
+                if (PremiumPurchase.isPurchased(context)) {
+                    WorkManager.getInstance(context).cancelAllWorkByTag(WORK_TAG)
+                    return
+                }
                 val now = Calendar.getInstance()
                 // Dulu: kalau belum bisa claim langsung return — padahal schedule() dipanggil
                 // setelah claim, jadi notif berikutnya tidak pernah terjadwal.
@@ -94,6 +100,8 @@ class CoinNotificationWorker(
     override fun doWork(): Result {
         // Sudah di-claim sejak dijadwalkan → tidak perlu diingatkan
         // App dengan misi harian SDK: ingatkan check-in; selain itu bonus koin harian lama
+        // Jadwal lama yang dibuat sebelum user membeli premium
+        if (PremiumPurchase.isPurchased(context)) return Result.success()
         val claimable = if (DailyRewards.isEnabled) DailyRewards.canCheckIn(context) else CoinManager.canClaimDaily(context)
         if (!claimable) return Result.success()
         if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return Result.success()

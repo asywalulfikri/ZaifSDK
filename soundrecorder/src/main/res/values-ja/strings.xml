@@ -520,7 +520,8 @@
     <string name="record_failed">録音に失敗しました</string>
     <string name="music_source_asset">内蔵</string>
     <string name="music_source_storage">ストレージ</string>
-    <string name="export_first_free">今日は1回無料でエクスポート（広告なし）</string>
+    <string name="export_first_free">今日は無料でエクスポート（広告なし）</string>
+    <string name="export_free_left">今日の無料エクスポート残り：%1$d回（広告なし）</string>
     <string name="export_pay_coins">%1$dコインを使う</string>
 
     <!-- Daily rewards / missions -->
@@ -575,7 +576,7 @@
     <string name="tutorial_video_premium_later">あとで</string>
     <string name="tutorial_video_premium_success">Premiumが有効になりました</string>
     <string name="tutorial_video_premium_error">購入画面を開けませんでした。接続を確認して再度お試しください</string>
-    <string name="tutorial_video_free_hint">無料は1日1回、透かし入り。Premiumは透かしなし</string>
+    <string name="tutorial_video_free_hint">無料は1日%1$d回、透かし入り。Premiumは透かしなし</string>
     <string name="tutorial_video_options_title">動画をカスタマイズ</string>
     <string name="tutorial_video_show_title">曲名を表示</string>
     <string name="tutorial_video_show_note">現在の音符を表示</string>

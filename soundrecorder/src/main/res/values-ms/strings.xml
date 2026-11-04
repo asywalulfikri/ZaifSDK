@@ -527,7 +527,8 @@
     <string name="record_failed">Rakaman gagal</string>
     <string name="music_source_asset">TERBINA</string>
     <string name="music_source_storage">STORAN</string>
-    <string name="export_first_free">1 eksport percuma hari ini, tanpa iklan</string>
+    <string name="export_first_free">Eksport percuma hari ini, tanpa iklan</string>
+    <string name="export_free_left">Baki eksport percuma hari ini: %1$d, tanpa iklan</string>
     <string name="export_pay_coins">Guna %1$d syiling</string>
 
     <!-- Daily rewards / missions -->
@@ -582,7 +583,7 @@
     <string name="tutorial_video_premium_later">Nanti</string>
     <string name="tutorial_video_premium_success">Premium aktif. Selamat menikmati!</string>
     <string name="tutorial_video_premium_error">Pembelian tidak dapat dibuka. Semak sambungan dan cuba lagi</string>
-    <string name="tutorial_video_free_hint">Percuma sekali sehari dengan tera air. Premium tanpa tera air</string>
+    <string name="tutorial_video_free_hint">Percuma %1$d kali sehari dengan tera air. Premium tanpa tera air</string>
     <string name="tutorial_video_options_title">Sesuaikan video</string>
     <string name="tutorial_video_show_title">Tunjukkan tajuk lagu</string>
     <string name="tutorial_video_show_note">Tunjukkan not</string>

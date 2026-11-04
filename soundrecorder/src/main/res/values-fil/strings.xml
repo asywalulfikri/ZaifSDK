@@ -527,7 +527,8 @@
     <string name="record_failed">Nabigo ang pag-record</string>
     <string name="music_source_asset">BUILT-IN</string>
     <string name="music_source_storage">STORAGE</string>
-    <string name="export_first_free">1 libreng export ngayong araw, walang ad</string>
+    <string name="export_first_free">Libreng export ngayong araw, walang ad</string>
+    <string name="export_free_left">Natitirang libreng export ngayon: %1$d, walang ad</string>
     <string name="export_pay_coins">Gamitin ang %1$d coins</string>
 
     <!-- Daily rewards / missions -->
@@ -582,7 +583,7 @@
     <string name="tutorial_video_premium_later">Mamaya</string>
     <string name="tutorial_video_premium_success">Aktibo na ang Premium. Mag-enjoy!</string>
     <string name="tutorial_video_premium_error">Hindi mabuksan ang pagbili. Tingnan ang koneksyon at subukang muli</string>
-    <string name="tutorial_video_free_hint">Libre isang beses sa isang araw, may watermark. Walang watermark sa Premium</string>
+    <string name="tutorial_video_free_hint">Libre %1$d beses sa isang araw, may watermark. Walang watermark sa Premium</string>
     <string name="tutorial_video_options_title">I-customize ang video</string>
     <string name="tutorial_video_show_title">Ipakita ang pamagat</string>
     <string name="tutorial_video_show_note">Ipakita ang kasalukuyang nota</string>

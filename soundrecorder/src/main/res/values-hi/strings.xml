@@ -523,7 +523,8 @@
     <string name="record_failed">रिकॉर्डिंग विफल रही</string>
     <string name="music_source_asset">इन-बिल्ट</string>
     <string name="music_source_storage">स्टोरेज</string>
-    <string name="export_first_free">आज 1 एक्सपोर्ट मुफ़्त, बिना विज्ञापन</string>
+    <string name="export_first_free">आज एक्सपोर्ट मुफ़्त, बिना विज्ञापन</string>
+    <string name="export_free_left">आज बचे मुफ़्त एक्सपोर्ट: %1$d, बिना विज्ञापन</string>
     <string name="export_pay_coins">%1$d सिक्के इस्तेमाल करें</string>
 
     <!-- Daily rewards / missions -->
@@ -578,7 +579,7 @@
     <string name="tutorial_video_premium_later">बाद में</string>
     <string name="tutorial_video_premium_success">Premium चालू है। आनंद लें!</string>
     <string name="tutorial_video_premium_error">खरीदारी नहीं खुल सकी। कनेक्शन जाँचकर फिर कोशिश करें</string>
-    <string name="tutorial_video_free_hint">दिन में एक बार मुफ़्त, वॉटरमार्क के साथ। Premium में वॉटरमार्क नहीं</string>
+    <string name="tutorial_video_free_hint">दिन में %1$d बार मुफ़्त, वॉटरमार्क के साथ। Premium में वॉटरमार्क नहीं</string>
     <string name="tutorial_video_options_title">वीडियो कस्टमाइज़ करें</string>
     <string name="tutorial_video_show_title">गाने का नाम दिखाएँ</string>
     <string name="tutorial_video_show_note">मौजूदा सुर दिखाएँ</string>

@@ -527,7 +527,8 @@
     <string name="record_failed">녹음에 실패했습니다</string>
     <string name="music_source_asset">내장</string>
     <string name="music_source_storage">저장소</string>
-    <string name="export_first_free">오늘 1회 무료 내보내기, 광고 없음</string>
+    <string name="export_first_free">오늘 무료 내보내기, 광고 없음</string>
+    <string name="export_free_left">오늘 남은 무료 내보내기: %1$d회, 광고 없음</string>
     <string name="export_pay_coins">코인 %1$d개 사용</string>
 
     <!-- Daily rewards / missions -->
@@ -582,7 +583,7 @@
     <string name="tutorial_video_premium_later">나중에</string>
     <string name="tutorial_video_premium_success">Premium이 활성화되었습니다!</string>
     <string name="tutorial_video_premium_error">구매를 열 수 없습니다. 연결을 확인하고 다시 시도하세요</string>
-    <string name="tutorial_video_free_hint">하루 1회 무료, 워터마크 포함. Premium은 워터마크 없음</string>
+    <string name="tutorial_video_free_hint">하루 %1$d회 무료, 워터마크 포함. Premium은 워터마크 없음</string>
     <string name="tutorial_video_options_title">동영상 꾸미기</string>
     <string name="tutorial_video_show_title">곡 제목 표시</string>
     <string name="tutorial_video_show_note">현재 음표 표시</string>

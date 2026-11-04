@@ -66,7 +66,7 @@ object RecordingExporter {
      * 0 = setiap export wajib nonton iklan. Hanya berlaku jika host memasang iklan export.
      */
     @JvmStatic
-    var freeExportsPerDay = 1
+    var freeExportsPerDay = 2
 
     /**
      * Harga satu export dalam koin ([sound.recorder.widget.util.CoinManager]) sebagai ganti rewarded ad.
@@ -101,6 +101,10 @@ object RecordingExporter {
      */
     @JvmStatic
     fun hasFreeExport(context: Context): Boolean = usedToday(context) < freeExportsPerDay
+
+    /** Sisa jatah export gratis hari ini (0 bila habis). */
+    @JvmStatic
+    fun freeExportsLeft(context: Context): Int = maxOf(0, freeExportsPerDay - usedToday(context))
 
     /** Pakai satu jatah export gratis hari ini (dipanggil setelah export berhasil dibuat). */
     @JvmStatic

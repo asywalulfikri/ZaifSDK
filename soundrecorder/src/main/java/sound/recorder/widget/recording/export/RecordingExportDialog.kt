@@ -204,7 +204,7 @@ object RecordingExportDialog {
         val actionRow = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
         root.addView(actionRow)
         val freeTv = TextView(context).apply {
-            text = "🎁 " + context.getString(R.string.export_first_free)
+            text = "🎁 " + context.getString(R.string.export_free_left, RecordingExporter.freeExportsLeft(context))
             setTextColor(c.success)
             textSize = 11f
             gravity = Gravity.CENTER
