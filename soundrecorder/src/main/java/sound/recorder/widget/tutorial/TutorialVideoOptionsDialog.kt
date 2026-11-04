@@ -80,7 +80,7 @@ object TutorialVideoQuota {
     private const val KEY_USED = "free_used"
 
     @JvmStatic
-    var freePerDay = 2
+    var freePerDay = 3
 
     private fun today(): Int {
         val cal = java.util.Calendar.getInstance()

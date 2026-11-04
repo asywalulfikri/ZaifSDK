@@ -16,15 +16,15 @@
 - Permission baru: `WRITE_EXTERNAL_STORAGE` dengan `maxSdkVersion=28`, untuk menyimpan hasil export di Android 9 ke bawah.
 
 ### 🎁 Jatah export gratis & premium
-- **Export gratis naik dari 1x jadi 2x per hari**, untuk export suara (`RecordingExporter.freeExportsPerDay = 2`)
-  dan video tutorial (`TutorialVideoQuota.freePerDay = 2`, sebelumnya angka 1 ditulis langsung di kode).
+- **Export gratis naik dari 1x jadi 3x per hari**, untuk export suara (`RecordingExporter.freeExportsPerDay = 3`)
+  dan video (`TutorialVideoQuota.freePerDay = 3`, sebelumnya angka 1 ditulis langsung di kode).
   - **Alasan:** sampai SDK 1.1.136 export suara gratis tanpa batas. Setelah export diberi iklan reward
     (gratis hanya 1x sehari), pendapatan turun ±20% padahal eCPM dan rate iklan tetap bagus. Artinya
     jumlah tayangan yang turun, kemungkinan karena user kesal lalu lebih jarang main. Rekaman pertama
     sering belum bagus, jadi 1x sehari terlalu sedikit. Video tutorial memakai watermark nama app,
     jadi tiap video yang dibagikan sekaligus jadi promosi gratis.
-  - Naik ke 2 dulu (bukan 3) supaya iklan reward tidak hilang terlalu banyak. Pantau event
-    `reward_ad_result` dan retensi 1–2 minggu sebelum dinaikkan lagi.
+  - Awalnya direncanakan 2, lalu diputuskan pemilik app jadi 3 (2026-11-04). Pantau event
+    `reward_ad_result` dan retensi 1–2 minggu; kalau pendapatan iklan reward turun banyak, turunkan per app.
   - Tiap app tetap bisa mengatur sendiri, misalnya `freeExportsPerDay = 1`. 0 = selalu wajib iklan.
   - Baru: `RecordingExporter.freeExportsLeft(context)` untuk sisa jatah hari ini. Dialog export SDK
     sekarang menampilkan sisanya.

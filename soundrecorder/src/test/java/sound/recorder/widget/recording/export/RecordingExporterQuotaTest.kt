@@ -28,17 +28,17 @@ class RecordingExporterQuotaTest {
 
     @After
     fun tearDown() {
-        RecordingExporter.freeExportsPerDay = 2
+        RecordingExporter.freeExportsPerDay = 3
         RecordingExporter.resolver = null
     }
 
     // ── Jatah export gratis ─────────────────────────────────────────────────
 
     @Test
-    fun twoFreeExportsPerDayByDefault() {
+    fun threeFreeExportsPerDayByDefault() {
+        assertEquals(3, RecordingExporter.freeExportsLeft(ctx))
+        repeat(2) { RecordingExporter.consumeFreeExport(ctx) }
         assertTrue(RecordingExporter.hasFreeExport(ctx))
-        assertEquals(2, RecordingExporter.freeExportsLeft(ctx))
-        RecordingExporter.consumeFreeExport(ctx)
         assertEquals(1, RecordingExporter.freeExportsLeft(ctx))
         RecordingExporter.consumeFreeExport(ctx)
         assertFalse(RecordingExporter.hasFreeExport(ctx))
