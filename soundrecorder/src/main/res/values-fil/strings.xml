@@ -558,6 +558,10 @@
     <string name="daily_rewards_premium_badge">PREMIUM · %1$s pa</string>
     <string name="daily_rewards_export_title">Mag-export gamit ang coins</string>
     <string name="daily_rewards_export_desc">Mag-export nang walang ads sa %1$d coins</string>
+    <string name="coin_uses_title">Para saan ang coins?</string>
+    <string name="coin_use_unlock_song">I-unlock ang kanta</string>
+    <string name="coin_use_export">I-export ang kanta</string>
+    <string name="coin_use_video">Video na walang watermark</string>
     <string name="reward_not_earned">Panoorin ang video hanggang dulo para makuha ang gantimpala.</string>
     <string name="tutorial_video_button">VIDEO</string>
     <string name="tutorial_video_recording">Nagre-record ng video… manatili sa screen na ito</string>

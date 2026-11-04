@@ -3,6 +3,21 @@
 ## 0.0.65
 
 ### ⚠️ Wajib dibaca sebelum update app host
+- **Premium Pass dimatikan secara bawaan** (`PremiumPass.isEnabled = false`). Kartu Premium Pass hilang dari
+  dialog Misi dan `PremiumPass.redeem()` selalu gagal, jadi koin tidak bisa lagi ditukar dengan 2 hari tanpa iklan.
+  **Alasan:** terlalu murah dibanding pendapatan iklan yang hilang. Pass yang sudah ditukar tetap berlaku sampai
+  habis (kartu hanya menampilkan sisa waktu, tanpa tombol perpanjang). Untuk menyalakan lagi: `PremiumPass.isEnabled = true`.
+  App yang dulu punya Premium Pass sendiri (Belira) pindah ke `PremiumPass` SDK dan memanggil
+  `PremiumPass.importFrom(context, "premium_pass")` sekali di thread background: pass yang masih berjalan,
+  termasuk hitungan penukaran, disalin ke SDK lalu data lama dihapus. Data SDK yang sudah ada tidak ditimpa.
+- **`CoinManager.addCoins` kini `@Synchronized`** (sama dengan `spendCoins`), supaya koin yang ditambah dan dipotong
+  bersamaan tidak saling menimpa saldo. Belira pindah dari `CoinManager` dan `CoinNotificationWorker` miliknya ke versi SDK
+  (data saldo sama: `zaif_coins` / `balance`).
+- **Kartu "Koin untuk apa?"** (`CoinUses.list(context)`, data `CoinUse`): buka lagu (`CoinManager.UNLOCK_COST`),
+  export lagu (`RecordingExporter.exportCoinCost`), dan video tanpa watermark (30–50, hanya app tanpa pembelian dengan
+  `isVideo`). Harga dibaca dari pengaturan SDK. Menggantikan kartu "Export pakai koin" di dialog Misi SDK; panel Misi
+  buatan host (Belira, Compose) memakai daftar yang sama. Teks baru 19 bahasa: `coin_uses_title`, `coin_use_unlock_song`,
+  `coin_use_export`, `coin_use_video`.
 - **Database rekaman naik ke versi 6** (sebelumnya 5). Migration otomatis dan aman:
   - **v5 → v6:** hanya menambah kolom `musicJson` (nullable), data lama tidak disentuh.
   - **v1–v4 → v5:** tabel dibangun ulang dan rekaman lama disalin, tidak dihapus lagi seperti versi SDK sebelumnya.

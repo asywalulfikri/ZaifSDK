@@ -3,6 +3,10 @@
 Berlaku untuk **semua aplikasi instrumen** yang memakai sistem misi/koin dari ZaifSDK
 (`DailyRewards`, `RewardsDialog`, `CoinManager`, `PremiumPass`).
 
+> **Sejak 2026-11-04 Premium Pass dimatikan di SDK** (`PremiumPass.isEnabled = false`): koin tidak bisa
+> ditukar lagi. Pass lama tetap berlaku sampai habis. Bagian dokumen ini yang menyebut Premium Pass hanya
+> berlaku untuk pass lama atau bila app menyalakannya lagi.
+
 ## Aturannya
 
 User yang sudah **membeli Remove Ads / premium (permanen)** tidak perlu misi lagi.

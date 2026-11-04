@@ -557,6 +557,10 @@
     <string name="daily_rewards_premium_badge">PREMIUM · quedan %1$s</string>
     <string name="daily_rewards_export_title">Exportar con monedas</string>
     <string name="daily_rewards_export_desc">Exporta sin anuncios por %1$d monedas</string>
+    <string name="coin_uses_title">¿Para qué sirven las monedas?</string>
+    <string name="coin_use_unlock_song">Desbloquear canción</string>
+    <string name="coin_use_export">Exportar canción</string>
+    <string name="coin_use_video">Video sin marca de agua</string>
     <string name="reward_not_earned">Mira el video hasta el final para obtener la recompensa.</string>
     <string name="tutorial_video_button">VÍDEO</string>
     <string name="tutorial_video_recording">Grabando vídeo… no salgas de esta pantalla</string>

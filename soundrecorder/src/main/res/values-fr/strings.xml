@@ -558,6 +558,10 @@
     <string name="daily_rewards_premium_badge">PREMIUM · encore %1$s</string>
     <string name="daily_rewards_export_title">Exporter avec des pièces</string>
     <string name="daily_rewards_export_desc">Exporter sans pub pour %1$d pièces</string>
+    <string name="coin_uses_title">À quoi servent les pièces ?</string>
+    <string name="coin_use_unlock_song">Débloquer une chanson</string>
+    <string name="coin_use_export">Exporter une chanson</string>
+    <string name="coin_use_video">Vidéo sans filigrane</string>
     <string name="reward_not_earned">Regarde la vidéo jusqu\'à la fin pour obtenir la récompense.</string>
     <string name="tutorial_video_button">VIDÉO</string>
     <string name="tutorial_video_recording">Enregistrement vidéo… reste sur cet écran</string>

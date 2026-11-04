@@ -20,6 +20,8 @@ class PremiumPassTest {
     @Before
     fun setUp() {
         ctx = FakeContext()
+        // Tes penukaran memakai mode menyala; bawaan SDK mati (lihat disabledByDefault...).
+        PremiumPass.isEnabled = true
     }
 
     @After
@@ -27,6 +29,51 @@ class PremiumPassTest {
         PremiumPass.firstCostCoins = 50
         PremiumPass.costCoins = 100
         PremiumPass.durationDays = 2
+        PremiumPass.isEnabled = false
+    }
+
+    @Test
+    fun importFromLegacyKeepsRunningPass() {
+        val expires = System.currentTimeMillis() + DAY_MS
+        ctx.getSharedPreferences("premium_pass", 0).edit()
+            .putLong("expires_at", expires)
+            .putLong("redeemed_at", System.currentTimeMillis() - 1_000L)
+            .putInt("redeem_count", 2)
+            .apply()
+        PremiumPass.importFrom(ctx, "premium_pass")
+        assertTrue(PremiumPass.isActive(ctx))
+        assertFalse("harga perdana sudah terpakai di app lama", PremiumPass.isFirstRedeem(ctx))
+        assertFalse(ctx.getSharedPreferences("premium_pass", 0).contains("redeem_count"))
+        // Panggilan kedua tidak menimpa data SDK
+        PremiumPass.importFrom(ctx, "premium_pass")
+        assertTrue(PremiumPass.isActive(ctx))
+    }
+
+    @Test
+    fun importFromDoesNotOverwriteSdkData() {
+        CoinManager.addCoins(ctx, 50)
+        assertTrue(PremiumPass.redeem(ctx))
+        val before = prefs().getLong("expires_at", 0L)
+        ctx.getSharedPreferences("premium_pass", 0).edit().putLong("expires_at", 1L).putInt("redeem_count", 5).apply()
+        PremiumPass.importFrom(ctx, "premium_pass")
+        assertEquals(before, prefs().getLong("expires_at", 0L))
+    }
+
+    @Test
+    fun disabledByDefaultRedeemFailsAndKeepsCoins() {
+        PremiumPass.isEnabled = false
+        CoinManager.addCoins(ctx, 200)
+        assertFalse(PremiumPass.redeem(ctx))
+        assertFalse(PremiumPass.isActive(ctx))
+        assertEquals(200, CoinManager.getBalance(ctx))
+    }
+
+    @Test
+    fun passRedeemedBeforeDisablingStaysActive() {
+        CoinManager.addCoins(ctx, 50)
+        assertTrue(PremiumPass.redeem(ctx))
+        PremiumPass.isEnabled = false
+        assertTrue("pass lama tetap berlaku sampai habis", PremiumPass.isActive(ctx))
     }
 
     @Test

@@ -601,6 +601,10 @@
     <string name="daily_rewards_premium_badge">بريميوم · متبقٍ %1$s</string>
     <string name="daily_rewards_export_title">التصدير بالعملات</string>
     <string name="daily_rewards_export_desc">صدّر بدون إعلانات مقابل %1$d عملة</string>
+    <string name="coin_uses_title">فيمَ تُستخدم العملات؟</string>
+    <string name="coin_use_unlock_song">فتح أغنية</string>
+    <string name="coin_use_export">تصدير أغنية</string>
+    <string name="coin_use_video">فيديو بدون علامة مائية</string>
     <string name="reward_not_earned">شاهد الفيديو حتى النهاية للحصول على المكافأة.</string>
     <string name="tutorial_video_button">فيديو</string>
     <string name="tutorial_video_recording">جارٍ تسجيل الفيديو… ابقَ في هذه الشاشة</string>
