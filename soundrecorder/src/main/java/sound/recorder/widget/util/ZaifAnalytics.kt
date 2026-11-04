@@ -17,6 +17,8 @@ object ZaifAnalytics {
     const val SOURCE_CHECK_IN = "check_in"
     const val SOURCE_AD = "ad"
     const val SOURCE_DAILY_BONUS = "daily_bonus"
+    /** Koin dikembalikan karena video yang sudah dibayar batal / gagal. */
+    const val SOURCE_REFUND = "refund"
     const val SOURCE_OTHER = "other"
 
     const val PURPOSE_PREMIUM_PASS = "premium_pass"

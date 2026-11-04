@@ -58,6 +58,19 @@
     sama dan hanya untuk app tanpa pembelian. **Alasan:** koin dari misi jadi lebih berharga, sementara pilihan
     10 koin / iklan tetap memakai watermark (promosi gratis). Video berbayar ini tidak memakai jatah gratis.
     Teks baru: `tutorial_video_no_watermark` (19 bahasa).
+  - **Switch "Hapus watermark" di dialog custom video** (app tanpa pembelian + `isCoin`). Selama jatah gratis
+    masih ada: `TutorialVideoQuota.removeWatermarkCoinCost` (default 30, 0 = disembunyikan). Setelah jatah habis
+    (video dibuka lewat iklan): harga `noWatermarkCoinCost` (50); sudah bayar 10 koin → switch tinggal 40,
+    jadi total tanpa watermark selalu 50. Koin switch baru dipotong saat tombol Mulai (tombol menampilkan
+    harganya); saldo kurang → toast dan switch kembali mati. Switch tidak diingat, selalu mati saat dialog dibuka.
+    **Video 30 koin tetap memakai satu jatah gratis** (`TutorialVideoStyle.usesFreeSlot`): koin hanya membayar
+    hapus watermark. Tanpa ini user yang selalu bayar 30 tidak pernah menghabiskan jatah, jadi harga 50 tidak berlaku.
+  - **Koin video dikembalikan bila batal / gagal** (10, 50, maupun switch): dialog custom video ditutup tanpa
+    Mulai, rekaman dibatalkan, atau gagal dimulai / disimpan. Analytics: `coin_earned` dengan source `refund`.
+    Teks baru: `tutorial_video_remove_watermark_coins` (19 bahasa).
+  - **Teks petunjuk dialog custom video tidak lagi menyebut Premium di app tanpa pembelian**:
+    `tutorial_video_free_hint_coins` ("…Hapus pakai koin") bila switch tampil, `tutorial_video_free_hint_basic`
+    bila koin mati. App dengan pembelian tetap `tutorial_video_free_hint`. 19 bahasa.
 
 ### ✨ Fitur baru
 - **Lagu (MP3) ikut terekam.** Saat merekam sambil memutar lagu dari daftar musik, yang dicatat adalah lagu, posisi, volume, serta kapan lagu diputar, dijeda, digeser, atau diganti.

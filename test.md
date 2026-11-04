@@ -55,6 +55,12 @@ Berisi fitur SDK yang dikerjakan dari tag `1.1.153` sampai `1.1.162`. Semua tes 
 | 20  | Rekaman video panjang                                                    | Belum      | Belum tahu |                                                                                                                                |
 | 21  | Sinkron suara dan gambar                                                 | Belum      | Belum tahu | Perlu ditonton dan didengar langsung                                                                                           |
 | 22  | Jatah gratis kembali keesokan harinya                                    | Belum      | Belum tahu |                                                                                                                                |
+| 22a | Switch `Hapus watermark` 30 koin (jatah masih ada)                       | Sudah      | Normal     | vivo, app contoh, export rekaman. Preview tanpa watermark, tombol `Mulai · 30 🪙`. Saldo 100 → 70, jatah terpakai 1, video tanpa watermark |
+| 22b | Koin kembali saat rekaman berbayar dibatalkan                            | Sudah      | Normal     | vivo. Tekan HOME saat merekam: 70 → 40 → 70, jatah tidak berubah                                                               |
+| 22c | Jatah habis: bayar 10 koin → switch 40 (total 50)                        | Sudah      | Normal     | vivo. Cancel di dialog custom: 10 koin kembali. Bayar 10 + 40 sampai selesai: 70 → 20                                          |
+| 22f | Teks petunjuk tanpa kata Premium di app tanpa pembelian               | Sudah      | Normal     | vivo: "Free 3x a day, with watermark. Remove it with coins". Switch dengan saldo 0 tetap mati, tombol Mulai tanpa harga |
+| 22d | Jatah habis: iklan → switch 50, dan bayar 50 langsung                    | Belum      | Belum tahu | Iklan tidak ditekan saat tes (aturan: jangan tap iklan)                                                                        |
+| 22e | Koin kembali di export tutorial (`EKSPOR` → `VIDEO`)                     | Belum      | Belum tahu | Kode sudah ada, belum dites di HP                                                                                              |
 
 ## Export suara
 
