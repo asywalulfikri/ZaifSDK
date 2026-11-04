@@ -31,7 +31,8 @@ import sound.recorder.widget.util.ZaifAnalytics
  * 3. Selain itu → jatah gratis [TutorialVideoQuota.freePerDay] per hari, dengan watermark.
  * 4. Jatah habis → [TutorialVideoPremiumDialog]:
  *    - app TANPA pembelian (`ZaifSDKBuilder.hasPremiumPurchase(false)`) → tonton iklan ([onRequestReward])
- *      atau bayar `RecordingExporter.exportCoinCost` koin (bila isCoin); video tetap watermark;
+ *      atau bayar `RecordingExporter.exportCoinCost` koin (bila isCoin); video tetap watermark.
+ *      Pilihan lain: bayar `TutorialVideoQuota.noWatermarkCoinCost` koin (default 50) → tanpa watermark;
  *    - app PUNYA pembelian (default) + `onPremiumPurchased` diisi → dialog Premium + tombol beli, TANPA iklan/koin;
  *    - app PUNYA pembelian tapi `onPremiumPurchased` null → hanya "coba lagi besok".
  *    Aturan "iklan/koin hanya untuk app tanpa pembelian" adalah keputusan produk, jangan diubah
@@ -76,6 +77,11 @@ internal object RecordingVideoExport {
                     onUnlocked = {
                         closeExport()
                         TutorialVideoOptionsDialog.show(context, title, freeWatermark, config.captureView(), start)
+                    },
+                    // Bayar koin lebih mahal: tanpa watermark, tidak memakai jatah gratis
+                    onUnlockedNoWatermark = {
+                        closeExport()
+                        TutorialVideoOptionsDialog.show(context, title, null, config.captureView(), start)
                     }
                 ) {
                     closeExport()

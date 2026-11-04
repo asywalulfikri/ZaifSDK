@@ -54,6 +54,10 @@
     `InstrumentControlPanel` (lewat `adRequestListener`, tipe `"export"`) dan `InstrumentTutorialDialog`.
     User Premium Pass juga boleh menonton iklan untuk video, karena pass tidak membuka video.
   - Teks baru di 19 bahasa: `tutorial_video_limit_title`, `tutorial_video_limit_message`, `tutorial_video_limit_tomorrow`.
+  - **Pilihan tanpa watermark: 50 koin** (`TutorialVideoQuota.noWatermarkCoinCost`, 0 = disembunyikan), di dialog yang
+    sama dan hanya untuk app tanpa pembelian. **Alasan:** koin dari misi jadi lebih berharga, sementara pilihan
+    10 koin / iklan tetap memakai watermark (promosi gratis). Video berbayar ini tidak memakai jatah gratis.
+    Teks baru: `tutorial_video_no_watermark` (19 bahasa).
 
 ### ✨ Fitur baru
 - **Lagu (MP3) ikut terekam.** Saat merekam sambil memutar lagu dari daftar musik, yang dicatat adalah lagu, posisi, volume, serta kapan lagu diputar, dijeda, digeser, atau diganti.

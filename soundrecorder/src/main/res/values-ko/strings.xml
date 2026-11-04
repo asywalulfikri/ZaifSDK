@@ -586,6 +586,7 @@
     <string name="tutorial_video_limit_title">오늘의 무료 동영상을 모두 사용했어요</string>
     <string name="tutorial_video_limit_message">광고를 보거나 코인을 사용해 동영상을 하나 더 만드세요 (워터마크 포함).</string>
     <string name="tutorial_video_limit_tomorrow">오늘의 무료 동영상을 모두 사용했어요. 내일 다시 시도하세요.</string>
+    <string name="tutorial_video_no_watermark">✨ 워터마크 없음</string>
     <string name="tutorial_video_free_hint">하루 %1$d회 무료, 워터마크 포함. Premium은 워터마크 없음</string>
     <string name="tutorial_video_options_title">동영상 꾸미기</string>
     <string name="tutorial_video_show_title">곡 제목 표시</string>
