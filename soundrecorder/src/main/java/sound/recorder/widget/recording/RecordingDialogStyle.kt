@@ -147,6 +147,18 @@ internal object RecordingDialogViews {
             setOnClickListener { onClick() }
         }
 
+    /**
+     * Tombol bayar koin: kotak bergaris tepi dengan ikon koin, supaya jelas bisa ditekan
+     * (bukan teks datar). [enough] false → tampil redup, tetap bisa ditekan untuk pesan "koin kurang".
+     */
+    fun coinButton(context: Context, c: RecordingDialogPalette, label: String, enough: Boolean, onClick: () -> Unit) =
+        boxButton(context, c, "${sound.recorder.widget.util.CoinManager.icon} $label", primary = false, onClick).apply {
+            val pH = context.sdp(SdpR.dimen._12sdp)
+            val pV = context.sdp(SdpR.dimen._7sdp)
+            setPadding(pH, pV, pH, pV)
+            alpha = if (enough) 1f else 0.4f
+        }
+
     /** Ikon vektor yang diwarnai. */
     fun icon(context: Context, @DrawableRes res: Int, color: Int) = ImageView(context).apply {
         setImageResource(res)

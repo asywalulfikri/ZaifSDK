@@ -20,6 +20,7 @@ import sound.recorder.widget.recording.RecordingDialogPalette
 import sound.recorder.widget.recording.RecordingDialogStyle
 import sound.recorder.widget.recording.RecordingDialogViews.applyWindow
 import sound.recorder.widget.recording.RecordingDialogViews.boxButton
+import sound.recorder.widget.recording.RecordingDialogViews.coinButton
 import sound.recorder.widget.recording.RecordingDialogViews.rounded
 import sound.recorder.widget.recording.RecordingDialogViews.sdp
 import sound.recorder.widget.recording.RecordingDialogViews.textButton
@@ -197,7 +198,7 @@ internal object TutorialVideoPremiumDialog {
             })
             adRequest?.let { request ->
                 addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
-                addView(boxButton(context, c, context.getString(R.string.export_reward_watch), primary = true) {
+                addView(boxButton(context, c, "▶  " + context.getString(R.string.export_reward_watch), primary = true) {
                     dialog.dismiss()
                     request { onUnlocked() }
                 }, LinearLayout.LayoutParams(context.sdp(SdpR.dimen._120sdp), context.sdp(SdpR.dimen._34sdp)))
@@ -228,18 +229,15 @@ internal object TutorialVideoPremiumDialog {
                 setTextColor(c.textSecondary)
                 textSize = 12f
             }, LinearLayout.LayoutParams(0, -2, 1f))
-            addView(textButton(context, c, button).apply {
-                alpha = if (balance >= cost) 1f else 0.4f
-                setOnClickListener {
-                    if (CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_EXPORT)) {
-                        dialog.dismiss()
-                        onPaid()
-                    } else {
-                        Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
-                    }
+            addView(coinButton(context, c, button, balance >= cost) {
+                if (CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_EXPORT)) {
+                    dialog.dismiss()
+                    onPaid()
+                } else {
+                    Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
                 }
             })
-        }, LinearLayout.LayoutParams(-1, -2))
+        }, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = context.sdp(SdpR.dimen._6sdp) })
     }
 
     private tailrec fun findActivity(context: Context?): Activity? = when (context) {
