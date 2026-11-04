@@ -578,6 +578,9 @@
     <string name="tutorial_video_premium_later">Later</string>
     <string name="tutorial_video_premium_success">Premium is active. Enjoy!</string>
     <string name="tutorial_video_premium_error">Couldn\'t open the purchase. Check your connection and try again</string>
+    <string name="tutorial_video_limit_title">Free videos used up today</string>
+    <string name="tutorial_video_limit_message">Watch an ad or use coins to make another video (with watermark).</string>
+    <string name="tutorial_video_limit_tomorrow">Free videos for today are used up. Try again tomorrow.</string>
     <string name="tutorial_video_free_hint">Free %1$dx a day, with watermark. Premium has no watermark</string>
     <string name="tutorial_video_options_title">Customize video</string>
     <string name="tutorial_video_show_title">Show song title</string>

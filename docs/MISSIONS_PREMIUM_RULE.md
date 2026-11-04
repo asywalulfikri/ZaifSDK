@@ -76,6 +76,27 @@ Jangan cuma memanggil `CoinNotificationWorker.cancel()`: SDK menjadwalkannya lag
 
 Premium Pass tidak dihitung sebagai pembelian, jadi notif koin tetap jalan untuk user Premium Pass.
 
+## Export video saat jatah gratis habis
+
+Flag-nya: **`ZaifSDKBuilder.hasPremiumPurchase(...)`** di GameApp. Default `true` (tidak perlu dipanggil).
+
+| App | Saat jatah video gratis habis |
+|---|---|
+| **Tanpa** pembelian: panggil `.hasPremiumPurchase(false)` (mis. Darbuka) | Tonton iklan atau bayar `RecordingExporter.exportCoinCost` koin. Video tetap watermark |
+| **Punya** pembelian (default) + `TutorialVideoExport.onPremiumPurchased` diisi | Dialog Premium + tombol beli. **Tidak ada** pilihan iklan/koin |
+| **Punya** pembelian (default) tapi `onPremiumPurchased` lupa diisi | Hanya "coba lagi besok" (iklan/koin tetap tidak terbuka) |
+
+Di dalam SDK flag disimpan terbalik (`noPremiumPurchase`, default false), karena Gson mengisi field yang
+belum ada di config lama dengan false. Jadi config lama/rusak tetap dianggap app dengan pembelian.
+
+Ini keputusan produk: iklan/koin untuk video **hanya** di app tanpa pembelian, supaya tidak
+mengurangi penjualan premium di app lain. Alur lengkap ada di KDoc `RecordingVideoExport`
+(`soundrecorder/.../tutorial/RecordingVideoExport.kt`).
+
+Agar pilihan VIDEO muncul sama sekali, app perlu **dua-duanya**: `ZaifSDKBuilder.isVideo(true)` dan
+`controlPanel.videoExport = TutorialVideoExport(...)` di setiap layar instrumen
+(contoh: `createVideoExport` di BaseFragment Dholak / Darbuka).
+
 ## Yang tidak diubah
 
 - Ini hanya perubahan tampilan. Penghitungan progres misi (`DailyRewards.add`, jumlah pukulan,
@@ -86,5 +107,7 @@ Premium Pass tidak dihitung sebagai pembelian, jadi notif koin tetap jalan untuk
 
 - [x] Rebana (godev2): tombol Misi disembunyikan, 2026-11-03
 - [ ] Rebana (godev2): panggil `PremiumPurchase.setPurchased` (butuh versi SDK baru; saat ini 1.1.164)
+- [x] Darbuka (godev1): tidak berlaku. Darbuka sengaja tidak menjual Remove Ads (premium hanya
+      dari Premium Pass), jadi tombol Misi dan notif koin tetap tampil. Jangan tambahkan pembelian.
 - [ ] Aplikasi lain yang punya tombol Misi (Darbuka, Dholak, Pianika, Lira, Gendang, dll.):
       cek satu per satu, terapkan aturan di atas, lalu centang di sini

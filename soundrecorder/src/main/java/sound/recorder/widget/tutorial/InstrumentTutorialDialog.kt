@@ -437,7 +437,7 @@ class InstrumentTutorialDialog(
                 // Premium tanpa iklan. Lagu yang baru dibuka (iklan / koin) tidak diminta iklan lagi saat export.
                 fun openExport(rec: RecordingEntity?, skipAd: Boolean) {
                     if (rec == null) { onToast(context.getString(R.string.export_failed)); return }
-                    val video = RecordingVideoExport.option(context, videoExport, isPremium, rec.name) { style ->
+                    val video = RecordingVideoExport.option(context, videoExport, isPremium, rec.name, onRequestReward = { onRewarded -> onRequestAd { onRewarded() } }) { style ->
                         val config = videoExport
                         if (config != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             startVideoExport(context, item, config, dialog, style, fullScreen = config.fullScreen) { playItem(it) }

@@ -626,6 +626,9 @@
     <string name="tutorial_video_premium_later">لاحقًا</string>
     <string name="tutorial_video_premium_success">تم تفعيل Premium. استمتع!</string>
     <string name="tutorial_video_premium_error">تعذر فتح الشراء. تحقق من الاتصال وحاول مرة أخرى</string>
+    <string name="tutorial_video_limit_title">انتهت الفيديوهات المجانية لليوم</string>
+    <string name="tutorial_video_limit_message">شاهد إعلانًا أو استخدم العملات لإنشاء فيديو آخر (مع علامة مائية).</string>
+    <string name="tutorial_video_limit_tomorrow">انتهت الفيديوهات المجانية لهذا اليوم. حاول مرة أخرى غدًا.</string>
     <string name="tutorial_video_free_hint">مجاني %1$d مرات يوميًا مع علامة مائية. Premium بلا علامة مائية</string>
     <string name="tutorial_video_options_title">تخصيص الفيديو</string>
     <string name="tutorial_video_show_title">إظهار عنوان الأغنية</string>

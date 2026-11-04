@@ -583,6 +583,9 @@
     <string name="tutorial_video_premium_later">Plus tard</string>
     <string name="tutorial_video_premium_success">Premium est activé. Profitez-en !</string>
     <string name="tutorial_video_premium_error">Impossible d\'ouvrir l\'achat. Vérifiez votre connexion et réessayez</string>
+    <string name="tutorial_video_limit_title">Vidéos gratuites épuisées aujourd\'hui</string>
+    <string name="tutorial_video_limit_message">Regardez une pub ou utilisez des pièces pour créer une autre vidéo (avec filigrane).</string>
+    <string name="tutorial_video_limit_tomorrow">Les vidéos gratuites du jour sont épuisées. Réessayez demain.</string>
     <string name="tutorial_video_free_hint">Gratuit %1$d fois par jour, avec filigrane. Premium sans filigrane</string>
     <string name="tutorial_video_options_title">Personnaliser la vidéo</string>
     <string name="tutorial_video_show_title">Afficher le titre</string>

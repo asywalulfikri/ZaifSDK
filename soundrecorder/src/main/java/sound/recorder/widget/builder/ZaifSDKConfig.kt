@@ -21,4 +21,8 @@ data class ZaifSDKConfig(
     val isCoin: Boolean = false,
     val isFilterTutorial : Boolean = false,
     val isVideo : Boolean = false,
-)
+    /** Lihat [ZaifSDKBuilder.hasPremiumPurchase]. False = app punya pembelian (default aman). */
+    val noPremiumPurchase: Boolean = false,
+) {
+    val hasPremiumPurchase: Boolean get() = !noPremiumPurchase
+}

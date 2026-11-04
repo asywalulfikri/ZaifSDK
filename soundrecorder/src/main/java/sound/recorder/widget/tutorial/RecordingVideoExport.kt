@@ -21,13 +21,30 @@ import sound.recorder.widget.recording.export.RecordingVideoOption
 import sound.recorder.widget.rewards.PremiumPass
 import sound.recorder.widget.util.ZaifAnalytics
 
-/** Aturan pilihan VIDEO di dialog export, dipakai export tutorial dan export rekaman. */
+/**
+ * Aturan pilihan VIDEO di dialog export, dipakai export tutorial dan export rekaman.
+ *
+ * Alur:
+ * 1. Pilihan VIDEO tampil hanya bila `ZaifSDKBuilder.isVideo(true)` DAN host mengisi
+ *    [TutorialVideoExport] (export rekaman: `controlPanel.videoExport`), Android 6+.
+ * 2. Pembeli premium (`hasPurchased`) → tanpa batas, tanpa watermark. Premium Pass tidak dihitung.
+ * 3. Selain itu → jatah gratis [TutorialVideoQuota.freePerDay] per hari, dengan watermark.
+ * 4. Jatah habis → [TutorialVideoPremiumDialog]:
+ *    - app TANPA pembelian (`ZaifSDKBuilder.hasPremiumPurchase(false)`) → tonton iklan ([onRequestReward])
+ *      atau bayar `RecordingExporter.exportCoinCost` koin (bila isCoin); video tetap watermark;
+ *    - app PUNYA pembelian (default) + `onPremiumPurchased` diisi → dialog Premium + tombol beli, TANPA iklan/koin;
+ *    - app PUNYA pembelian tapi `onPremiumPurchased` null → hanya "coba lagi besok".
+ *    Aturan "iklan/koin hanya untuk app tanpa pembelian" adalah keputusan produk, jangan diubah
+ *    tanpa persetujuan pemilik app. Lihat docs/MISSIONS_PREMIUM_RULE.md.
+ */
 internal object RecordingVideoExport {
 
     /**
      * Null = pilihan VIDEO tidak tampil: isVideo mati, host belum memasang config, atau Android < 6.
      *
      * @param onPurchased dipanggil setelah pembelian berhasil, sebelum dialog custom video dibuka.
+     * @param onRequestReward tampilkan rewarded ad lalu panggil `onRewarded`; dipakai untuk membuka
+     *   video saat jatah gratis habis di app tanpa pembelian premium. Null = tanpa pilihan iklan.
      */
     fun option(
         context: Context,
@@ -35,6 +52,7 @@ internal object RecordingVideoExport {
         isPremium: Boolean,
         title: String,
         onPurchased: () -> Unit = {},
+        onRequestReward: ((onRewarded: () -> Unit) -> Unit)? = null,
         start: (TutorialVideoStyle) -> Unit
     ): RecordingVideoOption? {
         if (config == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return null
@@ -52,7 +70,14 @@ internal object RecordingVideoExport {
                 closeExport()
                 TutorialVideoOptionsDialog.show(context, title, if (unlimited) null else freeWatermark, config.captureView(), start)
             } else {
-                TutorialVideoPremiumDialog.show(context, config.onPremiumPurchased) {
+                TutorialVideoPremiumDialog.show(
+                    context, config.onPremiumPurchased, onRequestReward,
+                    // Dibuka dengan iklan / koin: tetap versi gratis (watermark)
+                    onUnlocked = {
+                        closeExport()
+                        TutorialVideoOptionsDialog.show(context, title, freeWatermark, config.captureView(), start)
+                    }
+                ) {
                     closeExport()
                     onPurchased()
                     TutorialVideoOptionsDialog.show(context, title, null, config.captureView(), start)

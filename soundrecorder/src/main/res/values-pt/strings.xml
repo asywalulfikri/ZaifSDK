@@ -582,6 +582,9 @@
     <string name="tutorial_video_premium_later">Depois</string>
     <string name="tutorial_video_premium_success">Premium ativado. Aproveite!</string>
     <string name="tutorial_video_premium_error">Não foi possível abrir a compra. Verifique a conexão e tente novamente</string>
+    <string name="tutorial_video_limit_title">Vídeos grátis de hoje esgotados</string>
+    <string name="tutorial_video_limit_message">Assista a um anúncio ou use moedas para criar outro vídeo (com marca d\'água).</string>
+    <string name="tutorial_video_limit_tomorrow">Os vídeos grátis de hoje acabaram. Tente novamente amanhã.</string>
     <string name="tutorial_video_free_hint">Grátis %1$d vezes por dia, com marca d\'água. Premium sem marca d\'água</string>
     <string name="tutorial_video_options_title">Personalizar vídeo</string>
     <string name="tutorial_video_show_title">Mostrar título</string>

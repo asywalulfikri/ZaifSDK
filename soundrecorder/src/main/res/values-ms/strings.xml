@@ -583,6 +583,9 @@
     <string name="tutorial_video_premium_later">Nanti</string>
     <string name="tutorial_video_premium_success">Premium aktif. Selamat menikmati!</string>
     <string name="tutorial_video_premium_error">Pembelian tidak dapat dibuka. Semak sambungan dan cuba lagi</string>
+    <string name="tutorial_video_limit_title">Video percuma hari ini sudah habis</string>
+    <string name="tutorial_video_limit_message">Tonton iklan atau guna syiling untuk membuat video lagi (dengan tera air).</string>
+    <string name="tutorial_video_limit_tomorrow">Video percuma hari ini sudah habis. Cuba lagi esok.</string>
     <string name="tutorial_video_free_hint">Percuma %1$d kali sehari dengan tera air. Premium tanpa tera air</string>
     <string name="tutorial_video_options_title">Sesuaikan video</string>
     <string name="tutorial_video_show_title">Tunjukkan tajuk lagu</string>

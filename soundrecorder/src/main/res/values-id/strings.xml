@@ -589,6 +589,9 @@
     <string name="tutorial_video_premium_later">Nanti</string>
     <string name="tutorial_video_premium_success">Premium aktif. Selamat menikmati!</string>
     <string name="tutorial_video_premium_error">Pembelian tidak bisa dibuka. Cek koneksi lalu coba lagi</string>
+    <string name="tutorial_video_limit_title">Jatah video gratis hari ini habis</string>
+    <string name="tutorial_video_limit_message">Tonton iklan atau pakai koin untuk membuat video lagi (dengan watermark).</string>
+    <string name="tutorial_video_limit_tomorrow">Jatah video gratis hari ini sudah habis. Coba lagi besok.</string>
     <string name="tutorial_video_free_hint">Gratis %1$dx sehari dengan watermark. Premium tanpa watermark</string>
     <string name="tutorial_video_options_title">Atur tampilan video</string>
     <string name="tutorial_video_show_title">Tampilkan judul lagu</string>

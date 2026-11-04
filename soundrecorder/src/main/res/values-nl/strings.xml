@@ -585,6 +585,9 @@
     <string name="tutorial_video_premium_later">Later</string>
     <string name="tutorial_video_premium_success">Premium is actief. Veel plezier!</string>
     <string name="tutorial_video_premium_error">Aankoop kon niet worden geopend. Controleer je verbinding en probeer opnieuw</string>
+    <string name="tutorial_video_limit_title">Gratis video\'s voor vandaag op</string>
+    <string name="tutorial_video_limit_message">Bekijk een advertentie of gebruik munten voor nog een video (met watermerk).</string>
+    <string name="tutorial_video_limit_tomorrow">De gratis video\'s voor vandaag zijn op. Probeer het morgen opnieuw.</string>
     <string name="tutorial_video_free_hint">%1$d keer per dag gratis met watermerk. Premium zonder watermerk</string>
     <string name="tutorial_video_options_title">Video aanpassen</string>
     <string name="tutorial_video_show_title">Songtitel tonen</string>

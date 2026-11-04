@@ -42,6 +42,18 @@
   - Cukup memanggil `CoinNotificationWorker.cancel()` tidak cukup: SDK menjadwalkannya lagi tiap app dibuka.
   - Premium Pass (tukar koin) tidak dihitung sebagai pembelian.
 - Aturan lengkap (termasuk menyembunyikan tombol Misi untuk pembeli): `docs/MISSIONS_PREMIUM_RULE.md`.
+- **Video saat jatah gratis habis — HANYA untuk app tanpa pembelian Remove Ads/premium.** Flag baru
+  `ZaifSDKBuilder.hasPremiumPurchase(false)` (default `true`, jadi app lain tidak perlu diubah). Darbuka memanggilnya.
+  App dengan pembelian yang lupa mengisi `onPremiumPurchased` hanya melihat "coba lagi besok", bukan iklan/koin.
+  Detail:
+  dialog kini menawarkan **tonton iklan** dan **bayar koin** (`RecordingExporter.exportCoinCost`, bila
+  `isCoin`). Hasilnya tetap versi gratis (watermark). Tanpa iklan dan koin, dialog bilang "coba lagi besok".
+  - **Alasan:** sebelumnya dialog "Premium" muncul tanpa tombol beli, jadi user mentok.
+  - App yang punya pembelian tidak berubah (tetap dialog Premium + tombol beli).
+  - Baru: parameter `onRequestReward` di `RecordingVideoExport.option`; diisi otomatis oleh
+    `InstrumentControlPanel` (lewat `adRequestListener`, tipe `"export"`) dan `InstrumentTutorialDialog`.
+    User Premium Pass juga boleh menonton iklan untuk video, karena pass tidak membuka video.
+  - Teks baru di 19 bahasa: `tutorial_video_limit_title`, `tutorial_video_limit_message`, `tutorial_video_limit_tomorrow`.
 
 ### ✨ Fitur baru
 - **Lagu (MP3) ikut terekam.** Saat merekam sambil memutar lagu dari daftar musik, yang dicatat adalah lagu, posisi, volume, serta kapan lagu diputar, dijeda, digeser, atau diganti.

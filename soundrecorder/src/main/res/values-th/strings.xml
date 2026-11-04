@@ -581,6 +581,9 @@
     <string name="tutorial_video_premium_later">ไว้ทีหลัง</string>
     <string name="tutorial_video_premium_success">เปิดใช้ Premium แล้ว</string>
     <string name="tutorial_video_premium_error">เปิดการซื้อไม่ได้ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง</string>
+    <string name="tutorial_video_limit_title">วิดีโอฟรีของวันนี้หมดแล้ว</string>
+    <string name="tutorial_video_limit_message">ดูโฆษณาหรือใช้เหรียญเพื่อสร้างวิดีโอเพิ่มอีก (มีลายน้ำ)</string>
+    <string name="tutorial_video_limit_tomorrow">วิดีโอฟรีของวันนี้หมดแล้ว ลองใหม่พรุ่งนี้</string>
     <string name="tutorial_video_free_hint">ฟรีวันละ %1$d ครั้ง มีลายน้ำ Premium ไม่มีลายน้ำ</string>
     <string name="tutorial_video_options_title">ปรับแต่งวิดีโอ</string>
     <string name="tutorial_video_show_title">แสดงชื่อเพลง</string>

@@ -579,6 +579,9 @@
     <string name="tutorial_video_premium_later">बाद में</string>
     <string name="tutorial_video_premium_success">Premium चालू है। आनंद लें!</string>
     <string name="tutorial_video_premium_error">खरीदारी नहीं खुल सकी। कनेक्शन जाँचकर फिर कोशिश करें</string>
+    <string name="tutorial_video_limit_title">आज के मुफ़्त वीडियो खत्म</string>
+    <string name="tutorial_video_limit_message">एक और वीडियो बनाने के लिए विज्ञापन देखें या सिक्के इस्तेमाल करें (वॉटरमार्क के साथ)।</string>
+    <string name="tutorial_video_limit_tomorrow">आज के मुफ़्त वीडियो खत्म हो गए। कल फिर कोशिश करें।</string>
     <string name="tutorial_video_free_hint">दिन में %1$d बार मुफ़्त, वॉटरमार्क के साथ। Premium में वॉटरमार्क नहीं</string>
     <string name="tutorial_video_options_title">वीडियो कस्टमाइज़ करें</string>
     <string name="tutorial_video_show_title">गाने का नाम दिखाएँ</string>
