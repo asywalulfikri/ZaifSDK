@@ -82,7 +82,7 @@ Flag-nya: **`ZaifSDKBuilder.hasPremiumPurchase(...)`** di GameApp. Default `true
 
 | App | Saat jatah video gratis habis |
 |---|---|
-| **Tanpa** pembelian: panggil `.hasPremiumPurchase(false)` (mis. Darbuka) | Tonton iklan atau bayar `RecordingExporter.exportCoinCost` koin. Video tetap watermark |
+| **Tanpa** pembelian: panggil `.hasPremiumPurchase(false)` (mis. Darbuka) | Tonton iklan atau bayar `RecordingExporter.exportCoinCost` (10) koin → video **dengan** watermark. Atau bayar `TutorialVideoQuota.noWatermarkCoinCost` (50) koin → video **tanpa** watermark |
 | **Punya** pembelian (default) + `TutorialVideoExport.onPremiumPurchased` diisi | Dialog Premium + tombol beli. **Tidak ada** pilihan iklan/koin |
 | **Punya** pembelian (default) tapi `onPremiumPurchased` lupa diisi | Hanya "coba lagi besok" (iklan/koin tetap tidak terbuka) |
 

@@ -82,6 +82,13 @@ object TutorialVideoQuota {
     @JvmStatic
     var freePerDay = 3
 
+    /**
+     * Harga koin satu video TANPA watermark, ditawarkan saat jatah gratis habis — hanya di app
+     * tanpa pembelian (`ZaifSDKBuilder.hasPremiumPurchase(false)`). 0 = pilihan tidak tampil.
+     */
+    @JvmStatic
+    var noWatermarkCoinCost = 50
+
     private fun today(): Int {
         val cal = java.util.Calendar.getInstance()
         return cal.get(java.util.Calendar.YEAR) * 10_000 +

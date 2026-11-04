@@ -34,7 +34,8 @@ import com.intuit.sdp.R as SdpR
  *
  * App yang menyatakan tidak punya pembelian (`ZaifSDKBuilder.hasPremiumPurchase(false)`) mendapat
  * pilihan tonton iklan ([onRequestReward]) dan bayar koin (bila isCoin). Keduanya membuka satu video
- * versi gratis (dengan watermark) lewat [onUnlocked]. App lain tanpa tombol beli hanya melihat
+ * versi gratis (dengan watermark) lewat [onUnlocked]. Bayar [TutorialVideoQuota.noWatermarkCoinCost]
+ * koin (default 50) membuka satu video TANPA watermark lewat [onUnlockedNoWatermark]. App lain tanpa tombol beli hanya melihat
  * "coba lagi besok", supaya lupa mengisi sesuatu tidak membuka iklan/koin tanpa sengaja.
  */
 internal object TutorialVideoPremiumDialog {
@@ -44,6 +45,8 @@ internal object TutorialVideoPremiumDialog {
         onPremiumPurchased: (() -> Unit)?,
         onRequestReward: ((onRewarded: () -> Unit) -> Unit)? = null,
         onUnlocked: () -> Unit = {},
+        /** Dibayar [TutorialVideoQuota.noWatermarkCoinCost] koin: satu video tanpa watermark. */
+        onUnlockedNoWatermark: () -> Unit = onUnlocked,
         onSuccess: () -> Unit
     ) {
         val c = RecordingDialogPalette(context, RecordingDialogStyle.default)
@@ -79,7 +82,7 @@ internal object TutorialVideoPremiumDialog {
         // Iklan / koin HANYA untuk app yang menyatakan tidak punya pembelian:
         // ZaifSDKBuilder.hasPremiumPurchase(false). App lain tetap dialog Premium.
         if (noPurchaseApp || onPremiumPurchased == null) {
-            showUnlockContent(context, c, dialog, root, onRequestReward, onUnlocked, allowUnlock = noPurchaseApp)
+            showUnlockContent(context, c, dialog, root, onRequestReward, onUnlocked, onUnlockedNoWatermark, allowUnlock = noPurchaseApp)
             return
         }
 
@@ -145,6 +148,7 @@ internal object TutorialVideoPremiumDialog {
         root: LinearLayout,
         onRequestReward: ((onRewarded: () -> Unit) -> Unit)?,
         onUnlocked: () -> Unit,
+        onUnlockedNoWatermark: () -> Unit,
         /** False: app punya pembelian tapi tidak memasang tombol beli → hanya "coba lagi besok". */
         allowUnlock: Boolean
     ) {
@@ -170,27 +174,19 @@ internal object TutorialVideoPremiumDialog {
         root.addView(vSpace(context, SdpR.dimen._10sdp))
 
         if (coinEnabled) {
-            val cost = RecordingExporter.exportCoinCost
             val balance = CoinManager.getBalance(context)
-            root.addView(LinearLayout(context).apply {
-                gravity = Gravity.CENTER_VERTICAL
-                addView(TextView(context).apply {
-                    text = "${CoinManager.icon} " + context.getString(R.string.your_coin) + ": $balance"
-                    setTextColor(c.textSecondary)
-                    textSize = 12f
-                }, LinearLayout.LayoutParams(0, -2, 1f))
-                addView(textButton(context, c, context.getString(R.string.export_pay_coins, cost)).apply {
-                    alpha = if (balance >= cost) 1f else 0.4f
-                    setOnClickListener {
-                        if (CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_EXPORT)) {
-                            dialog.dismiss()
-                            onUnlocked()
-                        } else {
-                            Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                })
-            }, LinearLayout.LayoutParams(-1, -2))
+            // Bayar koin: video biasa (watermark), atau lebih mahal tanpa watermark
+            coinRow(context, c, dialog, root, balance,
+                label = "${CoinManager.icon} " + context.getString(R.string.your_coin) + ": $balance",
+                button = context.getString(R.string.export_pay_coins, RecordingExporter.exportCoinCost),
+                cost = RecordingExporter.exportCoinCost, onPaid = onUnlocked)
+            val noWmCost = TutorialVideoQuota.noWatermarkCoinCost
+            if (noWmCost > 0) {
+                coinRow(context, c, dialog, root, balance,
+                    label = context.getString(R.string.tutorial_video_no_watermark),
+                    button = context.getString(R.string.export_pay_coins, noWmCost),
+                    cost = noWmCost, onPaid = onUnlockedNoWatermark)
+            }
         }
 
         root.addView(LinearLayout(context).apply {
@@ -212,6 +208,38 @@ internal object TutorialVideoPremiumDialog {
         dialog.setView(root)
         dialog.show()
         applyWindow(dialog, context, 0.88, 0.50)
+    }
+
+    private fun coinRow(
+        context: Context,
+        c: RecordingDialogPalette,
+        dialog: AlertDialog,
+        root: LinearLayout,
+        balance: Int,
+        label: String,
+        button: String,
+        cost: Int,
+        onPaid: () -> Unit
+    ) {
+        root.addView(LinearLayout(context).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(TextView(context).apply {
+                text = label
+                setTextColor(c.textSecondary)
+                textSize = 12f
+            }, LinearLayout.LayoutParams(0, -2, 1f))
+            addView(textButton(context, c, button).apply {
+                alpha = if (balance >= cost) 1f else 0.4f
+                setOnClickListener {
+                    if (CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_EXPORT)) {
+                        dialog.dismiss()
+                        onPaid()
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            })
+        }, LinearLayout.LayoutParams(-1, -2))
     }
 
     private tailrec fun findActivity(context: Context?): Activity? = when (context) {
