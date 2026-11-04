@@ -11,14 +11,13 @@ class TutorialVideoQuotaTest {
 
     @After
     fun tearDown() {
-        TutorialVideoQuota.freePerDay = 2
+        TutorialVideoQuota.freePerDay = 3
     }
 
     @Test
-    fun twoFreeVideosPerDayByDefault() {
+    fun threeFreeVideosPerDayByDefault() {
         val ctx = FakeContext()
-        assertTrue(TutorialVideoQuota.hasFree(ctx))
-        TutorialVideoQuota.consume(ctx)
+        repeat(2) { TutorialVideoQuota.consume(ctx) }
         assertTrue(TutorialVideoQuota.hasFree(ctx))
         TutorialVideoQuota.consume(ctx)
         assertFalse(TutorialVideoQuota.hasFree(ctx))
@@ -38,7 +37,7 @@ class TutorialVideoQuotaTest {
     fun yesterdaysVideoDoesNotCount() {
         val ctx = FakeContext()
         ctx.getSharedPreferences("tutorial_video_quota", 0).edit()
-            .putInt("free_day", dateId(-1)).putInt("free_used", 2).apply()
+            .putInt("free_day", dateId(-1)).putInt("free_used", 3).apply()
         assertTrue(TutorialVideoQuota.hasFree(ctx))
     }
 
@@ -47,6 +46,8 @@ class TutorialVideoQuotaTest {
         // Versi lama hanya menyimpan tanggal pemakaian, tanpa hitungan
         val ctx = FakeContext()
         ctx.getSharedPreferences("tutorial_video_quota", 0).edit().putInt("free_day", dateId(0)).apply()
+        // Dihitung 1 terpakai, jadi sisa 2 dari 3
+        TutorialVideoQuota.consume(ctx)
         assertTrue(TutorialVideoQuota.hasFree(ctx))
         TutorialVideoQuota.consume(ctx)
         assertFalse(TutorialVideoQuota.hasFree(ctx))

@@ -32,6 +32,12 @@ class ZaifSDKBuilder private constructor(
 
     var isVideo = false
 
+    /**
+     * True bila app TIDAK menjual Remove Ads/premium (mis. Darbuka). Disimpan terbalik agar data lama
+     * (Gson mengisi field yang hilang dengan false) aman: default = app dianggap punya pembelian.
+     */
+    var noPremiumPurchase = false
+
     fun setAppName(value: String) = apply { appName = value }
     fun setVersionCode(value: Int) = apply { versionCode = value }
     fun setVersionName(value: String) = apply { versionName = value }
@@ -57,6 +63,13 @@ class ZaifSDKBuilder private constructor(
 
     fun isVideo(value: Boolean) = apply { isVideo = value }
 
+    /**
+     * Apakah app menjual Remove Ads/premium. Default true (tidak perlu dipanggil).
+     * Panggil `hasPremiumPurchase(false)` HANYA di app tanpa pembelian: saat jatah video gratis
+     * habis, user ditawari tonton iklan / bayar koin. App dengan pembelian tetap dialog Premium.
+     */
+    fun hasPremiumPurchase(value: Boolean) = apply { noPremiumPurchase = !value }
+
     fun build(): ZaifSDKConfig {
         val config = ZaifSDKConfig(
             appName = appName,
@@ -78,7 +91,8 @@ class ZaifSDKBuilder private constructor(
             isLockMusic = isLockMusic,
             isCoin = isCoin,
             isFilterTutorial = isFilterTutorial,
-            isVideo = isVideo
+            isVideo = isVideo,
+            noPremiumPurchase = noPremiumPurchase
         )
         instance = config // ✅ langsung simpan di memory
         ZaifSDKStorage.save(context, config)

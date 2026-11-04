@@ -66,7 +66,7 @@ object RecordingExporter {
      * 0 = setiap export wajib nonton iklan. Hanya berlaku jika host memasang iklan export.
      */
     @JvmStatic
-    var freeExportsPerDay = 2
+    var freeExportsPerDay = 3
 
     /**
      * Harga satu export dalam koin ([sound.recorder.widget.util.CoinManager]) sebagai ganti rewarded ad.

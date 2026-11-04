@@ -581,6 +581,9 @@
     <string name="tutorial_video_premium_later">Để sau</string>
     <string name="tutorial_video_premium_success">Premium đã kích hoạt. Chúc vui vẻ!</string>
     <string name="tutorial_video_premium_error">Không mở được giao dịch. Kiểm tra kết nối và thử lại</string>
+    <string name="tutorial_video_limit_title">Đã hết video miễn phí hôm nay</string>
+    <string name="tutorial_video_limit_message">Xem quảng cáo hoặc dùng xu để tạo thêm video (có hình mờ).</string>
+    <string name="tutorial_video_limit_tomorrow">Đã hết video miễn phí hôm nay. Hãy thử lại vào ngày mai.</string>
     <string name="tutorial_video_free_hint">Miễn phí %1$d lần mỗi ngày, có hình mờ. Premium không có hình mờ</string>
     <string name="tutorial_video_options_title">Tùy chỉnh video</string>
     <string name="tutorial_video_show_title">Hiện tên bài hát</string>

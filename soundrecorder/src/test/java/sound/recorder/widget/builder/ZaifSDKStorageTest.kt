@@ -1,6 +1,7 @@
 package sound.recorder.widget.builder
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -68,5 +69,32 @@ class ZaifSDKStorageTest {
         assertEquals(19, built.versionCode)
         assertTrue(built.isCoin && built.isVideo)
         assertEquals(built, ZaifSDKStorage.load(ctx))
+    }
+
+    @Test
+    fun appsHavePremiumPurchaseByDefault() {
+        val built = ZaifSDKBuilder.builder(FakeContext()).setAppName("Rebana").build()
+        assertTrue(built.hasPremiumPurchase)
+        assertFalse(built.noPremiumPurchase)
+    }
+
+    @Test
+    fun noPurchaseAppIsSavedAndLoaded() {
+        val ctx = FakeContext()
+        val built = ZaifSDKBuilder.builder(ctx).setAppName("Darbuka").hasPremiumPurchase(false).build()
+        assertFalse(built.hasPremiumPurchase)
+        assertEquals(true, ZaifSDKStorage.load(ctx)?.noPremiumPurchase)
+    }
+
+    @Test
+    fun oldSavedConfigWithoutFlagCountsAsHavingPurchase() {
+        // Config tersimpan dari SDK lama belum punya field ini: harus dianggap app dengan pembelian
+        val ctx = FakeContext()
+        ctx.getSharedPreferences(Constant.KeyShared.shareKey, 0).edit()
+            .putString(Constant.KeyShared.zaifSDKBuilder, """{"appName":"Lama","versionCode":1,"versionName":"1","applicationId":"a","developerName":"d","showNote":false,"showChangeColor":false,"backgroundWidgetColor":"#fff","showListSong":true,"showVolume":true,"showTooltip":false,"fcmKey":"","isCoin":true}""")
+            .apply()
+        val loaded = ZaifSDKStorage.load(ctx)
+        assertEquals("Lama", loaded?.appName)
+        assertEquals(true, loaded?.hasPremiumPurchase)
     }
 }

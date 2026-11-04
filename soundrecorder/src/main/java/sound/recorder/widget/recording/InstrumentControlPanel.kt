@@ -642,6 +642,13 @@ class InstrumentControlPanel @JvmOverloads constructor(
                 if (isNetworkAvailable()) adRequestListener?.onShowRewardedAd("export", onRewarded)
                 else setToast(context.getString(R.string.no_internet_connection))
             }
+        // Video saat jatah gratis habis: iklan tetap boleh untuk Premium Pass (pass tidak membuka video)
+        val videoReward: ((onRewarded: () -> Unit) -> Unit)? =
+            if (adRequestListener == null) null
+            else { onRewarded ->
+                if (isNetworkAvailable()) adRequestListener?.onShowRewardedAd("export", onRewarded)
+                else setToast(context.getString(R.string.no_internet_connection))
+            }
         RecordingListDialogHelper.show(
             context, instrumentType, showPromotButton, exportReward,
             onOverdub = { base -> startOverdub(base) },
@@ -649,7 +656,7 @@ class InstrumentControlPanel @JvmOverloads constructor(
             onPreview = { preview, audioStartMs, onStarted, onDone -> playRecording(preview, audioStartMs, onStarted, onDone) },
             onStopPreview = { stopPlayback() },
             video = { rec, closeList ->
-                RecordingVideoExport.option(context, videoExport, isPremium, rec.name, onPurchased = { isPremium = true }) { style ->
+                RecordingVideoExport.option(context, videoExport, isPremium, rec.name, onPurchased = { isPremium = true }, onRequestReward = videoReward) { style ->
                     closeList()
                     RecordingVideoRun.prepare(videoExport)
                     // Tunggu daftar tertutup agar user melihat instrumen sejak awal video.

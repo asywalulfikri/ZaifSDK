@@ -579,6 +579,9 @@
     <string name="tutorial_video_premium_later">Позже</string>
     <string name="tutorial_video_premium_success">Premium активен. Приятного использования!</string>
     <string name="tutorial_video_premium_error">Не удалось открыть покупку. Проверьте соединение и повторите</string>
+    <string name="tutorial_video_limit_title">Бесплатные видео на сегодня закончились</string>
+    <string name="tutorial_video_limit_message">Посмотрите рекламу или используйте монеты, чтобы создать ещё одно видео (с водяным знаком).</string>
+    <string name="tutorial_video_limit_tomorrow">Бесплатные видео на сегодня закончились. Попробуйте завтра.</string>
     <string name="tutorial_video_free_hint">Бесплатно %1$d раза в день с водяным знаком. Premium без водяного знака</string>
     <string name="tutorial_video_options_title">Настроить видео</string>
     <string name="tutorial_video_show_title">Показывать название</string>

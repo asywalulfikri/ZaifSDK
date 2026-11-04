@@ -44,7 +44,9 @@ import kotlin.math.min
  * @param noteLabel label not untuk padIndex (mis. "5" atau "Sol"), ditampilkan di pojok video.
  * @param watermark nama yang tampil di watermark versi gratis. Null = memakai nama app.
  * @param onPremiumPurchased host menyimpan status premium dan mematikan iklan.
- *        Null = tombol beli tidak tampil di dialog premium.
+ *        Isi bila app menjual Remove Ads/premium: saat jatah gratis habis muncul dialog Premium
+ *        dengan tombol beli. App tanpa pembelian (mis. Darbuka) biarkan null DAN panggil
+ *        `ZaifSDKBuilder.hasPremiumPurchase(false)` agar user ditawari iklan / koin. Alur: [RecordingVideoExport].
  * @param hasPurchased true bila user membeli premium. Premium Pass tidak dihitung, karena video
  *        tanpa batas hanya untuk pembeli. Null = pembeli dianggap premium tanpa Premium Pass aktif.
  */

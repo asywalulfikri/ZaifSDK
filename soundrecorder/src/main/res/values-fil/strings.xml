@@ -583,6 +583,9 @@
     <string name="tutorial_video_premium_later">Mamaya</string>
     <string name="tutorial_video_premium_success">Aktibo na ang Premium. Mag-enjoy!</string>
     <string name="tutorial_video_premium_error">Hindi mabuksan ang pagbili. Tingnan ang koneksyon at subukang muli</string>
+    <string name="tutorial_video_limit_title">Ubos na ang libreng video ngayon</string>
+    <string name="tutorial_video_limit_message">Manood ng ad o gumamit ng coins para gumawa ng isa pang video (may watermark).</string>
+    <string name="tutorial_video_limit_tomorrow">Ubos na ang libreng video ngayong araw. Subukan ulit bukas.</string>
     <string name="tutorial_video_free_hint">Libre %1$d beses sa isang araw, may watermark. Walang watermark sa Premium</string>
     <string name="tutorial_video_options_title">I-customize ang video</string>
     <string name="tutorial_video_show_title">Ipakita ang pamagat</string>
