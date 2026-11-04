@@ -39,7 +39,11 @@ object CoinManager {
     fun getBalance(context: Context): Int =
         prefs(context).getInt(KEY_BALANCE, 0)
 
-    /** @param source asal koin untuk analytics, salah satu `ZaifAnalytics.SOURCE_*`. */
+    /**
+     * @param source asal koin untuk analytics, salah satu `ZaifAnalytics.SOURCE_*`.
+     * Synchronized bersama [spendCoins] agar tambah & kurang bersamaan tidak saling menimpa saldo.
+     */
+    @Synchronized
     @JvmOverloads
     fun addCoins(context: Context, amount: Int, source: String = ZaifAnalytics.SOURCE_OTHER) {
         prefs(context).edit()

@@ -17,6 +17,17 @@ object PremiumPass {
     private const val KEY_REDEEMED_AT  = "redeemed_at"
     private const val KEY_REDEEM_COUNT = "redeem_count"
 
+    /**
+     * false (bawaan) = penukaran koin dimatikan: kartu Premium Pass tidak tampil di dialog Misi dan
+     * [redeem] selalu gagal. Pass yang SUDAH ditukar tetap berlaku sampai habis ([isActive]), supaya
+     * koin user yang terlanjur dipakai tidak hilang.
+     *
+     * **Alasan:** 2 hari tanpa iklan terlalu murah dibanding pendapatan iklan yang hilang (keputusan
+     * pemilik app, 2026-11-04). Host app boleh menyalakan lagi dengan `PremiumPass.isEnabled = true`.
+     */
+    @JvmStatic
+    var isEnabled = false
+
     /** Harga penukaran pertama (lebih murah agar pengguna baru mencicipi), lalu [costCoins]. */
     @JvmStatic
     var firstCostCoins = 50
@@ -52,9 +63,34 @@ object PremiumPass {
         return (p.getLong(KEY_EXPIRES_AT, 0L) - now).coerceAtLeast(0L)
     }
 
+    /**
+     * Pindahkan data pass dari penyimpanan lama milik app (mis. Belira: `"premium_pass"`, kunci
+     * `expires_at`, `redeemed_at`, `redeem_count`) ke SDK, supaya pass yang masih berjalan tidak hilang
+     * saat app beralih ke [PremiumPass] SDK. Hanya jalan sekali: dilewati bila SDK sudah punya data,
+     * dan data lama dihapus setelah disalin. Panggil di thread background sebelum UI membaca pass.
+     */
+    @JvmStatic
+    fun importFrom(context: Context, legacyPrefsName: String) {
+        if (legacyPrefsName == PREFS) return
+        synchronized(lock) {
+            val old = context.applicationContext.getSharedPreferences(legacyPrefsName, Context.MODE_PRIVATE)
+            if (!old.contains(KEY_REDEEM_COUNT) && !old.contains(KEY_EXPIRES_AT)) return
+            val p = prefs(context)
+            if (!p.contains(KEY_REDEEM_COUNT) && !p.contains(KEY_EXPIRES_AT)) {
+                p.edit()
+                    .putLong(KEY_EXPIRES_AT, old.getLong(KEY_EXPIRES_AT, 0L))
+                    .putLong(KEY_REDEEMED_AT, old.getLong(KEY_REDEEMED_AT, 0L))
+                    .putInt(KEY_REDEEM_COUNT, old.getInt(KEY_REDEEM_COUNT, 0))
+                    .commit()
+            }
+            old.edit().clear().apply()
+        }
+    }
+
     /** Tukar [cost] koin dengan [durationDays] hari tanpa iklan. false bila koin kurang. */
     @JvmStatic
     fun redeem(context: Context): Boolean {
+        if (!isEnabled) return false
         synchronized(lock) {
             val cost = cost(context)
             if (!CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_PREMIUM_PASS)) return false

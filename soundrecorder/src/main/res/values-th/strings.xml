@@ -556,6 +556,10 @@
     <string name="daily_rewards_premium_badge">พรีเมียม · เหลือ %1$s</string>
     <string name="daily_rewards_export_title">ส่งออกด้วยเหรียญ</string>
     <string name="daily_rewards_export_desc">ส่งออกแบบไม่มีโฆษณาด้วย %1$d เหรียญ</string>
+    <string name="coin_uses_title">ใช้เหรียญทำอะไรได้บ้าง</string>
+    <string name="coin_use_unlock_song">ปลดล็อกเพลง</string>
+    <string name="coin_use_export">ส่งออกเพลง</string>
+    <string name="coin_use_video">วิดีโอไม่มีลายน้ำ</string>
     <string name="reward_not_earned">ดูวิดีโอจนจบเพื่อรับรางวัล</string>
     <string name="tutorial_video_button">วิดีโอ</string>
     <string name="tutorial_video_recording">กำลังบันทึกวิดีโอ… อยู่ที่หน้าจอนี้</string>

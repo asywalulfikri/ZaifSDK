@@ -25,13 +25,12 @@ import sound.recorder.widget.recording.RecordingDialogViews.rounded
 import sound.recorder.widget.recording.RecordingDialogViews.sdp
 import sound.recorder.widget.recording.RecordingDialogViews.textButton
 import sound.recorder.widget.recording.RecordingDialogViews.vSpace
-import sound.recorder.widget.recording.export.RecordingExporter
 import sound.recorder.widget.util.CoinManager
 import com.intuit.sdp.R as SdpR
 
 /**
  * Panel Hadiah Harian: check-in beruntun, misi harian [DailyRewards.missions], koin dari iklan,
- * dan tukar koin dengan [PremiumPass]. Warna mengikuti [RecordingDialogStyle.default].
+ * dan tukar koin dengan [PremiumPass] (hanya bila [PremiumPass.isEnabled]). Warna mengikuti [RecordingDialogStyle.default].
  *
  * Iklan rewarded memakai [BaseActivityWidget.showRewardedAd] bila [activity] turunan BaseActivityWidget.
  */
@@ -146,9 +145,12 @@ object RewardsDialog {
             DailyRewards.missions.forEach { left.addView(missionRow(activity, c, it, a)) }
         }
 
-        right.addView(premiumCard(activity, c, a))
-        right.addView(vSpace(activity, SdpR.dimen._8sdp))
-        right.addView(infoCard(activity, c))
+        // Premium Pass dimatikan (bawaan): kartu hanya tampil selama pass lama masih berjalan.
+        if (PremiumPass.isEnabled || PremiumPass.isActive(activity)) {
+            right.addView(premiumCard(activity, c, a))
+            right.addView(vSpace(activity, SdpR.dimen._8sdp))
+        }
+        right.addView(coinUsesCard(activity, c))
         val adsLeft = DailyRewards.adsLeftToday(activity)
         if (a.canWatchAd && adsLeft > 0) {
             right.addView(vSpace(activity, SdpR.dimen._8sdp))
@@ -357,6 +359,8 @@ object RewardsDialog {
         val slot = FrameLayout(activity)
         fun showRedeemButton() {
             slot.removeAllViews()
+            // Penukaran mati: hanya sisa waktu pass lama yang tampil, tanpa tombol tukar / perpanjang.
+            if (!PremiumPass.isEnabled) return
             if (balance >= cost) {
                 val label = if (remaining > 0) activity.getString(R.string.daily_rewards_premium_extend, PremiumPass.durationDays, cost)
                 else activity.getString(R.string.daily_rewards_premium_redeem, cost)
@@ -405,21 +409,34 @@ object RewardsDialog {
     }
 
     /** Info: koin juga bisa dipakai untuk export tanpa iklan. */
-    private fun infoCard(activity: Activity, c: RecordingDialogPalette) = LinearLayout(activity).apply {
+    /** "Koin untuk apa?": isi dan harga dari [CoinUses], sama dengan panel Misi buatan host. */
+    private fun coinUsesCard(activity: Activity, c: RecordingDialogPalette) = LinearLayout(activity).apply {
         orientation = LinearLayout.VERTICAL
         val pad = activity.sdp(SdpR.dimen._8sdp)
         setPadding(pad, pad, pad, pad)
         background = rounded(activity, Color.TRANSPARENT, SdpR.dimen._8sdp, c.outline)
         addView(TextView(activity).apply {
-            text = "${CoinManager.icon} " + activity.getString(R.string.daily_rewards_export_title)
+            text = "${CoinManager.icon} " + activity.getString(R.string.coin_uses_title)
             setTextColor(c.text)
             textSize = 12f
             typeface = Typeface.DEFAULT_BOLD
         })
-        addView(TextView(activity).apply {
-            text = activity.getString(R.string.daily_rewards_export_desc, RecordingExporter.exportCoinCost)
-            setTextColor(c.textSecondary)
-            textSize = 11f
-        })
+        CoinUses.list(activity).forEach { use ->
+            addView(LinearLayout(activity).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, activity.sdp(SdpR.dimen._3sdp), 0, 0)
+                addView(TextView(activity).apply {
+                    text = "${use.icon} ${use.label}"
+                    setTextColor(c.textSecondary)
+                    textSize = 11f
+                }, LinearLayout.LayoutParams(0, -2, 1f))
+                addView(TextView(activity).apply {
+                    text = "${use.price} ${CoinManager.icon}"
+                    setTextColor(c.text)
+                    textSize = 11f
+                    typeface = Typeface.DEFAULT_BOLD
+                })
+            }, LinearLayout.LayoutParams(-1, -2))
+        }
     }
 }

@@ -554,6 +554,10 @@
     <string name="daily_rewards_premium_badge">ПРЕМИУМ · осталось %1$s</string>
     <string name="daily_rewards_export_title">Экспорт за монеты</string>
     <string name="daily_rewards_export_desc">Экспорт без рекламы за %1$d монет</string>
+    <string name="coin_uses_title">На что тратить монеты?</string>
+    <string name="coin_use_unlock_song">Открыть песню</string>
+    <string name="coin_use_export">Экспорт песни</string>
+    <string name="coin_use_video">Видео без водяного знака</string>
     <string name="reward_not_earned">Досмотрите видео до конца, чтобы получить награду.</string>
     <string name="tutorial_video_button">ВИДЕО</string>
     <string name="tutorial_video_recording">Запись видео… не уходите с этого экрана</string>

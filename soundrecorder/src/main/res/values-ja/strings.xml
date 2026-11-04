@@ -551,6 +551,10 @@
     <string name="daily_rewards_premium_badge">プレミアム · 残り%1$s</string>
     <string name="daily_rewards_export_title">コインでエクスポート</string>
     <string name="daily_rewards_export_desc">%1$dコインで広告なしエクスポート</string>
+    <string name="coin_uses_title">コインの使い道</string>
+    <string name="coin_use_unlock_song">曲を解放</string>
+    <string name="coin_use_export">曲をエクスポート</string>
+    <string name="coin_use_video">透かしなし動画</string>
     <string name="reward_not_earned">報酬を受け取るには動画を最後まで見てください。</string>
     <string name="tutorial_video_button">動画</string>
     <string name="tutorial_video_recording">動画を録画中… この画面のままにしてください</string>

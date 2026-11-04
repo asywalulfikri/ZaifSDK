@@ -553,6 +553,10 @@
     <string name="daily_rewards_premium_badge">PREMIUM · %1$s left</string>
     <string name="daily_rewards_export_title">Export with coins</string>
     <string name="daily_rewards_export_desc">Export without ads for %1$d coins</string>
+    <string name="coin_uses_title">What are coins for?</string>
+    <string name="coin_use_unlock_song">Unlock a song</string>
+    <string name="coin_use_export">Export a song</string>
+    <string name="coin_use_video">Video without watermark</string>
     <string name="reward_not_earned">Watch the video until the end to get the reward.</string>
     <string name="tutorial_video_button">VIDEO</string>
     <string name="tutorial_video_recording">Recording video… stay on this screen</string>

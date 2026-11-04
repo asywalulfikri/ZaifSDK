@@ -554,6 +554,10 @@
     <string name="daily_rewards_premium_badge">प्रीमियम · %1$s बाकी</string>
     <string name="daily_rewards_export_title">सिक्कों से एक्सपोर्ट</string>
     <string name="daily_rewards_export_desc">%1$d सिक्कों में बिना विज्ञापन एक्सपोर्ट करें</string>
+    <string name="coin_uses_title">सिक्के किस काम के?</string>
+    <string name="coin_use_unlock_song">गाना अनलॉक करें</string>
+    <string name="coin_use_export">गाना एक्सपोर्ट करें</string>
+    <string name="coin_use_video">बिना वॉटरमार्क वीडियो</string>
     <string name="reward_not_earned">इनाम पाने के लिए वीडियो अंत तक देखें।</string>
     <string name="tutorial_video_button">वीडियो</string>
     <string name="tutorial_video_recording">वीडियो रिकॉर्ड हो रहा है… इसी स्क्रीन पर रहें</string>

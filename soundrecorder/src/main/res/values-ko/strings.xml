@@ -558,6 +558,10 @@
     <string name="daily_rewards_premium_badge">프리미엄 · %1$s 남음</string>
     <string name="daily_rewards_export_title">코인으로 내보내기</string>
     <string name="daily_rewards_export_desc">코인 %1$d개로 광고 없이 내보내기</string>
+    <string name="coin_uses_title">코인은 어디에 쓰나요?</string>
+    <string name="coin_use_unlock_song">노래 잠금 해제</string>
+    <string name="coin_use_export">노래 내보내기</string>
+    <string name="coin_use_video">워터마크 없는 동영상</string>
     <string name="reward_not_earned">보상을 받으려면 동영상을 끝까지 시청하세요.</string>
     <string name="tutorial_video_button">동영상</string>
     <string name="tutorial_video_recording">동영상 녹화 중… 이 화면에 머물러 주세요</string>
