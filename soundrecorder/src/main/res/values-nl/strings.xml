@@ -589,7 +589,10 @@
     <string name="tutorial_video_limit_message">Bekijk een advertentie of gebruik munten voor nog een video (met watermerk).</string>
     <string name="tutorial_video_limit_tomorrow">De gratis video\'s voor vandaag zijn op. Probeer het morgen opnieuw.</string>
     <string name="tutorial_video_no_watermark">✨ Zonder watermerk</string>
+    <string name="tutorial_video_remove_watermark_coins">Watermerk verwijderen (%1$d munten)</string>
     <string name="tutorial_video_free_hint">%1$d keer per dag gratis met watermerk. Premium zonder watermerk</string>
+    <string name="tutorial_video_free_hint_coins">%1$d keer per dag gratis met watermerk. Verwijder het met munten</string>
+    <string name="tutorial_video_free_hint_basic">%1$d keer per dag gratis met watermerk</string>
     <string name="tutorial_video_options_title">Video aanpassen</string>
     <string name="tutorial_video_show_title">Songtitel tonen</string>
     <string name="tutorial_video_show_note">Huidige noot tonen</string>

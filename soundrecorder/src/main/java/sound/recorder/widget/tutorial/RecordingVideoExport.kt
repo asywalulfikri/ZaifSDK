@@ -29,10 +29,15 @@ import sound.recorder.widget.util.ZaifAnalytics
  *    [TutorialVideoExport] (export rekaman: `controlPanel.videoExport`), Android 6+.
  * 2. Pembeli premium (`hasPurchased`) → tanpa batas, tanpa watermark. Premium Pass tidak dihitung.
  * 3. Selain itu → jatah gratis [TutorialVideoQuota.freePerDay] per hari, dengan watermark.
+ *    App tanpa pembelian + isCoin: dialog custom video punya switch "hapus watermark" seharga
+ *    [TutorialVideoQuota.removeWatermarkCoinCost] koin (30). Video ini TETAP memakai satu jatah gratis
+ *    ([TutorialVideoStyle.usesFreeSlot]); setelah jatah habis harganya 50.
  * 4. Jatah habis → [TutorialVideoPremiumDialog]:
  *    - app TANPA pembelian (`ZaifSDKBuilder.hasPremiumPurchase(false)`) → tonton iklan ([onRequestReward])
  *      atau bayar `RecordingExporter.exportCoinCost` koin (bila isCoin); video tetap watermark.
- *      Pilihan lain: bayar `TutorialVideoQuota.noWatermarkCoinCost` koin (default 50) → tanpa watermark;
+ *      Pilihan lain: bayar `TutorialVideoQuota.noWatermarkCoinCost` koin (default 50) → tanpa watermark.
+ *      Setelah dibuka dengan iklan, switch "hapus watermark" seharga 50; setelah bayar 10 koin, switch
+ *      tinggal 40 (total tetap 50). Koin dikembalikan bila dialog custom ditutup atau rekaman batal/gagal;
  *    - app PUNYA pembelian (default) + `onPremiumPurchased` diisi → dialog Premium + tombol beli, TANPA iklan/koin;
  *    - app PUNYA pembelian tapi `onPremiumPurchased` null → hanya "coba lagi besok".
  *    Aturan "iklan/koin hanya untuk app tanpa pembelian" adalah keputusan produk, jangan diubah
@@ -65,28 +70,46 @@ internal object RecordingVideoExport {
         val freeWatermark = context.getString(R.string.tutorial_video_free_watermark, appLabel)
         // isPremium dari host bisa ikut menghitung Premium Pass, yang didapat dari koin.
         val unlimited = config.hasPurchased?.invoke() ?: (isPremium && !PremiumPass.isActive(context))
-        val canUse = unlimited || TutorialVideoQuota.hasFree(context)
+        val hasFree = TutorialVideoQuota.hasFree(context)
+        val canUse = unlimited || hasFree
+        // Switch "hapus watermark pakai koin": hanya app tanpa pembelian + koin aktif.
+        // Jatah gratis masih ada → removeWatermarkCoinCost (30); habis → noWatermarkCoinCost (50).
+        val coinRemoveWatermark = !unlimited && sdkConfig.noPremiumPurchase && sdkConfig.isCoin
+        val removeCost = when {
+            !coinRemoveWatermark -> 0
+            hasFree -> TutorialVideoQuota.removeWatermarkCoinCost
+            else -> TutorialVideoQuota.noWatermarkCoinCost
+        }
         return RecordingVideoOption(canUse) { closeExport ->
             if (canUse) {
                 closeExport()
-                TutorialVideoOptionsDialog.show(context, title, if (unlimited) null else freeWatermark, config.captureView(), start)
+                TutorialVideoOptionsDialog.show(
+                    context, title, if (unlimited) null else freeWatermark, config.captureView(), removeCost, onStart = start
+                )
             } else {
                 TutorialVideoPremiumDialog.show(
                     context, config.onPremiumPurchased, onRequestReward,
-                    // Dibuka dengan iklan / koin: tetap versi gratis (watermark)
-                    onUnlocked = {
+                    // Dibuka dengan iklan / koin: tetap versi gratis (watermark).
+                    // Total tanpa watermark tetap 50: sudah bayar 10 → switch tinggal 40.
+                    onUnlocked = { paid ->
                         closeExport()
-                        TutorialVideoOptionsDialog.show(context, title, freeWatermark, config.captureView(), start)
+                        TutorialVideoOptionsDialog.show(
+                            context, title, freeWatermark, config.captureView(),
+                            removeWatermarkCost = (removeCost - paid).coerceAtLeast(0),
+                            prepaidCoins = paid, onStart = start
+                        )
                     },
                     // Bayar koin lebih mahal: tanpa watermark, tidak memakai jatah gratis
-                    onUnlockedNoWatermark = {
+                    onUnlockedNoWatermark = { paid ->
                         closeExport()
-                        TutorialVideoOptionsDialog.show(context, title, null, config.captureView(), start)
+                        TutorialVideoOptionsDialog.show(
+                            context, title, null, config.captureView(), prepaidCoins = paid, onStart = start
+                        )
                     }
                 ) {
                     closeExport()
                     onPurchased()
-                    TutorialVideoOptionsDialog.show(context, title, null, config.captureView(), start)
+                    TutorialVideoOptionsDialog.show(context, title, null, config.captureView(), onStart = start)
                 }
             }
         }
@@ -101,6 +124,8 @@ internal class RecordingVideoRun private constructor(
     private val isFree: Boolean,
     private val indicator: VideoRecordingIndicator,
     private val title: String,
+    /** Koin yang dibayar untuk video ini; dikembalikan bila batal / gagal. */
+    private val paidCoins: Int,
     /** View game saat video seluruh layar; null bila banner tidak disembunyikan. */
     private val fullScreenView: View? = null
 ) {
@@ -115,6 +140,7 @@ internal class RecordingVideoRun private constructor(
         indicator.dismiss()
         recorder.cancel()
         restoreBanner()
+        TutorialVideoQuota.refund(context, paidCoins)
         ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_RECORDING, ZaifAnalytics.REASON_CANCELLED)
     }
 
@@ -132,6 +158,7 @@ internal class RecordingVideoRun private constructor(
             } catch (t: Throwable) {
                 Log.e("TutorialVideo", "finish failed", t)
                 ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_RECORDING, t.javaClass.simpleName)
+                TutorialVideoQuota.refund(context, paidCoins)
                 onToast(context.getString(R.string.tutorial_video_failed))
             } finally {
                 indicator.dismiss()
@@ -159,6 +186,7 @@ internal class RecordingVideoRun private constructor(
             val view = config.captureView()
             if (view == null || view.width == 0 || view.height == 0 || !view.isAttachedToWindow) {
                 abort(config)
+                TutorialVideoQuota.refund(context, style.paidCoins)
                 return null
             }
             return try {
@@ -181,13 +209,14 @@ internal class RecordingVideoRun private constructor(
                     it.show()
                 }
                 RecordingVideoRun(
-                    context, recorder, style.forcedWatermark != null, indicator, rec.name,
+                    context, recorder, style.usesFreeSlot, indicator, rec.name, style.paidCoins,
                     fullScreenView = view.takeIf { config.fullScreen }
                 )
             } catch (t: Throwable) {
                 Log.e("TutorialVideo", "start failed", t)
                 ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_RECORDING, t.javaClass.simpleName)
                 abort(config)
+                TutorialVideoQuota.refund(context, style.paidCoins)
                 null
             }
         }

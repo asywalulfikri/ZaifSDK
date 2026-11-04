@@ -45,9 +45,10 @@ internal object TutorialVideoPremiumDialog {
         context: Context,
         onPremiumPurchased: (() -> Unit)?,
         onRequestReward: ((onRewarded: () -> Unit) -> Unit)? = null,
-        onUnlocked: () -> Unit = {},
+        /** Dibuka dengan iklan (0) atau koin; parameter = koin yang dibayar, untuk refund bila batal. */
+        onUnlocked: (paidCoins: Int) -> Unit = {},
         /** Dibayar [TutorialVideoQuota.noWatermarkCoinCost] koin: satu video tanpa watermark. */
-        onUnlockedNoWatermark: () -> Unit = onUnlocked,
+        onUnlockedNoWatermark: (paidCoins: Int) -> Unit = onUnlocked,
         onSuccess: () -> Unit
     ) {
         val c = RecordingDialogPalette(context, RecordingDialogStyle.default)
@@ -148,8 +149,8 @@ internal object TutorialVideoPremiumDialog {
         dialog: AlertDialog,
         root: LinearLayout,
         onRequestReward: ((onRewarded: () -> Unit) -> Unit)?,
-        onUnlocked: () -> Unit,
-        onUnlockedNoWatermark: () -> Unit,
+        onUnlocked: (paidCoins: Int) -> Unit,
+        onUnlockedNoWatermark: (paidCoins: Int) -> Unit,
         /** False: app punya pembelian tapi tidak memasang tombol beli → hanya "coba lagi besok". */
         allowUnlock: Boolean
     ) {
@@ -200,7 +201,7 @@ internal object TutorialVideoPremiumDialog {
                 addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
                 addView(boxButton(context, c, "▶  " + context.getString(R.string.export_reward_watch), primary = true) {
                     dialog.dismiss()
-                    request { onUnlocked() }
+                    request { onUnlocked(0) }
                 }, LinearLayout.LayoutParams(context.sdp(SdpR.dimen._120sdp), context.sdp(SdpR.dimen._34sdp)))
             }
         }, LinearLayout.LayoutParams(-1, -2))
@@ -220,7 +221,7 @@ internal object TutorialVideoPremiumDialog {
         label: String,
         button: String,
         cost: Int,
-        onPaid: () -> Unit
+        onPaid: (paidCoins: Int) -> Unit
     ) {
         root.addView(LinearLayout(context).apply {
             gravity = Gravity.CENTER_VERTICAL
@@ -232,7 +233,7 @@ internal object TutorialVideoPremiumDialog {
             addView(coinButton(context, c, button, balance >= cost) {
                 if (CoinManager.spendCoins(context, cost, ZaifAnalytics.PURPOSE_EXPORT)) {
                     dialog.dismiss()
-                    onPaid()
+                    onPaid(cost)
                 } else {
                     Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
                 }

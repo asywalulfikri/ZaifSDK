@@ -252,6 +252,8 @@ class InstrumentTutorialDialog(
     private var activeVideoIndicator: VideoRecordingIndicator? = null
     /** Untuk analytics saat video dibatalkan; application context agar tidak menahan Activity. */
     private var activeVideoContext: Context? = null
+    /** Koin yang dibayar untuk video yang sedang disiapkan / direkam; dikembalikan bila batal. */
+    private var activeVideoPaidCoins = 0
     private var currentDialog: BottomSheetDialog? = null
     private var currentAdapter: SongListAdapter? = null
     private var mBinding: DialogTutorialSongListBinding? = null
@@ -1913,19 +1915,28 @@ class InstrumentTutorialDialog(
             }.getOrNull()
         }
         if (rec == null || taps.isNullOrEmpty()) {
+            TutorialVideoQuota.refund(context, style.paidCoins)
             onToast(context.getString(R.string.tutorial_video_failed))
             return
         }
         dismissShouldStop = false
         dialog.dismiss()
         cancelVideoExport()
+        // Setelah cancelVideoExport: batal sebelum / selama rekaman → koin kembali di sana.
+        activeVideoPaidCoins = style.paidCoins
+        activeVideoContext = context.applicationContext
         if (fullScreen) MyAdsListener.setBanner(false)
+        fun refundPaid() {
+            TutorialVideoQuota.refund(context, activeVideoPaidCoins)
+            activeVideoPaidCoins = 0
+        }
 
         // Tunggu bottom sheet tertutup agar tidak ikut terekam.
         videoHandler.postDelayed({
             val view = config.captureView()
             if (view == null || view.width == 0 || view.height == 0 || !view.isAttachedToWindow) {
                 if (fullScreen) MyAdsListener.setBanner(true)
+                refundPaid()
                 onToast(context.getString(R.string.tutorial_video_failed))
                 return@postDelayed
             }
@@ -1936,6 +1947,7 @@ class InstrumentTutorialDialog(
                 Log.e("TutorialVideo", "start failed", t)
                 ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, t.javaClass.simpleName)
                 if (fullScreen) MyAdsListener.setBanner(true)
+                refundPaid()
                 onToast(context.getString(R.string.tutorial_video_failed))
                 return@postDelayed
             }
@@ -1960,6 +1972,9 @@ class InstrumentTutorialDialog(
                 activeVideoRecorder = null
                 activeVideoIndicator = null
                 activeVideoContext = null
+                // Rekaman selesai: koin hanya dikembalikan bila penyimpanan gagal.
+                val paid = activeVideoPaidCoins
+                activeVideoPaidCoins = 0
                 restoreBannerAfterVideo()
                 recorder.stop()
                 indicator.showSaving()
@@ -1967,12 +1982,13 @@ class InstrumentTutorialDialog(
                     try {
                         val file = recorder.finish()
                         ZaifAnalytics.exportFinished(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL)
-                        if (style.forcedWatermark != null) TutorialVideoQuota.consume(context)
+                        if (style.usesFreeSlot) TutorialVideoQuota.consume(context)
                         indicator.dismiss()
                         RecordingVideoResultDialog.show(context, file, rec.name)
                     } catch (t: Throwable) {
                         Log.e("TutorialVideo", "finish failed", t)
                         ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, t.javaClass.simpleName)
+                        TutorialVideoQuota.refund(context, paid)
                         onToast(context.getString(R.string.tutorial_video_failed))
                     } finally {
                         indicator.dismiss()
@@ -2001,6 +2017,9 @@ class InstrumentTutorialDialog(
                 ZaifAnalytics.exportFailed(ctx, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, ZaifAnalytics.REASON_CANCELLED)
             }
         }
+        // Batal sebelum rekaman mulai (jeda 400 ms) atau saat merekam: koin kembali.
+        activeVideoContext?.let { TutorialVideoQuota.refund(it, activeVideoPaidCoins) }
+        activeVideoPaidCoins = 0
         activeVideoContext = null
     }
 

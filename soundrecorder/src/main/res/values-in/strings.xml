@@ -583,7 +583,10 @@
     <string name="tutorial_video_limit_message">Tonton iklan atau pakai koin untuk membuat video lagi (dengan watermark).</string>
     <string name="tutorial_video_limit_tomorrow">Jatah video gratis hari ini sudah habis. Coba lagi besok.</string>
     <string name="tutorial_video_no_watermark">✨ Tanpa watermark</string>
+    <string name="tutorial_video_remove_watermark_coins">Hapus watermark (%1$d koin)</string>
     <string name="tutorial_video_free_hint">Gratis %1$dx sehari dengan watermark. Premium tanpa watermark</string>
+    <string name="tutorial_video_free_hint_coins">Gratis %1$dx sehari dengan watermark. Hapus pakai koin</string>
+    <string name="tutorial_video_free_hint_basic">Gratis %1$dx sehari dengan watermark</string>
     <string name="tutorial_video_options_title">Atur tampilan video</string>
     <string name="tutorial_video_show_title">Tampilkan judul lagu</string>
     <string name="tutorial_video_show_note">Tampilkan not</string>

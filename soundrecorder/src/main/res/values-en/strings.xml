@@ -582,7 +582,10 @@
     <string name="tutorial_video_limit_message">Watch an ad or use coins to make another video (with watermark).</string>
     <string name="tutorial_video_limit_tomorrow">Free videos for today are used up. Try again tomorrow.</string>
     <string name="tutorial_video_no_watermark">✨ No watermark</string>
+    <string name="tutorial_video_remove_watermark_coins">Remove watermark (%1$d coins)</string>
     <string name="tutorial_video_free_hint">Free %1$dx a day, with watermark. Premium has no watermark</string>
+    <string name="tutorial_video_free_hint_coins">Free %1$dx a day, with watermark. Remove it with coins</string>
+    <string name="tutorial_video_free_hint_basic">Free %1$dx a day, with watermark</string>
     <string name="tutorial_video_options_title">Customize video</string>
     <string name="tutorial_video_show_title">Show song title</string>
     <string name="tutorial_video_show_note">Show current note</string>

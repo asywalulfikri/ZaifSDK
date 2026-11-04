@@ -630,7 +630,10 @@
     <string name="tutorial_video_limit_message">شاهد إعلانًا أو استخدم العملات لإنشاء فيديو آخر (مع علامة مائية).</string>
     <string name="tutorial_video_limit_tomorrow">انتهت الفيديوهات المجانية لهذا اليوم. حاول مرة أخرى غدًا.</string>
     <string name="tutorial_video_no_watermark">✨ بدون علامة مائية</string>
+    <string name="tutorial_video_remove_watermark_coins">إزالة العلامة المائية (%1$d عملة)</string>
     <string name="tutorial_video_free_hint">مجاني %1$d مرات يوميًا مع علامة مائية. Premium بلا علامة مائية</string>
+    <string name="tutorial_video_free_hint_coins">مجاني %1$d مرات يوميًا مع علامة مائية. أزلها بالعملات</string>
+    <string name="tutorial_video_free_hint_basic">مجاني %1$d مرات يوميًا مع علامة مائية</string>
     <string name="tutorial_video_options_title">تخصيص الفيديو</string>
     <string name="tutorial_video_show_title">إظهار عنوان الأغنية</string>
     <string name="tutorial_video_show_note">إظهار النغمة الحالية</string>

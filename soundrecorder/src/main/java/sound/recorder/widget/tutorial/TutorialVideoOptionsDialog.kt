@@ -16,11 +16,13 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.edit
 import androidx.core.graphics.ColorUtils
 import sound.recorder.widget.R
+import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.recording.RecordingDialogPalette
 import sound.recorder.widget.recording.RecordingDialogStyle
 import sound.recorder.widget.recording.RecordingDialogViews.applyWindow
@@ -31,6 +33,8 @@ import sound.recorder.widget.recording.RecordingDialogViews.sdp
 import sound.recorder.widget.recording.RecordingDialogViews.styleInput
 import sound.recorder.widget.recording.RecordingDialogViews.textButton
 import sound.recorder.widget.recording.RecordingDialogViews.vSpace
+import sound.recorder.widget.util.CoinManager
+import sound.recorder.widget.util.ZaifAnalytics
 import com.intuit.sdp.R as SdpR
 
 /** Tampilan overlay video. Pilihan terakhir user disimpan untuk export berikutnya. */
@@ -41,7 +45,15 @@ internal data class TutorialVideoStyle(
     val watermark: String? = null,
     val noteColor: Int = DEFAULT_NOTE_COLOR,
     /** Watermark besar di tengah untuk versi gratis; tidak bisa dimatikan. Null = premium. */
-    val forcedWatermark: String? = null
+    val forcedWatermark: String? = null,
+    /** Koin yang sudah dibayar untuk video ini; dikembalikan bila rekaman batal / gagal. Tidak disimpan. */
+    val paidCoins: Int = 0,
+    /**
+     * Video ini memakai satu jatah gratis harian (dibuka sebagai versi watermark), walau watermark-nya
+     * dihapus dengan koin. Tanpa ini, user yang selalu bayar 30 koin tidak pernah menghabiskan jatah
+     * dan harga 50 koin tidak pernah berlaku. Tidak disimpan.
+     */
+    val usesFreeSlot: Boolean = false
 ) {
     companion object {
         const val DEFAULT_NOTE_COLOR = -14275 // #FFC83D
@@ -89,6 +101,14 @@ object TutorialVideoQuota {
     @JvmStatic
     var noWatermarkCoinCost = 50
 
+    /**
+     * Harga koin switch "hapus watermark" di dialog custom video selama jatah gratis MASIH ada —
+     * hanya di app tanpa pembelian. Jatah habis → switch memakai [noWatermarkCoinCost].
+     * 0 = switch tidak tampil saat jatah masih ada.
+     */
+    @JvmStatic
+    var removeWatermarkCoinCost = 30
+
     private fun today(): Int {
         val cal = java.util.Calendar.getInstance()
         return cal.get(java.util.Calendar.YEAR) * 10_000 +
@@ -104,6 +124,11 @@ object TutorialVideoQuota {
 
     @JvmStatic
     fun hasFree(context: Context): Boolean = usedToday(context) < freePerDay
+
+    /** Kembalikan koin video yang batal / gagal ([TutorialVideoStyle.paidCoins]). */
+    internal fun refund(context: Context, coins: Int) {
+        if (coins > 0) CoinManager.addCoins(context, coins, ZaifAnalytics.SOURCE_REFUND)
+    }
 
     internal fun consume(context: Context) {
         val used = usedToday(context) + 1
@@ -237,11 +262,18 @@ internal object TutorialVideoOptionsDialog {
         songTitle: String,
         forcedWatermark: String?,
         captureView: View?,
+        /** >0: tampilkan switch bayar koin untuk menghapus [forcedWatermark]; dipotong saat Mulai. */
+        removeWatermarkCost: Int = 0,
+        /** Koin yang sudah dibayar sebelum dialog ini (10 / 50 koin); dikembalikan bila dialog ditutup. */
+        prepaidCoins: Int = 0,
         onStart: (TutorialVideoStyle) -> Unit
     ) {
         val c = RecordingDialogPalette(context, RecordingDialogStyle.default)
         var current = TutorialVideoStyle.load(context).copy(forcedWatermark = forcedWatermark)
         val dialog = AlertDialog.Builder(context).create()
+        var started = false
+        // Batal (tombol Batal, back, sentuh luar): koin yang sudah dibayar dikembalikan.
+        dialog.setOnDismissListener { if (!started) TutorialVideoQuota.refund(context, prepaidCoins) }
         val preview = TutorialVideoPreview(context, songTitle, captureSnapshot(captureView)).apply { style = current }
 
         fun update(change: (TutorialVideoStyle) -> TutorialVideoStyle) {
@@ -263,7 +295,13 @@ internal object TutorialVideoOptionsDialog {
         })
         if (forcedWatermark != null) {
             root.addView(TextView(context).apply {
-                text = context.getString(R.string.tutorial_video_free_hint, TutorialVideoQuota.freePerDay)
+                // App tanpa pembelian tidak punya Premium: jangan sebut Premium di sana.
+                val hint = when {
+                    removeWatermarkCost > 0 -> R.string.tutorial_video_free_hint_coins
+                    ZaifSDKBuilder.load(context)?.noPremiumPurchase == true -> R.string.tutorial_video_free_hint_basic
+                    else -> R.string.tutorial_video_free_hint
+                }
+                text = context.getString(hint, TutorialVideoQuota.freePerDay)
                 setTextColor(c.textSecondary)
                 textSize = 11f
             })
@@ -273,7 +311,7 @@ internal object TutorialVideoOptionsDialog {
         val controls = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
         fun addSwitch(label: Int, checked: Boolean, onChange: (Boolean) -> Unit): SwitchCompat =
             SwitchCompat(context).apply {
-                text = context.getString(label)
+                if (label != 0) text = context.getString(label)
                 setTextColor(c.text)
                 textSize = 13f
                 isChecked = checked
@@ -281,6 +319,29 @@ internal object TutorialVideoOptionsDialog {
                 controls.addView(this, LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._30sdp)))
             }
 
+        // Bayar koin untuk menghapus watermark versi gratis; koin baru dipotong saat tombol Mulai.
+        val removeCost = if (forcedWatermark != null) removeWatermarkCost else 0
+        var payToRemove = false
+        // Tombol Mulai menampilkan harga saat switch menyala, supaya potongan koin tidak mengejutkan.
+        val startLabel = context.getString(R.string.tutorial_video_start)
+        var startButton: TextView? = null
+        if (removeCost > 0) {
+            lateinit var removeSwitch: SwitchCompat
+            removeSwitch = addSwitch(0, false) { v ->
+                if (v && CoinManager.getBalance(context) < removeCost) {
+                    Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
+                    removeSwitch.isChecked = false
+                    return@addSwitch
+                }
+                payToRemove = v
+                startButton?.text = if (v) "$startLabel · $removeCost ${CoinManager.icon}" else startLabel
+                update { it.copy(forcedWatermark = if (v) null else forcedWatermark) }
+            }
+            removeSwitch.text = context.getString(R.string.tutorial_video_remove_watermark_coins, removeCost) +
+                "\n" + CoinManager.icon + " " + context.getString(R.string.your_coin) + ": " + CoinManager.getBalance(context)
+            removeSwitch.textSize = 12f
+            removeSwitch.layoutParams = LinearLayout.LayoutParams(-1, -2)
+        }
         addSwitch(R.string.tutorial_video_show_title, current.showTitle) { v -> update { it.copy(showTitle = v) } }
         addSwitch(R.string.tutorial_video_show_note, current.showNote) { v -> update { it.copy(showNote = v) } }
 
@@ -358,11 +419,19 @@ internal object TutorialVideoOptionsDialog {
                 setOnClickListener { dialog.dismiss() }
             })
             addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
-            addView(boxButton(context, c, context.getString(R.string.tutorial_video_start), primary = true) {
+            addView(boxButton(context, c, startLabel, primary = true) {
+                if (payToRemove && !CoinManager.spendCoins(context, removeCost, ZaifAnalytics.PURPOSE_EXPORT)) {
+                    Toast.makeText(context, context.getString(R.string.coin_not_enough), Toast.LENGTH_SHORT).show()
+                    return@boxButton
+                }
                 TutorialVideoStyle.save(context, current)
+                started = true
                 dialog.dismiss()
-                onStart(current)
-            }, LinearLayout.LayoutParams(context.sdp(SdpR.dimen._120sdp), context.sdp(SdpR.dimen._32sdp)))
+                onStart(current.copy(
+                    paidCoins = prepaidCoins + if (payToRemove) removeCost else 0,
+                    usesFreeSlot = forcedWatermark != null
+                ))
+            }.also { startButton = it }, LinearLayout.LayoutParams(context.sdp(SdpR.dimen._120sdp), context.sdp(SdpR.dimen._32sdp)))
         }, LinearLayout.LayoutParams(-1, -2))
 
         dialog.setView(root)

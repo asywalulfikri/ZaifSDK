@@ -585,7 +585,10 @@
     <string name="tutorial_video_limit_message">ดูโฆษณาหรือใช้เหรียญเพื่อสร้างวิดีโอเพิ่มอีก (มีลายน้ำ)</string>
     <string name="tutorial_video_limit_tomorrow">วิดีโอฟรีของวันนี้หมดแล้ว ลองใหม่พรุ่งนี้</string>
     <string name="tutorial_video_no_watermark">✨ ไม่มีลายน้ำ</string>
+    <string name="tutorial_video_remove_watermark_coins">ลบลายน้ำ (%1$d เหรียญ)</string>
     <string name="tutorial_video_free_hint">ฟรีวันละ %1$d ครั้ง มีลายน้ำ Premium ไม่มีลายน้ำ</string>
+    <string name="tutorial_video_free_hint_coins">ฟรีวันละ %1$d ครั้ง มีลายน้ำ ลบได้ด้วยเหรียญ</string>
+    <string name="tutorial_video_free_hint_basic">ฟรีวันละ %1$d ครั้ง มีลายน้ำ</string>
     <string name="tutorial_video_options_title">ปรับแต่งวิดีโอ</string>
     <string name="tutorial_video_show_title">แสดงชื่อเพลง</string>
     <string name="tutorial_video_show_note">แสดงโน้ตปัจจุบัน</string>

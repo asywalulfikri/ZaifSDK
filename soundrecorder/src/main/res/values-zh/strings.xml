@@ -584,7 +584,10 @@
     <string name="tutorial_video_limit_message">观看广告或使用金币，再制作一个视频（带水印）。</string>
     <string name="tutorial_video_limit_tomorrow">今天的免费视频已用完，请明天再试。</string>
     <string name="tutorial_video_no_watermark">✨ 无水印</string>
+    <string name="tutorial_video_remove_watermark_coins">去除水印（%1$d 金币）</string>
     <string name="tutorial_video_free_hint">每天免费 %1$d 次，带水印。Premium 无水印</string>
+    <string name="tutorial_video_free_hint_coins">每天免费 %1$d 次，带水印。可用金币去除</string>
+    <string name="tutorial_video_free_hint_basic">每天免费 %1$d 次，带水印</string>
     <string name="tutorial_video_options_title">自定义视频</string>
     <string name="tutorial_video_show_title">显示歌曲名称</string>
     <string name="tutorial_video_show_note">显示当前音符</string>

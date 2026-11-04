@@ -585,7 +585,10 @@
     <string name="tutorial_video_limit_message">Xem quảng cáo hoặc dùng xu để tạo thêm video (có hình mờ).</string>
     <string name="tutorial_video_limit_tomorrow">Đã hết video miễn phí hôm nay. Hãy thử lại vào ngày mai.</string>
     <string name="tutorial_video_no_watermark">✨ Không có hình mờ</string>
+    <string name="tutorial_video_remove_watermark_coins">Xóa hình mờ (%1$d xu)</string>
     <string name="tutorial_video_free_hint">Miễn phí %1$d lần mỗi ngày, có hình mờ. Premium không có hình mờ</string>
+    <string name="tutorial_video_free_hint_coins">Miễn phí %1$d lần mỗi ngày, có hình mờ. Xóa bằng xu</string>
+    <string name="tutorial_video_free_hint_basic">Miễn phí %1$d lần mỗi ngày, có hình mờ</string>
     <string name="tutorial_video_options_title">Tùy chỉnh video</string>
     <string name="tutorial_video_show_title">Hiện tên bài hát</string>
     <string name="tutorial_video_show_note">Hiện nốt hiện tại</string>

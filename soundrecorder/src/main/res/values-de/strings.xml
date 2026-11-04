@@ -589,7 +589,10 @@
     <string name="tutorial_video_limit_message">Sieh dir eine Werbung an oder nutze Münzen für ein weiteres Video (mit Wasserzeichen).</string>
     <string name="tutorial_video_limit_tomorrow">Die kostenlosen Videos für heute sind aufgebraucht. Versuche es morgen wieder.</string>
     <string name="tutorial_video_no_watermark">✨ Ohne Wasserzeichen</string>
+    <string name="tutorial_video_remove_watermark_coins">Wasserzeichen entfernen (%1$d Münzen)</string>
     <string name="tutorial_video_free_hint">%1$d× täglich gratis mit Wasserzeichen. Premium ohne Wasserzeichen</string>
+    <string name="tutorial_video_free_hint_coins">%1$d× täglich gratis mit Wasserzeichen. Mit Münzen entfernen</string>
+    <string name="tutorial_video_free_hint_basic">%1$d× täglich gratis mit Wasserzeichen</string>
     <string name="tutorial_video_options_title">Video anpassen</string>
     <string name="tutorial_video_show_title">Songtitel anzeigen</string>
     <string name="tutorial_video_show_note">Aktuelle Note anzeigen</string>

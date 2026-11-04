@@ -587,7 +587,10 @@
     <string name="tutorial_video_limit_message">Tonton iklan atau guna syiling untuk membuat video lagi (dengan tera air).</string>
     <string name="tutorial_video_limit_tomorrow">Video percuma hari ini sudah habis. Cuba lagi esok.</string>
     <string name="tutorial_video_no_watermark">✨ Tanpa tera air</string>
+    <string name="tutorial_video_remove_watermark_coins">Buang tera air (%1$d syiling)</string>
     <string name="tutorial_video_free_hint">Percuma %1$d kali sehari dengan tera air. Premium tanpa tera air</string>
+    <string name="tutorial_video_free_hint_coins">Percuma %1$d kali sehari dengan tera air. Buang dengan syiling</string>
+    <string name="tutorial_video_free_hint_basic">Percuma %1$d kali sehari dengan tera air</string>
     <string name="tutorial_video_options_title">Sesuaikan video</string>
     <string name="tutorial_video_show_title">Tunjukkan tajuk lagu</string>
     <string name="tutorial_video_show_note">Tunjukkan not</string>
