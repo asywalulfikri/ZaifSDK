@@ -37,7 +37,9 @@ Semua event dikirim lewat satu pintu: `soundrecorder/src/main/java/sound/recorde
 
 | Parameter | Nilai |
 |---|---|
-| `source` (koin) | `mission`, `check_in`, `ad`, `daily_bonus`, `other` |
+| `source` (koin) | `mission`, `check_in`, `ad`, `daily_bonus`, `refund`, `other` |
+
+`refund` (sejak 1.1.171): koin video berbayar dikembalikan karena rekaman batal atau gagal. Saat menghitung koin yang *didapat* user, kecualikan `refund`; itu bukan koin baru.
 | `purpose` | `premium_pass`, `export`, `note_unlock`, `other` |
 | `place` | `remove_ads`, `video` |
 | `format` | `video`, atau nama `ExportFormat` huruf kecil (mis. `wav`, `mp3`, …) |
