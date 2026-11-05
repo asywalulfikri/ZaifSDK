@@ -1,6 +1,6 @@
 # Daftar Tes ZaifSDK
 
-Terakhir diperbarui: 2 November 2026. Versi SDK: `1.1.162`.
+Terakhir diperbarui: 5 November 2026. Versi SDK: `1.1.171`. Ringkasan semua fitur: `docs/SDK_FEATURES.md`.
 
 Berisi fitur SDK yang dikerjakan dari tag `1.1.153` sampai `1.1.162`. Semua tes dilakukan lewat app Pianika, karena SDK tidak berjalan sendiri. HP yang dipakai: Realme RMX3261 (Android 11), Samsung SM-G532G (Android 6), dan vivo I2401 (Android 16).
 
@@ -23,7 +23,7 @@ Berisi fitur SDK yang dikerjakan dari tag `1.1.153` sampai `1.1.162`. Semua tes 
 | 1 | SDK `1.1.158` tersedia di JitPack | Sudah | Normal | File pom dan aar bisa diunduh |
 | 2 | Teks baru ada di 19 bahasa | Sudah | Normal | Dicek untuk teks dialog update |
 | 3 | Kode release Pianika berhasil dikompilasi dengan `1.1.158` | Sudah | Normal | |
-| 4 | Tes di app selain Pianika | Sebagian | Belum tahu | Lira, Gendang, dan Dholak dites di Realme, 2 November 2026. Darbuka dan lainnya belum |
+| 4 | Tes di app selain Pianika | Sebagian | Belum tahu | Lira, Gendang, dan Dholak dites di Realme, 2 November 2026. Belira `1.1.171` dites di vivo (debug + release R8), 4 November 2026. Darbuka `1.1.171` baru dikompilasi |
 
 ## BaseGameActivity dan iklan
 
@@ -61,6 +61,7 @@ Berisi fitur SDK yang dikerjakan dari tag `1.1.153` sampai `1.1.162`. Semua tes 
 | 22f | Teks petunjuk tanpa kata Premium di app tanpa pembelian               | Sudah      | Normal     | vivo: "Free 3x a day, with watermark. Remove it with coins". Switch dengan saldo 0 tetap mati, tombol Mulai tanpa harga |
 | 22d | Jatah habis: iklan → switch 50, dan bayar 50 langsung                    | Belum      | Belum tahu | Iklan tidak ditekan saat tes (aturan: jangan tap iklan)                                                                        |
 | 22e | Koin kembali di export tutorial (`EKSPOR` → `VIDEO`)                     | Belum      | Belum tahu | Kode sudah ada, belum dites di HP                                                                                              |
+| 22g | Belira release (R8): export tutorial → VIDEO saat Premium Pass aktif     | Sudah      | Normal     | vivo, 4 November 2026. Watermark tetap ada, switch 30 koin muncul, video tersimpan, tanpa crash. Pass tidak membuka video gratis |
 
 ## Export suara
 
@@ -98,7 +99,9 @@ Berisi fitur SDK yang dikerjakan dari tag `1.1.153` sampai `1.1.162`. Semua tes 
 |---|---|---|---|---|
 | 38 | Misi, koin, dan iklan reward | Sudah | Normal | Dites langsung oleh pemilik app |
 | 39 | Progres misi rekaman dan klaim koin | Sudah | Normal | Koin naik dari 9 ke 14 |
-| 40 | Tukar 50 koin dengan Premium Pass | Belum | Belum tahu | Video tetap harus dibatasi 1x sehari |
+| 40 | Tukar 50 koin dengan Premium Pass | Tidak dites | — | Sejak `1.1.171` Premium Pass disembunyikan (`PremiumPass.isEnabled = false`), tukar tidak bisa lagi |
+| 40a | Pass lama tetap jalan setelah disembunyikan | Sudah | Normal | Belira release di vivo: pass lama dipindah lewat `importFrom`, Home "PREMIUM · 23h 59m left", tanpa tombol perpanjang, tanpa iklan |
+| 40b | Kartu "Koin untuk apa?" | Sebagian | Normal | Dilihat di panel Misi Belira (Compose). Di `RewardsDialog` SDK belum dilihat langsung |
 | 41 | Pembelian asli | Belum | Belum tahu | Tes lewat Internal Testing di Pianika |
 
 ## Layar admin
