@@ -122,6 +122,14 @@ internal object TutorialVideoPremiumDialog {
                 setTextColor(c.textSecondary)
                 setOnClickListener { dialog.dismiss() }
             })
+            // App dengan pembelian yang memilih menawarkan iklan: satu video berwatermark.
+            onRequestReward.takeIf { ZaifSDKBuilder.load(context)?.videoAdWithPurchase == true }?.let { request ->
+                addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
+                addView(boxButton(context, c, "▶  " + context.getString(R.string.export_reward_watch), primary = false) {
+                    dialog.dismiss()
+                    request { onUnlocked(0) }
+                }, LinearLayout.LayoutParams(context.sdp(SdpR.dimen._120sdp), context.sdp(SdpR.dimen._34sdp)))
+            }
             billing?.let { manager ->
                 addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
                 addView(boxButton(context, c, context.getString(R.string.tutorial_video_premium_buy), primary = true) {

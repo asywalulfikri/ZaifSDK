@@ -88,6 +88,9 @@
     bila koin mati. App dengan pembelian tetap `tutorial_video_free_hint`. 19 bahasa.
 
 ### ✨ Fitur baru
+- **`ZaifSDKBuilder.videoAdWithPurchase(true)`** (bawaan false): untuk app yang PUNYA pembelian. Saat jatah
+  video gratis habis, dialog Premium tetap ada tombol beli dan ditambah tombol "Tonton iklan" yang membuka satu
+  video berwatermark. Butuh `onRequestAd` terisi di `InstrumentTutorialDialog`. App tanpa pembelian tidak terpengaruh.
 - **Lagu (MP3) ikut terekam.** Saat merekam sambil memutar lagu dari daftar musik, yang dicatat adalah lagu, posisi, volume, serta kapan lagu diputar, dijeda, digeser, atau diganti.
   - **Saat rekaman diputar ulang:** lagu berbunyi sinkron dengan ketukan. Lagu di daftar musik dijeda otomatis supaya tidak bertabrakan.
   - **Saat export MP3:** lagu di-mix langsung dari file aslinya, sehingga jernih.

@@ -43,7 +43,7 @@ Detail teknis lengkap ada di `CHANGELOG.md`.
 | Rebana (godev2, SDK 1.1.164) | SDK (`RewardsDialog`, `PremiumPass.isActive`), punya pembelian | Naikkan versi SDK saja | ⬜ |
 | Dholak (godev2, SDK 1.1.162) | SDK, punya pembelian | Naikkan versi SDK saja | ⬜ |
 | Gendang (godev2/GendangElectronik, SDK 1.1.161) | SDK, punya pembelian. Versi di `gradle/libs.versions.toml` | Naikkan versi SDK saja | ⬜ |
-| Pianika (godev2/PianikaBaru, SDK 1.1.158) | SDK, punya pembelian. Masih ada `CoinManager.kt` sendiri (prefs `zaif_coins` yang sama); kode yang dicek meng-import milik SDK | Naikkan versi SDK, cek lalu hapus `CoinManager.kt` lokal | ⬜ |
+| Pianika (godev2/PianikaBaru, SDK 1.1.158) | SDK, punya pembelian. Masih ada `CoinManager.kt` sendiri (prefs `zaif_coins` yang sama); kode yang dicek meng-import milik SDK | Naikkan versi SDK, cek lalu hapus `CoinManager.kt` lokal | ✅ kode 2026-11-06, branch `feature/sdk-1.1.171` (belum di-commit/merge, belum dites di HP) |
 
 App lain (Angklung 1.1.104, Harmonica 1.1.69, dan beberapa app 1.0.x) belum memakai koin/misi. Lihat `SDK_FEATURES.md`.
 

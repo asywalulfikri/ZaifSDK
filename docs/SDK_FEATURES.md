@@ -30,6 +30,7 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 | `isCoin(true)` | false | Sistem koin: buka lagu, export pakai koin, switch watermark video |
 | `isVideo(true)` | false | Pilihan VIDEO di export (rekaman & tutorial) |
 | `hasPremiumPurchase(false)` | true | **Hanya app tanpa pembelian.** Jatah video habis → tonton iklan / bayar koin, bukan dialog Premium. Disimpan sebagai `noPremiumPurchase` |
+| `videoAdWithPurchase(true)` | false | **App dengan pembelian.** Dialog Premium video ditambah tombol "Tonton iklan" (satu video berwatermark); tombol beli tetap ada. Dipakai Pianika |
 | `isLockRec`, `isLockMusic`, `isDownload`, `isFilterTutorial` | — | Kunci rekaman/musik, unduh lagu, filter bahasa tutorial |
 | `showNote`, `showChangeColor`, `showListSong`, `showVolume`, `showTooltip` | — | Tombol di panel kontrol |
 | `setAppName`, `setVersionCode/Name`, `setApplicationId`, `setDeveloperName`, `setFcmKey`, `setBackgroundWidgetColor` | — | Identitas app |
