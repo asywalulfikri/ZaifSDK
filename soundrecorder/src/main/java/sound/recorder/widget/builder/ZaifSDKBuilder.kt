@@ -38,6 +38,12 @@ class ZaifSDKBuilder private constructor(
      */
     var noPremiumPurchase = false
 
+    /**
+     * App PUNYA pembelian, tapi saat jatah video gratis habis dialog Premium juga menawarkan
+     * "Tonton iklan" (satu video berwatermark). Tidak berlaku di app tanpa pembelian (sudah dapat).
+     */
+    var videoAdWithPurchase = false
+
     fun setAppName(value: String) = apply { appName = value }
     fun setVersionCode(value: Int) = apply { versionCode = value }
     fun setVersionName(value: String) = apply { versionName = value }
@@ -70,6 +76,12 @@ class ZaifSDKBuilder private constructor(
      */
     fun hasPremiumPurchase(value: Boolean) = apply { noPremiumPurchase = !value }
 
+    /**
+     * Untuk app dengan pembelian: dialog Premium video ikut menampilkan tombol "Tonton iklan".
+     * Host harus mengisi `onRequestAd` di InstrumentTutorialDialog. Default false.
+     */
+    fun videoAdWithPurchase(value: Boolean) = apply { videoAdWithPurchase = value }
+
     fun build(): ZaifSDKConfig {
         val config = ZaifSDKConfig(
             appName = appName,
@@ -92,7 +104,8 @@ class ZaifSDKBuilder private constructor(
             isCoin = isCoin,
             isFilterTutorial = isFilterTutorial,
             isVideo = isVideo,
-            noPremiumPurchase = noPremiumPurchase
+            noPremiumPurchase = noPremiumPurchase,
+            videoAdWithPurchase = videoAdWithPurchase
         )
         instance = config // ✅ langsung simpan di memory
         ZaifSDKStorage.save(context, config)
