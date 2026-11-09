@@ -32,7 +32,7 @@ import org.json.JSONObject
 import sound.recorder.widget.R
 import sound.recorder.widget.builder.ZaifSDKBuilder
 import sound.recorder.widget.builder.ZaifSDKConfig
-import sound.recorder.widget.databinding.FragmentSongRequestAdminBinding
+import sound.recorder.widget.databinding.FragmentBugReportAdminBinding
 import sound.recorder.widget.encrypt.CryptoManager
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -46,7 +46,7 @@ import java.util.Locale
 
 class BugReportAdminFragment : Fragment() {
 
-    private var binding: FragmentSongRequestAdminBinding? = null
+    private var binding: FragmentBugReportAdminBinding? = null
 
     data class BugRequest(
         val docId: String,
@@ -60,20 +60,20 @@ class BugReportAdminFragment : Fragment() {
 
     private val allRequests = mutableListOf<BugRequest>()
     private var currentFilter = "all"
-    private lateinit var adapter: SongRequestAdapter
+    private lateinit var adapter: BugReportAdapter
     var zaifSDKConfig : ZaifSDKConfig? =null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSongRequestAdminBinding.inflate(inflater, container, false)
+        binding = FragmentBugReportAdminBinding.inflate(inflater, container, false)
         return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = SongRequestAdapter(
+        adapter = BugReportAdapter(
             onMarkDone = { req -> updateStatus(req, "done") },
             onDelete   = { req -> deleteRequest(req) },
             onReply    = { req -> showReplyDialog(req) }
@@ -134,7 +134,7 @@ class BugReportAdminFragment : Fragment() {
         }
         updateFilterUI(filter)
         adapter.updateItems(filtered)
-        binding?.tvCount?.text = "${allRequests.size} requests"
+        binding?.tvCount?.text = "${allRequests.size} reports"
         binding?.tvEmpty?.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
     }
 
@@ -356,18 +356,19 @@ class BugReportAdminFragment : Fragment() {
 
     // ─── Adapter ──────────────────────────────────────────────────
 
-    private inner class SongRequestAdapter(
+    private inner class BugReportAdapter(
         private val onMarkDone: (BugRequest) -> Unit,
         private val onDelete: (BugRequest) -> Unit,
         private val onReply: (BugRequest) -> Unit
-    ) : RecyclerView.Adapter<SongRequestAdapter.VH>() {
+    ) : RecyclerView.Adapter<BugReportAdapter.VH>() {
 
         private val items = mutableListOf<BugRequest>()
 
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
-            val tvSongTitle: TextView? = view.findViewById(R.id.tvTitle)
+            val tvBugTitle: TextView?  = view.findViewById(R.id.tvTitle)
             val tvStatus: TextView?    = view.findViewById(R.id.tvStatus)
             val tvDescription: TextView? = view.findViewById(R.id.tvDescription)
+            val tvDevice: TextView?    = view.findViewById(R.id.tvDevice)
             val tvDate: TextView?      = view.findViewById(R.id.tvDate)
             val btnMarkDone: TextView? = view.findViewById(R.id.btnMarkDone)
             val btnDelete: TextView?   = view.findViewById(R.id.btnDelete)
@@ -378,7 +379,7 @@ class BugReportAdminFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val v = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_song_request, parent, false)
+                .inflate(R.layout.item_bug_report, parent, false)
             return VH(v)
         }
 
@@ -387,9 +388,10 @@ class BugReportAdminFragment : Fragment() {
             val item = items[position]
             val sdf  = SimpleDateFormat("dd MMM yyyy  HH:mm", Locale.getDefault())
 
-            holder.tvSongTitle?.text = item.bugTitle
+            holder.tvBugTitle?.text = item.bugTitle
             holder.tvDescription?.text = item.bugDescription
             holder.tvDescription?.visibility = View.VISIBLE
+            holder.tvDevice?.text    = item.deviceInfo
             holder.tvDate?.text      = sdf.format(Date(item.requestedAt))
 
             if (item.status == "done") {

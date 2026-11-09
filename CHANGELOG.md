@@ -142,6 +142,10 @@
 - **Dialog daftar rekaman** dan **bottom sheet catatan** mendapat tampilan baru.
 
 ### 🐛 Perbaikan
+- **Layar admin Bug Report** (`BugReportAdminFragment`) tidak lagi memakai layout Song Request: judulnya
+  salah ("Song Request Admin") dan teks kosongnya "Belum ada request lagu". Sekarang punya layout sendiri
+  (`fragment_bug_report_admin`, `item_bug_report`) dengan judul "Bug Report Admin", deskripsi sampai 6 baris,
+  dan baris info perangkat di tiap laporan. Logika data tidak berubah.
 - **Iklan reward tidak perlu ditekan ulang.** Kalau iklan belum siap, muncul dialog "Iklan sedang disiapkan…" (dengan tombol Batal), lalu iklan tampil otomatis begitu selesai dimuat. Kalau AdMob gagal dimuat atau lebih dari 8 detik padahal internet hidup, reward tetap diberikan. Kalau internet mati atau terjadi error jaringan (termasuk karena pemblokir iklan), **tidak ada reward** dan muncul pesan "tidak ada koneksi internet". Batal, Back, atau meninggalkan app membatalkan tanpa reward. Berlaku untuk semua pemakai `showRewardedAd` (export, buka lagu, dan lain-lain); API tidak berubah.
 - **Export di daftar tutorial** (lagu lokal dan online), memakai dialog export yang sama:
   - premium tanpa iklan;
