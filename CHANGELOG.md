@@ -88,6 +88,10 @@
     bila koin mati. App dengan pembelian tetap `tutorial_video_free_hint`. 19 bahasa.
 
 ### ✨ Fitur baru
+- **`HostRecordingVideo.option(...)`**: pilihan VIDEO di dialog export untuk layar host yang bukan panel instrumen
+  (dipakai Gamelan Studio). Membungkus alur video panel (jatah gratis per hari, iklan / koin / beli premium,
+  `videoAdWithPurchase`, watermark) tanpa mengubah aturannya. Host membuat `RecordingEntity` sendiri, memutarnya di
+  layarnya lewat callback `play`, lalu memasang hasilnya ke `RecordingExportDialog.show(..., video = ...)`.
 - **`ZaifSDKBuilder.videoAdWithPurchase(true)`** (bawaan false): untuk app yang PUNYA pembelian. Saat jatah
   video gratis habis, dialog Premium tetap ada tombol beli dan ditambah tombol "Tonton iklan" yang membuka satu
   video berwatermark. Butuh `onRequestAd` terisi di `InstrumentTutorialDialog`. App tanpa pembelian tidak terpengaruh.
