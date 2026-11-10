@@ -2,6 +2,7 @@ package sound.recorder.widget.tutorial
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -345,17 +346,24 @@ internal object TutorialVideoOptionsDialog {
         addSwitch(R.string.tutorial_video_show_title, current.showTitle) { v -> update { it.copy(showTitle = v) } }
         addSwitch(R.string.tutorial_video_show_note, current.showNote) { v -> update { it.copy(showNote = v) } }
 
+        // Portrait: kolom opsi sempit, label warna di baris sendiri supaya lima bulatan tidak terpotong.
+        val portrait = context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
         val colorRow = LinearLayout(context).apply { gravity = Gravity.CENTER_VERTICAL }
-        colorRow.addView(TextView(context).apply {
+        val colorLabel = TextView(context).apply {
             text = context.getString(R.string.tutorial_video_note_color)
             setTextColor(c.textSecondary)
             textSize = 12f
-        }, LinearLayout.LayoutParams(0, -2, 1f))
+        }
+        if (portrait) {
+            controls.addView(colorLabel, LinearLayout.LayoutParams(-1, -2).apply { topMargin = context.sdp(SdpR.dimen._4sdp) })
+        } else {
+            colorRow.addView(colorLabel, LinearLayout.LayoutParams(0, -2, 1f))
+        }
         val swatches = NOTE_COLORS.map { color ->
             View(context).also { swatch ->
                 val size = context.sdp(SdpR.dimen._20sdp)
                 colorRow.addView(swatch, LinearLayout.LayoutParams(size, size).apply {
-                    marginStart = context.sdp(SdpR.dimen._5sdp)
+                    if (portrait) marginEnd = context.sdp(SdpR.dimen._8sdp) else marginStart = context.sdp(SdpR.dimen._5sdp)
                 })
             }
         }
@@ -403,12 +411,14 @@ internal object TutorialVideoOptionsDialog {
         controls.addView(input, LinearLayout.LayoutParams(-1, -2))
 
         val body = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
-        body.addView(preview, LinearLayout.LayoutParams(0, -2, 1f))
+        // Portrait: pratinjau tinggi (layar tegak) dipersempit, opsi diberi ruang lebih dan diratakan ke tengah.
+        if (portrait) controls.gravity = Gravity.CENTER_VERTICAL
+        body.addView(preview, LinearLayout.LayoutParams(0, -2, if (portrait) 0.8f else 1f))
         body.addView(ScrollView(context).apply {
             isFillViewport = true
             overScrollMode = View.OVER_SCROLL_NEVER
             addView(controls)
-        }, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = pad })
+        }, LinearLayout.LayoutParams(0, -2, if (portrait) 1.2f else 1f).apply { marginStart = pad })
         root.addView(body, LinearLayout.LayoutParams(-1, -2))
 
         root.addView(vSpace(context, SdpR.dimen._8sdp))
