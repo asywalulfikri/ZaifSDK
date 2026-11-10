@@ -144,6 +144,9 @@
 - **Dialog volume** lebih hidup: tile ikon bergradasi dan equalizer yang bergerak saat slider digeser.
 - **Dialog daftar MP3** didesain ulang (header, tab, pencarian, kartu player) dan tampil immersive, tanpa nav bar. Logika tidak berubah.
 - **Dialog daftar rekaman** dan **bottom sheet catatan** mendapat tampilan baru.
+- **Dialog di mode portrait** dirapikan, landscape tidak berubah (1.1.175): "Atur tampilan video" (pratinjau lebih sempit,
+  kolom opsi lebih lebar, label warna di baris sendiri), "Simpan rekaman" (lebar 86%, sebelumnya dikunci 50%), dan
+  "Jadi Premium" video (dua tombol utama sama lebar, "Tutup" di bawahnya; tiga tombol sebaris dulu melebihi lebar dialog).
 
 ### 🐛 Perbaikan
 - **Layar admin Bug Report** (`BugReportAdminFragment`) tidak lagi memakai layout Song Request: judulnya
