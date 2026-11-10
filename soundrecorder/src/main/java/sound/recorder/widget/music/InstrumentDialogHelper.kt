@@ -137,7 +137,10 @@ object InstrumentDialogHelper {
 
         dialog.show()
         val dm = context.resources.displayMetrics
-        dialog.window?.setLayout((dm.widthPixels * 0.50).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        // Portrait: 50% layar terlalu sempit (judul & hint terpecah, tombol mepet); landscape tetap 50%.
+        val isPortrait = context.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+        val widthRatio = if (isPortrait) 0.86 else 0.50
+        dialog.window?.setLayout((dm.widthPixels * widthRatio).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
         return dialog
     }
 

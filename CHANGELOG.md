@@ -88,6 +88,10 @@
     bila koin mati. App dengan pembelian tetap `tutorial_video_free_hint`. 19 bahasa.
 
 ### ✨ Fitur baru
+- **`HostRecordingVideo.option(...)`**: pilihan VIDEO di dialog export untuk layar host yang bukan panel instrumen
+  (dipakai Gamelan Studio). Membungkus alur video panel (jatah gratis per hari, iklan / koin / beli premium,
+  `videoAdWithPurchase`, watermark) tanpa mengubah aturannya. Host membuat `RecordingEntity` sendiri, memutarnya di
+  layarnya lewat callback `play`, lalu memasang hasilnya ke `RecordingExportDialog.show(..., video = ...)`.
 - **`ZaifSDKBuilder.videoAdWithPurchase(true)`** (bawaan false): untuk app yang PUNYA pembelian. Saat jatah
   video gratis habis, dialog Premium tetap ada tombol beli dan ditambah tombol "Tonton iklan" yang membuka satu
   video berwatermark. Butuh `onRequestAd` terisi di `InstrumentTutorialDialog`. App tanpa pembelian tidak terpengaruh.
@@ -140,8 +144,15 @@
 - **Dialog volume** lebih hidup: tile ikon bergradasi dan equalizer yang bergerak saat slider digeser.
 - **Dialog daftar MP3** didesain ulang (header, tab, pencarian, kartu player) dan tampil immersive, tanpa nav bar. Logika tidak berubah.
 - **Dialog daftar rekaman** dan **bottom sheet catatan** mendapat tampilan baru.
+- **Dialog di mode portrait** dirapikan, landscape tidak berubah (1.1.175): "Atur tampilan video" (pratinjau lebih sempit,
+  kolom opsi lebih lebar, label warna di baris sendiri), "Simpan rekaman" (lebar 86%, sebelumnya dikunci 50%), dan
+  "Jadi Premium" video (dua tombol utama sama lebar, "Tutup" di bawahnya; tiga tombol sebaris dulu melebihi lebar dialog).
 
 ### 🐛 Perbaikan
+- **Layar admin Bug Report** (`BugReportAdminFragment`) tidak lagi memakai layout Song Request: judulnya
+  salah ("Song Request Admin") dan teks kosongnya "Belum ada request lagu". Sekarang punya layout sendiri
+  (`fragment_bug_report_admin`, `item_bug_report`) dengan judul "Bug Report Admin", deskripsi sampai 6 baris,
+  dan baris info perangkat di tiap laporan. Logika data tidak berubah.
 - **Iklan reward tidak perlu ditekan ulang.** Kalau iklan belum siap, muncul dialog "Iklan sedang disiapkan…" (dengan tombol Batal), lalu iklan tampil otomatis begitu selesai dimuat. Kalau AdMob gagal dimuat atau lebih dari 8 detik padahal internet hidup, reward tetap diberikan. Kalau internet mati atau terjadi error jaringan (termasuk karena pemblokir iklan), **tidak ada reward** dan muncul pesan "tidak ada koneksi internet". Batal, Back, atau meninggalkan app membatalkan tanpa reward. Berlaku untuk semua pemakai `showRewardedAd` (export, buka lagu, dan lain-lain); API tidak berubah.
 - **Export di daftar tutorial** (lagu lokal dan online), memakai dialog export yang sama:
   - premium tanpa iklan;

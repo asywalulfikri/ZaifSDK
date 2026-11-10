@@ -4,6 +4,7 @@ import sound.recorder.widget.util.ZaifAnalytics
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.res.Configuration
 import android.graphics.Typeface
 import android.view.Gravity
 import android.view.View
@@ -116,32 +117,56 @@ internal object TutorialVideoPremiumDialog {
         }
         root.addView(vSpace(context, SdpR.dimen._10sdp))
 
-        root.addView(LinearLayout(context).apply {
-            gravity = Gravity.END or Gravity.CENTER_VERTICAL
-            addView(textButton(context, c, context.getString(R.string.tutorial_video_premium_later)).apply {
-                setTextColor(c.textSecondary)
-                setOnClickListener { dialog.dismiss() }
-            })
-            // App dengan pembelian yang memilih menawarkan iklan: satu video berwatermark.
-            onRequestReward.takeIf { ZaifSDKBuilder.load(context)?.videoAdWithPurchase == true }?.let { request ->
-                addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
-                addView(boxButton(context, c, "▶  " + context.getString(R.string.export_reward_watch), primary = false) {
-                    dialog.dismiss()
-                    request { onUnlocked(0) }
-                }, LinearLayout.LayoutParams(context.sdp(SdpR.dimen._120sdp), context.sdp(SdpR.dimen._34sdp)))
+        val laterButton = textButton(context, c, context.getString(R.string.tutorial_video_premium_later)).apply {
+            setTextColor(c.textSecondary)
+            setOnClickListener { dialog.dismiss() }
+        }
+        // App dengan pembelian yang memilih menawarkan iklan: satu video berwatermark.
+        val rewardButton = onRequestReward.takeIf { ZaifSDKBuilder.load(context)?.videoAdWithPurchase == true }?.let { request ->
+            boxButton(context, c, "▶  " + context.getString(R.string.export_reward_watch), primary = false) {
+                dialog.dismiss()
+                request { onUnlocked(0) }
             }
-            billing?.let { manager ->
-                addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
-                addView(boxButton(context, c, context.getString(R.string.tutorial_video_premium_buy), primary = true) {
-                    ZaifAnalytics.premiumOfferClicked(context, ZaifAnalytics.PLACE_VIDEO)
-                    manager.makePurchase {
-                        activity?.runOnUiThread {
-                            Toast.makeText(context, R.string.tutorial_video_premium_error, Toast.LENGTH_LONG).show()
-                        }
+        }
+        val buyButton = billing?.let { manager ->
+            boxButton(context, c, context.getString(R.string.tutorial_video_premium_buy), primary = true) {
+                ZaifAnalytics.premiumOfferClicked(context, ZaifAnalytics.PLACE_VIDEO)
+                manager.makePurchase {
+                    activity?.runOnUiThread {
+                        Toast.makeText(context, R.string.tutorial_video_premium_error, Toast.LENGTH_LONG).show()
                     }
-                }, LinearLayout.LayoutParams(context.sdp(SdpR.dimen._120sdp), context.sdp(SdpR.dimen._34sdp)))
+                }
             }
-        }, LinearLayout.LayoutParams(-1, -2))
+        }
+
+        val portrait = context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+        if (portrait) {
+            // Portrait: tiga tombol sebaris melebihi lebar dialog (Tutup tergencet, garis tepi terpotong).
+            // Dua tombol utama berbagi lebar sama, "Tutup" di baris sendiri di bawahnya.
+            root.addView(LinearLayout(context).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                listOfNotNull(rewardButton, buyButton).forEachIndexed { i, button ->
+                    addView(button, LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._36sdp), 1f).apply {
+                        if (i > 0) marginStart = context.sdp(SdpR.dimen._8sdp)
+                    })
+                }
+            }, LinearLayout.LayoutParams(-1, -2))
+            laterButton.gravity = Gravity.CENTER
+            root.addView(laterButton, LinearLayout.LayoutParams(-1, -2).apply { topMargin = context.sdp(SdpR.dimen._4sdp) })
+        } else {
+            root.addView(LinearLayout(context).apply {
+                gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                addView(laterButton)
+                rewardButton?.let {
+                    addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
+                    addView(it, LinearLayout.LayoutParams(context.sdp(SdpR.dimen._120sdp), context.sdp(SdpR.dimen._34sdp)))
+                }
+                buyButton?.let {
+                    addView(View(context), LinearLayout.LayoutParams(context.sdp(SdpR.dimen._8sdp), 1))
+                    addView(it, LinearLayout.LayoutParams(context.sdp(SdpR.dimen._120sdp), context.sdp(SdpR.dimen._34sdp)))
+                }
+            }, LinearLayout.LayoutParams(-1, -2))
+        }
 
         dialog.setCanceledOnTouchOutside(false)
         dialog.setView(root)
