@@ -3,7 +3,7 @@
 Titik awal untuk melanjutkan pekerjaan di session baru. Isinya: semua fitur SDK, cara menyalakannya
 di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang masih terbuka.
 
-- Terakhir diperbarui: **5 November 2026**, SDK **`1.1.171`**.
+- Terakhir diperbarui: **13 November 2026**, SDK **`1.1.175`**.
 - Detail perubahan per versi: `CHANGELOG.md`. Daftar tes: `test.md`.
 - Modul: `soundrecorder` (package `sound.recorder.widget`).
 - Rilis: JitPack `com.github.asywalulfikri:ZaifSDK:<tag>`. Tes lokal tanpa tag:
@@ -119,7 +119,7 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 - Layar admin (Bug Reports, Kritik Saran) — lihat `test.md` no. 42–45 untuk masalah yang diketahui.
 - `ZaifAnalytics`, `LanguageManager`, `AppRatingHelper`, `PermissionManager`, `NetworkWatcher`.
 
-## App yang memakai SDK (dicek 5 November 2026)
+## App yang memakai SDK (baris lama dicek 5 November 2026; Gendang Setting Sendiri, DarbukaPad, RealKoto dicek 13 November 2026)
 
 | App | Folder | Versi SDK | Koin | Video | Tanpa pembelian | Panel Misi | Catatan |
 |---|---|---|---|---|---|---|---|
@@ -129,12 +129,38 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 | Dholak | `godev2/Dholak` | 1.1.162 | ✅ | ✅ | — | `RewardsDialog` | Punya pembelian. Studio harus beda dari Darbuka |
 | Gendang | `godev2/GendangElectronik` | 1.1.161 | ✅ | ✅ | — | `RewardsDialog` | Punya pembelian. Versi di `gradle/libs.versions.toml` |
 | Pianika | `godev2/PianikaBaru` | 1.1.158 | flag build | ✅ | — | `RewardsDialog` | Punya pembelian. Masih ada `CoinManager.kt` sendiri (prefs sama), tapi kode yang dicek meng-import milik SDK — perlu dicek lalu dihapus |
+| Gendang Setting Sendiri | `godev2/GendangSettingSendiri` (folder lokal sudah tidak ada di disk) | 1.1.175 | ✅ | ✅ | — | `RewardsDialog` | Punya pembelian (`videoAdWithPurchase`). Home Compose, geser jari antar pad, UI emas, `GendangExportResolver`. Branch `feature/sdk-1.1.175` sudah di-push |
+| DarbukaPad | `godev2/DarbukaPad` | 1.1.175 | ✅ | ✅ | — | `RewardsDialog` (chip koin di Home XML) | Punya pembelian Remove Ads. `DarbukaExportResolver` (alias suara Classic vs Pad), UI emas-tembaga. Branch `feature/sdk-1.1.175` sudah di-push. Belum dites: rekam, export, panel Misi |
+| RealKoto | `godev2/RealKoto` | 1.1.175 | ✅ | ✅ | — | `RewardsDialog` (chip koin di Home Compose) | Belum ada kode billing walau `GameApp` memanggil `videoAdWithPurchase(true)`. Panel kontrol di kiri, `KotoExportResolver`, KotoView di-cache. ID iklan rewarded masih kosong. Branch `feature/sdk-1.1.175` |
 | Angklung | `godev2/AngklungNew` | 1.1.104 | — | — | — | — | Versi lama |
 | Harmonica | `godev2/Harmonica` | 1.1.69 | — | — | — | — | Versi lama |
 | Darbuka Electric Beat, Real Gayageum, Real Carango, Virtual Shaker, Talempong, Taiko | `godev2/*` | 1.0.62–1.0.68 | — | — | — | — | Versi sangat lama |
 | Lira | tidak ditemukan di disk | ? | | | | | Pernah dites dengan BaseGameActivity |
 
 `godev4` (GendangBeatStudio, Neon, RealRebana) dan `godev5` tidak memakai ZaifSDK lewat Gradle.
+
+## Migrasi app lama ke 1.1.175 (pelajaran RealKoto, dari 1.0.66)
+
+- **Toolchain wajib**: AGP ≥ 9.1 (dipakai 9.2.1), Gradle 9.4.1, `compileSdk = 37`. AGP 9 sudah membawa Kotlin:
+  buang plugin `org.jetbrains.kotlin.android` dan `kapt` (kapt tanpa dependensi aman dibuang). Compose butuh
+  `org.jetbrains.kotlin.plugin.compose` (dipakai 2.3.10). Tanpa `local.properties`, Gradle tidak menemukan Android SDK.
+- **API yang hilang**: `VoiceRecordFragmentVerticalZaif` (ganti `InstrumentControlPanel`; hapus juga
+  `FragmentContainerView`-nya di XML, kalau tidak app crash saat layar dibuka), `UnityBannerController`,
+  `initUnityAdsOnce`, `RecordingSDK.addSong` (ganti `MusicListDialogHelper.registerRawTracks`),
+  `setBannerHome` / `setHideAllBanner` / `onViewBannerHome` (satu banner: `MyAdsListener.setBanner(show)`).
+- **Signature berubah**: `showInterstitialIfAllowed(isPremium)`, `loadInterstitialIfNeeded(isPremium)`,
+  `NetworkUtils.isInternetConnected(context, scope)`.
+- **Lint release**: tambahkan provider `androidx.startup.InitializationProvider` dengan
+  `WorkManagerInitializer` ber-`tools:node="remove"` di manifest app (manifest SDK tidak dihitung lint).
+- **Ikuti pola Gendang / DarbukaPad**: `BaseGameActivity` (`bannerContainer`, `isPremiumUser`, `startAds()`,
+  `onAdBuildersReady()`), `DailyRewards.missions` didaftarkan SEBELUM `super.onCreate()`,
+  `RecordingExporter.resolver`, `PremiumPurchase` untuk pembelian.
+- **Performa View custom** (RealKoto, ukur di Realme RMX3261 Android 11 / RAM 2,8 GB): jangan pakai
+  `LAYER_TYPE_SOFTWARE`; gambar bagian statis sekali ke bitmap; tanpa alokasi `Paint`/`Shader` per frame;
+  `SoundPool.play` membuat `AudioTrack` (beberapa ms di HP lama), jalankan di thread audio sendiri.
+  Hasil: frame tersendat 100% → 0,16%, p99 117 ms → 9 ms. Detail ukur: `HOME_PERFORMANCE_RULES.md` bagian 3.
+- Build **release** memakai ID iklan produksi dan memuat iklan asli di HP uji. Ukur performa dengan build
+  debug (iklan uji) dan jangan menekan iklan.
 
 ## Pekerjaan terbuka
 
@@ -148,10 +174,17 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
    Karena punya pembelian, switch koin video tidak muncul; yang berubah hanya Premium Pass & kartu koin.
 4. Tes yang belum: `test.md` no. 22d (iklan → switch 50), 22e (refund di export tutorial).
 5. Kartu "Koin untuk apa?" di `RewardsDialog` SDK belum pernah dilihat langsung di layar (baru di Belira).
+6. **RealKoto**: isi ID iklan rewarded (`admobRewardId` kosong, tombol "tonton iklan" tidak menghasilkan koin);
+   putuskan pembelian (tambah billing + `hasPurchased`, atau `hasPremiumPurchase(false)`); tes rekam, putar ulang,
+   export MP3/video dan volume (belum dites); pitch bend slider tidak ikut terekam (butuh dukungan SDK);
+   masuk layar Koto di HP lama masih ±170–280 ms di build debug (inflate + `rebuildCache`), bisa dipindah ke thread latar.
+7. **DarbukaPad**: tes rekam, export, dan panel Misi di HP; `setToast(true)` di `GameApp` memunculkan toast
+   "Banner sukses dimuat" ke user bila ikut ke rilis (belum diubah).
+8. **Gendang Setting Sendiri**: folder lokal hilang dari `godev2/`; sinkronkan dari GitHub bila perlu dilanjutkan.
 
 ## Aturan kerja yang dipakai
 - Teks baru wajib ada di 19 bahasa (`values`, `values-en/id/in/ar/de/es/fil/fr/hi/ja/ko/ms/nl/pt/ru/th/vi/zh`).
-- Tes hanya di HP yang tersambung (vivo I2401, adb wireless); tanpa emulator. Setiap tap dicek fokus app,
+- Tes hanya di HP yang tersambung (vivo I2401 = HP kelas atas; Realme RMX3261 = HP kelas bawah untuk ukur performa); tanpa emulator. Dua entri adb wireless untuk satu HP muncul sebagai dua perangkat: pakai `adb -t <transport_id>` atau `-s <serial>`. Setiap tap dicek fokus app,
   iklan tidak pernah ditekan (tutup interstitial dengan BACK).
 - Jangan checkout/pull `main` tanpa bertanya. Commit/push hanya bila diminta.
 - try-catch bukan perbaikan; cari akar masalah dulu.
