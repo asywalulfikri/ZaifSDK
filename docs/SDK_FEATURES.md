@@ -119,7 +119,7 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 - Layar admin (Bug Reports, Kritik Saran) — lihat `test.md` no. 42–45 untuk masalah yang diketahui.
 - `ZaifAnalytics`, `LanguageManager`, `AppRatingHelper`, `PermissionManager`, `NetworkWatcher`.
 
-## App yang memakai SDK (baris lama dicek 5 November 2026; Gendang Setting Sendiri, DarbukaPad, RealKoto dicek 13 November 2026)
+## App yang memakai SDK (baris lama dicek 5 November 2026; Gendang Setting Sendiri, DarbukaPad, RealKoto, Talempong dicek 13 November 2026)
 
 | App | Folder | Versi SDK | Koin | Video | Tanpa pembelian | Panel Misi | Catatan |
 |---|---|---|---|---|---|---|---|
@@ -132,6 +132,7 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 | Gendang Setting Sendiri | `godev2/GendangSettingSendiri` (folder lokal sudah tidak ada di disk) | 1.1.175 | ✅ | ✅ | — | `RewardsDialog` | Punya pembelian (`videoAdWithPurchase`). Home Compose, geser jari antar pad, UI emas, `GendangExportResolver`. Branch `feature/sdk-1.1.175` sudah di-push |
 | DarbukaPad | `godev2/DarbukaPad` | 1.1.175 | ✅ | ✅ | — | `RewardsDialog` (chip koin di Home XML) | Punya pembelian Remove Ads. `DarbukaExportResolver` (alias suara Classic vs Pad), UI emas-tembaga. Branch `feature/sdk-1.1.175` sudah di-push. Belum dites: rekam, export, panel Misi |
 | RealKoto | `godev2/RealKoto` | 1.1.175 | ✅ | ✅ | — | `RewardsDialog` (chip koin di Home Compose) | Belum ada kode billing walau `GameApp` memanggil `videoAdWithPurchase(true)`. Panel kontrol di kiri, `KotoExportResolver`, KotoView di-cache. ID iklan rewarded masih kosong. Branch `feature/sdk-1.1.175` |
+| Talempong | `godev2/Talempong` | 1.1.175 | ✅ | ✅ | ✅ | `RewardsDialog` (chip koin di Home Compose) | Tanpa pembelian (`hasPremiumPurchase(false)`). Home Compose bergaya Minang (merah marawa, pita songket, Rumah Gadang), panel kontrol di Pacik & Deret lewat `PadPanelHelper`, `TalempongExportResolver`. Branch `feature/sdk-1.1.175` |
 | Angklung | `godev2/AngklungNew` | 1.1.104 | — | — | — | — | Versi lama |
 | Harmonica | `godev2/Harmonica` | 1.1.69 | — | — | — | — | Versi lama |
 | Darbuka Electric Beat, Real Gayageum, Real Carango, Virtual Shaker, Talempong, Taiko | `godev2/*` | 1.0.62–1.0.68 | — | — | — | — | Versi sangat lama |
@@ -139,11 +140,17 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 
 `godev4` (GendangBeatStudio, Neon, RealRebana) dan `godev5` tidak memakai ZaifSDK lewat Gradle.
 
-## Migrasi app lama ke 1.1.175 (pelajaran RealKoto, dari 1.0.66)
+## Migrasi app lama ke 1.1.175 (pelajaran RealKoto dan Talempong, dari 1.0.62 / 1.0.66)
 
 - **Toolchain wajib**: AGP ≥ 9.1 (dipakai 9.2.1), Gradle 9.4.1, `compileSdk = 37`. AGP 9 sudah membawa Kotlin:
   buang plugin `org.jetbrains.kotlin.android` dan `kapt` (kapt tanpa dependensi aman dibuang). Compose butuh
   `org.jetbrains.kotlin.plugin.compose` (dipakai 2.3.10). Tanpa `local.properties`, Gradle tidak menemukan Android SDK.
+- **Compose butuh Java 11**: ubah `compileOptions` dari `VERSION_1_8` ke `VERSION_11`, kalau tidak build gagal
+  dengan "Cannot inline bytecode built with JVM target 11".
+- **Proyek tanpa `gradle-wrapper.jar`** (Talempong): pakai wrapper proyek lain tanpa mengubah repo, mis.
+  `DarbukaPad/gradlew -p Talempong :app:assembleDebug`.
+- **Warna layar SDK** (Pengaturan, dll.) dari `@color/colorPrimaryDark` milik SDK (`#B83106`): timpa di `colors.xml`
+  app (`<color name="colorPrimaryDark">…</color>`) agar senada tema app. `setBackgroundWidgetColor` bukan sumbernya.
 - **API yang hilang**: `VoiceRecordFragmentVerticalZaif` (ganti `InstrumentControlPanel`; hapus juga
   `FragmentContainerView`-nya di XML, kalau tidak app crash saat layar dibuka), `UnityBannerController`,
   `initUnityAdsOnce`, `RecordingSDK.addSong` (ganti `MusicListDialogHelper.registerRawTracks`),
@@ -159,6 +166,16 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
   `LAYER_TYPE_SOFTWARE`; gambar bagian statis sekali ke bitmap; tanpa alokasi `Paint`/`Shader` per frame;
   `SoundPool.play` membuat `AudioTrack` (beberapa ms di HP lama), jalankan di thread audio sendiri.
   Hasil: frame tersendat 100% → 0,16%, p99 117 ms → 9 ms. Detail ukur: `HOME_PERFORMANCE_RULES.md` bagian 3.
+- **App pad berbasis `View` biasa** (Talempong): satu kelas pembantu (`PadPanelHelper`) memasang `InstrumentControlPanel`
+  untuk dua layar: `bindPads(listOf(view to namaSuara))` merekam tiap pukulan lewat `recordEvent(index, nama)`,
+  playback lewat `onPlaybackEvent`, plus volume, mute, rewarded, dan `videoExport`. Pemetaan nama suara → `res/raw`
+  untuk export ada di `*ExportResolver` (per set, karena Pacik dan Deret memakai sampel berbeda).
+- **Ukur Talempong** (48 ketukan pada 16 gong, Realme RMX3261): suara di UI thread + animasi dimuat ulang tiap
+  sentuhan 3,58% tersendat (p99 20 ms) → suara di thread audio + animasi dimuat sekali 0,00% (p99 11 ms).
+  Di vivo (HP kelas atas) keduanya 0% — perbedaannya hanya terlihat di HP kelas bawah.
+- **Catatan uji**: pemasangan baru memunculkan dialog izin (notifikasi, media); koordinat tombol tolak berbeda
+  per HP, jadi jadikan parameter skrip. `install -r` ditolak bila app terpasang dari Play Store (tanda tangan beda):
+  uninstall hanya dengan izin pemilik HP. Interstitial uji sering butuh beberapa kali Back dengan jeda.
 - Build **release** memakai ID iklan produksi dan memuat iklan asli di HP uji. Ukur performa dengan build
   debug (iklan uji) dan jangan menekan iklan.
 
@@ -181,6 +198,10 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 7. **DarbukaPad**: tes rekam, export, dan panel Misi di HP; `setToast(true)` di `GameApp` memunculkan toast
    "Banner sukses dimuat" ke user bila ikut ke rilis (belum diubah).
 8. **Gendang Setting Sendiri**: folder lokal hilang dari `godev2/`; sinkronkan dari GitHub bila perlu dilanjutkan.
+9. **Talempong**: tes memutar ulang rekaman, LIST REC, export MP3/video, tombol MUSIK dan VOLUME (belum dites);
+   ukur biaya masuk layar instrumen; izin `com.google.android.gms.permission_AD_ID` di manifest salah ketik
+   (garis bawah, bukan titik; aman karena SDK membawa izin yang benar); `app/release/app-release.aab` ikut
+   dilacak git; pertimbangkan apakah tetap tanpa pembelian.
 
 ## Aturan kerja yang dipakai
 - Teks baru wajib ada di 19 bahasa (`values`, `values-en/id/in/ar/de/es/fil/fr/hi/ja/ko/ms/nl/pt/ru/th/vi/zh`).
