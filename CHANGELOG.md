@@ -147,6 +147,9 @@
 - **Dialog di mode portrait** dirapikan, landscape tidak berubah (1.1.175): "Atur tampilan video" (pratinjau lebih sempit,
   kolom opsi lebih lebar, label warna di baris sendiri), "Simpan rekaman" (lebar 86%, sebelumnya dikunci 50%), dan
   "Jadi Premium" video (dua tombol utama sama lebar, "Tutup" di bawahnya; tiga tombol sebaris dulu melebihi lebar dialog).
+- **Overlay video di portrait lebih kecil, landscape tidak berubah** (1.1.176): pil judul lagu 5,5% → 3,2% tinggi video
+  dan kotak nomor not 9% → 5,5% (`titleSizeFactor` / `noteSizeFactor`). Dulu di video portrait (misalnya 576×1280)
+  judul setinggi ±70 px menimpa judul milik app. Pratinjau "Atur tampilan video" memakai fungsi yang sama.
 
 ### 🐛 Perbaikan
 - **Layar admin Bug Report** (`BugReportAdminFragment`) tidak lagi memakai layout Song Request: judulnya

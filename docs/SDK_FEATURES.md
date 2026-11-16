@@ -3,7 +3,7 @@
 Titik awal untuk melanjutkan pekerjaan di session baru. Isinya: semua fitur SDK, cara menyalakannya
 di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang masih terbuka.
 
-- Terakhir diperbarui: **13 November 2026**, SDK **`1.1.175`**.
+- Terakhir diperbarui: **16 November 2026**, SDK **`1.1.176`** (overlay video portrait lebih kecil; app lain masih `1.1.175`).
 - Detail perubahan per versi: `CHANGELOG.md`. Daftar tes: `test.md`.
 - Modul: `soundrecorder` (package `sound.recorder.widget`).
 - Rilis: JitPack `com.github.asywalulfikri:ZaifSDK:<tag>`. Tes lokal tanpa tag:
