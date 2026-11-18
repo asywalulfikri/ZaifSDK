@@ -141,6 +141,13 @@
 - **File mic dari rekaman yang dibatalkan** (atau rekaman tanpa ketukan) dihapus, supaya penyimpanan tidak menumpuk.
 
 ### 🎨 Tampilan
+- **Dialog daftar musik muat di layar landscape** (1.1.178): di Xiaomi Mi Max 2 saat lagu diputar
+  hanya satu lagu yang terlihat penuh, karena header, tab, kolom cari, dan kartu pemutar dua baris (±28% tinggi layar) memakan
+  ±75% tinggi. Di layar landscape (`MusicListDialogHelper.isCompact`, dibaca dari piksel layar, tanpa angka dp; semua ukuran tetap sdp): kartu pemutar jadi **satu baris**
+  (tile, judul, seekbar, volume, stop, play), header/tab/kolom cari dan baris lagu dirampingkan. Di landscape kartu pemutar kini **di bawah daftar** (bagian dari kolom), tidak melayang
+  menutupi baris terbawah. `MusicSeekBar`: track dan thumb di 40% tinggi (dulu tengah) dan thumb sedikit lebih kecil, supaya tidak
+  menimpa label waktu (berlaku di semua layar). Terukur di Mi Max 2: 3 lagu penuh terlihat saat memutar. Portrait tidak
+  berubah. Hanya tampilan, id view dan listener sama.
 - **Dialog volume** lebih hidup: tile ikon bergradasi dan equalizer yang bergerak saat slider digeser.
 - **Dialog daftar MP3** didesain ulang (header, tab, pencarian, kartu player) dan tampil immersive, tanpa nav bar. Logika tidak berubah.
 - **Dialog daftar rekaman** dan **bottom sheet catatan** mendapat tampilan baru.

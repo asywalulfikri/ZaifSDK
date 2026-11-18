@@ -98,7 +98,9 @@ class MusicSeekBar @JvmOverloads constructor(
         val h = height.toFloat()
         if (w <= 0 || h <= 0) return
 
-        val thumbR     = if (showThumb) h * 0.38f else 0f
+        // Track dan thumb di 40% tinggi (bukan tengah) supaya thumb dan glow-nya tidak menimpa label waktu di bawah.
+        val cy         = h * 0.40f
+        val thumbR     = if (showThumb) h * 0.30f else 0f
         val trackLeft  = thumbR + 4f
         val trackRight = maxOf(trackLeft + 1f, w - thumbR - 4f)
         val trackW     = trackRight - trackLeft
@@ -108,8 +110,8 @@ class MusicSeekBar @JvmOverloads constructor(
 
         // ─── 1. Track background ───
         val trackH   = h * 0.18f
-        val trackTop = h / 2f - trackH / 2f
-        val trackBot = h / 2f + trackH / 2f
+        val trackTop = cy - trackH / 2f
+        val trackBot = cy + trackH / 2f
 
         paint.apply {
             shader = null
@@ -148,8 +150,8 @@ class MusicSeekBar @JvmOverloads constructor(
             val tickX    = trackLeft + trackW * (i.toFloat() / 10)
             val isActive = tickX <= thumbX
             val tickH    = if (i % 5 == 0) h * 0.25f else h * 0.15f
-            val tickTop  = h / 2f - tickH / 2f
-            val tickBot  = h / 2f + tickH / 2f
+            val tickTop  = cy - tickH / 2f
+            val tickBot  = cy + tickH / 2f
 
             paint.apply {
                 shader = null
@@ -178,7 +180,7 @@ class MusicSeekBar @JvmOverloads constructor(
 
         // ─── 5. Thumb ───
         if (showThumb) {
-            drawThumb(canvas, thumbX, h / 2f, thumbR)
+            drawThumb(canvas, thumbX, cy, thumbR)
         }
     }
 
@@ -261,7 +263,7 @@ class MusicSeekBar @JvmOverloads constructor(
     private fun updateProgress(touchX: Float) {
         if (width <= 0 || height <= 0 || max <= 0) return
 
-        val thumbR     = if (showThumb) height * 0.38f else 0f
+        val thumbR     = if (showThumb) height * 0.30f else 0f
         val trackLeft  = thumbR + 4f
         val trackRight = width - thumbR - 4f
 
