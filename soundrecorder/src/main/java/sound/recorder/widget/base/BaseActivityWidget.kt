@@ -166,6 +166,27 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var lastShowTime = 0L
 
     private val SHOW_INTERVAL = 90_000L
+
+    /** Interstitial hanya tampil bila layar sudah tenang (tanpa sentuhan) selama ini. */
+    private val TOUCH_QUIET_MS = 800L
+    /** Bila pemain terus menyentuh selama ini, iklan dilewati (onFinished jalan tanpa iklan). */
+    private val TOUCH_QUIET_MAX_WAIT_MS = 2_500L
+    private val TOUCH_QUIET_POLL_MS = 100L
+
+    private var lastTouchAt = 0L
+    private var fingerDown = false
+    private var interstitialWaitingForQuiet = false
+    private val quietHandler = Handler(Looper.getMainLooper())
+
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        when (ev.actionMasked) {
+            android.view.MotionEvent.ACTION_DOWN -> fingerDown = true
+            android.view.MotionEvent.ACTION_UP,
+            android.view.MotionEvent.ACTION_CANCEL -> fingerDown = false
+        }
+        lastTouchAt = android.os.SystemClock.uptimeMillis()
+        return super.dispatchTouchEvent(ev)
+    }
     /** Jeda inisialisasi AdMob saat consent lama masih berlaku. */
     private val ADMOB_STARTUP_DELAY_MS = 1_500L
     /** Iklan AdMob kedaluwarsa 1 jam setelah dimuat; buang sedikit lebih awal. */
@@ -554,6 +575,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
     override fun onDestroy() {
+        quietHandler.removeCallbacksAndMessages(null)
 
         if (enableInAppUpdate()) {
             updateHelper.onDestroy()
@@ -1427,6 +1449,42 @@ open class BaseActivityWidget : AppCompatActivity() {
             return
         }
 
+        // Ketukan ganda saat menunggu: yang pertama masih berjalan, jangan navigasi dua kali.
+        if (interstitialWaitingForQuiet) return
+        interstitialWaitingForQuiet = true
+
+        // Iklan layar penuh yang muncul tepat di bawah jari (pemain sedang memukul pad atau baru
+        // menekan tombol) memancing klik tidak sengaja. Tunggu layar tenang dulu.
+        val startedAt = android.os.SystemClock.uptimeMillis()
+        lateinit var check: Runnable
+        check = Runnable {
+            if (isFinishing || isDestroyed) {
+                interstitialWaitingForQuiet = false
+                return@Runnable
+            }
+            val sinceTouch = android.os.SystemClock.uptimeMillis() - lastTouchAt
+            val quiet = !fingerDown && sinceTouch >= TOUCH_QUIET_MS
+            val waited = android.os.SystemClock.uptimeMillis() - startedAt
+            when {
+                quiet -> {
+                    interstitialWaitingForQuiet = false
+                    val stillValid = mInterstitialAd === ad &&
+                            lifecycle.currentState == Lifecycle.State.RESUMED
+                    if (stillValid) presentInterstitial(isPremium, ad, onFinished) else onFinished()
+                }
+                waited >= TOUCH_QUIET_MAX_WAIT_MS -> {
+                    // Pemain terus menyentuh: lewati iklan (tetap termuat untuk kesempatan berikut).
+                    interstitialWaitingForQuiet = false
+                    onFinished()
+                }
+                else -> quietHandler.postDelayed(check, TOUCH_QUIET_POLL_MS)
+            }
+        }
+        quietHandler.postDelayed(check, TOUCH_QUIET_POLL_MS)
+    }
+
+    private fun presentInterstitial(isPremium: Boolean, ad: InterstitialAd, onFinished: () -> Unit) {
+        val now = System.currentTimeMillis()
         // Anti double show
         mInterstitialAd = null
         lastShowTime = now

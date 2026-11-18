@@ -169,6 +169,13 @@
   tidak bergantung pada tema app. Pemasangan ulang saat fokus kembali (`onWindowFocusChanged`) berlaku di semua versi Android
   (dulu hanya Android 10 ke bawah). Terukur lewat `dumpsys window`: sebelum `visible=true` setelah ketukan, sesudah
   `visible=false` di layar game, saat dialog Volume dibuka dan sesudah ditutup.
+- **Interstitial menunggu layar tenang sebelum tampil** (1.1.177): CTR interstitial Darbuka 11% (normal sekitar 3 sampai 7%)
+  dicurigai klik tidak sengaja, karena iklan yang sudah dimuat muncul seketika di bawah jari pemain (setelah menekan tombol
+  mode di Home atau tombol Kembali di layar main). `showInterstitialIfAllowed` sekarang menunggu tanpa sentuhan selama 0,8 detik
+  (`TOUCH_QUIET_MS`), maksimal 2,5 detik. Bila pemain terus menyentuh sampai batas itu, iklan dilewati dan `onFinished` tetap jalan
+  (iklan tetap termuat). Ketukan ganda saat menunggu tidak menavigasi dua kali. Aturan jeda 90 detik antar iklan tidak berubah.
+  Terukur di Realme C21Y (Real Santoor, satu ketukan Mainkan): iklan muncul sekitar 1,7 detik setelah ketukan, termasuk
+  latensi adb sekitar 0,8 detik. Kasus pemain terus menyentuh belum diuji di HP.
 
 ### 🐛 Perbaikan
 - **Layar admin Bug Report** (`BugReportAdminFragment`) tidak lagi memakai layout Song Request: judulnya
