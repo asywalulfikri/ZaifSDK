@@ -159,12 +159,13 @@ object MusicListDialogHelper {
     private fun rowCard(ctx: Context): Pair<FrameLayout, LinearLayout> {
         val outer = FrameLayout(ctx).apply {
             layoutParams = RecyclerView.LayoutParams(-1, -2)
-            setPadding(ctx.sdp(SdpR.dimen._12sdp), ctx.sdp(SdpR.dimen._3sdp), ctx.sdp(SdpR.dimen._12sdp), ctx.sdp(SdpR.dimen._3sdp))
+            val v = if (isCompact(ctx)) SdpR.dimen._2sdp else SdpR.dimen._3sdp
+            setPadding(ctx.sdp(SdpR.dimen._12sdp), ctx.sdp(v), ctx.sdp(SdpR.dimen._12sdp), ctx.sdp(v))
         }
         val card = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            val p = ctx.sdp(SdpR.dimen._8sdp)
+            val p = ctx.sdp(if (isCompact(ctx)) SdpR.dimen._5sdp else SdpR.dimen._8sdp)
             setPadding(p, p, ctx.sdp(SdpR.dimen._10sdp), p)
         }
         outer.addView(card, FrameLayout.LayoutParams(-1, -2))
@@ -173,7 +174,7 @@ object MusicListDialogHelper {
 
     /** Kotak ikon kiri baris: ikon not musik, atau equalizer saat lagu itu sedang aktif. */
     private fun rowIconTile(ctx: Context): Triple<FrameLayout, ImageView, EqualizerBarsView> {
-        val size = ctx.sdp(SdpR.dimen._34sdp)
+        val size = ctx.sdp(if (isCompact(ctx)) SdpR.dimen._28sdp else SdpR.dimen._34sdp)
         val note = tintedIcon(ctx, R.drawable.zaif_rec_ic_music, Color.parseColor(COLOR_ACCENT_LIGHT))
         val eq = EqualizerBarsView(ctx).apply {
             barColor = Color.WHITE
@@ -198,6 +199,19 @@ object MusicListDialogHelper {
     )
 
     private fun Context.sdp(id: Int)    = resources.getDimensionPixelSize(id)
+
+    /**
+     * Layar landscape: semua ukuran di sini memakai sdp, yang mengikuti sisi TERPENDEK layar (di landscape = tinggi),
+     * jadi header, tab, kolom cari, kartu pemutar dua baris dan baris lagu selalu memakan porsi tinggi yang sama (±75% sebelum
+     * daftar lagu). Di landscape semua itu dipadatkan (kartu pemutar satu baris) supaya daftar lagu tetap menampilkan
+     * beberapa baris saat lagu diputar (Xiaomi Mi Max 2: hanya 1 lagu terlihat). Hanya tampilan; portrait tidak berubah.
+     * Tanpa angka dp: orientasi dibaca dari piksel layar.
+     */
+    private fun isCompact(ctx: Context): Boolean {
+        val m = ctx.resources.displayMetrics
+        return m.widthPixels > m.heightPixels
+    }
+
     private fun Context.sspSp(id: Int)  = resources.getDimension(id) / resources.displayMetrics.scaledDensity
 
     @SuppressLint("UseKtx")
@@ -226,6 +240,7 @@ object MusicListDialogHelper {
     @SuppressLint("UseKtx", "ClickableViewAccessibility")
     fun show(context: Context, isDownload: Boolean = false): AlertDialog {
         val themedContext = resolveThemedContext(context)
+        val compact = isCompact(themedContext)
 
         zaifSDKConfig = ZaifSDKBuilder.load(context)
 
@@ -253,17 +268,17 @@ object MusicListDialogHelper {
             gravity = Gravity.CENTER_VERTICAL
             setPadding(
                 themedContext.sdp(SdpR.dimen._12sdp),
-                themedContext.sdp(SdpR.dimen._10sdp),
+                themedContext.sdp(if (compact) SdpR.dimen._4sdp else SdpR.dimen._10sdp),
                 themedContext.sdp(SdpR.dimen._12sdp),
-                themedContext.sdp(SdpR.dimen._8sdp)
+                themedContext.sdp(if (compact) SdpR.dimen._4sdp else SdpR.dimen._8sdp)
             )
         }
 
-        val headerTileSize = themedContext.sdp(SdpR.dimen._32sdp)
+        val headerTileSize = themedContext.sdp(if (compact) SdpR.dimen._26sdp else SdpR.dimen._32sdp)
         val headerTile = FrameLayout(themedContext).apply {
             background = accentGradient(themedContext, SdpR.dimen._10sdp)
             elevation = themedContext.sdp(SdpR.dimen._3sdp).toFloat()
-            val icon = themedContext.sdp(SdpR.dimen._18sdp)
+            val icon = themedContext.sdp(if (compact) SdpR.dimen._15sdp else SdpR.dimen._18sdp)
             addView(
                 tintedIcon(themedContext, R.drawable.zaif_rec_ic_queue_music, Color.WHITE),
                 FrameLayout.LayoutParams(icon, icon, Gravity.CENTER)
@@ -273,14 +288,14 @@ object MusicListDialogHelper {
         val titleView = TextView(themedContext).apply {
             text = themedContext.getString(R.string.list_music)
             setTextColor(Color.parseColor(COLOR_TEXT_BRIGHT))
-            textSize = themedContext.sspSp(SspR.dimen._15ssp)
+            textSize = themedContext.sspSp(if (compact) SspR.dimen._13ssp else SspR.dimen._15ssp)
             typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
             maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
             setPadding(themedContext.sdp(SdpR.dimen._10sdp), 0, themedContext.sdp(SdpR.dimen._8sdp), 0)
         }
 
-        val closeBtnSize = themedContext.sdp(SdpR.dimen._30sdp)
+        val closeBtnSize = themedContext.sdp(if (compact) SdpR.dimen._26sdp else SdpR.dimen._30sdp)
         val closeBtn = FrameLayout(themedContext).apply {
             background = ripple(GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
@@ -308,7 +323,7 @@ object MusicListDialogHelper {
                 textSize = themedContext.sspSp(SspR.dimen._10ssp)
                 gravity = Gravity.CENTER
                 typeface = Typeface.create("sans-serif-medium", Typeface.BOLD)
-                layoutParams = LinearLayout.LayoutParams(0, themedContext.sdp(SdpR.dimen._28sdp), 1f)
+                layoutParams = LinearLayout.LayoutParams(0, themedContext.sdp(if (compact) SdpR.dimen._22sdp else SdpR.dimen._28sdp), 1f)
             }
             tabLocal  = makeTabButton(context.getString(R.string.local_song))
             tabOnline = makeTabButton(context.getString(R.string.online_song))
@@ -324,7 +339,7 @@ object MusicListDialogHelper {
             mainLayout.addView(tabStrip, LinearLayout.LayoutParams(-1, -2).apply {
                 setMargins(
                     themedContext.sdp(SdpR.dimen._12sdp), 0,
-                    themedContext.sdp(SdpR.dimen._12sdp), themedContext.sdp(SdpR.dimen._8sdp)
+                    themedContext.sdp(SdpR.dimen._12sdp), themedContext.sdp(if (compact) SdpR.dimen._4sdp else SdpR.dimen._8sdp)
                 )
             })
         }
@@ -335,7 +350,7 @@ object MusicListDialogHelper {
                 themedContext.sdp(SdpR.dimen._12sdp),
                 0,
                 themedContext.sdp(SdpR.dimen._12sdp),
-                themedContext.sdp(SdpR.dimen._6sdp)
+                themedContext.sdp(if (compact) SdpR.dimen._4sdp else SdpR.dimen._6sdp)
             )
         }
 
@@ -348,9 +363,9 @@ object MusicListDialogHelper {
             isSingleLine = true
             setPadding(
                 themedContext.sdp(SdpR.dimen._12sdp),
-                themedContext.sdp(SdpR.dimen._8sdp),
+                themedContext.sdp(if (compact) SdpR.dimen._5sdp else SdpR.dimen._8sdp),
                 themedContext.sdp(SdpR.dimen._12sdp),
-                themedContext.sdp(SdpR.dimen._8sdp)
+                themedContext.sdp(if (compact) SdpR.dimen._5sdp else SdpR.dimen._8sdp)
             )
             ContextCompat.getDrawable(themedContext, R.drawable.zaif_rec_ic_search)?.mutate()?.let { d ->
                 val s = themedContext.sdp(SdpR.dimen._14sdp)
@@ -417,13 +432,21 @@ object MusicListDialogHelper {
         rootContainer.addView(mainLayout)
 
         // ─── FLOATING PLAYER CARD ───
-        val playerCard = buildElegantPlayerCard(themedContext, savedVolume)
+        val playerCard = buildElegantPlayerCard(themedContext, savedVolume, compact)
         val playerMargin = themedContext.sdp(SdpR.dimen._12sdp)
         val playerBottom = themedContext.sdp(SdpR.dimen._8sdp)
-        rootContainer.addView(playerCard, FrameLayout.LayoutParams(-1, -2).apply {
-            gravity = Gravity.BOTTOM
-            setMargins(playerMargin, 0, playerMargin, playerBottom)
-        })
+        if (compact) {
+            // Landscape: kartu di BAWAH daftar (bagian dari kolom), bukan melayang di atasnya, jadi baris
+            // lagu terbawah tidak tertutup. Daftar (bobot 1) berakhir tepat di atas kartu.
+            mainLayout.addView(playerCard, LinearLayout.LayoutParams(-1, -2).apply {
+                setMargins(playerMargin, themedContext.sdp(SdpR.dimen._4sdp), playerMargin, playerBottom)
+            })
+        } else {
+            rootContainer.addView(playerCard, FrameLayout.LayoutParams(-1, -2).apply {
+                gravity = Gravity.BOTTOM
+                setMargins(playerMargin, 0, playerMargin, playerBottom)
+            })
+        }
 
         val uiListener = object : MusicPlayerManager.PlayerListener {
             override fun onPlay(track: MusicPlayerManager.MusicTrack) {
@@ -897,7 +920,8 @@ object MusicListDialogHelper {
         }
 
         playerCard.viewTreeObserver.addOnGlobalLayoutListener {
-            val bottomPad = if (playerCard.visibility == View.VISIBLE) {
+            // compact: kartu sudah di bawah daftar, daftar tidak perlu padding tambahan
+            val bottomPad = if (!compact && playerCard.visibility == View.VISIBLE) {
                 playerCard.height + playerBottom
             } else {
                 0
@@ -1281,7 +1305,7 @@ object MusicListDialogHelper {
     // ─── PLAYER CARD ──────────────────────────────────────────────────────────
 
     @SuppressLint("UseKtx", "ClickableViewAccessibility")
-    private fun buildElegantPlayerCard(context: Context, initialVolume: Float): LinearLayout {
+    private fun buildElegantPlayerCard(context: Context, initialVolume: Float, compact: Boolean = false): LinearLayout {
         return LinearLayout(context).apply {
             id = 100
             orientation = LinearLayout.VERTICAL
@@ -1294,18 +1318,26 @@ object MusicListDialogHelper {
             }
             elevation = context.sdp(SdpR.dimen._8sdp).toFloat()
 
+            // Mode padat (layar landscape pendek): semua kontrol dalam SATU baris; normal: dua baris.
             val topRow = LinearLayout(context).apply {
-                setPadding(
-                    context.sdp(SdpR.dimen._10sdp),
-                    context.sdp(SdpR.dimen._10sdp),
-                    context.sdp(SdpR.dimen._10sdp),
-                    0
-                )
+                if (compact) {
+                    setPadding(
+                        context.sdp(SdpR.dimen._8sdp), context.sdp(SdpR.dimen._5sdp),
+                        context.sdp(SdpR.dimen._8sdp), context.sdp(SdpR.dimen._5sdp)
+                    )
+                } else {
+                    setPadding(
+                        context.sdp(SdpR.dimen._10sdp),
+                        context.sdp(SdpR.dimen._10sdp),
+                        context.sdp(SdpR.dimen._10sdp),
+                        0
+                    )
+                }
                 gravity = Gravity.CENTER_VERTICAL
             }
 
             // Kotak "now playing": equalizer bergerak selama lagu diputar
-            val tileSize = context.sdp(SdpR.dimen._34sdp)
+            val tileSize = context.sdp(if (compact) SdpR.dimen._28sdp else SdpR.dimen._34sdp)
             val nowPlayingTile = FrameLayout(context).apply {
                 background = accentGradient(context, SdpR.dimen._10sdp)
                 layoutParams = LinearLayout.LayoutParams(tileSize, tileSize)
@@ -1331,7 +1363,7 @@ object MusicListDialogHelper {
                 isSelected = true
             }
 
-            val stopSize = context.sdp(SdpR.dimen._30sdp)
+            val stopSize = context.sdp(if (compact) SdpR.dimen._26sdp else SdpR.dimen._30sdp)
             val stopBtn = roundIconButton(
                 context, 105, R.drawable.zaif_rec_ic_stop,
                 GradientDrawable().apply { setColor(Color.parseColor("#26FF6B6B")) },
@@ -1345,7 +1377,7 @@ object MusicListDialogHelper {
                 }
             }
 
-            val playSize = context.sdp(SdpR.dimen._36sdp)
+            val playSize = context.sdp(if (compact) SdpR.dimen._30sdp else SdpR.dimen._36sdp)
             val playBtn = roundIconButton(
                 context, 102, R.drawable.zaif_rec_ic_play,
                 accentGradient(context, SdpR.dimen._18sdp), Color.WHITE
@@ -1363,12 +1395,6 @@ object MusicListDialogHelper {
                 }
             }
 
-            topRow.addView(nowPlayingTile)
-            topRow.addView(titleTv)
-            topRow.addView(stopBtn)
-            topRow.addView(playBtn)
-            addView(topRow)
-
             val controlsRow = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
@@ -1385,8 +1411,8 @@ object MusicListDialogHelper {
                 layoutParams = LinearLayout.LayoutParams(
                     0,
                     context.sdp(SdpR.dimen._24sdp),
-                    2.5f
-                )
+                    if (compact) 2f else 2.5f
+                ).apply { if (compact) setMargins(context.sdp(SdpR.dimen._6sdp), 0, 0, 0) }
                 progressStartColor = Color.parseColor("#00C9FF")
                 progressEndColor   = Color.parseColor("#92FE9D")
                 glowColor          = Color.parseColor("#00C9FF")
@@ -1421,7 +1447,7 @@ object MusicListDialogHelper {
                 id = 104
                 max = 100
                 progress = (initialVolume * 100).toInt()
-                layoutParams = LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._20sdp), 1.2f)
+                layoutParams = LinearLayout.LayoutParams(0, context.sdp(SdpR.dimen._20sdp), if (compact) 0.9f else 1.2f)
                 progressStartColor = Color.parseColor("#A78BFA")
                 progressEndColor   = Color.parseColor("#FF6B9D")
                 glowColor          = Color.parseColor("#A78BFA")
@@ -1444,10 +1470,29 @@ object MusicListDialogHelper {
                 }
             }
 
-            controlsRow.addView(musicSeekBar)
-            controlsRow.addView(volIcon)
-            controlsRow.addView(volBar)
-            addView(controlsRow)
+            if (compact) {
+                // Satu baris: [tile] [judul] [seekbar] [ikon volume] [volume] [stop] [play]
+                topRow.addView(nowPlayingTile)
+                topRow.addView(titleTv)
+                topRow.addView(musicSeekBar)
+                topRow.addView(volIcon)
+                topRow.addView(volBar)
+                topRow.addView(stopBtn.apply {
+                    (layoutParams as LinearLayout.LayoutParams).setMargins(context.sdp(SdpR.dimen._8sdp), 0, context.sdp(SdpR.dimen._8sdp), 0)
+                })
+                topRow.addView(playBtn)
+                addView(topRow)
+            } else {
+                topRow.addView(nowPlayingTile)
+                topRow.addView(titleTv)
+                topRow.addView(stopBtn)
+                topRow.addView(playBtn)
+                addView(topRow)
+                controlsRow.addView(musicSeekBar)
+                controlsRow.addView(volIcon)
+                controlsRow.addView(volBar)
+                addView(controlsRow)
+            }
 
             setOnTouchListener { _, _ -> true }
         }

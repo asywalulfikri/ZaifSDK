@@ -141,6 +141,13 @@
 - **File mic dari rekaman yang dibatalkan** (atau rekaman tanpa ketukan) dihapus, supaya penyimpanan tidak menumpuk.
 
 ### 🎨 Tampilan
+- **Dialog daftar musik muat di layar landscape** (1.1.178): di Xiaomi Mi Max 2 saat lagu diputar
+  hanya satu lagu yang terlihat penuh, karena header, tab, kolom cari, dan kartu pemutar dua baris (±28% tinggi layar) memakan
+  ±75% tinggi. Di layar landscape (`MusicListDialogHelper.isCompact`, dibaca dari piksel layar, tanpa angka dp; semua ukuran tetap sdp): kartu pemutar jadi **satu baris**
+  (tile, judul, seekbar, volume, stop, play), header/tab/kolom cari dan baris lagu dirampingkan. Di landscape kartu pemutar kini **di bawah daftar** (bagian dari kolom), tidak melayang
+  menutupi baris terbawah. `MusicSeekBar`: track dan thumb di 40% tinggi (dulu tengah) dan thumb sedikit lebih kecil, supaya tidak
+  menimpa label waktu (berlaku di semua layar). Terukur di Mi Max 2: 3 lagu penuh terlihat saat memutar. Portrait tidak
+  berubah. Hanya tampilan, id view dan listener sama.
 - **Dialog volume** lebih hidup: tile ikon bergradasi dan equalizer yang bergerak saat slider digeser.
 - **Dialog daftar MP3** didesain ulang (header, tab, pencarian, kartu player) dan tampil immersive, tanpa nav bar. Logika tidak berubah.
 - **Dialog daftar rekaman** dan **bottom sheet catatan** mendapat tampilan baru.
@@ -178,6 +185,13 @@
   latensi adb sekitar 0,8 detik. Kasus pemain terus menyentuh belum diuji di HP.
 
 ### 🐛 Perbaikan
+- **App tidak crash lagi saat WorkManager tidak bisa membuka databasenya** (1.1.178): Crashlytics Darbuka melaporkan
+  `SQLiteCantOpenDatabaseException: unable to open database file (code 14)` dari `ForceStopRunnable`, lalu
+  "The file system on the device is in a bad state. WorkManager cannot access the app's internal data store."
+  Error ini dilempar di thread internal WorkManager, di luar `try/catch` di `MyApp`, sehingga app crash. Penyebabnya di perangkat
+  (penyimpanan penuh atau rusak, data app terhapus saat berjalan, ruang kedua), bukan di kode kita. `MyApp.workManagerConfiguration`
+  kini memasang `setInitializationExceptionHandler`: error dicatat ke log dan ke Crashlytics sebagai non-fatal. Di HP seperti itu
+  pengingat/notifikasi terjadwal tidak jalan, fitur lain normal. Berlaku untuk semua app yang memakai `MyApp`.
 - **Layar admin Bug Report** (`BugReportAdminFragment`) tidak lagi memakai layout Song Request: judulnya
   salah ("Song Request Admin") dan teks kosongnya "Belum ada request lagu". Sekarang punya layout sendiri
   (`fragment_bug_report_admin`, `item_bug_report`) dengan judul "Bug Report Admin", deskripsi sampai 6 baris,

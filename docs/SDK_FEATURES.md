@@ -22,6 +22,7 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 | `docs/ANALYTICS_TRACKING.md` | Event analytics, `source`/`purpose` koin |
 | `docs/HOME_PERFORMANCE_RULES.md` | Aturan redesign Home + protokol tes gfxinfo |
 | `docs/UNUSED_CLASSES.md` | 36 file SDK yang tidak dipakai (hanya dicatat, tidak dihapus) |
+| `docs/STRESS_TEST.md` | Stress test ANR: cakupan fitur SDK (sudah/belum diuji), hasil per app dan HP, ANR dari Play Console |
 
 ## Menyalakan fitur di app host (`ZaifSDKBuilder`, di `GameApp`)
 
@@ -134,8 +135,9 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 | RealKoto | `godev2/RealKoto` | 1.1.175 | ✅ | ✅ | — | `RewardsDialog` (chip koin di Home Compose) | Belum ada kode billing walau `GameApp` memanggil `videoAdWithPurchase(true)`. Panel kontrol di kiri, `KotoExportResolver`, KotoView di-cache. ID iklan rewarded masih kosong. Branch `feature/sdk-1.1.175` |
 | Talempong | `godev2/Talempong` | 1.1.175 | ✅ | ✅ | ✅ | `RewardsDialog` (chip koin di Home Compose) | Tanpa pembelian (`hasPremiumPurchase(false)`). Home Compose bergaya Minang (merah marawa, pita songket, Rumah Gadang), panel kontrol di Pacik & Deret lewat `PadPanelHelper`, `TalempongExportResolver`. Branch `feature/sdk-1.1.175` |
 | Angklung | `godev2/AngklungNew` | 1.1.175 | ✅ | ✅ | — | `RewardsDialog` (chip koin di Home Compose) | Punya pembelian Remove Ads (`videoAdWithPurchase`). Home Compose bertema Sunda (kawung, tumpal, hero angklung digambar sekali). Angklung Nada dibuat ulang mengikuti angklung asli: 8 angklung diatonis (do–do'), rangka bambu + tabung besar & tabung oktaf, digoyang (geser jari = kurulung/tremolo, ketuk = centok, goyang HP untuk angklung yang dicentang). `AngklungView` memicu `onShakePulse` ±10x/detik; tiap getaran = satu `RecordedTap` (nama suara `long_*`), `AngklungExportResolver`. Angklung Susun dibuat ulang: 30 angklung kromatik (`d_*`) dua deret di `AngklungSusunView` (lapisan diam di-cache ke bitmap), memakai `InstrumentControlPanel`. Diukur di HP: Realme debug Susun 0,4% / Nada 0% jank, Home release Home↔Sejarah 5,8% (p99 57 ms, satu frame komposisi saat kembali); vivo debug Susun 0,8% / Nada 0%. Tes release hanya di Realme dengan DNS diblok (iklan produksi). Rekam, putar ulang, export MP3 dan MIDI sudah dites di Realme (debug, iklan uji): `AngklungExportResolver` mengisi `resolveMidiNote` (Nada diatonis do = C5, program 12 marimba) karena tanpa itu SDK menulis 60 + nomor pad (kromatik). Layar ke-3 **Angklung Lengkap** (`AngklungLengkapView`, `LengkapPads`) memakai paket suara `angklung_new_package` (62 `.ogg` jadi `res/raw/pk_*`, dimuat hanya saat layar dibuka lewat `SoundPlayUtils.loadPack`, ±13 MB): 24 nada kromatik 2 oktaf, ketuk = centok 0,5 dtk, tahan = goyang `tekan` 2 dtk yang diulang; pad Baru C/D/E/F dan Crash C/D/F (fungsinya masih tebakan). Contoh pemakaian nada tahan: rekam suara `*tekan` lalu event `OFF` (`RecordingExporter.OFF_METADATA`), resolver mengembalikan `ExportSample(loop = true)`; hasil MP3 sesuai lama tahan. Catatan SDK: bila rekaman berisi `OFF`, `MidiFileWriter` membiarkan ketukan tanpa `OFF` berbunyi sampai akhir berkas, dan `Mp3Renderer` memotong sampel non-loop (dengan fade) jika diberi `OFF`, jadi ketukan pendek tidak boleh diberi `OFF`. Dialog ekspor: tombol Tutup terpotong di layar landscape kecil setelah pesan sukses. Belum dites: export Video, panel Misi, dan pitch MIDI Lengkap (c1 diasumsikan C4). Branch `feature/sdk-1.1.175` |
+| Real Gayageum | `godev2/RealGayageum` | 1.1.176 | ✅ | ✅ | ✅ | `RewardsDialog` (tanpa misi terdaftar) | Tanpa pembelian (`hasPremiumPurchase(false)`). Dimigrasi dari 1.0.66: `BaseGameActivity`, `InstrumentControlPanel` di kiri (menggantikan `VoiceRecordFragmentHorizontalZaif`), `GayageumExportResolver` (`sound_N` → `senar_N`, pentatonik C D E G A, program 107 koto). `GayageumFragment` sebelumnya salah paket (`real.tumbi`) dan belum memanggil `GayageumView`. Geser pitch slider belum ikut terekam. Navigasi setelah interstitial memakai `runWhenStarted` (tanpa itu log: "Ignoring navigate() call: FragmentManager has already saved its state" dan app tertahan di Home). Dites di Samsung SM-G532G: Home, layar alat, REC, simpan, putar ulang. Home Compose (gambar `bgc` + tombol Compose). `GayageumView` dioptimalkan: lapisan diam di-cache ke bitmap, tanpa `LAYER_TYPE_SOFTWARE`/`BlurMaskFilter`, badan `roxy.png` dimuat sekali sesuai ukuran layar. Ukur di Samsung SM-G532G (Android 6, RAM 1,4 GB, debug, banner uji aktif; 6 geseran x 12 senar + 6 ketukan): sebelum 72,75% tersendat, p90 121 ms (400 frame); sesudah 18,52%, p90 19 ms, p99 26 ms (799 frame). Belum dites: export MP3/MIDI/video, volume, panel Misi. Branch `feature/sdk-1.1.176` (belum di-commit) |
 | Harmonica | `godev2/Harmonica` | 1.1.69 | — | — | — | — | Versi lama |
-| Darbuka Electric Beat, Real Gayageum, Real Carango, Virtual Shaker, Talempong, Taiko | `godev2/*` | 1.0.62–1.0.68 | — | — | — | — | Versi sangat lama |
+| Darbuka Electric Beat, Real Carango, Virtual Shaker, Taiko | `godev2/*` | 1.0.62–1.0.68 | — | — | — | — | Versi sangat lama |
 | Lira | tidak ditemukan di disk | ? | | | | | Pernah dites dengan BaseGameActivity |
 
 `godev4` (GendangBeatStudio, Neon, RealRebana) dan `godev5` tidak memakai ZaifSDK lewat Gradle.
@@ -173,11 +175,27 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 - **Ukur Talempong** (48 ketukan pada 16 gong, Realme RMX3261): suara di UI thread + animasi dimuat ulang tiap
   sentuhan 3,58% tersendat (p99 20 ms) → suara di thread audio + animasi dimuat sekali 0,00% (p99 11 ms).
   Di vivo (HP kelas atas) keduanya 0% — perbedaannya hanya terlihat di HP kelas bawah.
+- **Gambar yang dipanggil lewat nama hilang di build shrink** (RealGayageum): `getIdentifier("roxy", "drawable", ...)` tidak terlihat oleh shrinker resource, jadi `roxy.png` dan `hand.png` dibuang saat `isShrinkResources = true` (APK 35 MB → 17,7 MB, badan alat kosong). Pakai `R.drawable.x` langsung; `keep.xml` hanya menjaga `@raw/*`, tambahkan `@drawable/...` bila memang harus lewat nama.
 - **Catatan uji**: pemasangan baru memunculkan dialog izin (notifikasi, media); koordinat tombol tolak berbeda
   per HP, jadi jadikan parameter skrip. `install -r` ditolak bila app terpasang dari Play Store (tanda tangan beda):
   uninstall hanya dengan izin pemilik HP. Interstitial uji sering butuh beberapa kali Back dengan jeda.
 - Build **release** memakai ID iklan produksi dan memuat iklan asli di HP uji. Ukur performa dengan build
   debug (iklan uji) dan jangan menekan iklan.
+
+## Perubahan SDK untuk rollout ke banyak app (1.1.177 – 1.1.178)
+
+Dipakai app host yang naik versi. Darbuka jadi canary (branch `feature/sdk-1.1.177`); app lain menunggu hasil CTR 1–2 minggu.
+Detail lengkap tiap poin ada di `CHANGELOG.md`.
+
+| Versi | Perubahan SDK | Yang harus dicek di app host |
+|---|---|---|
+| 1.1.177 | Status/navigation bar tetap tersembunyi (`FLAG_FULLSCREEN`, dipasang ulang saat fokus, dialog `immersive()`), banner tidak tertutup status bar di Android 10 ke bawah | Banner menutupi elemen paling atas? Ukur jarak banner (±160 px di layar 1080×2376) ke tombol/elemen teratas. Darbuka: margin atas dinaikkan `_50sdp` → `_58sdp` di Home Back/Close Mixer, Single (drum), dan Studio |
+| 1.1.177 | Interstitial menunggu layar tenang 0,8 dtk (maks 2,5 dtk, lalu dilewati; `onFinished` tetap jalan), jeda 90 dtk antar iklan tidak berubah | Tidak perlu kode di host. Tujuannya menurunkan klik tidak sengaja (CTR Darbuka interstitial 11%, banner 9,8%) |
+| 1.1.178 | `MyApp.workManagerConfiguration` memasang `setInitializationExceptionHandler`: crash WorkManager `SQLITE_CANTOPEN` / "file system on the device is in a bad state" kini dicatat ke Crashlytics sebagai non-fatal, app tidak crash | Host harus memakai `MyApp` (atau turunannya) sebagai Application agar handler berlaku. Pengingat terjadwal di HP bermasalah tidak jalan, fitur lain normal |
+
+Catatan 1.1.178: error dilempar di thread internal WorkManager (`WM.task-1`), jadi `try/catch` di `MyApp` tidak menangkapnya.
+Dicoba ulang di Realme C21Y dengan mencabut izin folder `no_backup` (`chmod 000`): SDK lama crash, SDK baru tidak.
+Penyebab aslinya di perangkat (penyimpanan penuh/rusak, ruang kedua), jadi tidak bisa dihilangkan dari app.
 
 ## Pekerjaan terbuka
 
