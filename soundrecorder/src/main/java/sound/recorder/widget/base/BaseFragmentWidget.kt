@@ -1,5 +1,7 @@
 package sound.recorder.widget.base
 
+import sound.recorder.widget.util.immersive
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -442,7 +444,7 @@ open class BaseFragmentWidget : Fragment() {
             dialog.dismiss()
         }
 
-        val dialog = builder.create()
+        val dialog = builder.create().immersive()
         dialog.show()
     }
 
@@ -517,7 +519,7 @@ open class BaseFragmentWidget : Fragment() {
     fun showDialogEmail(appName : String ,info : String) {
 
         // custom dialog
-        val dialog = Dialog(requireContext())
+        val dialog = Dialog(requireContext()).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_input_email)
         dialog.setCancelable(true)
@@ -618,7 +620,7 @@ open class BaseFragmentWidget : Fragment() {
     fun showLoadingProgress(context: Context,long : Long) {
 
         try {
-            var dialogLoading: Dialog? = Dialog(context)
+            var dialogLoading: Dialog? = Dialog(context).immersive()
             dialogLoading?.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialogLoading?.setContentView(R.layout.loading_layout)
             dialogLoading?.setCancelable(false)

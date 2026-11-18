@@ -50,7 +50,7 @@ object ProgressDialogUtil {
             progressDialog = AlertDialog.Builder(activity)
                 .setView(dialogView)
                 .setCancelable(false)
-                .create().apply {
+                .create().immersive().apply {
                     setCanceledOnTouchOutside(false)
                     requestWindowFeature(Window.FEATURE_NO_TITLE)
                     window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))

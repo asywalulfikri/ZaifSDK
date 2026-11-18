@@ -1,5 +1,7 @@
 package sound.recorder.widget.recording
 
+import sound.recorder.widget.util.immersive
+
 import com.google.gson.Gson
 import android.os.SystemClock
 import android.os.Looper
@@ -142,7 +144,7 @@ object RecordingListDialogHelper {
         val trimPreview = if (onPreview != null) TrimPreview(onPreview, onStopPreview ?: {}) else null
         zaifSDKConfig = ZaifSDKBuilder.load(context)
         val c = RecordingDialogPalette(context, style)
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
 
         val root = dialogRoot(context, c)
 
@@ -443,7 +445,7 @@ object RecordingListDialogHelper {
     // ─── HAPUS ───────────────────────────────────────────────────────────────
 
     private fun showDeleteConfirm(context: Context, c: RecordingDialogPalette, rec: RecordingEntity, onDeleted: () -> Unit) {
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         val root = dialogRoot(context, c)
         root.addView(title(context, c, context.getString(R.string.list_delete_title)))
         root.addView(vSpace(context, SdpR.dimen._6sdp))
@@ -493,7 +495,7 @@ object RecordingListDialogHelper {
         val music = RecordedMusicJson.parse(rec.musicJson)
         val duration = maxOf(rec.durationMs, taps.maxOfOrNull { it.timestamp } ?: 0L, music.maxOfOrNull { it.endMs } ?: 0L)
 
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         val root = dialogRoot(context, c)
         root.addView(title(context, c, context.getString(R.string.record_trim_title)))
         root.addView(vSpace(context, SdpR.dimen._4sdp))
@@ -638,7 +640,7 @@ object RecordingListDialogHelper {
         rec: RecordingEntity,
         onRenamed: (String) -> Unit
     ) {
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         val root = dialogRoot(context, c)
         root.addView(title(context, c, context.getString(R.string.list_rename)))
         root.addView(vSpace(context, SdpR.dimen._12sdp))
@@ -696,7 +698,7 @@ object RecordingListDialogHelper {
     // ─── PROMOSI ─────────────────────────────────────────────────────────────
 
     private fun showPromoteDialog(context: Context, c: RecordingDialogPalette, rec: RecordingEntity, onPromoted: () -> Unit = {}) {
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         zaifSDKConfig = ZaifSDKBuilder.load(context)
         val root = dialogRoot(context, c)
         root.addView(title(context, c, context.getString(R.string.promosikan)))

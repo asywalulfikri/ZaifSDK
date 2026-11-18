@@ -158,10 +158,10 @@ internal class TutorialVideoRecorder(
     private var tapCursor = 0
 
     private val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.WHITE; typeface = Typeface.DEFAULT_BOLD; textSize = height * 0.055f
+        color = Color.WHITE; typeface = Typeface.DEFAULT_BOLD; textSize = height * titleSizeFactor(width, height)
     }
     private val notePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#2B2340"); typeface = Typeface.DEFAULT_BOLD; textSize = height * 0.09f
+        color = Color.parseColor("#2B2340"); typeface = Typeface.DEFAULT_BOLD; textSize = height * noteSizeFactor(width, height)
         textAlign = Paint.Align.CENTER
     }
     private val watermarkPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {

@@ -1,5 +1,7 @@
 package sound.recorder.widget.rewards
 
+import sound.recorder.widget.util.immersive
+
 import android.app.Activity
 import android.content.res.ColorStateList
 import android.content.res.Configuration
@@ -45,7 +47,7 @@ object RewardsDialog {
     fun show(activity: Activity, style: RecordingDialogStyle = RecordingDialogStyle.default, onChanged: (() -> Unit)? = null) {
         if (activity.isFinishing || activity.isDestroyed) return
         val c = RecordingDialogPalette(activity, style)
-        val dialog = AlertDialog.Builder(activity).create()
+        val dialog = AlertDialog.Builder(activity).create().immersive()
         val pad = activity.sdp(SdpR.dimen._12sdp)
         val root = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL

@@ -1,5 +1,7 @@
 package sound.recorder.widget.music
 
+import sound.recorder.widget.util.immersive
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -31,7 +33,7 @@ class RequestSongDialog {
 
     @SuppressLint("UseKtx")
     private fun showSongRequestDialog(context: Context) {
-        val d = AlertDialog.Builder(context).create()
+        val d = AlertDialog.Builder(context).create().immersive()
 
         val root = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL

@@ -1,5 +1,7 @@
 package sound.recorder.widget.tutorial
 
+import sound.recorder.widget.util.immersive
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
@@ -37,6 +39,16 @@ import sound.recorder.widget.recording.RecordingDialogViews.vSpace
 import sound.recorder.widget.util.CoinManager
 import sound.recorder.widget.util.ZaifAnalytics
 import com.intuit.sdp.R as SdpR
+
+/**
+ * Ukuran teks judul lagu di overlay video, sebagai pecahan tinggi video. Video landscape tetap 5,5%.
+ * Video portrait jauh lebih tinggi, jadi 5,5% membuat pil judul terlalu besar dan menimpa judul
+ * milik app; di portrait dipakai 3,2%.
+ */
+internal fun titleSizeFactor(width: Int, height: Int): Float = if (height > width) 0.032f else 0.055f
+
+/** Sama untuk teks nomor not (kotak kuning di kanan atas): landscape 9%, portrait 5,5%. */
+internal fun noteSizeFactor(width: Int, height: Int): Float = if (height > width) 0.055f else 0.09f
 
 /** Tampilan overlay video. Pilihan terakhir user disimpan untuk export berikutnya. */
 internal data class TutorialVideoStyle(
@@ -194,7 +206,7 @@ private class TutorialVideoPreview(
         paint.textAlign = Paint.Align.LEFT
         paint.typeface = Typeface.DEFAULT_BOLD
         if (style.showTitle) {
-            paint.textSize = h * 0.055f
+            paint.textSize = h * titleSizeFactor(w.toInt(), h.toInt())
             val th = paint.textSize
             rect.set(pad, pad, pad + paint.measureText(songTitle) + th * 1.2f, pad + th * 1.7f)
             paint.color = Color.argb(150, 0, 0, 0)
@@ -203,7 +215,7 @@ private class TutorialVideoPreview(
             canvas.drawText(songTitle, rect.left + th * 0.6f, rect.centerY() + th * 0.35f, paint)
         }
         if (style.showNote) {
-            paint.textSize = h * 0.09f
+            paint.textSize = h * noteSizeFactor(w.toInt(), h.toInt())
             val nh = paint.textSize
             rect.set(w - pad - nh * 1.8f, pad, w - pad, pad + nh * 1.5f)
             paint.color = style.noteColor
@@ -271,7 +283,7 @@ internal object TutorialVideoOptionsDialog {
     ) {
         val c = RecordingDialogPalette(context, RecordingDialogStyle.default)
         var current = TutorialVideoStyle.load(context).copy(forcedWatermark = forcedWatermark)
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         var started = false
         // Batal (tombol Batal, back, sentuh luar): koin yang sudah dibayar dikembalikan.
         dialog.setOnDismissListener { if (!started) TutorialVideoQuota.refund(context, prepaidCoins) }

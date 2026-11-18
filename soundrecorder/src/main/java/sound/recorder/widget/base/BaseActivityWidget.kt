@@ -1,5 +1,8 @@
 package sound.recorder.widget.base
 
+import sound.recorder.widget.util.hideSystemBars
+import sound.recorder.widget.util.immersive
+
 import sound.recorder.widget.util.ZaifAnalytics
 import sound.recorder.widget.notification.NotificationThrottle
 import android.Manifest
@@ -41,7 +44,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdError
@@ -160,6 +166,27 @@ open class BaseActivityWidget : AppCompatActivity() {
     private var lastShowTime = 0L
 
     private val SHOW_INTERVAL = 90_000L
+
+    /** Interstitial hanya tampil bila layar sudah tenang (tanpa sentuhan) selama ini. */
+    private val TOUCH_QUIET_MS = 800L
+    /** Bila pemain terus menyentuh selama ini, iklan dilewati (onFinished jalan tanpa iklan). */
+    private val TOUCH_QUIET_MAX_WAIT_MS = 2_500L
+    private val TOUCH_QUIET_POLL_MS = 100L
+
+    private var lastTouchAt = 0L
+    private var fingerDown = false
+    private var interstitialWaitingForQuiet = false
+    private val quietHandler = Handler(Looper.getMainLooper())
+
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        when (ev.actionMasked) {
+            android.view.MotionEvent.ACTION_DOWN -> fingerDown = true
+            android.view.MotionEvent.ACTION_UP,
+            android.view.MotionEvent.ACTION_CANCEL -> fingerDown = false
+        }
+        lastTouchAt = android.os.SystemClock.uptimeMillis()
+        return super.dispatchTouchEvent(ev)
+    }
     /** Jeda inisialisasi AdMob saat consent lama masih berlaku. */
     private val ADMOB_STARTUP_DELAY_MS = 1_500L
     /** Iklan AdMob kedaluwarsa 1 jam setelah dimuat; buang sedikit lebih awal. */
@@ -211,6 +238,29 @@ open class BaseActivityWidget : AppCompatActivity() {
         updateHelper = InAppUpdateHelper(
             this,
             getUpdateType()
+        )
+
+        hideBarsForDialogFragments()
+    }
+
+    /**
+     * Semua DialogFragment (SDK maupun app host) ikut menyembunyikan status & navigation bar;
+     * jendela dialog tidak mewarisi mode fullscreen Activity.
+     */
+    private fun hideBarsForDialogFragments() {
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+            object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentViewCreated(
+                    fm: FragmentManager, f: Fragment, v: View, savedInstanceState: Bundle?
+                ) {
+                    if (f is DialogFragment) f.dialog?.window?.hideSystemBars()
+                }
+
+                override fun onFragmentStarted(fm: FragmentManager, f: Fragment) {
+                    if (f is DialogFragment) f.dialog?.window?.hideSystemBars()
+                }
+            },
+            true
         )
     }
 
@@ -385,8 +435,76 @@ open class BaseActivityWidget : AppCompatActivity() {
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidthDp)
     }
 
+    /** Terakhir kali [setupHideStatusBar] dipanggil; dipasang ulang saat jendela kembali fokus. */
+    private var fullscreenRequested = false
+    private var fullscreenHideNav = false
+
+    /**
+     * Android 10 ke bawah: flag LAYOUT_* hanya menggambar isi sampai di bawah status bar,
+     * tidak menyembunyikannya. Tanpa FULLSCREEN, status bar tetap tampil (mis. Xiaomi/MIUI di
+     * landscape) dan menutupi banner di tepi atas. Setelah iklan layar penuh, dialog sistem atau
+     * notifikasi, sistem juga mengembalikan flag ini, jadi dipasang ulang di sini.
+     */
+    @Suppress("DEPRECATION")
+    private fun applyLegacyFullscreenFlags(hideNav: Boolean) {
+        var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+        if (hideNav) {
+            flags = flags or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        }
+        window.decorView.systemUiVisibility = flags
+    }
+
+    private val rehideHandler = Handler(Looper.getMainLooper())
+    private val rehideBars = Runnable {
+        if (!fullscreenRequested || isFinishing || isDestroyed) return@Runnable
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.apply {
+                hide(WindowInsets.Type.statusBars())
+                if (fullscreenHideNav) hide(WindowInsets.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
+
+    /** Sembunyikan lagi bar yang tampil tanpa sengaja; geser dari tepi tetap bisa memunculkannya sebentar. */
+    private fun scheduleBarsRehide() {
+        if (!fullscreenRequested) return
+        rehideHandler.removeCallbacks(rehideBars)
+        rehideHandler.postDelayed(rehideBars, 2500L)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus || !fullscreenRequested) return
+        // Setelah dialog, panel notifikasi, dialog izin atau iklan layar penuh, sistem membiarkan bar
+        // tampil. Android 11+ tidak mengembalikannya sendiri, jadi dipasang ulang di semua versi.
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.insetsController?.apply {
+                    hide(WindowInsets.Type.statusBars())
+                    if (fullscreenHideNav) hide(WindowInsets.Type.navigationBars())
+                    systemBarsBehavior =
+                        WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+            } else {
+                applyLegacyFullscreenFlags(fullscreenHideNav)
+            }
+        } catch (e: Exception) {
+            Log.e("FullscreenSetup", "Error reapplying flags: ${e.message}")
+        }
+    }
+
     @SuppressLint("WrongConstant")
     fun setupHideStatusBar(rootView: View?, hide: Boolean) {
+        fullscreenRequested = true
+        fullscreenHideNav = hide
+        // Tanpa flag ini (tema app tidak windowFullscreen), Realme/MIUI menampilkan lagi navigation bar
+        // begitu layar disentuh walau sudah di-hide lewat insetsController.
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // API 30+ (Android 11 dan lebih baru)
             try {
@@ -407,6 +525,10 @@ open class BaseActivityWidget : AppCompatActivity() {
                         val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
                         layoutParams.rightMargin = insets.right
                         view.layoutParams = layoutParams
+                        // Realme/MIUI menampilkan bar saat layar disentuh walau sudah di-hide.
+                        if (windowInsets.isVisible(WindowInsetsCompat.Type.systemBars())) {
+                            scheduleBarsRehide()
+                        }
                         windowInsets
                     }
                 }
@@ -416,10 +538,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         } else {
             // API < 30 (Android 10 dan sebelumnya)
             try {
-                window.decorView.systemUiVisibility =
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                applyLegacyFullscreenFlags(hide)
                 rootView?.setOnApplyWindowInsetsListener { view, windowInsets ->
                     val rightInset = windowInsets.systemWindowInsetRight
                     val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
@@ -456,6 +575,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         }
     }
     override fun onDestroy() {
+        quietHandler.removeCallbacksAndMessages(null)
 
         if (enableInAppUpdate()) {
             updateHelper.onDestroy()
@@ -597,7 +717,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         if (isFinishing || isDestroyed) return
 
         // custom dialog
-        val dialog = Dialog(this)
+        val dialog = Dialog(this).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_input_email)
         dialog.setCancelable(true)
@@ -650,7 +770,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         if (isFinishing || isDestroyed) return
 
         try {
-            val dialogLoading = Dialog(this)
+            val dialogLoading = Dialog(this).immersive()
             dialogLoading.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialogLoading.setContentView(R.layout.loading_layout)
             dialogLoading.setCancelable(false)
@@ -1329,6 +1449,42 @@ open class BaseActivityWidget : AppCompatActivity() {
             return
         }
 
+        // Ketukan ganda saat menunggu: yang pertama masih berjalan, jangan navigasi dua kali.
+        if (interstitialWaitingForQuiet) return
+        interstitialWaitingForQuiet = true
+
+        // Iklan layar penuh yang muncul tepat di bawah jari (pemain sedang memukul pad atau baru
+        // menekan tombol) memancing klik tidak sengaja. Tunggu layar tenang dulu.
+        val startedAt = android.os.SystemClock.uptimeMillis()
+        lateinit var check: Runnable
+        check = Runnable {
+            if (isFinishing || isDestroyed) {
+                interstitialWaitingForQuiet = false
+                return@Runnable
+            }
+            val sinceTouch = android.os.SystemClock.uptimeMillis() - lastTouchAt
+            val quiet = !fingerDown && sinceTouch >= TOUCH_QUIET_MS
+            val waited = android.os.SystemClock.uptimeMillis() - startedAt
+            when {
+                quiet -> {
+                    interstitialWaitingForQuiet = false
+                    val stillValid = mInterstitialAd === ad &&
+                            lifecycle.currentState == Lifecycle.State.RESUMED
+                    if (stillValid) presentInterstitial(isPremium, ad, onFinished) else onFinished()
+                }
+                waited >= TOUCH_QUIET_MAX_WAIT_MS -> {
+                    // Pemain terus menyentuh: lewati iklan (tetap termuat untuk kesempatan berikut).
+                    interstitialWaitingForQuiet = false
+                    onFinished()
+                }
+                else -> quietHandler.postDelayed(check, TOUCH_QUIET_POLL_MS)
+            }
+        }
+        quietHandler.postDelayed(check, TOUCH_QUIET_POLL_MS)
+    }
+
+    private fun presentInterstitial(isPremium: Boolean, ad: InterstitialAd, onFinished: () -> Unit) {
+        val now = System.currentTimeMillis()
         // Anti double show
         mInterstitialAd = null
         lastShowTime = now
@@ -1628,7 +1784,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private fun showRewardWaitDialog() {
         if (isFinishing || isDestroyed) return
         val c = RecordingDialogPalette(this, RecordingDialogStyle.default)
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).create()
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).create().immersive()
         val root = RecordingDialogViews.dialogRoot(this, c)
         root.addView(android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.HORIZONTAL

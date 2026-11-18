@@ -147,6 +147,35 @@
 - **Dialog di mode portrait** dirapikan, landscape tidak berubah (1.1.175): "Atur tampilan video" (pratinjau lebih sempit,
   kolom opsi lebih lebar, label warna di baris sendiri), "Simpan rekaman" (lebar 86%, sebelumnya dikunci 50%), dan
   "Jadi Premium" video (dua tombol utama sama lebar, "Tutup" di bawahnya; tiga tombol sebaris dulu melebihi lebar dialog).
+- **Overlay video di portrait lebih kecil, landscape tidak berubah** (1.1.176): pil judul lagu 5,5% → 3,2% tinggi video
+  dan kotak nomor not 9% → 5,5% (`titleSizeFactor` / `noteSizeFactor`). Dulu di video portrait (misalnya 576×1280)
+  judul setinggi ±70 px menimpa judul milik app. Pratinjau "Atur tampilan video" memakai fungsi yang sama.
+- **Banner AdMob tidak lagi tertutup status bar di Android 10 ke bawah** (1.1.177): `setupHideStatusBar` dulu hanya memasang
+  `LAYOUT_*`, sehingga isi digambar di bawah status bar tetapi status bar tidak disembunyikan (terlihat di Xiaomi Mi Max 2 /
+  MIUI landscape). Sekarang juga memasang `FULLSCREEN` (+ `HIDE_NAVIGATION` dan `IMMERSIVE_STICKY` bila `hide = true`) dan
+  memasangnya ulang di `onWindowFocusChanged`, karena iklan layar penuh dan dialog sistem mengembalikan flag itu.
+  `BaseGameActivity` juga menggeser `bannerContainer` turun setinggi status bar bila status bar masih tampil (margin 0 saat tersembunyi).
+  Belum dites di Mi Max 2; baru dikompilasi dan dibangun di app Real Santoor.
+- **Navigation bar tidak lagi muncul tiap dialog terbuka** (1.1.177): jendela dialog tidak mewarisi mode fullscreen Activity,
+  jadi bar muncul di semua app (terlihat di Realme C21Y, Android 11: diukur lewat `dumpsys window`, `nav visible=true`
+  saat dialog Volume/List Rec terbuka, `false` sesudah perbaikan). Ditambahkan `Window.hideSystemBars()` dan
+  `Dialog.immersive()` (`util/DialogSystemBars.kt`), dipasang di semua `Dialog(...)`, `BottomSheetDialog(...)` dan
+  `AlertDialog.Builder(...).create()` milik SDK, plus callback di `BaseActivityWidget` yang menerapkannya ke setiap
+  `DialogFragment` (termasuk milik app host). Belum tercakup: dialog berantai `AlertDialog.Builder(...).show()` di layar admin,
+  dialog izin sistem Android, dan layar iklan layar penuh milik Google (`AdActivity`) yang memang menampilkan bar.
+- **Navigation bar muncul lagi begitu layar disentuh** (1.1.177): di Realme C21Y (Android 11) app yang temanya tidak
+  `windowFullscreen` (mis. app host di repo SDK) menampilkan navigation bar setelah satu ketukan di area kosong, dan bar
+  bertahan walau sudah di-hide lewat `insetsController`. `setupHideStatusBar` sekarang juga memasang `FLAG_FULLSCREEN`, jadi
+  tidak bergantung pada tema app. Pemasangan ulang saat fokus kembali (`onWindowFocusChanged`) berlaku di semua versi Android
+  (dulu hanya Android 10 ke bawah). Terukur lewat `dumpsys window`: sebelum `visible=true` setelah ketukan, sesudah
+  `visible=false` di layar game, saat dialog Volume dibuka dan sesudah ditutup.
+- **Interstitial menunggu layar tenang sebelum tampil** (1.1.177): CTR interstitial Darbuka 11% (normal sekitar 3 sampai 7%)
+  dicurigai klik tidak sengaja, karena iklan yang sudah dimuat muncul seketika di bawah jari pemain (setelah menekan tombol
+  mode di Home atau tombol Kembali di layar main). `showInterstitialIfAllowed` sekarang menunggu tanpa sentuhan selama 0,8 detik
+  (`TOUCH_QUIET_MS`), maksimal 2,5 detik. Bila pemain terus menyentuh sampai batas itu, iklan dilewati dan `onFinished` tetap jalan
+  (iklan tetap termuat). Ketukan ganda saat menunggu tidak menavigasi dua kali. Aturan jeda 90 detik antar iklan tidak berubah.
+  Terukur di Realme C21Y (Real Santoor, satu ketukan Mainkan): iklan muncul sekitar 1,7 detik setelah ketukan, termasuk
+  latensi adb sekitar 0,8 detik. Kasus pemain terus menyentuh belum diuji di HP.
 
 ### 🐛 Perbaikan
 - **Layar admin Bug Report** (`BugReportAdminFragment`) tidak lagi memakai layout Song Request: judulnya

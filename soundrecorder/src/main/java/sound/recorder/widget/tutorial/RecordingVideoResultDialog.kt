@@ -1,5 +1,7 @@
 package sound.recorder.widget.tutorial
 
+import sound.recorder.widget.util.immersive
+
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -39,7 +41,7 @@ internal object RecordingVideoResultDialog {
         if (activity.isFinishing || activity.isDestroyed) return
 
         val c = RecordingDialogPalette(context, RecordingDialogStyle.default)
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         dialog.setOnDismissListener { scope.cancel() }
         val shareTitle = "$title.${file.extension}"

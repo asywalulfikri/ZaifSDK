@@ -1,5 +1,7 @@
 package sound.recorder.widget.ui.fragment
 
+import sound.recorder.widget.util.immersive
+
 import sound.recorder.widget.util.FirestoreErrorHelper
 
 import android.content.ClipData
@@ -411,7 +413,7 @@ class NotePromotionAdminFragment : Fragment() {
     private fun showDeleteConfirm(note: PromotionNote, position: Int) {
         if (!isAdded) return
         val ctx = requireContext()
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
@@ -467,7 +469,7 @@ class NotePromotionAdminFragment : Fragment() {
     private fun showEditNameDialog(note: PromotionNote, position: Int) {
         if (!isAdded) return
         val ctx = requireContext()
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
@@ -557,7 +559,7 @@ class NotePromotionAdminFragment : Fragment() {
     private fun showEditChoiceDialog(note: PromotionNote, position: Int) {
         if (!isAdded) return
         val ctx = requireContext()
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
@@ -642,7 +644,7 @@ class NotePromotionAdminFragment : Fragment() {
     private fun showEditJsonNoteDialog(note: PromotionNote, position: Int) {
         if (!isAdded) return
         val ctx = requireContext()
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
@@ -712,7 +714,7 @@ class NotePromotionAdminFragment : Fragment() {
     private fun showEditLanguageDialog(note: PromotionNote, position: Int) {
         if (!isAdded) return
         val ctx = requireContext()
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
@@ -792,7 +794,7 @@ class NotePromotionAdminFragment : Fragment() {
     private fun showEditSenderNameDialog(note: PromotionNote, position: Int) {
         if (!isAdded) return
         val ctx = requireContext()
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
@@ -865,7 +867,7 @@ class NotePromotionAdminFragment : Fragment() {
     private fun showEditIsFreeDialog(note: PromotionNote, position: Int) {
         if (!isAdded) return
         val ctx = requireContext()
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
@@ -1020,7 +1022,7 @@ class NotePromotionAdminFragment : Fragment() {
     private fun showRejectDialog(note: PromotionNote, position: Int) {
         if (!isAdded) return
         val ctx = requireContext()
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
