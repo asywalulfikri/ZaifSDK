@@ -194,8 +194,14 @@ open class BaseActivityWidget : AppCompatActivity() {
     private val AD_EXPIRY_MS = 55 * 60_000L
     /** Jeda minimal sebelum interstitial dimuat ulang saat dibutuhkan setelah gagal. */
     private val INTERSTITIAL_ON_DEMAND_GAP_MS = 30_000L
-    /** Setelah retry cepat habis, banner dicoba lagi pelan-pelan selama Activity hidup. */
-    private val BANNER_SLOW_RETRY_MS = 60_000L
+    /**
+     * Setelah retry cepat habis, banner dicoba lagi pelan-pelan selama Activity hidup. Jeda NAIK bertahap supaya
+     * no-fill yang berkepanjangan tidak menghasilkan ±2 permintaan per menit selamanya: 60 dtk, 2 mnt, 5 mnt (maks).
+     * Kembali ke awal setelah banner berhasil dimuat.
+     */
+    private val BANNER_SLOW_RETRY_STEPS_MS = longArrayOf(60_000L, 120_000L, 300_000L)
+    private var bannerSlowRetryStep = 0
+
     private val LOAD_INTERVAL = 90_000L
 
 
@@ -989,6 +995,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
                 isBannerLoading = false
                 bannerRetryCount = 0
+                bannerSlowRetryStep = 0
                 isGameBannerLoaded = true
 
                 if (isFinishing || isDestroyed) {
@@ -1025,14 +1032,15 @@ open class BaseActivityWidget : AppCompatActivity() {
 
                 // Retry cepat habis → jangan menyerah selama sesi; coba lagi pelan-pelan.
                 if (bannerRetryCount >= maxBannerRetry) {
-                    Log.e("BannerAd", "Max quick retry reached, slow retry in ${BANNER_SLOW_RETRY_MS}ms")
+                    Log.e("BannerAd", "Max quick retry reached, slow retry")
                     scheduleSlowBannerRetry()
                     return
                 }
 
                 if (isFinishing || isDestroyed) return
 
-                // ✅ Exponential backoff: 3s, 6s, 12s (max 15s)
+                // Retry cepat: dengan maxBannerRetry = 2 hanya gagal pertama yang sampai sini (jeda 3 dtk);
+                // gagal kedua langsung ke retry lambat. Rumus ini tetap benar bila maxBannerRetry dinaikkan (3s, 6s, 12s, maks 15s).
                 val delay = (3000L * (1 shl (bannerRetryCount - 1))).coerceAtMost(15_000L)
 
                 bannerRetryRunnable = Runnable {
@@ -1082,13 +1090,15 @@ open class BaseActivityWidget : AppCompatActivity() {
 
     /**
      * Banner game gagal berulang (sinyal lemah, no-fill): coba lagi tiap
-     * [BANNER_SLOW_RETRY_MS] selama Activity hidup, bukan berhenti sampai app ditutup.
+     * [BANNER_SLOW_RETRY_STEPS_MS] (60 dtk, 2 mnt, 5 mnt, naik bertahap) selama Activity hidup, bukan berhenti sampai app ditutup.
      * Tidak meminta iklan saat app di background; retry ditunda ke onResume.
      */
     private fun scheduleSlowBannerRetry() {
         if (isFinishing || isDestroyed) return
         val handler = bannerHandler ?: return
         bannerRetryRunnable?.let { handler.removeCallbacks(it) }
+        val delayMs = BANNER_SLOW_RETRY_STEPS_MS[bannerSlowRetryStep.coerceAtMost(BANNER_SLOW_RETRY_STEPS_MS.lastIndex)]
+        if (bannerSlowRetryStep < BANNER_SLOW_RETRY_STEPS_MS.lastIndex) bannerSlowRetryStep++
         bannerRetryRunnable = Runnable {
             bannerRetryRunnable = null
             if (isFinishing || isDestroyed) return@Runnable
@@ -1097,7 +1107,7 @@ open class BaseActivityWidget : AppCompatActivity() {
             } else {
                 bannerRetryPendingResume = true
             }
-        }.also { handler.postDelayed(it, BANNER_SLOW_RETRY_MS) }
+        }.also { handler.postDelayed(it, delayMs) }
     }
 
     private fun retryGameBannerNow() {
@@ -1111,7 +1121,9 @@ open class BaseActivityWidget : AppCompatActivity() {
             bannerRetryPendingResume = true
             return
         }
-        bannerRetryCount = 0
+        // SATU percobaan per retry lambat: bila gagal lagi langsung ke jeda lambat berikutnya (lebih panjang),
+        // tidak mengulang retry cepat 3 dtk tiap siklus.
+        bannerRetryCount = maxBannerRetry - 1
         executeBanner(container)
     }
 
@@ -1172,6 +1184,7 @@ open class BaseActivityWidget : AppCompatActivity() {
 
             isBannerLoading = false
             isGameBannerLoaded = false
+            bannerSlowRetryStep = 0
             bannerRetryPendingResume = false
             gameBannerContainerRef = null
         } catch (e: Exception) {
