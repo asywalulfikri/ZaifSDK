@@ -182,7 +182,7 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 - Build **release** memakai ID iklan produksi dan memuat iklan asli di HP uji. Ukur performa dengan build
   debug (iklan uji) dan jangan menekan iklan.
 
-## Perubahan SDK untuk rollout ke banyak app (1.1.177 – 1.1.179)
+## Perubahan SDK untuk rollout ke banyak app (1.1.177 – 1.1.180)
 
 Dipakai app host yang naik versi. Darbuka jadi canary (branch `feature/sdk-1.1.177`); app lain menunggu hasil CTR 1–2 minggu.
 Detail lengkap tiap poin ada di `CHANGELOG.md`.
@@ -193,6 +193,7 @@ Detail lengkap tiap poin ada di `CHANGELOG.md`.
 | 1.1.177 | Interstitial menunggu layar tenang 0,8 dtk (maks 2,5 dtk, lalu dilewati; `onFinished` tetap jalan), jeda 90 dtk antar iklan tidak berubah | Tidak perlu kode di host. Tujuannya menurunkan klik tidak sengaja (CTR Darbuka interstitial 11%, banner 9,8%) |
 | 1.1.179 | `MyApp.workManagerConfiguration` memasang `setInitializationExceptionHandler`: crash WorkManager `SQLITE_CANTOPEN` / "file system on the device is in a bad state" kini dicatat ke Crashlytics sebagai non-fatal, app tidak crash | Host harus memakai `MyApp` (atau turunannya) sebagai Application agar handler berlaku. Pengingat terjadwal di HP bermasalah tidak jalan, fitur lain normal |
 | 1.1.179 | Dialog daftar musik (`MusicListDialogHelper`) muat di layar landscape: kartu pemutar satu baris di bawah daftar, header/tab/kolom cari lebih ramping (3 lagu terlihat saat memutar di Mi Max 2, sebelumnya 1). `MusicSeekBar`: track/thumb di 40% tinggi supaya tidak menimpa label waktu (semua layar) | Buka daftar musik di landscape saat lagu diputar: tidak ada yang tertutup atau berdempetan. Cek juga tempat lain yang memakai `MusicSeekBar` |
+| 1.1.180 | `SafeEditText`, `SafeTextInputEditText`, `EditText.makeTouchSafe()`: menelan crash sistem `setSpan (-1 ... -1)` saat EditText di dialog disentuh (OPPO Android 8.1). Semua EditText SDK sudah memakainya | EditText buatan host sendiri tidak terlindungi: ganti `<EditText>` jadi `<sound.recorder.widget.ui.SafeEditText>` atau panggil `makeTouchSafe()`. Pantau Crashlytics: crash ini harus hilang dari app yang memakai SDK baru |
 
 **1.1.178 gagal build di JitPack** (checksum Gradle wrapper salah, diperbaiki di `6703d09`); pakai 1.1.179.
 

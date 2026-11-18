@@ -1,5 +1,6 @@
 package sound.recorder.widget.recording
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.immersive
 
 import com.google.gson.Gson
@@ -856,7 +857,7 @@ object RecordingListDialogHelper {
 
     // ─── VIEW HELPERS ────────────────────────────────────────────────────────
 
-    private fun inputField(context: Context, c: RecordingDialogPalette, hintText: String) = EditText(context).apply {
+    private fun inputField(context: Context, c: RecordingDialogPalette, hintText: String) = EditText(context).apply { makeTouchSafe();
         hint = hintText
         setHintTextColor(c.textSecondary)
         setTextColor(c.text)

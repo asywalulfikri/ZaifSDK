@@ -61,7 +61,7 @@
         android:background="#1A2D50" />
 
     <!-- Search bar (hidden for local songs, visible for Firebase) -->
-    <EditText
+    <sound.recorder.widget.ui.SafeEditText
         android:id="@+id/etSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -1,5 +1,6 @@
 package sound.recorder.widget.ui.bottomSheet
 
+import sound.recorder.widget.ui.makeTouchSafe
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
@@ -44,7 +45,7 @@ class BottomSheet(private var dirPath: String? =null, private var filename: Stri
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.bottom_sheet, container)
-        val editText = view.findViewById<TextInputEditText>(R.id.filenameInput)
+        val editText = view.findViewById<TextInputEditText>(R.id.filenameInput).also { it.makeTouchSafe() }
 
         if(activity!=null&&context!=null){
 

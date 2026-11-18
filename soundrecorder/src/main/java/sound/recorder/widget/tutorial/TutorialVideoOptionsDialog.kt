@@ -1,5 +1,6 @@
 package sound.recorder.widget.tutorial
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.immersive
 
 import android.annotation.SuppressLint
@@ -399,7 +400,7 @@ internal object TutorialVideoOptionsDialog {
         refreshSwatches()
         controls.addView(colorRow, LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._28sdp)))
 
-        val input = EditText(context).apply {
+        val input = EditText(context).apply { makeTouchSafe();
             hint = context.getString(R.string.tutorial_video_watermark_hint)
             setText(current.watermark.orEmpty())
             isSingleLine = true

@@ -1,5 +1,6 @@
 package sound.recorder.widget.ui.fragment
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.immersive
 
 import sound.recorder.widget.util.FirestoreErrorHelper
@@ -489,7 +490,7 @@ class NotePromotionAdminFragment : Fragment() {
             typeface = Typeface.DEFAULT_BOLD
         })
 
-        val input = EditText(ctx).apply {
+        val input = EditText(ctx).apply { makeTouchSafe();
             setText(note.recordName)
             setTextColor(Color.parseColor("#F5F5DC"))
             setHintTextColor(Color.parseColor("#4A3020"))
@@ -664,7 +665,7 @@ class NotePromotionAdminFragment : Fragment() {
             typeface = Typeface.DEFAULT_BOLD
         })
 
-        val input = EditText(ctx).apply {
+        val input = EditText(ctx).apply { makeTouchSafe();
             setText(note.jsonNote)
             setTextColor(Color.parseColor("#F5F5DC"))
             setHintTextColor(Color.parseColor("#4A3020"))
@@ -741,7 +742,7 @@ class NotePromotionAdminFragment : Fragment() {
             setPadding(0, ctx.sdp(SdpR.dimen._4sdp), 0, 0)
         })
 
-        val input = EditText(ctx).apply {
+        val input = EditText(ctx).apply { makeTouchSafe();
             setText(note.language.joinToString("\n"))
             setTextColor(Color.parseColor("#F5F5DC"))
             setHintTextColor(Color.parseColor("#4A3020"))
@@ -814,7 +815,7 @@ class NotePromotionAdminFragment : Fragment() {
             typeface = Typeface.DEFAULT_BOLD
         })
 
-        val input = EditText(ctx).apply {
+        val input = EditText(ctx).apply { makeTouchSafe();
             setText(note.senderName)
             setTextColor(Color.parseColor("#F5F5DC"))
             setHintTextColor(Color.parseColor("#4A3020"))
@@ -1050,7 +1051,7 @@ class NotePromotionAdminFragment : Fragment() {
             setPadding(0, topPad, 0, ctx.sdp(SdpR.dimen._8sdp))
         })
 
-        val input = EditText(ctx).apply {
+        val input = EditText(ctx).apply { makeTouchSafe();
             hint = "Alasan penolakan..."
             setTextColor(Color.parseColor("#F5F5DC"))
             setHintTextColor(Color.parseColor("#4A3020"))

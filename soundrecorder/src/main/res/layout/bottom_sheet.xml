@@ -40,7 +40,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="20dp">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <sound.recorder.widget.ui.SafeTextInputEditText
             android:id="@+id/filenameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

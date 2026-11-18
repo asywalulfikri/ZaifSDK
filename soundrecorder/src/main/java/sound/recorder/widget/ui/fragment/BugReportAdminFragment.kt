@@ -1,5 +1,6 @@
 package sound.recorder.widget.ui.fragment
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.FirestoreErrorHelper
 
 import android.annotation.SuppressLint
@@ -194,7 +195,7 @@ class BugReportAdminFragment : Fragment() {
 
     private fun showReplyDialog(req: BugRequest) {
         val context = requireContext()
-        val etReply = EditText(context).apply {
+        val etReply = EditText(context).apply { makeTouchSafe();
             hint = "Masukkan pesan balasan..."
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
             minLines = 3

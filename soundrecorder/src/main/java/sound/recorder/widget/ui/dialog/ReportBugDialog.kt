@@ -1,5 +1,6 @@
 package sound.recorder.widget.ui.dialog
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.immersive
 
 import android.annotation.SuppressLint
@@ -79,7 +80,7 @@ class ReportBugDialog {
             layoutParams = lp
         })
 
-        val etTitle = EditText(context).apply {
+        val etTitle = EditText(context).apply { makeTouchSafe();
             hint = context.getString(R.string.bug_name)
             setHintTextColor(Color.parseColor("#666666"))
             setTextColor(Color.WHITE)
@@ -102,7 +103,7 @@ class ReportBugDialog {
         }
         root.addView(etTitle)
 
-        val etDescription = EditText(context).apply {
+        val etDescription = EditText(context).apply { makeTouchSafe();
             hint = context.getString(R.string.bug_description)
             setHintTextColor(Color.parseColor("#666666"))
             setTextColor(Color.WHITE)
