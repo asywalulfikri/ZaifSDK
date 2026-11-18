@@ -132,8 +132,8 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
    (`MyApp.workManagerConfiguration`). Berlaku untuk semua app yang memakai `MyApp`.
 2. **Overlay Game Assistant ColorOS (`GamesFloatBar`)** menelan sentuhan di ±48 px kiri layar (24 dp di 320 dpi) di
    OPPO/Realme untuk app yang dikenali sebagai game. Tombol di tepi kiri tidak bisa diketuk. Darbuka sudah diberi
-   margin 28 dp. **Berlaku untuk semua app instrumen:** cek tombol di tepi kiri (Kembali, MUSIK, REC, LIST REC, VOLUME)
-   dan beri jarak ≥ 28 dp, atau pindahkan dari 48 px kiri. Panel kontrol SDK (`InstrumentControlPanel`) menempel di
+   margin 28sdp. **Berlaku untuk semua app instrumen:** cek tombol di tepi kiri (Kembali, MUSIK, REC, LIST REC, VOLUME)
+   dan beri jarak ≥ 28sdp, atau pindahkan dari 48 px kiri. Panel kontrol SDK (`InstrumentControlPanel`) menempel di
    tepi kiri dan **belum dicek**.
 3. **Toast debug "Banner gagal"** (`setToast(true)`) menutupi tengah layar dan menolak ketukan injeksi; hanya build debug.
    Pastikan `setToast(true)` tidak ikut ke rilis (sudah tercatat di `SDK_FEATURES.md`, DarbukaPad).
