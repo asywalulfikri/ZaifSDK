@@ -121,7 +121,8 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
 | Darbuka | OPPO CPH2591 | 15 | debug | navigasi 48×, 1800 ketukan, 10 siklus bg/fg | lulus, tanpa ANR | 733 ms | 2026-11-18 |
 | Darbuka | Realme RMX3261 | 11 | debug | sama | lulus, tanpa ANR | 433 ms | 2026-11-18 |
 | Darbuka | vivo I2401 | 16 | — | — | ☐ belum | — | — |
-| Darbuka | Samsung J2 Prime / Mi Max 2 (Android ≤ 9) | — | — | — | ☐ belum | — | — |
+| Darbuka | Xiaomi Mi Max 2 | 7.1.1 | debug | navigasi, 1800 ketukan, bg/fg | lulus, tanpa ANR | 1614 ms (ketukan) | 2026-11-18 |
+| Darbuka | Samsung J2 Prime (Android ≤ 9) | — | — | — | ☐ belum | — | — |
 | Darbuka | HP MediaTek/Mali kelas bawah | — | — | — | ☐ belum | — | — |
 | Darbuka | OPPO CPH2591 | 15 | **rilis** | semua | ☐ belum | — | — |
 | app lain yang memakai SDK (±49) | — | — | — | — | ☐ belum (Darbuka dulu, canary) | — | — |
@@ -137,4 +138,8 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
    tepi kiri dan **belum dicek**.
 3. **Toast debug "Banner gagal"** (`setToast(true)`) menutupi tengah layar dan menolak ketukan injeksi; hanya build debug.
    Pastikan `setToast(true)` tidak ikut ke rilis (sudah tercatat di `SDK_FEATURES.md`, DarbukaPad).
-4. Gangguan lingkungan: Play Services yang sedang update membuat sistem mematikan proses app; ulangi tes setelah selesai.
+4. **Heap "bocor" di tes bg/fg = artefak tes, bukan SDK** (Mi Max 2, 2026-11-18): kembali ke app dengan `startActivity` membuat
+   Activity baru tiap siklus (heap 36 → 138 MB, 11 `GameActivity` di heap dump). Dengan `AppTask.moveToFront()` heap datar
+   (46 → 49 MB). **Untuk tes di app lain:** pakai `moveToFront()`, bukan `startActivity`, dan bandingkan heap dump
+   (`Debug.dumpHprofData`) per kelas sebelum menyimpulkan ada kebocoran. Tes `heapProbeSingle` ada di StressTest Darbuka.
+5. Gangguan lingkungan: Play Services yang sedang update membuat sistem mematikan proses app; ulangi tes setelah selesai.
