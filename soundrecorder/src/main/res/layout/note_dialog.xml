@@ -22,7 +22,7 @@
         android:textSize="16sp"
         android:textStyle="bold" />
 
-    <EditText
+    <sound.recorder.widget.ui.SafeEditText
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
         android:textSize="14sp"
         tools:ignore="HardcodedText" />
 
-    <EditText
+    <sound.recorder.widget.ui.SafeEditText
         android:id="@+id/note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

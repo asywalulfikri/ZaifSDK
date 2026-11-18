@@ -17,7 +17,7 @@
         android:textSize="@dimen/_16ssp"
         android:textStyle="bold" />
 
-    <EditText
+    <sound.recorder.widget.ui.SafeEditText
         android:id="@+id/tvMessage"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_40sdp"

@@ -1,5 +1,6 @@
 package sound.recorder.widget.ui.bottomSheet
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.immersive
 
 import android.app.Activity
@@ -494,8 +495,8 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         val activity = activity ?: return
         val view = LayoutInflater.from(activity).inflate(R.layout.note_dialog, null)
 
-        val inputNote = view.findViewById<EditText>(R.id.note)
-        val inputTitle = view.findViewById<EditText>(R.id.title)
+        val inputNote = view.findViewById<EditText>(R.id.note).also { it.makeTouchSafe() }
+        val inputTitle = view.findViewById<EditText>(R.id.title).also { it.makeTouchSafe() }
         val dialogTitle = view.findViewById<TextView>(R.id.dialog_title)
 
         // Pre-fetch strings

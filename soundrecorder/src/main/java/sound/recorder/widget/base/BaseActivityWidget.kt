@@ -1,5 +1,6 @@
 package sound.recorder.widget.base
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.hideSystemBars
 import sound.recorder.widget.util.immersive
 
@@ -723,7 +724,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         dialog.setCancelable(true)
 
         // set the custom dialog components - text, image and button
-        val etMessage = dialog.findViewById<View>(R.id.etMessage) as EditText
+        val etMessage = (dialog.findViewById<View>(R.id.etMessage) as EditText).also { it.makeTouchSafe() }
         val btnSend = dialog.findViewById<View>(R.id.btnSend) as TextView
         val btnCancel = dialog.findViewById<View>(R.id.btnCancel) as TextView
 

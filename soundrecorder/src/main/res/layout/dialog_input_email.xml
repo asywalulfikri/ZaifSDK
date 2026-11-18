@@ -41,7 +41,7 @@
                 android:textStyle="bold"
                 android:text="@string/help_suggest"/>
 
-            <EditText
+            <sound.recorder.widget.ui.SafeEditText
                 android:id="@+id/etMessage"
                 android:background="@drawable/bg_edit_text"
                 android:layout_width="match_parent"

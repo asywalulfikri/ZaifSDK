@@ -1,5 +1,6 @@
 package sound.recorder.widget.music
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.immersive
 
 import sound.recorder.widget.util.ZaifAnalytics
@@ -103,7 +104,7 @@ object InstrumentDialogHelper {
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val tvTitle   = view.findViewById<TextView>(R.id.tvTitle)
-        val etName    = view.findViewById<EditText>(R.id.tvMessage)
+        val etName    = view.findViewById<EditText>(R.id.tvMessage).also { it.makeTouchSafe() }
         val btnSave   = view.findViewById<TextView>(R.id.btnWatch)
         val btnCancel = view.findViewById<TextView>(R.id.btnCancel)
 

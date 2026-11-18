@@ -192,6 +192,17 @@
   lalu coba `GRADLE_USER_HOME=<folder kosong> ./gradlew --version` agar unduhan bersih ikut terverifikasi.
 
 ### 🐛 Perbaikan
+- **Crash `IndexOutOfBoundsException: setSpan (-1 ... -1) starts before 0` saat menyentuh EditText di dialog** (1.1.180): Crashlytics
+  Darbuka 1.95 (SDK 1.1.171), OPPO CPH1803 Android 8.1, 12 Nov 2026. Stack: `ArrowKeyMovementMethod.onTouchEvent` ->
+  `Selection.setSelection`, tanpa frame app. Android menghitung posisi karakter yang disentuh = -1; penyebabnya di sistem
+  (Android 8.x/ColorOS), tidak bisa dihilangkan dari sisi kita, jadi ini **jaring pengaman**, bukan perbaikan akar: file baru
+  `ui/SafeEditText.kt` berisi `SafeArrowKeyMovementMethod` (menelan `IndexOutOfBoundsException` dari `onTouchEvent`, sentuhan
+  itu diabaikan, dicatat SEKALI per proses ke Crashlytics sebagai non-fatal), `SafeEditText`, `SafeTextInputEditText`, dan
+  `EditText.makeTouchSafe()`. Dipasang di semua EditText SDK (±30 tempat: dialog musik, rekaman, tutorial, kritik/saran,
+  laporan bug, catatan, simpan rekaman, bottom sheet, layout XML). Tampilan sama; di XML hanya nama tag. **Belum bisa direproduksi**
+  (EditText biasa tidak crash di Android 6 dan 7.1), jadi efeknya baru terbukti dari Crashlytics setelah rilis.
+  **Host:** EditText buatan app sendiri tidak ikut terlindungi; pakai `SafeEditText` di XML atau `makeTouchSafe()` di kode
+  (Darbuka: `pad/SoundPickerDialogHelper.kt`, 4 EditText).
 - **App tidak crash lagi saat WorkManager tidak bisa membuka databasenya** (1.1.179): Crashlytics Darbuka melaporkan
   `SQLiteCantOpenDatabaseException: unable to open database file (code 14)` dari `ForceStopRunnable`, lalu
   "The file system on the device is in a bad state. WorkManager cannot access the app's internal data store."

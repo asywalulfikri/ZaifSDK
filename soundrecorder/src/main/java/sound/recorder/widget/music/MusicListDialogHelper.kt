@@ -1,5 +1,6 @@
 package sound.recorder.widget.music
 
+import sound.recorder.widget.ui.makeTouchSafe
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -354,7 +355,7 @@ object MusicListDialogHelper {
             )
         }
 
-        val searchField = EditText(themedContext).apply {
+        val searchField = EditText(themedContext).apply { makeTouchSafe();
             hint = themedContext.getString(R.string.search_song_accompaniment)
             setHintTextColor(Color.parseColor(COLOR_TEXT_DIM))
             setTextColor(Color.WHITE)

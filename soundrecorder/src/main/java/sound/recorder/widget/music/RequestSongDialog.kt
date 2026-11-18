@@ -1,5 +1,6 @@
 package sound.recorder.widget.music
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.immersive
 
 import android.annotation.SuppressLint
@@ -86,7 +87,7 @@ class RequestSongDialog {
             layoutParams = lp
         })
 
-        val etTitle = EditText(context).apply {
+        val etTitle = EditText(context).apply { makeTouchSafe();
             hint = context.getString(R.string.song_title)
             setHintTextColor(Color.parseColor("#666666"))
             setTextColor(Color.WHITE)

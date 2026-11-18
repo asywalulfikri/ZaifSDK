@@ -1,5 +1,6 @@
 package sound.recorder.widget.base
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.immersive
 
 import android.Manifest
@@ -525,7 +526,7 @@ open class BaseFragmentWidget : Fragment() {
         dialog.setCancelable(true)
 
         // set the custom dialog components - text, image and button
-        val etMessage = dialog.findViewById<View>(R.id.etMessage) as EditText
+        val etMessage = (dialog.findViewById<View>(R.id.etMessage) as EditText).also { it.makeTouchSafe() }
         val btnSend = dialog.findViewById<View>(R.id.btnSend) as TextView
         val btnCancel = dialog.findViewById<View>(R.id.btnCancel) as TextView
 

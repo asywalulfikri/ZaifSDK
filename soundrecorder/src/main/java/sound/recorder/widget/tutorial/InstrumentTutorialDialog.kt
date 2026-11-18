@@ -1,5 +1,6 @@
 package sound.recorder.widget.tutorial
 
+import sound.recorder.widget.ui.makeTouchSafe
 import sound.recorder.widget.util.immersive
 
 import sound.recorder.widget.listener.MyAdsListener
@@ -2352,7 +2353,7 @@ class InstrumentTutorialDialog(
         })
     }
 
-    private fun buildEditText(ctx: Context, initial: String, hintText: String, isMultiLine: Boolean = false) = EditText(ctx).apply {
+    private fun buildEditText(ctx: Context, initial: String, hintText: String, isMultiLine: Boolean = false) = EditText(ctx).apply { makeTouchSafe();
         setText(initial)
         hint = hintText
         setTextColor(Color.WHITE)
