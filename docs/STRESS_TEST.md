@@ -122,7 +122,7 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
 | Darbuka | Realme RMX3261 | 11 | debug | sama | lulus, tanpa ANR | 433 ms | 2026-11-18 |
 | Darbuka | vivo I2401 | 16 | — | — | ☐ belum | — | — |
 | Darbuka | Xiaomi Mi Max 2 | 7.1.1 | debug | navigasi, 1800 ketukan, bg/fg | lulus, tanpa ANR | 1614 ms (ketukan) | 2026-11-18 |
-| Darbuka | Samsung J2 Prime (Android ≤ 9) | — | — | — | ☐ belum | — | — |
+| Darbuka | Samsung J2 Prime SM-G532G (MT6737T / Mali-T720, 1,4 GB) | 6.0.1 | debug | navigasi, 900 ketukan, bg/fg, heap 20× | lulus, tanpa ANR, **jeda 3097 ms** | **3097 ms (terburuk)** | 2026-11-18 |
 | Darbuka | HP MediaTek/Mali kelas bawah | — | — | — | ☐ belum | — | — |
 | Darbuka | OPPO CPH2591 | 15 | **rilis** | semua | ☐ belum | — | — |
 | app lain yang memakai SDK (±49) | — | — | — | — | ☐ belum (Darbuka dulu, canary) | — | — |
@@ -142,4 +142,7 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
    Activity baru tiap siklus (heap 36 → 138 MB, 11 `GameActivity` di heap dump). Dengan `AppTask.moveToFront()` heap datar
    (46 → 49 MB). **Untuk tes di app lain:** pakai `moveToFront()`, bukan `startActivity`, dan bandingkan heap dump
    (`Debug.dumpHprofData`) per kelas sebelum menyimpulkan ada kebocoran. Tes `heapProbeSingle` ada di StressTest Darbuka.
-5. Gangguan lingkungan: Play Services yang sedang update membuat sistem mematikan proses app; ulangi tes setelah selesai.
+5. **HP MediaTek/Mali RAM kecil paling dekat ke ANR**: Samsung J2 Prime (Android 6, 1,4 GB) macet main thread hingga 3,1 dtk
+   (navigasi) dan 2,4 dtk (bg/fg), 17 dan 32 kali > 1 dtk, 4× lebih buruk dari HP lain; batas ANR 5 dtk. Semua app SDK
+   perlu diuji di HP sekelas ini. Penyebab belum ditelusuri; build rilis belum diukur.
+6. Gangguan lingkungan: Play Services yang sedang update membuat sistem mematikan proses app; ulangi tes setelah selesai.
