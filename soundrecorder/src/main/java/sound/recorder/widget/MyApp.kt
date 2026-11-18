@@ -257,6 +257,15 @@ open class MyApp : Application(), Configuration.Provider {
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setMinimumLoggingLevel(if (BuildConfig.DEBUG) Log.DEBUG else Log.ERROR)
+            // Penyimpanan HP rusak/penuh: WorkManager gagal membuka database internalnya
+            // (SQLITE_CANTOPEN) lalu melempar "The file system on the device is in a bad state" dari
+            // thread internalnya, di luar try/catch kita. Tanpa handler ini app crash di HP itu.
+            // Akarnya ada di perangkat dan tidak bisa diperbaiki dari app, jadi cukup dicatat
+            // sebagai non-fatal; pengingat terjadwal di HP itu saja yang tidak jalan.
+            .setInitializationExceptionHandler { error ->
+                Log.e(TAG, "WorkManager tidak bisa diinisialisasi: ${error.message}", error)
+                runCatching { FirebaseCrashlytics.getInstance().recordException(error) }
+            }
             .build()
 
     override fun onTerminate() {

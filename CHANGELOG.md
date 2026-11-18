@@ -178,6 +178,13 @@
   latensi adb sekitar 0,8 detik. Kasus pemain terus menyentuh belum diuji di HP.
 
 ### 🐛 Perbaikan
+- **App tidak crash lagi saat WorkManager tidak bisa membuka databasenya** (1.1.178): Crashlytics Darbuka melaporkan
+  `SQLiteCantOpenDatabaseException: unable to open database file (code 14)` dari `ForceStopRunnable`, lalu
+  "The file system on the device is in a bad state. WorkManager cannot access the app's internal data store."
+  Error ini dilempar di thread internal WorkManager, di luar `try/catch` di `MyApp`, sehingga app crash. Penyebabnya di perangkat
+  (penyimpanan penuh atau rusak, data app terhapus saat berjalan, ruang kedua), bukan di kode kita. `MyApp.workManagerConfiguration`
+  kini memasang `setInitializationExceptionHandler`: error dicatat ke log dan ke Crashlytics sebagai non-fatal. Di HP seperti itu
+  pengingat/notifikasi terjadwal tidak jalan, fitur lain normal. Berlaku untuk semua app yang memakai `MyApp`.
 - **Layar admin Bug Report** (`BugReportAdminFragment`) tidak lagi memakai layout Song Request: judulnya
   salah ("Song Request Admin") dan teks kosongnya "Belum ada request lagu". Sekarang punya layout sendiri
   (`fragment_bug_report_admin`, `item_bug_report`) dengan judul "Bug Report Admin", deskripsi sampai 6 baris,
