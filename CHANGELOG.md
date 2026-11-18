@@ -141,7 +141,7 @@
 - **File mic dari rekaman yang dibatalkan** (atau rekaman tanpa ketukan) dihapus, supaya penyimpanan tidak menumpuk.
 
 ### 🎨 Tampilan
-- **Dialog daftar musik muat di layar landscape** (1.1.178): di Xiaomi Mi Max 2 saat lagu diputar
+- **Dialog daftar musik muat di layar landscape** (1.1.179): di Xiaomi Mi Max 2 saat lagu diputar
   hanya satu lagu yang terlihat penuh, karena header, tab, kolom cari, dan kartu pemutar dua baris (±28% tinggi layar) memakan
   ±75% tinggi. Di layar landscape (`MusicListDialogHelper.isCompact`, dibaca dari piksel layar, tanpa angka dp; semua ukuran tetap sdp): kartu pemutar jadi **satu baris**
   (tile, judul, seekbar, volume, stop, play), header/tab/kolom cari dan baris lagu dirampingkan. Di landscape kartu pemutar kini **di bawah daftar** (bagian dari kolom), tidak melayang
@@ -184,8 +184,15 @@
   Terukur di Realme C21Y (Real Santoor, satu ketukan Mainkan): iklan muncul sekitar 1,7 detik setelah ketukan, termasuk
   latensi adb sekitar 0,8 detik. Kasus pemain terus menyentuh belum diuji di HP.
 
+### ⚠️ Catatan versi 1.1.178 / 1.1.179
+- **1.1.178 gagal build di JitPack** (tidak bisa dipakai): `distributionSha256Sum` di `gradle-wrapper.properties` masih milik Gradle
+  9.4.1 padahal URL sudah 9.7.1, jadi unduhan bersih gagal verifikasi (di komputer lokal tidak ketahuan karena Gradle sudah ter-cache).
+  Diperbaiki di commit `6703d09`. **Pakai 1.1.179**; semua perubahan yang tadinya untuk 1.1.178 ada di 1.1.179.
+  Pelajaran: setiap naik versi Gradle wrapper, ganti URL **dan** checksum (`https://services.gradle.org/distributions/gradle-<versi>-bin.zip.sha256`),
+  lalu coba `GRADLE_USER_HOME=<folder kosong> ./gradlew --version` agar unduhan bersih ikut terverifikasi.
+
 ### 🐛 Perbaikan
-- **App tidak crash lagi saat WorkManager tidak bisa membuka databasenya** (1.1.178): Crashlytics Darbuka melaporkan
+- **App tidak crash lagi saat WorkManager tidak bisa membuka databasenya** (1.1.179): Crashlytics Darbuka melaporkan
   `SQLiteCantOpenDatabaseException: unable to open database file (code 14)` dari `ForceStopRunnable`, lalu
   "The file system on the device is in a bad state. WorkManager cannot access the app's internal data store."
   Error ini dilempar di thread internal WorkManager, di luar `try/catch` di `MyApp`, sehingga app crash. Penyebabnya di perangkat

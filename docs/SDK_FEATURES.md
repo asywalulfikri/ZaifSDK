@@ -182,7 +182,7 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 - Build **release** memakai ID iklan produksi dan memuat iklan asli di HP uji. Ukur performa dengan build
   debug (iklan uji) dan jangan menekan iklan.
 
-## Perubahan SDK untuk rollout ke banyak app (1.1.177 – 1.1.178)
+## Perubahan SDK untuk rollout ke banyak app (1.1.177 – 1.1.179)
 
 Dipakai app host yang naik versi. Darbuka jadi canary (branch `feature/sdk-1.1.177`); app lain menunggu hasil CTR 1–2 minggu.
 Detail lengkap tiap poin ada di `CHANGELOG.md`.
@@ -191,9 +191,12 @@ Detail lengkap tiap poin ada di `CHANGELOG.md`.
 |---|---|---|
 | 1.1.177 | Status/navigation bar tetap tersembunyi (`FLAG_FULLSCREEN`, dipasang ulang saat fokus, dialog `immersive()`), banner tidak tertutup status bar di Android 10 ke bawah | Banner menutupi elemen paling atas? Ukur jarak banner (±160 px di layar 1080×2376) ke tombol/elemen teratas. Darbuka: margin atas dinaikkan `_50sdp` → `_58sdp` di Home Back/Close Mixer, Single (drum), dan Studio |
 | 1.1.177 | Interstitial menunggu layar tenang 0,8 dtk (maks 2,5 dtk, lalu dilewati; `onFinished` tetap jalan), jeda 90 dtk antar iklan tidak berubah | Tidak perlu kode di host. Tujuannya menurunkan klik tidak sengaja (CTR Darbuka interstitial 11%, banner 9,8%) |
-| 1.1.178 | `MyApp.workManagerConfiguration` memasang `setInitializationExceptionHandler`: crash WorkManager `SQLITE_CANTOPEN` / "file system on the device is in a bad state" kini dicatat ke Crashlytics sebagai non-fatal, app tidak crash | Host harus memakai `MyApp` (atau turunannya) sebagai Application agar handler berlaku. Pengingat terjadwal di HP bermasalah tidak jalan, fitur lain normal |
+| 1.1.179 | `MyApp.workManagerConfiguration` memasang `setInitializationExceptionHandler`: crash WorkManager `SQLITE_CANTOPEN` / "file system on the device is in a bad state" kini dicatat ke Crashlytics sebagai non-fatal, app tidak crash | Host harus memakai `MyApp` (atau turunannya) sebagai Application agar handler berlaku. Pengingat terjadwal di HP bermasalah tidak jalan, fitur lain normal |
+| 1.1.179 | Dialog daftar musik (`MusicListDialogHelper`) muat di layar landscape: kartu pemutar satu baris di bawah daftar, header/tab/kolom cari lebih ramping (3 lagu terlihat saat memutar di Mi Max 2, sebelumnya 1). `MusicSeekBar`: track/thumb di 40% tinggi supaya tidak menimpa label waktu (semua layar) | Buka daftar musik di landscape saat lagu diputar: tidak ada yang tertutup atau berdempetan. Cek juga tempat lain yang memakai `MusicSeekBar` |
 
-Catatan 1.1.178: error dilempar di thread internal WorkManager (`WM.task-1`), jadi `try/catch` di `MyApp` tidak menangkapnya.
+**1.1.178 gagal build di JitPack** (checksum Gradle wrapper salah, diperbaiki di `6703d09`); pakai 1.1.179.
+
+Catatan WorkManager (1.1.179): error dilempar di thread internal WorkManager (`WM.task-1`), jadi `try/catch` di `MyApp` tidak menangkapnya.
 Dicoba ulang di Realme C21Y dengan mencabut izin folder `no_backup` (`chmod 000`): SDK lama crash, SDK baru tidak.
 Penyebab aslinya di perangkat (penyimpanan penuh/rusak, ruang kedua), jadi tidak bisa dihilangkan dari app.
 

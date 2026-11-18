@@ -50,7 +50,7 @@ Status: ✅ sudah ada buktinya, ◐ tersentuh sebagian, ☐ belum diuji. Kolom "
 | Fitur | Risiko ANR | Cara stress | Status |
 |---|---|---|---|
 | `MyApp.onCreate` + Firebase + WorkManager di latar | kerja berat di main thread saat start | start dingin berulang, `am start -W`, `Choreographer: Skipped` | ◐ 12× OPPO (±4 dtk), 8× Realme (±3,4 dtk), build debug; belum rilis |
-| WorkManager gagal init (penyimpanan rusak) | crash dari thread `WM.task-1` | `chmod 000 no_backup` lalu start | ✅ diperbaiki di 1.1.178, terbukti di Realme |
+| WorkManager gagal init (penyimpanan rusak) | crash dari thread `WM.task-1` | `chmod 000 no_backup` lalu start | ✅ diperbaiki di 1.1.179, terbukti di Realme |
 | Splash/pemuatan awal host (suara) | splash 18–31 dtk di HP lambat | ukur sampai Home di tiap HP | ◐ ukur kasar OPPO ±28–31 dtk, Realme ±18 dtk |
 | Pemasangan baru / update dari Play Store | database, consent, izin baru terbentuk | pasang bersih lalu start pertama | ☐ |
 | `GoogleMobileAdsConsentManager` (UMP) | dialog consent di start pertama | start pertama dengan consent aktif | ☐ |
@@ -129,7 +129,7 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
 
 ## Temuan yang berasal dari SDK atau berlaku untuk semua app (dari stress test Darbuka)
 
-1. **Crash WorkManager saat penyimpanan rusak** (`SQLITE_CANTOPEN` dari `WM.task-1`): diperbaiki di 1.1.178
+1. **Crash WorkManager saat penyimpanan rusak** (`SQLITE_CANTOPEN` dari `WM.task-1`): diperbaiki di 1.1.179
    (`MyApp.workManagerConfiguration`). Berlaku untuk semua app yang memakai `MyApp`.
 2. **Overlay Game Assistant ColorOS (`GamesFloatBar`)** menelan sentuhan di ±48 px kiri layar (24 dp di 320 dpi) di
    OPPO/Realme untuk app yang dikenali sebagai game. Tombol di tepi kiri tidak bisa diketuk. Darbuka sudah diberi
