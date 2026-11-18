@@ -192,6 +192,13 @@
   lalu coba `GRADLE_USER_HOME=<folder kosong> ./gradlew --version` agar unduhan bersih ikut terverifikasi.
 
 ### 🐛 Perbaikan
+- **Retry banner game kini naik bertahap, tidak lagi ±2 permintaan per menit selamanya** (1.1.181): setelah retry cepat habis, dulu
+  tiap 60 dtk banner mengulang retry cepat (3 dtk) dari awal, jadi saat no-fill berkepanjangan ada ±2 permintaan iklan per menit
+  sampai Activity ditutup. Sekarang tiap retry lambat hanya SATU percobaan dengan jeda naik: 60 dtk, 2 mnt, 5 mnt (maks), dan
+  kembali ke awal setelah banner berhasil dimuat. Terukur di Mi Max 2 (no-fill): gagal 23:14:12, retry +60 dtk, lalu +120 dtk.
+  Komentar "backoff 3s, 6s, 12s" diluruskan: dengan `maxBannerRetry = 2` hanya jeda 3 dtk yang terjadi sebelum retry lambat.
+  Berlaku untuk semua app yang memakai `BaseGameActivity`. Tidak ada yang perlu diubah di host.
+  **Belum dikerjakan:** mencoba banner segera saat internet pulih di tengah sesi (sempat dicoba, tidak terbukti jalan di HP, dibuang).
 - **Crash `IndexOutOfBoundsException: setSpan (-1 ... -1) starts before 0` saat menyentuh EditText di dialog** (1.1.180): Crashlytics
   Darbuka 1.95 (SDK 1.1.171), OPPO CPH1803 Android 8.1, 12 Nov 2026. Stack: `ArrowKeyMovementMethod.onTouchEvent` ->
   `Selection.setSelection`, tanpa frame app. Android menghitung posisi karakter yang disentuh = -1; penyebabnya di sistem
