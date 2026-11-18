@@ -22,6 +22,7 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 | `docs/ANALYTICS_TRACKING.md` | Event analytics, `source`/`purpose` koin |
 | `docs/HOME_PERFORMANCE_RULES.md` | Aturan redesign Home + protokol tes gfxinfo |
 | `docs/UNUSED_CLASSES.md` | 36 file SDK yang tidak dipakai (hanya dicatat, tidak dihapus) |
+| `docs/STRESS_TEST.md` | Stress test ANR: cakupan fitur SDK (sudah/belum diuji), hasil per app dan HP, ANR dari Play Console |
 
 ## Menyalakan fitur di app host (`ZaifSDKBuilder`, di `GameApp`)
 
