@@ -1,5 +1,7 @@
 package sound.recorder.widget.tutorial
 
+import sound.recorder.widget.util.immersive
+
 import sound.recorder.widget.listener.MyAdsListener
 
 import android.annotation.SuppressLint
@@ -1431,7 +1433,7 @@ class InstrumentTutorialDialog(
     }
 
     private fun createBottomSheet(context: Context): Pair<BottomSheetDialog, DialogTutorialSongListBinding> {
-        val dialog = BottomSheetDialog(context)
+        val dialog = BottomSheetDialog(context).immersive()
         currentDialog = dialog
         val binding = DialogTutorialSongListBinding.inflate(LayoutInflater.from(context))
         mBinding = binding
@@ -2058,7 +2060,7 @@ class InstrumentTutorialDialog(
     }
 
     private fun showEditChoiceDialog(ctx: Context, note: NoteItem) {
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
 
         val root = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
@@ -2131,7 +2133,7 @@ class InstrumentTutorialDialog(
     }
 
     private fun showEditNameDialog(ctx: Context, note: NoteItem) {
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
         val root = buildEditRoot(ctx, "Edit Nama Rekaman")
         val input = buildEditText(ctx, note.recordName, "Nama rekaman")
         root.addView(input)
@@ -2148,7 +2150,7 @@ class InstrumentTutorialDialog(
     }
 
     private fun showEditJsonNoteDialog(ctx: Context, note: NoteItem) {
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
         val root = buildEditRoot(ctx, "Edit JSON Note")
 
         // Bungkus EditText dalam ScrollView agar tombol tidak terdorong keluar layar
@@ -2182,7 +2184,7 @@ class InstrumentTutorialDialog(
     }
 
     private fun showEditLanguageDialog(ctx: Context, note: NoteItem) {
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
         val root = buildEditRoot(ctx, "Edit Language (comma separated)")
         val input = buildEditText(ctx, note.language.joinToString(","), "id,en...")
         root.addView(input)
@@ -2197,7 +2199,7 @@ class InstrumentTutorialDialog(
     }
 
     private fun showEditSenderNameDialog(ctx: Context, note: NoteItem) {
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
         val root = buildEditRoot(ctx, "Edit Sender Name")
         val input = buildEditText(ctx, note.senderName, "Nama pengirim")
         root.addView(input)
@@ -2211,7 +2213,7 @@ class InstrumentTutorialDialog(
     }
 
     private fun showEditIsFreeDialog(ctx: Context, note: NoteItem) {
-        val dialog = AlertDialog.Builder(ctx).create()
+        val dialog = AlertDialog.Builder(ctx).create().immersive()
         val root = buildEditRoot(ctx, "Edit isFree")
         val btnRow = LinearLayout(ctx).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -2465,7 +2467,7 @@ class InstrumentTutorialDialog(
                 setPadding(p, p, p, p)
             }
 
-            val d = AlertDialog.Builder(activity).create()
+            val d = AlertDialog.Builder(activity).create().immersive()
 
             root.addView(TextView(activity).apply {
                 text = "🔒  ${activity.getString(R.string.note_locked)}"

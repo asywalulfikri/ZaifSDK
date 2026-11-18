@@ -1,5 +1,7 @@
 package sound.recorder.widget.music
 
+import sound.recorder.widget.util.immersive
+
 import sound.recorder.widget.util.ZaifAnalytics
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -25,7 +27,7 @@ object InstrumentDialogHelper {
         title: String,
         onAccept: () -> Unit
     ): Dialog {
-        val dialog = Dialog(context)
+        val dialog = Dialog(context).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
@@ -54,7 +56,7 @@ object InstrumentDialogHelper {
         context: Context,
         onAccept: () -> Unit
     ): Dialog {
-        val dialog = Dialog(context)
+        val dialog = Dialog(context).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
@@ -94,7 +96,7 @@ object InstrumentDialogHelper {
         onSave: (name: String) -> Unit,
         onCancel: (() -> Unit)? = null       // ← nullable, backward-compatible
     ): Dialog {
-        val dialog = Dialog(context)
+        val dialog = Dialog(context).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_save_record, null)
         dialog.setContentView(view)
@@ -149,7 +151,7 @@ object InstrumentDialogHelper {
         context: Context,
         onAccept: () -> Unit
     ): Dialog {
-        val dialog = Dialog(context)
+        val dialog = Dialog(context).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
@@ -178,7 +180,7 @@ object InstrumentDialogHelper {
         context: Context,
         onAccept: (useMic: Boolean) -> Unit
     ): Dialog {
-        val dialog = Dialog(context)
+        val dialog = Dialog(context).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_start_record, null)
@@ -202,7 +204,7 @@ object InstrumentDialogHelper {
         context: Context,
         onAccept: () -> Unit
     ): Dialog {
-        val dialog = Dialog(context)
+        val dialog = Dialog(context).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_unlock_instrument, null)
@@ -232,7 +234,7 @@ object InstrumentDialogHelper {
         onFinished: () -> Unit
     ): Dialog {
         // Gunakan Fullscreen theme agar pasti muncul di depan
-        val dialog = Dialog(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen)
+        val dialog = Dialog(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(false)
 

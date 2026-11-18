@@ -56,7 +56,7 @@ object NotificationBannerHelper {
         val contextRef = WeakReference(context)
 
         try {
-            val dialog = AlertDialog.Builder(context).create()
+            val dialog = AlertDialog.Builder(context).create().immersive()
             val metrics = context.resources.displayMetrics
 
             val root = LinearLayout(context).apply {

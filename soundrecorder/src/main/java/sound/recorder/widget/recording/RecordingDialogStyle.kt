@@ -1,5 +1,7 @@
 package sound.recorder.widget.recording
 
+import sound.recorder.widget.util.immersive
+
 import android.app.Dialog
 import android.content.Context
 import android.content.res.ColorStateList
@@ -197,7 +199,7 @@ internal object RecordingDialogViews {
 
     /** Dialog daftar pilihan berikon (pengganti AlertDialog.setItems yang polos). */
     fun actionSheet(context: Context, c: RecordingDialogPalette, title: String, items: List<SheetItem>): Dialog {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(context).create()
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(context).create().immersive()
         val root = dialogRoot(context, c)
         root.addView(title(context, c, title).apply {
             maxLines = 1
@@ -246,7 +248,7 @@ internal object RecordingDialogViews {
         destructive: Boolean = false,
         onPositive: () -> Unit
     ): Dialog {
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(context).create()
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(context).create().immersive()
         val root = dialogRoot(context, c)
         root.addView(title(context, c, title))
         root.addView(vSpace(context, SdpR.dimen._6sdp))

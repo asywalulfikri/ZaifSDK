@@ -8,7 +8,10 @@ import android.net.NetworkRequest
 import android.os.Build
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -84,10 +87,30 @@ abstract class BaseGameActivity : BaseActivityWidget(),
         }
     }
 
+    /**
+     * Banner menempel di tepi atas layar penuh. Bila status bar sedang tampil (mis. MIUI di
+     * landscape, atau setelah iklan layar penuh), banner digeser turun setinggi status bar
+     * supaya tidak tertutup. Saat status bar tersembunyi, inset-nya 0 dan margin kembali 0.
+     */
+    private fun keepBannerBelowStatusBar() {
+        val banner = bannerContainer ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(banner) { view, insets ->
+            val top = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            val lp = view.layoutParams as? ViewGroup.MarginLayoutParams
+            if (lp != null && lp.topMargin != top) {
+                lp.topMargin = top
+                view.layoutParams = lp
+            }
+            insets
+        }
+        ViewCompat.requestApplyInsets(banner)
+    }
+
     /** Mulai alur iklan. Panggil sekali di onCreate setelah setContentView. */
     protected fun startAds() {
         if (adsStarted) return
         adsStarted = true
+        keepBannerBelowStatusBar()
         MyAdsListener.setMyListener(this)
         MyApp.registerListener(this)
         setupGDPR {

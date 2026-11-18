@@ -1,5 +1,7 @@
 package sound.recorder.widget.tutorial
 
+import sound.recorder.widget.util.immersive
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
@@ -281,7 +283,7 @@ internal object TutorialVideoOptionsDialog {
     ) {
         val c = RecordingDialogPalette(context, RecordingDialogStyle.default)
         var current = TutorialVideoStyle.load(context).copy(forcedWatermark = forcedWatermark)
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         var started = false
         // Batal (tombol Batal, back, sentuh luar): koin yang sudah dibayar dikembalikan.
         dialog.setOnDismissListener { if (!started) TutorialVideoQuota.refund(context, prepaidCoins) }

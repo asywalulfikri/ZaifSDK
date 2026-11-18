@@ -1,5 +1,7 @@
 package sound.recorder.widget.recording.export
 
+import sound.recorder.widget.util.immersive
+
 import android.Manifest
 import android.content.Context
 import android.content.res.ColorStateList
@@ -99,7 +101,7 @@ object RecordingExportDialog {
     ) {
         val c = RecordingDialogPalette(context, style)
 
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         dialog.setOnDismissListener { scope.cancel() }
 
@@ -417,7 +419,7 @@ object RecordingExportDialog {
         onWatch: () -> Unit,
         onPaidWithCoins: () -> Unit
     ) {
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         val pad = context.sdp(SdpR.dimen._16sdp)
         val root = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL

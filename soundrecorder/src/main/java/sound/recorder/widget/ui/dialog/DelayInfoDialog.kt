@@ -1,5 +1,7 @@
 package sound.recorder.widget.ui.dialog
 
+import sound.recorder.widget.util.immersive
+
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -28,7 +30,7 @@ object DelayInfoDialog {
         // Cek apakah sudah pernah ditampilkan
         if (prefs.getBoolean(KEY_SHOWN, false)) return
 
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
 
         // Root Layout
         val root = LinearLayout(context).apply {

@@ -1,5 +1,8 @@
 package sound.recorder.widget.base
 
+import sound.recorder.widget.util.hideSystemBars
+import sound.recorder.widget.util.immersive
+
 import sound.recorder.widget.util.ZaifAnalytics
 import sound.recorder.widget.notification.NotificationThrottle
 import android.Manifest
@@ -41,7 +44,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdError
@@ -211,6 +217,29 @@ open class BaseActivityWidget : AppCompatActivity() {
         updateHelper = InAppUpdateHelper(
             this,
             getUpdateType()
+        )
+
+        hideBarsForDialogFragments()
+    }
+
+    /**
+     * Semua DialogFragment (SDK maupun app host) ikut menyembunyikan status & navigation bar;
+     * jendela dialog tidak mewarisi mode fullscreen Activity.
+     */
+    private fun hideBarsForDialogFragments() {
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+            object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentViewCreated(
+                    fm: FragmentManager, f: Fragment, v: View, savedInstanceState: Bundle?
+                ) {
+                    if (f is DialogFragment) f.dialog?.window?.hideSystemBars()
+                }
+
+                override fun onFragmentStarted(fm: FragmentManager, f: Fragment) {
+                    if (f is DialogFragment) f.dialog?.window?.hideSystemBars()
+                }
+            },
+            true
         )
     }
 
@@ -385,8 +414,76 @@ open class BaseActivityWidget : AppCompatActivity() {
         return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidthDp)
     }
 
+    /** Terakhir kali [setupHideStatusBar] dipanggil; dipasang ulang saat jendela kembali fokus. */
+    private var fullscreenRequested = false
+    private var fullscreenHideNav = false
+
+    /**
+     * Android 10 ke bawah: flag LAYOUT_* hanya menggambar isi sampai di bawah status bar,
+     * tidak menyembunyikannya. Tanpa FULLSCREEN, status bar tetap tampil (mis. Xiaomi/MIUI di
+     * landscape) dan menutupi banner di tepi atas. Setelah iklan layar penuh, dialog sistem atau
+     * notifikasi, sistem juga mengembalikan flag ini, jadi dipasang ulang di sini.
+     */
+    @Suppress("DEPRECATION")
+    private fun applyLegacyFullscreenFlags(hideNav: Boolean) {
+        var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_FULLSCREEN
+        if (hideNav) {
+            flags = flags or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        }
+        window.decorView.systemUiVisibility = flags
+    }
+
+    private val rehideHandler = Handler(Looper.getMainLooper())
+    private val rehideBars = Runnable {
+        if (!fullscreenRequested || isFinishing || isDestroyed) return@Runnable
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.apply {
+                hide(WindowInsets.Type.statusBars())
+                if (fullscreenHideNav) hide(WindowInsets.Type.navigationBars())
+                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        }
+    }
+
+    /** Sembunyikan lagi bar yang tampil tanpa sengaja; geser dari tepi tetap bisa memunculkannya sebentar. */
+    private fun scheduleBarsRehide() {
+        if (!fullscreenRequested) return
+        rehideHandler.removeCallbacks(rehideBars)
+        rehideHandler.postDelayed(rehideBars, 2500L)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus || !fullscreenRequested) return
+        // Setelah dialog, panel notifikasi, dialog izin atau iklan layar penuh, sistem membiarkan bar
+        // tampil. Android 11+ tidak mengembalikannya sendiri, jadi dipasang ulang di semua versi.
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.insetsController?.apply {
+                    hide(WindowInsets.Type.statusBars())
+                    if (fullscreenHideNav) hide(WindowInsets.Type.navigationBars())
+                    systemBarsBehavior =
+                        WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+            } else {
+                applyLegacyFullscreenFlags(fullscreenHideNav)
+            }
+        } catch (e: Exception) {
+            Log.e("FullscreenSetup", "Error reapplying flags: ${e.message}")
+        }
+    }
+
     @SuppressLint("WrongConstant")
     fun setupHideStatusBar(rootView: View?, hide: Boolean) {
+        fullscreenRequested = true
+        fullscreenHideNav = hide
+        // Tanpa flag ini (tema app tidak windowFullscreen), Realme/MIUI menampilkan lagi navigation bar
+        // begitu layar disentuh walau sudah di-hide lewat insetsController.
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // API 30+ (Android 11 dan lebih baru)
             try {
@@ -407,6 +504,10 @@ open class BaseActivityWidget : AppCompatActivity() {
                         val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
                         layoutParams.rightMargin = insets.right
                         view.layoutParams = layoutParams
+                        // Realme/MIUI menampilkan bar saat layar disentuh walau sudah di-hide.
+                        if (windowInsets.isVisible(WindowInsetsCompat.Type.systemBars())) {
+                            scheduleBarsRehide()
+                        }
                         windowInsets
                     }
                 }
@@ -416,10 +517,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         } else {
             // API < 30 (Android 10 dan sebelumnya)
             try {
-                window.decorView.systemUiVisibility =
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                applyLegacyFullscreenFlags(hide)
                 rootView?.setOnApplyWindowInsetsListener { view, windowInsets ->
                     val rightInset = windowInsets.systemWindowInsetRight
                     val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
@@ -597,7 +695,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         if (isFinishing || isDestroyed) return
 
         // custom dialog
-        val dialog = Dialog(this)
+        val dialog = Dialog(this).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_input_email)
         dialog.setCancelable(true)
@@ -650,7 +748,7 @@ open class BaseActivityWidget : AppCompatActivity() {
         if (isFinishing || isDestroyed) return
 
         try {
-            val dialogLoading = Dialog(this)
+            val dialogLoading = Dialog(this).immersive()
             dialogLoading.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialogLoading.setContentView(R.layout.loading_layout)
             dialogLoading.setCancelable(false)
@@ -1628,7 +1726,7 @@ open class BaseActivityWidget : AppCompatActivity() {
     private fun showRewardWaitDialog() {
         if (isFinishing || isDestroyed) return
         val c = RecordingDialogPalette(this, RecordingDialogStyle.default)
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).create()
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).create().immersive()
         val root = RecordingDialogViews.dialogRoot(this, c)
         root.addView(android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.HORIZONTAL

@@ -37,7 +37,7 @@ class DialogUtils {
             tvDialogMessage.text = message
 
             builder.setView(dialogView)
-            val dialog = builder.create()
+            val dialog = builder.create().immersive()
 
             btnYes.setOnClickListener {
                 onYesClick()
@@ -75,7 +75,7 @@ class DialogUtils {
             tvDialogMessage.text = message
 
             builder.setView(dialogView)
-            val dialog = builder.create()
+            val dialog = builder.create().immersive()
             val dialogScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
             dialog.setOnDismissListener { dialogScope.cancel() }
 

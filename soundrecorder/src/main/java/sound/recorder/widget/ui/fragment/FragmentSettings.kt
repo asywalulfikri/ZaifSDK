@@ -1,5 +1,7 @@
 package sound.recorder.widget.ui.fragment
 
+import sound.recorder.widget.util.immersive
+
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.ActivityNotFoundException
@@ -171,7 +173,7 @@ open class FragmentSettings : BaseFragmentWidget() {
 
         // custom dialog
         var type = ""
-        val dialog = Dialog(requireActivity())
+        val dialog = Dialog(requireActivity()).immersive()
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_choose_language)
         dialog.setCancelable(true)

@@ -1,5 +1,7 @@
 package sound.recorder.widget.music
 
+import sound.recorder.widget.util.immersive
+
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
@@ -98,7 +100,7 @@ object VolumeDialogHelper {
         if (showingRef?.get()?.isShowing == true) return
 
         val c = RecordingDialogPalette(context, style)
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         val root = dialogRoot(context, c)
 
         root.addView(FrameLayout(context).apply {

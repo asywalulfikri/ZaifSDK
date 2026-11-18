@@ -1,5 +1,7 @@
 package sound.recorder.widget.ui.bottomSheet
 
+import sound.recorder.widget.util.immersive
+
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ClipData
@@ -615,7 +617,7 @@ class BottomSheetNotesTabbed : BottomSheetDialogFragment() {
         val context = context ?: return
         if (_binding == null || !isAdded) return
 
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(context).create()
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(context).create().immersive()
         val c = palette
 
         val root = RecordingDialogViews.dialogRoot(context, c)

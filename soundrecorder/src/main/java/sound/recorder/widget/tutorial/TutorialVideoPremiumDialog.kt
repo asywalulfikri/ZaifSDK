@@ -1,5 +1,7 @@
 package sound.recorder.widget.tutorial
 
+import sound.recorder.widget.util.immersive
+
 import sound.recorder.widget.util.ZaifAnalytics
 import android.app.Activity
 import android.content.Context
@@ -53,7 +55,7 @@ internal object TutorialVideoPremiumDialog {
         onSuccess: () -> Unit
     ) {
         val c = RecordingDialogPalette(context, RecordingDialogStyle.default)
-        val dialog = AlertDialog.Builder(context).create()
+        val dialog = AlertDialog.Builder(context).create().immersive()
         val activity = findActivity(context)
         var finished = false
 
