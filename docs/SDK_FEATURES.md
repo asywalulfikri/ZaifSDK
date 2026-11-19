@@ -112,7 +112,8 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 ### Notifikasi — `notification/*`
 - `CoinNotificationWorker`: pengingat koin jam **20:00**, WORK_TAG `coin_claim_reminder`. App yang dulu
   punya worker sendiri dengan tag yang sama otomatis tergantikan.
-- `AppReminderWorker` + `AppReminderMessages`: pengingat buka app (multi-bahasa).
+- `AppReminderWorker` + `AppReminderMessages`: pengingat buka app (multi-bahasa). Host bisa mengatur teks/jadwal lewat
+  `ReminderCustomizer` (diimplementasikan di Application; jeda minimal dipaksa >= 20 jam). Dipakai Darbuka (streak belajar).
 - `NotificationThrottle`: tidak mengirim bila baru muncul / app baru dibuka. `FirebaseMessageReceiver`: FCM.
 
 ### Dialog lain & util

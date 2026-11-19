@@ -2,6 +2,14 @@
 
 ## 0.0.65
 
+### Pengingat buka app bisa diatur host (opsional, app lain tidak berubah)
+- **`ReminderCustomizer`** (interface di kelas Application) + **`ReminderOverride`**: host bisa mengganti teks pengingat,
+  melewati notifikasi hari itu (`skip`), mengatur pemeriksaan berikutnya (`nextInDays`, 1–7 hari), dan jeda minimal dari
+  notifikasi sebelumnya (`minGapHours`, **batas bawah 20 jam** supaya tidak membanjiri pengguna). Dipanggil di Worker
+  tepat sebelum notifikasi. Pengaman SDK tetap berlaku: izin notifikasi, jam sunyi 22:00–08:00, tidak muncul bila app
+  baru dibuka. Tanpa implementasi, perilaku sama persis seperti sebelumnya (tiap 2 hari, jeda 48 jam).
+  Dipakai Darbuka untuk pengingat streak belajar.
+
 ### ⚠️ Wajib dibaca sebelum update app host
 - **Premium Pass dimatikan secara bawaan** (`PremiumPass.isEnabled = false`). Kartu Premium Pass hilang dari
   dialog Misi dan `PremiumPass.redeem()` selalu gagal, jadi koin tidak bisa lagi ditukar dengan 2 hari tanpa iklan.

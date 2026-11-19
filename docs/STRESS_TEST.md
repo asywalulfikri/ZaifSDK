@@ -120,7 +120,7 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
 |---|---|---|---|---|---|---|---|
 | Darbuka | OPPO CPH2591 | 15 | debug | navigasi 48×, 1800 ketukan, 10 siklus bg/fg | lulus, tanpa ANR | 733 ms | 2026-11-18 |
 | Darbuka | Realme RMX3261 | 11 | debug | sama | lulus, tanpa ANR | 433 ms | 2026-11-18 |
-| Darbuka | vivo I2401 | 16 | — | — | ☐ belum | — | — |
+| Darbuka | vivo I2401 (Snapdragon, 15 GB) | 16 | debug | navigasi, 900 ketukan, bg/fg | lulus, tanpa ANR | 227 ms | 2026-11-18 |
 | Darbuka | Xiaomi Mi Max 2 | 7.1.1 | debug | navigasi, 1800 ketukan, bg/fg | lulus, tanpa ANR | 1614 ms (ketukan) | 2026-11-18 |
 | Darbuka | Samsung J2 Prime SM-G532G (MT6737T / Mali-T720, 1,4 GB) | 6.0.1 | debug | navigasi, 900 ketukan, bg/fg, heap 20× | lulus, tanpa ANR, **jeda 3097 ms** | **3097 ms (terburuk)** | 2026-11-18 |
 | Darbuka | HP MediaTek/Mali kelas bawah | — | — | — | ☐ belum | — | — |

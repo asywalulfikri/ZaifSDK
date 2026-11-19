@@ -111,12 +111,18 @@ class AppReminderWorker(
             return Result.success()
         }
 
+        // Host app boleh mengatur teks, jeda, dan jadwal berikutnya (lihat ReminderCustomizer)
+        val override = runCatching {
+            (context.applicationContext as? ReminderCustomizer)?.customizeReminder(context)
+        }.onFailure { Log.e(TAG, "customizer error: ${it.message}") }.getOrNull()
+
         try {
-            showNotification(hour)
+            if (override?.skip != true) showNotification(hour, override)
         } catch (e: Throwable) {
             Log.e(TAG, "show error: ${e.message}")
         }
-        scheduleNext(daysAhead = INTERVAL_DAYS)
+        val days = (override?.nextInDays ?: INTERVAL_DAYS).coerceIn(1, ReminderOverride.MAX_NEXT_DAYS)
+        scheduleNext(daysAhead = days)
         return Result.success()
     }
 
@@ -126,11 +132,11 @@ class AppReminderWorker(
         enqueue(context, delayToWindow(daysAhead), ExistingWorkPolicy.APPEND_OR_REPLACE)
 
     @SuppressLint("MissingPermission") // dicek lewat areNotificationsEnabled()
-    private fun showNotification(hour: Int) {
+    private fun showNotification(hour: Int, override: ReminderOverride?) {
         // Izin notifikasi belum diberi / dimatikan user → diam saja, jadwal tetap jalan
         if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return
         // Jangan terlalu sering: batas bersama dengan notifikasi koin, dan lewati bila app baru dibuka
-        if (!NotificationThrottle.canShow(context)) return
+        if (!NotificationThrottle.canShow(context, override?.minGapHours)) return
 
         val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
             ?.apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED) }
@@ -140,7 +146,8 @@ class AppReminderWorker(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val (title, body) = AppReminderMessages.build(appName(), hour)
+        val custom = if (override?.title != null && override.body != null) override.title to override.body else null
+        val (title, body) = custom ?: AppReminderMessages.build(appName(), hour)
         createChannel()
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_baseline_notifications_active_24)
