@@ -32,6 +32,7 @@ Semua event dikirim lewat satu pintu: `soundrecorder/src/main/java/sound/recorde
 | `export_finished` | `format`, `source` | Export berhasil |
 | `export_failed` | `format`, `source`, `reason` | Export gagal / dibatalkan |
 | `export_unlock` | `method` | Cara user membuka kunci export |
+| `share_tapped` | `method` (`system`/`whatsapp`), `format` | User membagikan hasil export ke luar app |
 | `reward_ad_requested` | – | User minta iklan reward |
 | `reward_ad_result` | `result` | Hasil akhir permintaan iklan reward |
 | `recording_started` | `instrument`, `mode` | User mulai merekam (`mode` = `pad` / `mic`) |

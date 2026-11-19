@@ -4,6 +4,13 @@
 
 ### Tracking baru (Firebase)
 - Event `recording_started` (`instrument`, `mode`), `recording_saved` (`instrument`), `rewards_opened`.
+- Event `share_tapped` (`method`: `system` / `whatsapp`, `format`: mis. `mpeg`, `midi`, `video`) saat user membagikan
+  hasil export ke luar app.
+
+### Berbagi hasil membawa tautan app
+- Bagikan dan WhatsApp (audio, MIDI, video) kini menyertakan teks `🎵 <judul> · <nama app>` dan tautan Play Store
+  app host (`https://play.google.com/store/apps/details?id=<package>`) lewat `EXTRA_TEXT`. Tanpa kata yang perlu
+  diterjemahkan. Tidak ada perubahan API; app host tidak perlu berubah.
 - User property `app_name` (dari `setAppName`, fallback label aplikasi) dipasang sekali; daftarkan sebagai custom
   dimension di Firebase. Detail di `docs/ANALYTICS_TRACKING.md`.
 
