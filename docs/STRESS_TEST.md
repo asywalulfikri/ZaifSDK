@@ -125,7 +125,10 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
 | Darbuka | Samsung J2 Prime SM-G532G (MT6737T / Mali-T720, 1,4 GB) | 6.0.1 | debug | navigasi, 900 ketukan, bg/fg, heap 20× | lulus, tanpa ANR, **jeda 3097 ms** | **3097 ms (terburuk)** | 2026-11-18 |
 | Darbuka | HP MediaTek/Mali kelas bawah | — | — | — | ☐ belum | — | — |
 | Darbuka | OPPO CPH2591 | 15 | **rilis** | semua | ☐ belum | — | — |
-| app lain yang memakai SDK (±49) | — | — | — | — | ☐ belum (Darbuka dulu, canary) | — | — |
+| Belira | OPPO A18 CPH2591 (MT6769V / Mali-G52 MC2, 3,7 GB) | 15 | debug, SDK 1.1.183 | navigasi 60× (6 layar), 2700 ketukan, 10 siklus bg/fg | lulus, tanpa ANR | 399 ms | 2026-11-19 |
+| Belira | OPPO A18 CPH2591 | 15 | debug, cabang `main` (SDK 1.1.171, versi Play 1.166) | sama | ☐ belum | — | — |
+| Belira | OPPO A18 CPH2591 | 15 | **rilis** | semua | ☐ belum | — | — |
+| app lain yang memakai SDK (±48) | — | — | — | — | ☐ belum (Darbuka dan Belira dulu) | — | — |
 
 ## Temuan yang berasal dari SDK atau berlaku untuk semua app (dari stress test Darbuka)
 
@@ -146,3 +149,16 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
    (navigasi) dan 2,4 dtk (bg/fg), 17 dan 32 kali > 1 dtk, 4× lebih buruk dari HP lain; batas ANR 5 dtk. Semua app SDK
    perlu diuji di HP sekelas ini. Penyebab belum ditelusuri; build rilis belum diukur.
 6. Gangguan lingkungan: Play Services yang sedang update membuat sistem mematikan proses app; ulangi tes setelah selesai.
+7. **Belira juga kena ANR render thread di Play** (2026-11-19): Oppo A18 (CPH2591), Android 15, versi 166 (SDK 1.1.171), stack
+   sama persis dengan Darbuka (`RenderProxy::setStopped`, main thread menunggu RenderThread). Dua app berbeda, HP sama, jadi
+   penyebab ada di sisi SDK/iklan/render atau HP itu, bukan di kode satu app. Chipset HP itu kini tercatat: **MediaTek
+   MT6769V/CZ (Helio G85 kelas) + Mali-G52 MC2, GLES 3.2** (sebelumnya "GPU belum dicatat"). Stress test Belira di HP yang
+   sama (debug, SDK 1.1.183) **tidak menirunya**: jeda terburuk 399 ms. Frame pertama sesudah kembali dari latar/masuk
+   layar bermain 350–650 ms (build debug), pola yang cocok dengan trace tapi masih jauh dari 5 dtk. Rincian dan daftar
+   yang belum diuji ada di `Belira/docs/test-results/STRESS_TEST.md`.
+8. **Harness lintas app:** `StressTest.kt` Belira berdiri sendiri (tanpa kelas dasar UI app) dan bisa jadi contoh untuk ±48
+   app lain: `ActivityScenario` + `NavController.navigate` + `Watchdog` + `AppTask.moveToFront()`. Cukup ganti daftar layar.
+   Bila app memakai Compose untuk Home, navigasi lewat NavController tidak menguji klik kartu dan interstisial di jalur klik.
+9. **Peluncur ikon build debug bisa membuka LeakCanary**, bukan app (Belira: `LeakLauncherActivity`); buka
+   `<paket>/.ui.activity.GameActivity` langsung. ColorOS menampilkan layar "Pengujian keamanan" (com.heytap.market) setelah
+   `adb install`; tutup dengan BACK sebelum tes.
