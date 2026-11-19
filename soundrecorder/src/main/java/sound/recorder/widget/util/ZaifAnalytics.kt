@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.core.os.bundleOf
 import com.google.firebase.analytics.FirebaseAnalytics
+import sound.recorder.widget.builder.ZaifSDKBuilder
 
 /**
  * Event koin dan pembelian ke Firebase Analytics. Isinya hanya jenis kejadian dan jumlah koin,
@@ -71,6 +72,17 @@ object ZaifAnalytics {
     private const val EVENT_REWARD_REQUESTED = "reward_ad_requested"
     private const val EVENT_REWARD_RESULT = "reward_ad_result"
 
+    private const val EVENT_RECORDING_STARTED = "recording_started"
+    private const val EVENT_RECORDING_SAVED = "recording_saved"
+    private const val EVENT_REWARDS_OPENED = "rewards_opened"
+
+    private const val PARAM_INSTRUMENT = "instrument"
+    private const val PARAM_MODE = "mode"
+    private const val USER_PROP_APP_NAME = "app_name"
+
+    const val MODE_PAD = "pad"
+    const val MODE_MIC = "mic"
+
     private const val PARAM_PLACE = "place"
     private const val PARAM_FORMAT = "format"
     private const val PARAM_METHOD = "method"
@@ -112,6 +124,23 @@ object ZaifAnalytics {
         log(context, EVENT_REWARD_RESULT) { bundleOf(PARAM_RESULT to result) }
     }
 
+    /** User mulai merekam. [instrument] = tipe instrumen panel, [mic] = rekam dari mikrofon. */
+    fun recordingStarted(context: Context, instrument: String, mic: Boolean) {
+        log(context, EVENT_RECORDING_STARTED) {
+            bundleOf(PARAM_INSTRUMENT to instrument.take(MAX_VALUE_LENGTH), PARAM_MODE to if (mic) MODE_MIC else MODE_PAD)
+        }
+    }
+
+    /** Rekaman berhasil disimpan (termasuk simpan otomatis saat panel dilepas). */
+    fun recordingSaved(context: Context, instrument: String) {
+        log(context, EVENT_RECORDING_SAVED) { bundleOf(PARAM_INSTRUMENT to instrument.take(MAX_VALUE_LENGTH)) }
+    }
+
+    /** User membuka panel Misi / hadiah. */
+    fun rewardsOpened(context: Context) {
+        log(context, EVENT_REWARDS_OPENED) { null }
+    }
+
     /** Batas panjang nilai parameter Firebase Analytics. */
     private const val MAX_VALUE_LENGTH = 100
 
@@ -142,9 +171,28 @@ object ZaifAnalytics {
     /** Pencatatan tidak boleh mengganggu fitur koin atau pembelian, jadi kegagalannya hanya di-log. */
     private inline fun log(context: Context, event: String, params: () -> android.os.Bundle?) {
         try {
-            FirebaseAnalytics.getInstance(context.applicationContext).logEvent(event, params())
+            val fa = FirebaseAnalytics.getInstance(context.applicationContext)
+            setAppNameOnce(context, fa)
+            fa.logEvent(event, params())
         } catch (e: Exception) {
             Log.w(TAG, "Gagal mencatat $event: ${e.message}")
         }
+    }
+
+    @Volatile private var appNameSet = false
+
+    /**
+     * Nama app (dari ZaifSDKBuilder.setAppName, fallback label aplikasi) dipasang sekali sebagai user property
+     * `app_name`, jadi semua event bisa difilter per app tanpa menambah parameter di tiap event.
+     * Daftarkan `app_name` sebagai custom dimension (scope User) di Firebase agar muncul di laporan.
+     */
+    private fun setAppNameOnce(context: Context, fa: FirebaseAnalytics) {
+        if (appNameSet) return
+        val app = context.applicationContext
+        val name = runCatching { ZaifSDKBuilder.load(app)?.appName }.getOrNull()?.takeIf { it.isNotBlank() }
+            ?: runCatching { app.applicationInfo.loadLabel(app.packageManager).toString() }.getOrNull()
+        if (name.isNullOrBlank()) return
+        fa.setUserProperty(USER_PROP_APP_NAME, name.take(36)) // batas nilai user property = 36 karakter
+        appNameSet = true
     }
 }

@@ -46,6 +46,7 @@ object RewardsDialog {
     @JvmOverloads
     fun show(activity: Activity, style: RecordingDialogStyle = RecordingDialogStyle.default, onChanged: (() -> Unit)? = null) {
         if (activity.isFinishing || activity.isDestroyed) return
+        sound.recorder.widget.util.ZaifAnalytics.rewardsOpened(activity)
         val c = RecordingDialogPalette(activity, style)
         val dialog = AlertDialog.Builder(activity).create().immersive()
         val pad = activity.sdp(SdpR.dimen._12sdp)

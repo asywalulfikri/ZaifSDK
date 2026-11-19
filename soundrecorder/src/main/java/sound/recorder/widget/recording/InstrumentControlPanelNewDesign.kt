@@ -1,5 +1,6 @@
 package sound.recorder.widget.recording
 
+import sound.recorder.widget.util.ZaifAnalytics
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -372,6 +373,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
         overdub = null
         isRecording = true
         isMicMode = useMic
+        ZaifAnalytics.recordingStarted(context, instrumentType, useMic)
         isEarphoneWhenRecording = if (useMic) audioEngine.isEarphonePlugged() else false
         listener?.onMuteControl(false)
         if (useMic) {
@@ -598,6 +600,7 @@ class InstrumentControlPanelNewDesign @JvmOverloads constructor(
             app, name ?: p.defaultName, p.startedAtWall, instrumentType, p.events, p.audioPath, p.isEarphoneRecording,
             p.music, p.audioShared
         ) { saved, error ->
+            if (saved) ZaifAnalytics.recordingSaved(app, instrumentType)
             val msg = if (saved) app.getString(R.string.record_saved) else "Error saving: $error"
             Toast.makeText(app, msg, Toast.LENGTH_SHORT).show()
         }

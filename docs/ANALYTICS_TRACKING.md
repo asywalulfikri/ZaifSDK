@@ -8,7 +8,9 @@ Semua event dikirim lewat satu pintu: `soundrecorder/src/main/java/sound/recorde
 - Tidak ada data pribadi: hanya jenis kejadian, jumlah koin, format, dan nama kelas error
   (bukan pesan error, karena pesan bisa berisi nama file user).
 - Nilai parameter dipotong maks. 100 karakter (batas Firebase).
-- Belum ada `setUserId` / user property — semua anonim.
+- **User property `app_name`** (sejak SDK baru ini): nama app dari `ZaifSDKBuilder.setAppName` (fallback label aplikasi),
+  dipasang sekali sebelum event pertama. Daftarkan sebagai *custom dimension* (scope User) di Firebase
+  (Admin → Custom definitions) supaya bisa dipakai memfilter laporan. Tidak ada `setUserId`: semua anonim.
 - Firebase otomatis mencatat versi app host (`app_version`), versi Android, model/merek HP, bahasa,
   negara, dan event bawaan (`first_open`, `session_start`, `screen_view`, …) — bisa langsung difilter
   di laporan tanpa didaftarkan.
@@ -32,6 +34,9 @@ Semua event dikirim lewat satu pintu: `soundrecorder/src/main/java/sound/recorde
 | `export_unlock` | `method` | Cara user membuka kunci export |
 | `reward_ad_requested` | – | User minta iklan reward |
 | `reward_ad_result` | `result` | Hasil akhir permintaan iklan reward |
+| `recording_started` | `instrument`, `mode` | User mulai merekam (`mode` = `pad` / `mic`) |
+| `recording_saved` | `instrument` | Rekaman berhasil disimpan (termasuk simpan otomatis) |
+| `rewards_opened` | – | User membuka panel Misi / hadiah |
 
 ### Nilai parameter
 
@@ -153,7 +158,11 @@ Hasil `*_granted` = keputusan produk: kalau internet ada tapi AdMob gagal, user 
 
 - Setiap `export_started` sekarang berpasangan dengan tepat satu `export_finished` atau `export_failed`
   (termasuk batal, reason `cancelled`), untuk audio maupun video.
-- Belum ada event untuk: buka instrumen, mulai/selesai rekam, mainkan tutorial, buka layar misi.
+- Belum ada event untuk: buka instrumen, mainkan tutorial. (Rekam dan buka Misi sudah ada.)
+- Daftarkan `method`, `format`, `result`, `instrument`, `mode` sebagai custom dimension (scope Event) di Firebase,
+  kalau tidak parameternya tidak muncul di laporan standar.
+- Corong yang bisa dibaca: `recording_started` → `recording_saved` → `export_started` → `export_finished`,
+  dan `export_unlock` per `method` (free / ad / coin).
 
 ---
 

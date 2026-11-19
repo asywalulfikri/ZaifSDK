@@ -2,6 +2,11 @@
 
 ## 0.0.65
 
+### Tracking baru (Firebase)
+- Event `recording_started` (`instrument`, `mode`), `recording_saved` (`instrument`), `rewards_opened`.
+- User property `app_name` (dari `setAppName`, fallback label aplikasi) dipasang sekali; daftarkan sebagai custom
+  dimension di Firebase. Detail di `docs/ANALYTICS_TRACKING.md`.
+
 ### Pengingat buka app bisa diatur host (opsional, app lain tidak berubah)
 - **`ReminderCustomizer`** (interface di kelas Application) + **`ReminderOverride`**: host bisa mengganti teks pengingat,
   melewati notifikasi hari itu (`skip`), mengatur pemeriksaan berikutnya (`nextInDays`, 1–7 hari), dan jeda minimal dari
