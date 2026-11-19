@@ -23,13 +23,15 @@ internal object NotificationThrottle {
         prefs(context).edit().putLong(KEY_LAST_OPEN, System.currentTimeMillis()).apply()
     }
 
-    fun canShow(context: Context): Boolean {
+    fun canShow(context: Context, minGapHours: Int? = null): Boolean {
+        val minGapMs = if (minGapHours == null) MIN_GAP_MS
+        else maxOf(minGapHours, ReminderOverride.MIN_GAP_HOURS_FLOOR) * 60 * 60 * 1000L
         val p = prefs(context)
         val now = System.currentTimeMillis()
         // Jam HP dimundurkan → nilai tersimpan ada di masa depan; anggap lama sudah lewat
         val sinceShown = now - p.getLong(KEY_LAST_SHOWN, 0L)
         val sinceOpen = now - p.getLong(KEY_LAST_OPEN, 0L)
-        val shownRecently = sinceShown in 0 until MIN_GAP_MS
+        val shownRecently = sinceShown in 0 until minGapMs
         val openedRecently = sinceOpen in 0 until RECENT_OPEN_MS
         return !shownRecently && !openedRecently
     }
