@@ -126,7 +126,7 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
 | Darbuka | HP MediaTek/Mali kelas bawah | — | — | — | ☐ belum | — | — |
 | Darbuka | OPPO CPH2591 | 15 | **rilis** | semua | ☐ belum | — | — |
 | Belira | OPPO A18 CPH2591 (MT6769V / Mali-G52 MC2, 3,7 GB) | 15 | debug, SDK 1.1.183 | navigasi 60× (6 layar), 2700 ketukan, 10 siklus bg/fg | lulus, tanpa ANR | 399 ms | 2026-11-19 |
-| Belira | OPPO A18 CPH2591 | 15 | debug, cabang `main` (SDK 1.1.171, versi Play 1.166) | sama | ☐ belum | — | — |
+| Belira | OPPO A18 CPH2591 | 15 | debug, cabang `main` (SDK 1.1.171, versi Play 1.166) | sama | lulus, tanpa ANR (hampir sama dengan SDK 1.1.183) | 373 ms | 2026-11-19 |
 | Belira | OPPO A18 CPH2591 | 15 | **rilis** | semua | ☐ belum | — | — |
 | app lain yang memakai SDK (±48) | — | — | — | — | ☐ belum (Darbuka dan Belira dulu) | — | — |
 
@@ -153,7 +153,7 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
    sama persis dengan Darbuka (`RenderProxy::setStopped`, main thread menunggu RenderThread). Dua app berbeda, HP sama, jadi
    penyebab ada di sisi SDK/iklan/render atau HP itu, bukan di kode satu app. Chipset HP itu kini tercatat: **MediaTek
    MT6769V/CZ (Helio G85 kelas) + Mali-G52 MC2, GLES 3.2** (sebelumnya "GPU belum dicatat"). Stress test Belira di HP yang
-   sama (debug, SDK 1.1.183) **tidak menirunya**: jeda terburuk 399 ms. Frame pertama sesudah kembali dari latar/masuk
+   sama (debug, SDK 1.1.183) **tidak menirunya**: jeda terburuk 399 ms. Cabang `main` Belira (SDK 1.1.171, = versi Play) di HP yang sama juga lulus (373 / 296 / 345 ms), jadi SDK baru bukan penyebab bedanya. Frame pertama sesudah kembali dari latar/masuk
    layar bermain 350–650 ms (build debug), pola yang cocok dengan trace tapi masih jauh dari 5 dtk. Rincian dan daftar
    yang belum diuji ada di `Belira/docs/test-results/STRESS_TEST.md`.
 8. **Harness lintas app:** `StressTest.kt` Belira berdiri sendiri (tanpa kelas dasar UI app) dan bisa jadi contoh untuk ±48
