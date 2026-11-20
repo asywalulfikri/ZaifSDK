@@ -195,7 +195,9 @@ class KritikSaranDialog {
     }
 
     private fun submitSongRequest(context: Context, name: String,bugDescription :String ) {
-        val config = ZaifSDKBuilder.load(context)
+        // Callback Firestore bisa tertunda (offline) dan ditahan Firestore; jangan menangkap Activity, pakai applicationContext.
+        val appContext = context.applicationContext
+        val config = ZaifSDKBuilder.load(appContext)
 
         // Safety check for Firebase initialization
         if (FirebaseApp.getApps(context).isEmpty()) {
@@ -219,10 +221,10 @@ class KritikSaranDialog {
                 .collection("suggest")
                 .add(data)
                 .addOnSuccessListener {
-                    Toast.makeText(context, context.getString(R.string.thankyou)+" " + name +" "+context.getString(R.string.suggest_success_send) , Toast.LENGTH_LONG).show()
+                    Toast.makeText(appContext, appContext.getString(R.string.thankyou)+" " + name +" "+appContext.getString(R.string.suggest_success_send) , Toast.LENGTH_LONG).show()
                 }
                 .addOnFailureListener {
-                    Toast.makeText(context, context.getString(R.string.suggest_failed_send), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(appContext, appContext.getString(R.string.suggest_failed_send), Toast.LENGTH_SHORT).show()
                 }
         }
     }

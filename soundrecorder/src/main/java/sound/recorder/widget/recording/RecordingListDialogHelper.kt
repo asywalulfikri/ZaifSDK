@@ -731,6 +731,8 @@ object RecordingListDialogHelper {
     // ─── FIRESTORE / SHARE / JSON ───────────────────────────────────────────
 
     private fun sendNoteToFirestore(context: Context, rec: RecordingEntity, senderName: String, onSuccess: () -> Unit = {}) {
+        // Callback Firestore bisa tertunda (offline) dan ditahan Firestore; jangan menangkap Activity, pakai applicationContext.
+        val appContext = context.applicationContext
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
             val appId = zaifSDKConfig?.applicationId ?: return@addOnSuccessListener
 
@@ -771,16 +773,16 @@ object RecordingListDialogHelper {
                     .collection(appId)
                     .add(data)
                     .addOnSuccessListener {
-                        markAsPromoted(context, rec.id)
+                        markAsPromoted(appContext, rec.id)
                         onSuccess()
-                        Toast.makeText(context, context.getString(R.string.send_note_success), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(appContext, appContext.getString(R.string.send_note_success), Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener {
-                        Toast.makeText(context, context.getString(R.string.send_note_failed), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(appContext, appContext.getString(R.string.send_note_failed), Toast.LENGTH_SHORT).show()
                     }
             }
         }.addOnFailureListener {
-            Toast.makeText(context, context.getString(R.string.send_note_failed), Toast.LENGTH_SHORT).show()
+            Toast.makeText(appContext, appContext.getString(R.string.send_note_failed), Toast.LENGTH_SHORT).show()
         }
     }
 

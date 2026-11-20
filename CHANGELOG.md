@@ -212,6 +212,9 @@
   lalu coba `GRADLE_USER_HOME=<folder kosong> ./gradlew --version` agar unduhan bersih ikut terverifikasi.
 
 ### 🐛 Perbaikan
+- **Kebocoran Activity di callback Firestore** (ditemukan LeakCanary di Pianika): saran, laporan bug, request lagu dan kirim catatan
+  memakai `applicationContext` di callback `add().addOnSuccessListener`. Sebelumnya callback yang tertunda (HP offline) menahan
+  Activity yang sudah ditutup lewat antrean tulis Firestore. Tanpa perubahan API; app host tidak perlu berubah.
 - **Retry banner game kini naik bertahap, tidak lagi ±2 permintaan per menit selamanya** (1.1.181): setelah retry cepat habis, dulu
   tiap 60 dtk banner mengulang retry cepat (3 dtk) dari awal, jadi saat no-fill berkepanjangan ada ±2 permintaan iklan per menit
   sampai Activity ditutup. Sekarang tiap retry lambat hanya SATU percobaan dengan jeda naik: 60 dtk, 2 mnt, 5 mnt (maks), dan
