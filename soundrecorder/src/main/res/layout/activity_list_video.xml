@@ -73,30 +73,4 @@
         android:textSize="@dimen/_14ssp"
         android:visibility="gone" />
 
-    <!-- Video Player Container -->
-    <FrameLayout
-        android:id="@+id/playerContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#000000"
-        android:visibility="gone">
-
-        <WebView
-            android:id="@+id/youtube_webview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center" />
-
-        <ImageView
-            android:id="@+id/btnClosePlayer"
-            android:layout_width="@dimen/_30sdp"
-            android:layout_height="@dimen/_30sdp"
-            android:layout_gravity="top|end"
-            android:layout_margin="@dimen/_12sdp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Close Player"
-            android:src="@drawable/ic_closes"
-            app:tint="@android:color/white" />
-    </FrameLayout>
-
 </RelativeLayout>

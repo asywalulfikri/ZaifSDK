@@ -1,6 +1,9 @@
 package sound.recorder.widget.ui
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.text.Spannable
 import android.text.method.ArrowKeyMovementMethod
 import android.util.AttributeSet
@@ -32,6 +35,9 @@ class SafeArrowKeyMovementMethod : ArrowKeyMovementMethod() {
         } catch (e: IndexOutOfBoundsException) {
             report(e)
             false
+        } catch (e: NullPointerException) {
+            report(e)
+            false
         }
 
     companion object {
@@ -40,7 +46,7 @@ class SafeArrowKeyMovementMethod : ArrowKeyMovementMethod() {
 
         @JvmStatic fun getInstance(): SafeArrowKeyMovementMethod = shared
 
-        private fun report(e: IndexOutOfBoundsException) {
+        fun report(e: RuntimeException) {
             Log.w("SafeEditText", "Sentuhan EditText diabaikan: ${e.message}")
             if (reported.compareAndSet(false, true)) {
                 runCatching { FirebaseCrashlytics.getInstance().recordException(e) }
@@ -54,6 +60,25 @@ fun android.widget.EditText.makeTouchSafe() {
     if (movementMethod !is SafeArrowKeyMovementMethod) {
         movementMethod = SafeArrowKeyMovementMethod.getInstance()
     }
+    hideInsertionHandle()
+}
+
+/**
+ * Crash Crashlytics (Samsung Android 15): `NullPointerException: Magnifier.getPosition()` dari
+ * `Editor$InsertionHandleView.onTouchEvent` / `PopupWindow$PopupDecorView`. Bug framework: kaca pembesar (Magnifier) dipakai
+ * saat handle kursor digeser. Stack trace lewat PopupWindow milik handle, jadi tidak bisa ditangkap dari movement method.
+ * Mitigasi: di API 29+ handle kursor (teardrop) diganti drawable transparan, sehingga pengguna tidak bisa menggeser handle
+ * dan Magnifier tidak terpakai. Kursor tetap bisa dipindah dengan mengetuk teks; handle pilihan teks (kiri/kanan) tidak diubah.
+ */
+fun android.widget.EditText.hideInsertionHandle() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+    runCatching {
+        val size = (resources.displayMetrics.density * 24).toInt()
+        setTextSelectHandle(GradientDrawable().apply {
+            setSize(size, size)
+            setColor(Color.TRANSPARENT)
+        })
+    }
 }
 
 /** `AppCompatEditText` (yang dipakai AppCompat untuk `<EditText>` di XML) dengan sentuhan yang aman. */
@@ -63,6 +88,11 @@ open class SafeEditText @JvmOverloads constructor(
     defStyleAttr: Int = androidx.appcompat.R.attr.editTextStyle
 ) : AppCompatEditText(context, attrs, defStyleAttr) {
     init { makeTouchSafe() }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean =
+        try { super.onTouchEvent(event) } catch (e: NullPointerException) {
+            SafeArrowKeyMovementMethod.report(e); false
+        }
 }
 
 /** `TextInputEditText` dengan sentuhan yang aman, untuk dipakai di dalam `TextInputLayout`. */
@@ -72,4 +102,9 @@ open class SafeTextInputEditText @JvmOverloads constructor(
     defStyleAttr: Int = androidx.appcompat.R.attr.editTextStyle
 ) : TextInputEditText(context, attrs, defStyleAttr) {
     init { makeTouchSafe() }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean =
+        try { super.onTouchEvent(event) } catch (e: NullPointerException) {
+            SafeArrowKeyMovementMethod.report(e); false
+        }
 }
