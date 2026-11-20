@@ -212,6 +212,11 @@
   lalu coba `GRADLE_USER_HOME=<folder kosong> ./gradlew --version` agar unduhan bersih ikut terverifikasi.
 
 ### 🐛 Perbaikan
+- **Crash `InflateException ... Error inflating class android.webkit.WebView` di layar Video** (Crashlytics Pianika, `activity_list_video`):
+  layout itu memuat `WebView` pemutar YouTube di dalam `playerContainer` yang disembunyikan, padahal tidak ada kode yang memakainya
+  (video dibuka lewat Intent ke app YouTube). Di HP yang WebView-nya hilang, sedang diperbarui, atau rusak, meng-inflate WebView
+  gagal dan seluruh layar Video crash. `playerContainer`, `youtube_webview` dan `btnClosePlayer` dihapus dari layout (`FragmentVideo`,
+  `BottomSheetVideo`); tampilan dan perilaku tidak berubah. Tanpa perubahan API.
 - **Kebocoran Activity di callback Firestore** (ditemukan LeakCanary di Pianika): saran, laporan bug, request lagu dan kirim catatan
   memakai `applicationContext` di callback `add().addOnSuccessListener`. Sebelumnya callback yang tertunda (HP offline) menahan
   Activity yang sudah ditutup lewat antrean tulis Firestore. Tanpa perubahan API; app host tidak perlu berubah.
