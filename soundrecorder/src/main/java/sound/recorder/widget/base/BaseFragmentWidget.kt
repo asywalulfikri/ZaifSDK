@@ -520,8 +520,9 @@ open class BaseFragmentWidget : Fragment() {
     fun showDialogEmail(appName : String ,info : String) {
 
         // custom dialog
-        val dialog = Dialog(requireContext()).immersive()
+        val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.immersive()
         dialog.setContentView(R.layout.dialog_input_email)
         dialog.setCancelable(true)
 
@@ -621,8 +622,9 @@ open class BaseFragmentWidget : Fragment() {
     fun showLoadingProgress(context: Context,long : Long) {
 
         try {
-            var dialogLoading: Dialog? = Dialog(context).immersive()
+            var dialogLoading: Dialog? = Dialog(context)
             dialogLoading?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialogLoading?.immersive()
             dialogLoading?.setContentView(R.layout.loading_layout)
             dialogLoading?.setCancelable(false)
 

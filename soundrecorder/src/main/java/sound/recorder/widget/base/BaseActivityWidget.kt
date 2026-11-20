@@ -724,8 +724,9 @@ open class BaseActivityWidget : AppCompatActivity() {
         if (isFinishing || isDestroyed) return
 
         // custom dialog
-        val dialog = Dialog(this).immersive()
+        val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.immersive()
         dialog.setContentView(R.layout.dialog_input_email)
         dialog.setCancelable(true)
 
@@ -777,8 +778,9 @@ open class BaseActivityWidget : AppCompatActivity() {
         if (isFinishing || isDestroyed) return
 
         try {
-            val dialogLoading = Dialog(this).immersive()
+            val dialogLoading = Dialog(this)
             dialogLoading.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialogLoading.immersive()
             dialogLoading.setContentView(R.layout.loading_layout)
             dialogLoading.setCancelable(false)
 

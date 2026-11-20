@@ -212,6 +212,10 @@
   lalu coba `GRADLE_USER_HOME=<folder kosong> ./gradlew --version` agar unduhan bersih ikut terverifikasi.
 
 ### 🐛 Perbaikan
+- **Crash `requestFeature() must be called before adding content` saat menekan REC** (Crashlytics Darbuka, `InstrumentDialogHelper.showRecordChooseDialog`):
+  sejak 1.1.177 dialog memanggil `.immersive()` (menyentuh `decorView`) SEBELUM `requestWindowFeature(FEATURE_NO_TITLE)`; jendela sudah mulai
+  dibangun sehingga permintaan fitur ditolak di sebagian HP (terlihat di Android 6). Urutan dibalik di 12 tempat (`InstrumentDialogHelper` x7,
+  `FragmentSettings`, `BaseActivityWidget` x2, `BaseFragmentWidget` x2): `requestWindowFeature` dulu, baru `immersive()`. Tanpa perubahan API.
 - **Crash `NullPointerException: Magnifier.getPosition()` saat menyentuh EditText** (Crashlytics Pianika, Samsung Android 15; bug framework di
   `Editor$InsertionHandleView`): di API 29+ handle kursor (teardrop) pada EditText SDK diganti drawable transparan lewat
   `makeTouchSafe()` / `SafeEditText`, sehingga Magnifier tidak terpakai. `SafeEditText`, `SafeTextInputEditText` dan
