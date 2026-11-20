@@ -171,6 +171,8 @@ class RequestSongDialog {
     }
 
     private fun submitSongRequest(context: Context, songTitle: String) {
+        // Callback Firestore bisa tertunda (offline) dan ditahan Firestore; jangan menangkap Activity, pakai applicationContext.
+        val appContext = context.applicationContext
         val deviceInfo = "${Build.MANUFACTURER} ${Build.MODEL} (API ${Build.VERSION.SDK_INT})"
         val config = ZaifSDKBuilder.load(context)
 
@@ -196,10 +198,10 @@ class RequestSongDialog {
                 .collection("song_request")
                 .add(data)
                 .addOnSuccessListener {
-                    Toast.makeText(context, context.getString(R.string.request_song_success), Toast.LENGTH_LONG).show()
+                    Toast.makeText(appContext, appContext.getString(R.string.request_song_success), Toast.LENGTH_LONG).show()
                 }
                 .addOnFailureListener {
-                    Toast.makeText(context, context.getString(R.string.request_song_failed), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(appContext, appContext.getString(R.string.request_song_failed), Toast.LENGTH_SHORT).show()
                 }
         }
     }

@@ -4,6 +4,13 @@
 
 ### Tracking baru (Firebase)
 - Event `recording_started` (`instrument`, `mode`), `recording_saved` (`instrument`), `rewards_opened`.
+- Event `share_tapped` (`method`: `system` / `whatsapp`, `format`: mis. `mpeg`, `midi`, `video`) saat user membagikan
+  hasil export ke luar app.
+
+### Berbagi hasil membawa tautan app
+- Bagikan dan WhatsApp (audio, MIDI, video) kini menyertakan teks `🎵 <judul> · <nama app>` dan tautan Play Store
+  app host (`https://play.google.com/store/apps/details?id=<package>`) lewat `EXTRA_TEXT`. Tanpa kata yang perlu
+  diterjemahkan. Tidak ada perubahan API; app host tidak perlu berubah.
 - User property `app_name` (dari `setAppName`, fallback label aplikasi) dipasang sekali; daftarkan sebagai custom
   dimension di Firebase. Detail di `docs/ANALYTICS_TRACKING.md`.
 
@@ -205,6 +212,9 @@
   lalu coba `GRADLE_USER_HOME=<folder kosong> ./gradlew --version` agar unduhan bersih ikut terverifikasi.
 
 ### 🐛 Perbaikan
+- **Kebocoran Activity di callback Firestore** (ditemukan LeakCanary di Pianika): saran, laporan bug, request lagu dan kirim catatan
+  memakai `applicationContext` di callback `add().addOnSuccessListener`. Sebelumnya callback yang tertunda (HP offline) menahan
+  Activity yang sudah ditutup lewat antrean tulis Firestore. Tanpa perubahan API; app host tidak perlu berubah.
 - **Retry banner game kini naik bertahap, tidak lagi ±2 permintaan per menit selamanya** (1.1.181): setelah retry cepat habis, dulu
   tiap 60 dtk banner mengulang retry cepat (3 dtk) dari awal, jadi saat no-fill berkepanjangan ada ±2 permintaan iklan per menit
   sampai Activity ditutup. Sekarang tiap retry lambat hanya SATU percobaan dengan jeda naik: 60 dtk, 2 mnt, 5 mnt (maks), dan

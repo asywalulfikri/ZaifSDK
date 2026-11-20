@@ -196,7 +196,9 @@ class ReportBugDialog {
     }
 
     private fun submitSongRequest(context: Context, bugTitle: String,bugDescription :String ) {
-        val config = ZaifSDKBuilder.load(context)
+        // Callback Firestore bisa tertunda (offline) dan ditahan Firestore; jangan menangkap Activity, pakai applicationContext.
+        val appContext = context.applicationContext
+        val config = ZaifSDKBuilder.load(appContext)
 
         // Safety check for Firebase initialization
         if (FirebaseApp.getApps(context).isEmpty()) {
@@ -221,10 +223,10 @@ class ReportBugDialog {
                 .collection("bug_reports")
                 .add(data)
                 .addOnSuccessListener {
-                    Toast.makeText(context, context.getString(R.string.report_bug_sent), Toast.LENGTH_LONG).show()
+                    Toast.makeText(appContext, appContext.getString(R.string.report_bug_sent), Toast.LENGTH_LONG).show()
                 }
                 .addOnFailureListener {
-                    Toast.makeText(context, context.getString(R.string.report_bug_failed), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(appContext, appContext.getString(R.string.report_bug_failed), Toast.LENGTH_SHORT).show()
                 }
         }
     }

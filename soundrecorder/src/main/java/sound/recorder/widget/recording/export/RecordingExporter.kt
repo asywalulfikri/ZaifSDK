@@ -1,5 +1,6 @@
 package sound.recorder.widget.recording.export
 
+import sound.recorder.widget.util.ZaifAnalytics
 import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -194,7 +195,8 @@ object RecordingExporter {
 
     private suspend fun shareFile(context: Context, file: File, mime: String, title: String) {
         val uri = contentUri(context, file)
-        val intent = buildSendIntent(uri, mime, title)
+        val intent = buildSendIntent(context, uri, mime, title)
+        ZaifAnalytics.shareTapped(context, ZaifAnalytics.SHARE_SYSTEM, shareFormat(mime))
         val chooser = Intent.createChooser(intent, title)
         if (context !is Activity) chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(chooser)
@@ -214,10 +216,11 @@ object RecordingExporter {
         val uri = contentUri(context, file)
         for (pkg in listOf(WHATSAPP, WHATSAPP_BUSINESS)) {
             for (mime in mimeTypes) {
-                val intent = buildSendIntent(uri, mime, title).setPackage(pkg)
+                val intent = buildSendIntent(context, uri, mime, title).setPackage(pkg)
                 if (context !is Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 try {
                     context.startActivity(intent)
+                    ZaifAnalytics.shareTapped(context, ZaifAnalytics.SHARE_WHATSAPP, shareFormat(mime))
                     return true
                 } catch (_: ActivityNotFoundException) {
                     // coba kombinasi berikutnya
@@ -232,10 +235,26 @@ object RecordingExporter {
         FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
     }
 
-    private fun buildSendIntent(uri: Uri, mime: String, title: String): Intent =
+    /**
+     * Teks yang ikut terkirim bersama berkas: judul, nama app, dan tautan Play Store, supaya yang
+     * menerima tahu dari mana asalnya dan bisa memasangnya. Tanpa kata yang perlu diterjemahkan.
+     */
+    internal fun shareText(context: Context, title: String): String {
+        val name = title.substringBeforeLast('.', title)
+        val app = runCatching { context.applicationInfo.loadLabel(context.packageManager).toString() }
+            .getOrDefault("")
+        val head = if (app.isBlank()) name else "$name · $app"
+        return "🎵 $head\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+    }
+
+    private fun shareFormat(mime: String): String =
+        if (mime == MIME_VIDEO) ZaifAnalytics.FORMAT_VIDEO else mime.substringAfter('/')
+
+    private fun buildSendIntent(context: Context, uri: Uri, mime: String, title: String): Intent =
         Intent(Intent.ACTION_SEND).apply {
             type = mime
             putExtra(Intent.EXTRA_STREAM, uri)
+            putExtra(Intent.EXTRA_TEXT, shareText(context, title))
             putExtra(Intent.EXTRA_SUBJECT, title)
             putExtra(Intent.EXTRA_TITLE, title)
             clipData = ClipData.newRawUri(title, uri)

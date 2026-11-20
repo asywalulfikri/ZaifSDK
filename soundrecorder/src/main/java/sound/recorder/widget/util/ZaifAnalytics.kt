@@ -49,6 +49,9 @@ object ZaifAnalytics {
     /** `reason` export_failed saat user membatalkan export. */
     const val REASON_CANCELLED = "cancelled"
 
+    const val SHARE_SYSTEM = "system"
+    const val SHARE_WHATSAPP = "whatsapp"
+
     const val UNLOCK_FREE = "free"
     const val UNLOCK_AD = "ad"
     const val UNLOCK_COIN = "coin"
@@ -69,6 +72,7 @@ object ZaifAnalytics {
     private const val EVENT_EXPORT_FINISHED = "export_finished"
     private const val EVENT_EXPORT_FAILED = "export_failed"
     private const val EVENT_EXPORT_UNLOCK = "export_unlock"
+    private const val EVENT_SHARE = "share_tapped"
     private const val EVENT_REWARD_REQUESTED = "reward_ad_requested"
     private const val EVENT_REWARD_RESULT = "reward_ad_result"
 
@@ -110,6 +114,11 @@ object ZaifAnalytics {
         log(context, EVENT_EXPORT_FAILED) {
             bundleOf(PARAM_FORMAT to format, PARAM_SOURCE to source, PARAM_REASON to reason.take(MAX_VALUE_LENGTH))
         }
+    }
+
+    /** User membagikan hasil ke luar app. [method]: [SHARE_SYSTEM] atau [SHARE_WHATSAPP]; [format] mis. mpeg, midi, video. */
+    fun shareTapped(context: Context, method: String, format: String) {
+        log(context, EVENT_SHARE) { bundleOf(PARAM_METHOD to method, PARAM_FORMAT to format) }
     }
 
     fun exportUnlock(context: Context, method: String) {
