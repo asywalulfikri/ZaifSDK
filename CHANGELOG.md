@@ -212,6 +212,11 @@
   lalu coba `GRADLE_USER_HOME=<folder kosong> ./gradlew --version` agar unduhan bersih ikut terverifikasi.
 
 ### 🐛 Perbaikan
+- **Crash `NullPointerException: Magnifier.getPosition()` saat menyentuh EditText** (Crashlytics Pianika, Samsung Android 15; bug framework di
+  `Editor$InsertionHandleView`): di API 29+ handle kursor (teardrop) pada EditText SDK diganti drawable transparan lewat
+  `makeTouchSafe()` / `SafeEditText`, sehingga Magnifier tidak terpakai. `SafeEditText`, `SafeTextInputEditText` dan
+  `SafeArrowKeyMovementMethod` juga menangkap NPE (dicatat sekali sebagai non-fatal). Kursor tetap bisa dipindah dengan mengetuk
+  teks; handle pilihan teks tidak berubah. Tanpa perubahan API.
 - **Crash `InflateException ... Error inflating class android.webkit.WebView` di layar Video** (Crashlytics Pianika, `activity_list_video`):
   layout itu memuat `WebView` pemutar YouTube di dalam `playerContainer` yang disembunyikan, padahal tidak ada kode yang memakainya
   (video dibuka lewat Intent ke app YouTube). Di HP yang WebView-nya hilang, sedang diperbarui, atau rusak, meng-inflate WebView
