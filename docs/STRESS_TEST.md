@@ -4,6 +4,7 @@ Dibuat 2026-11-18. SDK dipakai ±50 app, jadi satu ANR di SDK muncul di banyak a
 di Play Console adalah **ANR**, paling sering dari HP OPPO. Dokumen ini adalah **daftar induk**: fitur SDK mana yang
 harus di-stress test, apa yang sudah terbukti, apa yang **belum diuji**, dan hasil per perangkat.
 
+- Dholak: `godev2/Dholak/docs/test-results/STRESS_TEST.md` (kode tes `StressTest.kt`, interstitial dilewati lewat `DebugAds` hanya debug).
 - Hasil rinci per HP dan tes yang sudah berjalan (app **Darbuka**, canary): `godev1/Darbuka/docs/test-results/STRESS_TEST.md`.
   Kode tesnya: `godev1/Darbuka/app/src/androidTest/.../StressTest.kt`.
 - Katalog fitur SDK: `docs/SDK_FEATURES.md`. Daftar tes SDK lain: `test.md`.
@@ -128,6 +129,8 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
 | Belira | OPPO A18 CPH2591 (MT6769V / Mali-G52 MC2, 3,7 GB) | 15 | debug, SDK 1.1.183 | navigasi 60× (6 layar), 2700 ketukan, 10 siklus bg/fg | lulus, tanpa ANR | 399 ms | 2026-11-19 |
 | Belira | OPPO A18 CPH2591 | 15 | debug, cabang `main` (SDK 1.1.171, versi Play 1.166) | sama | lulus, tanpa ANR (hampir sama dengan SDK 1.1.183) | 373 ms | 2026-11-19 |
 | Belira | OPPO A18 CPH2591 | 15 | **rilis** | semua | ☐ belum | — | — |
+| Dholak | OPPO A18 CPH2591 | 15 | debug, SDK 1.1.186, interstitial dilewati | navigasi 60×, 900+300 ketukan, Theka 30×, 10 siklus bg/fg | lulus, tanpa ANR | 470 ms | 2026-11-22 |
+| Dholak | OPPO A18 CPH2591 | 15 | **rilis** | semua | ☐ belum | — | — |
 | app lain yang memakai SDK (±48) | — | — | — | — | ☐ belum (Darbuka dan Belira dulu) | — | — |
 
 ## Temuan yang berasal dari SDK atau berlaku untuk semua app (dari stress test Darbuka)
