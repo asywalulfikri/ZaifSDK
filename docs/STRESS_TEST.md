@@ -130,7 +130,7 @@ Gunakan format yang sama di tiap baris. Rincian lengkap ada di dokumen stress te
 | Belira | OPPO A18 CPH2591 | 15 | debug, cabang `main` (SDK 1.1.171, versi Play 1.166) | sama | lulus, tanpa ANR (hampir sama dengan SDK 1.1.183) | 373 ms | 2026-11-19 |
 | Belira | OPPO A18 CPH2591 | 15 | **rilis** | semua | ☐ belum | — | — |
 | Dholak | OPPO A18 CPH2591 | 15 | debug, SDK 1.1.186, interstitial dilewati | navigasi 60×, 900+300 ketukan, Theka 30×, 10 siklus bg/fg | lulus, tanpa ANR | 470 ms | 2026-11-22 |
-| Dholak | OPPO A18 CPH2591 | 15 | **rilis** | semua | ☐ belum | — | — |
+| Dholak | OPPO A18 CPH2591 | 15 | **rilis** (R8, SDK 1.1.186) | cek manual: start, Main, Theka, 5× bg/fg, Belajar | ◐ lulus tanpa crash/ANR; bukan stress test otomatis | tidak diukur | 2026-11-22 |
 | app lain yang memakai SDK (±48) | — | — | — | — | ☐ belum (Darbuka dan Belira dulu) | — | — |
 
 ## Temuan yang berasal dari SDK atau berlaku untuk semua app (dari stress test Darbuka)
