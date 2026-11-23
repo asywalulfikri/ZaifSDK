@@ -125,7 +125,7 @@ project.afterEvaluate {
                 from components.release
                 groupId = 'com.sound.recorder' // Update with your reverse domain
                 artifactId = 'recording-sdk'
-                version = '0.0.65'
+                version = '1.1.187'
 
                 // Include additional artifacts like source/javadoc JARs (optional)
                // artifact("$buildDir/outputs/aar/${project.name}-release.aar")

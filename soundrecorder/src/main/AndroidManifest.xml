@@ -15,6 +15,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <!-- Izin Wi-Fi membuat Play menganggap Wi-Fi wajib; HP/perangkat tanpa Wi-Fi tetap boleh memasang app -->
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
 
     <queries>
         <package android:name="com.android.vending" />
