@@ -1,5 +1,14 @@
 # Changelog — recording-sdk (`com.sound.recorder:recording-sdk`)
 
+## 1.1.187
+
+- **Wi-Fi tidak lagi wajib di Play Store** (`<uses-feature android:name="android.hardware.wifi" android:required="false" />`
+  di `soundrecorder/src/main/AndroidManifest.xml`): izin `CHANGE_WIFI_STATE` membuat Play menganggap Wi-Fi sebagai fitur
+  wajib, jadi perangkat tanpa Wi-Fi tidak bisa memasang app. Dengan `required="false"` perangkat itu tetap bisa memasang
+  app. Manifest SDK ikut tergabung ke app host, jadi tidak ada yang perlu diubah di host.
+- Versi publikasi di `soundrecorder/build.gradle` dinaikkan dari `0.0.65` ke `1.1.187`. Isi perbaikan yang sudah ada di
+  bagian bawah (mis. `SafeEditText` Magnifier, dialog `requestFeature`, Firestore `applicationContext`) ikut terbawa.
+
 ## 0.0.65
 
 ### Tracking baru (Firebase)
