@@ -204,6 +204,29 @@ Catatan WorkManager (1.1.179): error dilempar di thread internal WorkManager (`W
 Dicoba ulang di Realme C21Y dengan mencabut izin folder `no_backup` (`chmod 000`): SDK lama crash, SDK baru tidak.
 Penyebab aslinya di perangkat (penyimpanan penuh/rusak, ruang kedua), jadi tidak bisa dihilangkan dari app.
 
+## Checklist host dengan library native (Oboe): `libnative-lib.so` hilang
+
+Crashlytics Rebana (23 Nov 2026): `UnsatisfiedLinkError: dlopen failed: library "libnative-lib.so" not found` dari
+`SoundPlayUtils.<clinit>`, lalu `RuntimeException: Cannot create an instance of class <SoundViewModel diacak R8>`.
+Keduanya satu penyebab: `SoundViewModel` membaca field `SoundPlayUtils` (mis. `loadingProgress`), jadi gagal muat library
+ikut menjatuhkan pembuatan ViewModel. Ini kode host, bukan SDK, tapi pola `SoundPlayUtils` + `System.loadLibrary` disalin ke
+hampir semua app Oboe, jadi cek tiap app:
+
+1. **ABI**: `ndk { abiFilters }` sebaiknya menyertakan `x86`. Hanya Stylophone dan Belira yang punya; Rebana sudah ditambah
+   (branch `fix/native-lib-missing`). Pianika, Santoor, Gendang, Tabla, Taiko, TongueDrum, Dholak/Darbuka belum dicek/ditambah
+   (Dholak/Darbuka: periksa dulu).
+2. **Muat library aman**: jangan `System.loadLibrary` polos di `init {}` object. Bungkus try/catch `UnsatisfiedLinkError`
+   ke flag (mis. `nativeAvailable`), lewati panggilan native bila `false` (`init`, `setVolume`, `release`), dan beri tahu
+   user (toast "perangkat tidak didukung") supaya app tidak crash.
+3. **ViewModel jangan memicu object native lewat field**: `val x = SoundPlayUtils.liveData` di `SoundViewModel` memicu
+   `<clinit>` saat ViewModel dibuat. Dengan langkah 2 aman; tanpa itu, crash tampil sebagai "Cannot create an instance".
+4. Sesudah rilis, cek Crashlytics: kunci ABI/model perangkat pada event itu. Bila datang dari HP ARM biasa, penyebabnya
+   instalasi/paket rusak, bukan ABI.
+
+Berlaku untuk: BeliraMarchingBells, GendangElectronik, PianikaBasuri, RealSantoor, Rebana, TablaSimulator, Taiko,
+TongueDrum, Stylophone (JNI di `AudioEngineJNI`), Melodica (`MelodicaAudioEngine`). Status per app: Rebana ✔ (belum
+dirilis/diuji di perangkat), lainnya belum.
+
 ## Pekerjaan terbuka
 
 1. **Darbuka**: tes 1.1.171 di HP (dialog Misi tanpa tombol Premium Pass, kartu "Koin untuk apa?",
