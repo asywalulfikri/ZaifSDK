@@ -391,7 +391,13 @@ class InstrumentTutorialDialog(
             showExport = showExport,
             onVideo = if (canExportVideo) { item ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    startVideoExport(context, item, videoConfig!!, dialog, TutorialVideoStyle(watermark = videoConfig.watermark), fullScreen = true) { playItem(it) }
+                    startVideoExport(context, item, videoConfig!!, dialog, TutorialVideoStyle(
+                        watermark = videoConfig.watermark,
+                        // Tombol VIDEO hanya ada di build debug (admin): tanpa watermark.
+                        showWatermark = false,
+                        showTitle = !videoConfig.screenShowsTitleAndNote,
+                        showNote = !videoConfig.screenShowsTitleAndNote
+                    ), fullScreen = true, fps = videoConfig.adminFrameRate) { playItem(it) }
                 }
             } else null,
             isUnlocked = { item ->
@@ -800,12 +806,42 @@ class InstrumentTutorialDialog(
         updateFilterUI()
         updateStatusFilterUI()
 
-        searchRow.addView(etSearch)
-        exportBtn?.let { searchRow.addView(it) }
-        importBtn?.let { searchRow.addView(it) }
-        debugBtn?.let { searchRow.addView(it) }
-        statusFilterBtn?.let { searchRow.addView(it) }
-        searchRow.addView(filterBtn)
+        if (context.resources.configuration.screenWidthDp < 600) {
+            // Layar sempit (portrait HP): search selebar penuh di atas, tombol filter/admin di bawahnya
+            // dan bisa digeser, supaya kolom search tidak terjepit sampai hilang.
+            searchRow.orientation = LinearLayout.VERTICAL
+            searchRow.gravity = Gravity.START
+            etSearch.layoutParams = LinearLayout.LayoutParams(-1, context.sdp(SdpR.dimen._32sdp)).apply {
+                bottomMargin = context.sdp(SdpR.dimen._6sdp)
+            }
+            val buttons = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+            }
+            filterBtn.layoutParams = LinearLayout.LayoutParams(-2, context.sdp(SdpR.dimen._32sdp)).apply {
+                marginEnd = context.sdp(SdpR.dimen._6sdp)
+            }
+            buttons.addView(filterBtn)
+            statusFilterBtn?.let { buttons.addView(it) }
+            exportBtn?.let { buttons.addView(it) }
+            importBtn?.let { buttons.addView(it) }
+            debugBtn?.let { buttons.addView(it) }
+            val scroller = android.widget.HorizontalScrollView(context).apply {
+                isHorizontalScrollBarEnabled = false
+                overScrollMode = View.OVER_SCROLL_NEVER
+                layoutParams = LinearLayout.LayoutParams(-1, -2)
+                addView(buttons)
+            }
+            searchRow.addView(etSearch)
+            searchRow.addView(scroller)
+        } else {
+            searchRow.addView(etSearch)
+            exportBtn?.let { searchRow.addView(it) }
+            importBtn?.let { searchRow.addView(it) }
+            debugBtn?.let { searchRow.addView(it) }
+            statusFilterBtn?.let { searchRow.addView(it) }
+            searchRow.addView(filterBtn)
+        }
 
         // Masukkan kembali ke root layout
         root.addView(searchRow, index)
@@ -1306,6 +1342,7 @@ class InstrumentTutorialDialog(
             .addOnFailureListener {
                 isFetchingRemote = false
                 binding.progressContainer.visibility = View.GONE
+                reportQueryFailure(it)
             }
     }
 
@@ -1425,7 +1462,20 @@ class InstrumentTutorialDialog(
             .addOnFailureListener {
                 isLoadingMore = false
                 binding.progressContainer.visibility = View.GONE
+                reportQueryFailure(it)
             }
+    }
+
+    /**
+     * Query Firestore gagal (paling sering: kombinasi filter belum punya composite index). Sebelumnya error ditelan
+     * dan daftar terlihat macet. Di build debug pesannya ditampilkan, termasuk tautan pembuat index dari Firestore.
+     */
+    private fun reportQueryFailure(t: Exception) {
+        Log.e("TutorialList", "Firestore query failed", t)
+        val ctx = mContext ?: return
+        if (isAppDebuggable(ctx)) {
+            Toast.makeText(ctx, "Query gagal: ${t.message.orEmpty().take(300)}", Toast.LENGTH_LONG).show()
+        }
     }
 
     fun dismiss() {
@@ -1905,6 +1955,8 @@ class InstrumentTutorialDialog(
         style: TutorialVideoStyle,
         /** Seluruh layar, tanpa banner dan tanpa indikator REC. */
         fullScreen: Boolean = false,
+        /** Frame per detik rekaman; hanya tombol VIDEO admin yang menaikkannya. */
+        fps: Int = 30,
         play: (SongItem) -> Unit
     ) {
         val scope = lifecycleScope ?: return
@@ -1925,6 +1977,8 @@ class InstrumentTutorialDialog(
         dismissShouldStop = false
         dialog.dismiss()
         cancelVideoExport()
+        // Disembunyikan sekarang; jeda 400 ms di bawah memberi waktu layar digambar ulang sebelum frame pertama.
+        hideRecordingChrome(config)
         // Setelah cancelVideoExport: batal sebelum / selama rekaman → koin kembali di sana.
         activeVideoPaidCoins = style.paidCoins
         activeVideoContext = context.applicationContext
@@ -1939,31 +1993,34 @@ class InstrumentTutorialDialog(
             val view = config.captureView()
             if (view == null || view.width == 0 || view.height == 0 || !view.isAttachedToWindow) {
                 if (fullScreen) MyAdsListener.setBanner(true)
+                restoreRecordingChrome()
                 refundPaid()
                 onToast(context.getString(R.string.tutorial_video_failed))
                 return@postDelayed
             }
             val recorder = try {
-                TutorialVideoRecorder(context, if (fullScreen) view.rootView else view, rec.name, taps, rec.setName, config.noteLabel, style)
+                TutorialVideoRecorder(context, if (fullScreen) view.rootView else view, rec.name, taps, rec.setName, config.noteLabel, style, fps = fps)
                     .also { it.start() }
             } catch (t: Throwable) {
                 Log.e("TutorialVideo", "start failed", t)
                 ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, t.javaClass.simpleName)
                 if (fullScreen) MyAdsListener.setBanner(true)
+                restoreRecordingChrome()
                 refundPaid()
                 onToast(context.getString(R.string.tutorial_video_failed))
                 return@postDelayed
             }
             ZaifAnalytics.exportStarted(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL)
             onToast(context.getString(R.string.tutorial_video_recording))
-            val indicator = VideoRecordingIndicator(view, rec.durationMs + VIDEO_TAIL_MS) {
+            val leadMs = maxOf(0L, config.playbackLeadMs())
+            val indicator = VideoRecordingIndicator(view, rec.durationMs + leadMs + VIDEO_TAIL_MS) {
                 onToast(context.getString(R.string.export_cancelled))
                 stopAll()
             }.also {
                 it.hiddenWhileRecording = fullScreen
                 it.show()
             }
-            recorder.markPlaybackStart()
+            recorder.markPlaybackStart(leadMs)
             play(item)
             // Diset setelah play: playUserNote memanggil stopAll() yang membatalkan rekaman aktif.
             activeVideoRecorder = recorder
@@ -1987,7 +2044,8 @@ class InstrumentTutorialDialog(
                         ZaifAnalytics.exportFinished(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL)
                         if (style.usesFreeSlot) TutorialVideoQuota.consume(context)
                         indicator.dismiss()
-                        RecordingVideoResultDialog.show(context, file, rec.name)
+                        val youtube = if (isAppDebuggable(context)) config.youtubeShare?.invoke(rec.name) else null
+                        RecordingVideoResultDialog.show(context, file, rec.name, youtube)
                     } catch (t: Throwable) {
                         Log.e("TutorialVideo", "finish failed", t)
                         ZaifAnalytics.exportFailed(context, ZaifAnalytics.FORMAT_VIDEO, ZaifAnalytics.SOURCE_TUTORIAL, t.javaClass.simpleName)
@@ -1997,13 +2055,28 @@ class InstrumentTutorialDialog(
                         indicator.dismiss()
                     }
                 }
-            }, rec.durationMs + VIDEO_TAIL_MS)
+            }, rec.durationMs + leadMs + VIDEO_TAIL_MS)
         }, 400L)
     }
 
+    private var recordingChromeConfig: TutorialVideoExport? = null
+
+    private fun hideRecordingChrome(config: TutorialVideoExport) {
+        recordingChromeConfig = config
+        config.onRecordingScreen?.invoke(true)
+    }
+
+    private fun restoreRecordingChrome() {
+        val config = recordingChromeConfig ?: return
+        recordingChromeConfig = null
+        config.onRecordingScreen?.invoke(false)
+    }
+
     private fun restoreBannerAfterVideo() {
+        restoreRecordingChrome()
         val view = fullScreenVideoView ?: return
         fullScreenVideoView = null
+        if (videoExport?.keepBannerHidden?.invoke() == true) return
         // View sudah lepas: user pindah layar, banner mengikuti layar yang baru.
         if (view.isAttachedToWindow) MyAdsListener.setBanner(true)
     }
