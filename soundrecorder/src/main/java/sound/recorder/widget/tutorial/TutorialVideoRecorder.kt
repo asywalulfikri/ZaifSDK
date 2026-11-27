@@ -37,6 +37,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 import kotlin.math.min
 
+/** Judul dan deskripsi yang diisikan otomatis saat video dibagikan ke YouTube. [hint] ditampilkan sebagai toast. */
+class TutorialVideoYouTube(val title: String, val description: String, val hint: String = "")
+
 /**
  * Pengaturan export video untuk export tutorial dan export rekaman.
  *
@@ -57,7 +60,29 @@ class TutorialVideoExport(
     val onPremiumPurchased: (() -> Unit)? = null,
     val hasPurchased: (() -> Boolean)? = null,
     /** True: video pengguna merekam seluruh layar, tanpa banner dan indikator REC. */
-    val fullScreen: Boolean = false
+    val fullScreen: Boolean = false,
+    /**
+     * Jeda (ms) dari lagu mulai diputar sampai not pertama benar-benar terdengar dan terlihat. Default 0.
+     * Isi bila layar menahan not (mis. tiles jatuh dulu sebelum nada dibunyikan), supaya suara hasil export
+     * tidak maju dari gambar. Dibaca saat rekaman dimulai.
+     */
+    val playbackLeadMs: () -> Long = { 0L },
+    /** True: layar sudah menampilkan judul dan nama not sendiri, jadi pil judul dan kotak not export tidak digambar lagi. */
+    val screenShowsTitleAndNote: Boolean = false,
+    /** Frame per detik untuk tombol VIDEO admin (hanya ada di build debug). Export user biasa tetap 30. */
+    val adminFrameRate: Int = 60,
+    /** True: layar ini memang tanpa banner, jadi banner tidak dimunculkan lagi setelah export selesai. */
+    val keepBannerHidden: () -> Boolean = { false },
+    /**
+     * Isi judul/deskripsi YouTube untuk lagu bernama `songName`. Non-null memunculkan tombol YouTube di dialog
+     * hasil export (hanya dipakai tombol VIDEO admin di build debug).
+     */
+    val youtubeShare: ((songName: String) -> TutorialVideoYouTube)? = null,
+    /**
+     * true saat layar akan direkam (sebelum frame pertama), false saat rekaman selesai, gagal, atau dibatalkan.
+     * Host menyembunyikan tombol (Back, Tutorial) di sini supaya tidak ikut terekam. Dipanggil di main thread.
+     */
+    val onRecordingScreen: ((recording: Boolean) -> Unit)? = null
 )
 
 /**
@@ -84,13 +109,14 @@ internal class TutorialVideoRecorder(
     private val renderTaps: Boolean = true,
     private val music: List<RecordedMusicSegment> = emptyList(),
     /** Rekaman user memakai durasi aslinya; null = dihitung dari ketukan terakhir. */
-    private val audioDurationMs: Long? = null
+    private val audioDurationMs: Long? = null,
+    /** Frame per detik rekaman. Bitrate ikut naik sebanding (acuan 4 Mbps di 30 fps). */
+    private val fps: Int = 30
 ) {
     private companion object {
         const val TAG = "TutorialVideo"
         const val MAX_SIDE = 1280
-        const val FPS = 30
-        const val FRAME_INTERVAL_NS = 1_000_000_000L / FPS
+        const val BASE_FPS = 30
         const val VIDEO_BITRATE = 4_000_000
         const val AUDIO_RATE = 44_100
         const val AUDIO_CHANNELS = 2
@@ -109,6 +135,7 @@ internal class TutorialVideoRecorder(
     private val width: Int
     private val height: Int
     private val scale: Float
+    private val frameIntervalNs = 1_000_000_000L / fps.coerceIn(1, 120)
 
     init {
         val vw = max(view.width, 1)
@@ -177,8 +204,8 @@ internal class TutorialVideoRecorder(
     init {
         val format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height).apply {
             setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-            setInteger(MediaFormat.KEY_BIT_RATE, VIDEO_BITRATE)
-            setInteger(MediaFormat.KEY_FRAME_RATE, FPS)
+            setInteger(MediaFormat.KEY_BIT_RATE, (VIDEO_BITRATE.toLong() * fps / BASE_FPS).toInt())
+            setInteger(MediaFormat.KEY_FRAME_RATE, fps)
             setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
         }
         encoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
@@ -206,7 +233,7 @@ internal class TutorialVideoRecorder(
     private val frameCallback = object : Choreographer.FrameCallback {
         override fun doFrame(frameTimeNanos: Long) {
             if (!running) return
-            if (frameTimeNanos - lastFrameNs >= FRAME_INTERVAL_NS - 2_000_000L) {
+            if (frameTimeNanos - lastFrameNs >= frameIntervalNs - 2_000_000L) {
                 lastFrameNs = frameTimeNanos
                 try {
                     drawFrame()
@@ -240,8 +267,8 @@ internal class TutorialVideoRecorder(
     }
 
     /** Dipanggil tepat sebelum host menjadwalkan not pertama: titik nol suara. */
-    fun markPlaybackStart() {
-        playStartNs = System.nanoTime()
+    fun markPlaybackStart(leadMs: Long = 0L) {
+        playStartNs = System.nanoTime() + max(0L, leadMs) * 1_000_000L
     }
 
     /** Berhenti merekam gambar. Dipanggil di main thread. */

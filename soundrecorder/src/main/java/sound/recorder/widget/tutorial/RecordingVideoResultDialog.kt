@@ -3,8 +3,11 @@ package sound.recorder.widget.tutorial
 import sound.recorder.widget.util.immersive
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.ContextWrapper
+import android.widget.Toast
 import android.graphics.Typeface
 import android.text.TextUtils
 import android.util.Log
@@ -36,7 +39,7 @@ import com.intuit.sdp.R as SdpR
 /** Hasil export video: otomatis disimpan ke galeri, lalu bisa dibagikan seperti MP3. */
 internal object RecordingVideoResultDialog {
 
-    fun show(context: Context, file: File, title: String) {
+    fun show(context: Context, file: File, title: String, youtube: TutorialVideoYouTube? = null) {
         val activity = findActivity(context) ?: return
         if (activity.isFinishing || activity.isDestroyed) return
 
@@ -129,6 +132,27 @@ internal object RecordingVideoResultDialog {
         saveBtn = boxButton(context, c, context.getString(R.string.export_save_device), primary = false) { save() }
         actionRow.addView(saveBtn, LinearLayout.LayoutParams(0, buttonHeight, 1f).apply { marginStart = gap })
         root.addView(actionRow)
+
+        if (youtube != null) {
+            root.addView(vSpace(context, SdpR.dimen._6sdp))
+            root.addView(
+                boxButton(context, c, "YouTube", primary = false) {
+                    // Disalin dulu: bila aplikasi YouTube tidak mengisi otomatis, tinggal tempel.
+                    (context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)?.setPrimaryClip(
+                        ClipData.newPlainText("YouTube", youtube.title + "\n\n" + youtube.description)
+                    )
+                    if (youtube.hint.isNotBlank()) Toast.makeText(context, youtube.hint, Toast.LENGTH_LONG).show()
+                    scope.launch {
+                        if (!RecordingExporter.shareVideoToYouTube(context, file, youtube.title, youtube.description)) {
+                            statusTv.setTextColor(c.error)
+                            statusTv.text = "YouTube belum terpasang"
+                            RecordingExporter.shareVideo(context, file, shareTitle)
+                        }
+                    }
+                },
+                LinearLayout.LayoutParams(-1, buttonHeight)
+            )
+        }
 
         root.addView(vSpace(context, SdpR.dimen._8sdp))
         root.addView(LinearLayout(context).apply {

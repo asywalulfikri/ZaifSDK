@@ -43,6 +43,7 @@ object RecordingExporter {
     fun isOffMetadata(metadata: String?): Boolean =
         metadata == OFF_METADATA || metadata?.startsWith("$OFF_METADATA|") == true
 
+    private const val YOUTUBE = "com.google.android.youtube"
     private const val WHATSAPP = "com.whatsapp"
     private const val WHATSAPP_BUSINESS = "com.whatsapp.w4b"
 
@@ -207,6 +208,32 @@ object RecordingExporter {
         // MIDI tidak selalu cocok dengan filter audio WhatsApp → coba juga sebagai dokumen
         val mimeTypes = if (format == Format.MIDI) listOf(format.mimeType, "*/*") else listOf(format.mimeType)
         return sendToWhatsApp(context, file, mimeTypes, title)
+    }
+
+    /**
+     * Buka upload YouTube dengan video terlampir. Judul lewat EXTRA_SUBJECT/EXTRA_TITLE dan deskripsi lewat EXTRA_TEXT;
+     * apakah aplikasi YouTube mengisinya otomatis tergantung versinya, jadi pemanggil juga menyalinnya ke clipboard.
+     * @return false jika aplikasi YouTube tidak terpasang.
+     */
+    internal suspend fun shareVideoToYouTube(context: Context, file: File, title: String, description: String): Boolean {
+        val uri = contentUri(context, file)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = MIME_VIDEO
+            putExtra(Intent.EXTRA_STREAM, uri)
+            putExtra(Intent.EXTRA_SUBJECT, title)
+            putExtra(Intent.EXTRA_TITLE, title)
+            putExtra(Intent.EXTRA_TEXT, description)
+            clipData = ClipData.newRawUri(title, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            setPackage(YOUTUBE)
+        }
+        if (context !is Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        return try {
+            context.startActivity(intent)
+            true
+        } catch (_: ActivityNotFoundException) {
+            false
+        }
     }
 
     internal suspend fun shareVideoToWhatsApp(context: Context, file: File, title: String): Boolean =

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Layar sempit (portrait HP): nama lagu di baris atas, tombol aksi di baris bawah dengan lebar sama.
+     Layar lebar (>= 600dp, mis. HP landscape) memakai layout-w600dp/item_song_tutorial.xml (satu baris). Id harus sama. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -6,18 +8,16 @@
     android:background="@drawable/bg_item_tutorial_song"
     android:padding="@dimen/_8sdp">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <!-- Number -->
         <TextView
             android:id="@+id/tvNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
             android:text="1"
             android:textColor="#8B93B8"
             android:textSize="@dimen/_10ssp"
@@ -25,96 +25,18 @@
             android:minWidth="@dimen/_20sdp"
             android:gravity="center"/>
 
-        <!-- Icon -->
         <ImageView
             android:id="@+id/ivSongIcon"
             android:layout_width="@dimen/_28sdp"
             android:layout_height="@dimen/_28sdp"
-            android:layout_toEndOf="@id/tvNumber"
-            android:layout_centerVertical="true"
             android:src="@drawable/icon_music"
             android:contentDescription="@string/song" />
 
-        <!-- Tombol MAINKAN & BELAJAR (Aligned to End) -->
         <LinearLayout
-            android:id="@+id/layoutActions"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/btnPlay"
-                android:layout_width="wrap_content"
-                android:minWidth="@dimen/_55sdp"
-                android:layout_height="@dimen/_28sdp"
-                android:layout_marginEnd="@dimen/_4sdp"
-                android:paddingStart="@dimen/_4sdp"
-                android:paddingEnd="@dimen/_4sdp"
-                android:background="@drawable/bg_btn_tutorial_play"
-                android:gravity="center"
-                android:text="@string/play"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/_8ssp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/btnLearn"
-                android:layout_width="wrap_content"
-                android:minWidth="@dimen/_55sdp"
-                android:layout_height="@dimen/_28sdp"
-                android:layout_marginEnd="@dimen/_4sdp"
-                android:paddingStart="@dimen/_4sdp"
-                android:paddingEnd="@dimen/_4sdp"
-                android:background="@drawable/bg_btn_tutorial_learn"
-                android:gravity="center"
-                android:text="@string/learn"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/_8ssp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/btnExport"
-                android:layout_width="wrap_content"
-                android:minWidth="@dimen/_50sdp"
-                android:layout_height="@dimen/_28sdp"
-                android:paddingStart="@dimen/_4sdp"
-                android:paddingEnd="@dimen/_4sdp"
-                android:background="@drawable/bg_btn_tutorial_play"
-                android:gravity="center"
-                android:text="@string/export_title"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/_8ssp"
-                android:textStyle="bold" />
-
-            <!-- Admin (build debug): export video tutorial -->
-            <TextView
-                android:id="@+id/btnVideo"
-                android:layout_width="wrap_content"
-                android:minWidth="@dimen/_50sdp"
-                android:layout_height="@dimen/_28sdp"
-                android:layout_marginStart="@dimen/_4sdp"
-                android:paddingStart="@dimen/_4sdp"
-                android:paddingEnd="@dimen/_4sdp"
-                android:background="@drawable/bg_btn_tutorial_play"
-                android:gravity="center"
-                android:text="@string/tutorial_video_button"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/_8ssp"
-                android:textStyle="bold"
-                android:visibility="gone" />
-        </LinearLayout>
-
-        <!-- Nama + info (Middle - Flexible) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/ivSongIcon"
-            android:layout_toStartOf="@id/layoutActions"
+            android:layout_weight="1"
             android:layout_marginStart="@dimen/_10sdp"
-            android:layout_marginEnd="@dimen/_6sdp"
-            android:layout_centerVertical="true"
             android:orientation="vertical">
 
             <TextView
@@ -138,7 +60,81 @@
                 android:textColor="#FFD740"
                 android:textSize="@dimen/_9ssp" />
         </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
+
+    <!-- Tombol aksi: lebar sama rata, muat di layar sempit -->
+    <LinearLayout
+        android:id="@+id/layoutActions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_6sdp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnPlay"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_marginEnd="@dimen/_4sdp"
+            android:paddingStart="@dimen/_4sdp"
+            android:paddingEnd="@dimen/_4sdp"
+            android:background="@drawable/bg_btn_tutorial_play"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/play"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/_8ssp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnLearn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_marginEnd="@dimen/_4sdp"
+            android:paddingStart="@dimen/_4sdp"
+            android:paddingEnd="@dimen/_4sdp"
+            android:background="@drawable/bg_btn_tutorial_learn"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/learn"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/_8ssp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnExport"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/_28sdp"
+            android:paddingStart="@dimen/_4sdp"
+            android:paddingEnd="@dimen/_4sdp"
+            android:background="@drawable/bg_btn_tutorial_play"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/export_title"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/_8ssp"
+            android:textStyle="bold" />
+
+        <!-- Admin (build debug): export video tutorial -->
+        <TextView
+            android:id="@+id/btnVideo"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/_28sdp"
+            android:layout_marginStart="@dimen/_4sdp"
+            android:paddingStart="@dimen/_4sdp"
+            android:paddingEnd="@dimen/_4sdp"
+            android:background="@drawable/bg_btn_tutorial_play"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/tutorial_video_button"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/_8ssp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <!-- Admin Actions (Only for Debug) -->
     <LinearLayout

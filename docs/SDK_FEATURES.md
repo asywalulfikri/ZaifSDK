@@ -4,10 +4,17 @@ Titik awal untuk melanjutkan pekerjaan di session baru. Isinya: semua fitur SDK,
 di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang masih terbuka.
 
 - Terakhir diperbarui: **16 November 2026**, SDK **`1.1.176`** (overlay video portrait lebih kecil; app lain masih `1.1.175`).
+- **27 November 2026:** ada perubahan SDK yang sudah di-commit (`1e3a0f1`, branch `feature/recording-sdk-0.0.65`) tapi **belum dirilis**
+  (versi di `soundrecorder/build.gradle` masih `1.1.187`, belum ada tag): daftar lagu untuk layar sempit, export video admin
+  60 fps tanpa watermark, tombol YouTube, hook export. Rinciannya di tabel "Perubahan SDK" dan `godev2/PianikaBaru/docs/PORTRAIT_RECORD.md`.
 - Detail perubahan per versi: `CHANGELOG.md`. Daftar tes: `test.md`.
 - Modul: `soundrecorder` (package `sound.recorder.widget`).
 - Rilis: JitPack `com.github.asywalulfikri:ZaifSDK:<tag>`. Tes lokal tanpa tag:
   `./gradlew :soundrecorder:publishToMavenLocal` → `com.sound.recorder:recording-sdk:0.0.65`.
+- Tes SDK yang belum dirilis di app host **tanpa mengubah file app**: `publishReleasePublicationToMavenLocal` (versi `1.1.187`), lalu build app
+  dengan init script yang mengganti `com.github.asywalulfikri:ZaifSDK` menjadi `com.sound.recorder:recording-sdk:1.1.187` dari `mavenLocal()`
+  (`beforeSettings { dependencyResolutionManagement.repositories { mavenLocal() } }` + `dependencySubstitution`), jalankan `./gradlew -I <init.gradle> :app:assembleDebug`.
+  Dipakai untuk Pianika; tambah `--refresh-dependencies` setelah SDK dipublikasikan ulang.
 - App contoh di repo ini memakai package `balera.music.android`, sama dengan Belira: memasang yang satu
   menimpa yang lain di HP.
 
@@ -96,10 +103,22 @@ di app host, pengaturan dan angkanya, app mana memakai apa, dan pekerjaan yang m
 - `TutorialVideoPremiumDialog`: setelah jatah habis → app tanpa pembelian: tonton iklan / bayar koin;
   app dengan pembelian: dialog Premium.
 - `RecordingVideoResultDialog`: hasil (Bagikan / WhatsApp), `VideoRecordingIndicator`: tanda merekam.
+  Tombol **YouTube** muncul bila host mengisi `TutorialVideoExport.youtubeShare` (hanya tombol VIDEO admin, build debug):
+  membuka aplikasi YouTube dengan video terlampir, judul/deskripsi lewat `EXTRA_SUBJECT/TITLE/TEXT`, dan disalin ke clipboard sebagai cadangan
+  (apakah YouTube mengisinya otomatis tergantung versi aplikasinya, belum dipastikan).
+- Tombol **VIDEO** admin di daftar lagu (hanya `isAppDebuggable`): **60 fps** (bitrate naik sebanding, 4 Mbps di 30 fps), **tanpa watermark**.
+  Export user biasa tetap 30 fps dan aturan watermark tidak berubah (`startVideoExport(fps = ...)`, default 30).
+- Opsi baru `TutorialVideoExport` (semua default = perilaku lama): `playbackLeadMs` (layar yang menahan not, mis. tiles jatuh dulu: suara dan penghitung not
+  digeser sebesar itu dan rekaman diperpanjang), `screenShowsTitleAndNote` (pil judul/kotak not export tidak digambar), `keepBannerHidden`,
+  `onRecordingScreen(recording)` (host menyembunyikan tombolnya selama merekam; dipulihkan saat selesai/gagal/batal), `adminFrameRate`, `youtubeShare`.
 - Video tersimpan di `Movies/<App>/`.
 
 ### Tutorial & lagu — `tutorial/*`, `music/*`
 - `InstrumentTutorialDialog`: daftar lagu (PLAY / LEARN / EXPORT), cari, filter bahasa, lagu terkunci koin.
+- Daftar lagu di **layar sempit** (`screenWidthDp < 600`, mis. portrait HP): `layout/item_song_tutorial.xml` dua baris (nama di atas, 4 tombol sama lebar),
+  search selebar layar dan tombol filter/admin di baris yang bisa digeser. Layar lebar memakai `layout-w600dp/item_song_tutorial.xml` (= layout lama, id harus sama).
+- Query Firestore daftar lagu yang gagal kini dicatat (`Log.e("TutorialList")`) dan di build debug muncul toast. Dulu ditelan dan daftar terlihat macet.
+  Filter status PUBLISHED/DRAFT atau bahasa "ALL" butuh composite index `category + status + submitted_at` (lihat Pekerjaan terbuka no. 10).
 - `InstrumentSong`, `HighScoreManager`. `MusicPlayerManager`, `RequestSongDialog`, `VolumeDialogHelper`.
 
 ### Activity dasar & iklan — `base/*`, `ads/*`
@@ -198,6 +217,13 @@ Detail lengkap tiap poin ada di `CHANGELOG.md`.
 | 1.1.181 | Retry banner game naik bertahap: retry lambat satu percobaan dengan jeda 60 dtk, 2 mnt, 5 mnt (maks), reset saat berhasil (dulu ±2 permintaan/menit selamanya saat no-fill) | Tidak perlu kode di host. Bila banner game tidak muncul di HP no-fill, pastikan permintaan iklan di log (`BannerAd`) makin jarang |
 | 1.1.187 | `<uses-feature android.hardware.wifi required="false">` di manifest SDK: perangkat tanpa Wi-Fi tidak lagi diblokir Play karena izin `CHANGE_WIFI_STATE`. Versi publikasi `0.0.65` → `1.1.187` | Tidak perlu kode di host. Setelah update, cek di Play Console (Perangkat didukung) bahwa jumlah perangkat yang tidak didukung berkurang |
 
+Belum dirilis (setelah 1.1.187, commit `1e3a0f1`):
+
+| Perubahan SDK | Yang harus dicek di app host |
+|---|---|
+| Daftar lagu tutorial dua baris di layar sempit + `layout-w600dp` untuk layar lebar; "Loading..." tidak menimpa spinner | Landscape: daftar harus sama seperti sebelumnya (layout-w600dp = layout lama). App yang memakai layar portrait: nama lagu terbaca dan tombol muat |
+| Export video admin 60 fps tanpa watermark; opsi `TutorialVideoExport` baru; tombol YouTube; error query daftar lagu dicatat | Hanya build debug. Export user biasa harus tetap 30 fps dengan watermark seperti dulu. Tidak perlu kode di host bila tidak memakai opsi baru |
+
 **1.1.178 gagal build di JitPack** (checksum Gradle wrapper salah, diperbaiki di `6703d09`); pakai 1.1.179.
 
 Catatan WorkManager (1.1.179): error dilempar di thread internal WorkManager (`WM.task-1`), jadi `try/catch` di `MyApp` tidak menangkapnya.
@@ -250,6 +276,13 @@ dirilis/diuji di perangkat), lainnya belum.
    ukur biaya masuk layar instrumen; izin `com.google.android.gms.permission_AD_ID` di manifest salah ketik
    (garis bawah, bukan titik; aman karena SDK membawa izin yang benar); `app/release/app-release.aab` ikut
    dilacak git; pertimbangkan apakah tetap tanpa pembelian.
+
+10. **Index Firestore** (project `pianika-31e58`, collection `pianica.music.instrument`): buat composite index `category ASC, status ASC, submitted_at DESC`
+    lewat tautan `create_composite` dari log (`W/Firestore ... requires an index`). Tanpa itu, status PUBLISHED/DRAFT di admin dan filter bahasa "ALL"
+    (juga di build release) tidak memuat apa-apa. Index dibuat per collection: app lain akan memunculkan error yang sama dengan tautan berbeda.
+11. **Rilis SDK** untuk perubahan 27 November 2026 (tag + naikkan versi di app host), lalu gabungkan branch Pianika `feature/portrait-record-screen`.
+    Branch itu memakai API SDK baru, jadi belum bisa dibuild dengan JitPack `1.1.186`.
+12. Panel LEARN (belajar per langkah) dan dialog export belum dicek di layar portrait; daftar lagu belum dilihat di landscape setelah perubahan layout.
 
 ## Aturan kerja yang dipakai
 - Teks baru wajib ada di 19 bahasa (`values`, `values-en/id/in/ar/de/es/fil/fr/hi/ja/ko/ms/nl/pt/ru/th/vi/zh`).
